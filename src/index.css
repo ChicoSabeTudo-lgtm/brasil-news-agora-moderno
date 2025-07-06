@@ -220,7 +220,7 @@ All colors MUST be HSL.
 }
 
 .main-image {
-  @apply relative overflow-hidden rounded-lg shadow-lg;
+  @apply relative overflow-hidden rounded-lg shadow-lg group;
 }
 
 .main-image img {
@@ -228,7 +228,17 @@ All colors MUST be HSL.
 }
 
 .image-caption {
-  @apply absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent text-white p-4 text-sm font-medium;
+  @apply absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent text-white p-6 text-sm font-medium leading-relaxed;
+  backdrop-filter: blur(2px);
+}
+
+.image-caption::before {
+  content: "";
+  @apply absolute top-0 left-6 w-8 h-0.5 bg-primary;
+}
+
+.image-caption p {
+  @apply mb-0 pt-2;
 }
 
 .gallery-thumbnails {
@@ -236,12 +246,20 @@ All colors MUST be HSL.
 }
 
 .gallery-thumbnails img {
-  @apply w-full h-24 object-cover rounded cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg;
+  @apply w-full h-24 object-cover rounded cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg border-2 border-transparent hover:border-primary/50;
 }
 
 @media (max-width: 768px) {
   .main-image img {
     @apply h-64;
+  }
+  
+  .image-caption {
+    @apply p-4 text-xs;
+  }
+  
+  .image-caption::before {
+    @apply left-4 w-6;
   }
   
   .gallery-thumbnails {
