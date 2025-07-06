@@ -83,19 +83,43 @@ export const ImageGalleryEditor = ({ newsId, onImagesChange, initialImages = [] 
         file
       };
 
-      const updatedImages = [...images, newImage];
+      return newImage;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      throw error;
+    }
+  };
+
+  const handleMultipleFileUpload = async (files: File[]) => {
+    if (files.length === 0) return;
+    
+    setUploading(true);
+    
+    try {
+      // Upload todas as imagens em paralelo
+      const uploadPromises = files.map(handleFileUpload);
+      const uploadedImages = await Promise.all(uploadPromises);
+      
+      // Ajustar sort_order baseado no número atual de imagens
+      const adjustedImages = uploadedImages.map((img, index) => ({
+        ...img,
+        sort_order: images.length + index,
+        is_featured: images.length === 0 && index === 0 // Apenas a primeira se não houver nenhuma
+      }));
+
+      const updatedImages = [...images, ...adjustedImages];
       setImages(updatedImages);
       onImagesChange?.(updatedImages);
 
       toast({
-        title: "Imagem carregada",
-        description: "A imagem foi adicionada à galeria.",
+        title: "Imagens carregadas",
+        description: `${files.length} ${files.length === 1 ? 'imagem foi adicionada' : 'imagens foram adicionadas'} à galeria.`,
       });
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error('Error uploading images:', error);
       toast({
         title: "Erro",
-        description: "Não foi possível fazer upload da imagem.",
+        description: "Não foi possível fazer upload de algumas imagens.",
         variant: "destructive",
       });
     } finally {
@@ -245,7 +269,7 @@ export const ImageGalleryEditor = ({ newsId, onImagesChange, initialImages = [] 
                   className="hidden"
                   onChange={(e) => {
                     const files = Array.from(e.target.files || []);
-                    files.forEach(handleFileUpload);
+                    handleMultipleFileUpload(files);
                   }}
                   disabled={uploading}
                 />
