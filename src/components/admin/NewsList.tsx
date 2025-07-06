@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -26,88 +26,164 @@ import {
   Filter,
   AlertCircle
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { NewsEditor } from './NewsEditor';
 
-// Mock data - em produção viria do Supabase
-const mockNews = [
-  {
-    id: 1,
-    title: "Congresso Nacional aprova reforma tributária em votação histórica",
-    category: "Política",
-    status: "published",
-    author: "Ana Silva",
-    publishedAt: "2024-01-06T10:00:00Z",
-    views: 1250,
-    isBreaking: true
-  },
-  {
-    id: 2,
-    title: "Banco Central mantém Selic em 10,75% e sinaliza cautela para 2024",
-    category: "Economia",
-    status: "published",
-    author: "Carlos Santos",
-    publishedAt: "2024-01-06T08:30:00Z",
-    views: 890,
-    isBreaking: false
-  },
-  {
-    id: 3,
-    title: "Brasil estreia na Copa América com vitória sobre a Argentina",
-    category: "Esportes",
-    status: "draft",
-    author: "Maria Oliveira",
-    publishedAt: null,
-    views: 0,
-    isBreaking: false
-  },
-  {
-    id: 4,
-    title: "OpenAI lança nova versão do ChatGPT com recursos avançados",
-    category: "Tecnologia",
-    status: "published",
-    author: "João Tech",
-    publishedAt: "2024-01-05T16:20:00Z",
-    views: 2340,
-    isBreaking: false
-  }
-];
+interface News {
+  id: string;
+  title: string;
+  summary: string;
+  is_published: boolean;
+  is_breaking: boolean;
+  published_at: string | null;
+  created_at: string;
+  views: number;
+  author_id: string;
+  categories: {
+    name: string;
+  } | null;
+  profiles: {
+    full_name: string | null;
+  } | null;
+}
+
+interface Category {
+  id: string;
+  name: string;
+}
 
 export const NewsList = () => {
+  const [news, setNews] = useState<News[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [editingNews, setEditingNews] = useState<any>(null);
+  const [showEditor, setShowEditor] = useState(false);
+  const { toast } = useToast();
 
-  const categories = ['Política', 'Economia', 'Esportes', 'Tecnologia', 'Internacional', 'Nacional'];
+  useEffect(() => {
+    fetchNews();
+    fetchCategories();
+  }, []);
 
-  const filteredNews = mockNews.filter(news => {
-    const matchesSearch = news.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = filterCategory === 'all' || news.category === filterCategory;
-    const matchesStatus = filterStatus === 'all' || news.status === filterStatus;
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('id, name')
+        .eq('is_active', true)
+        .order('sort_order');
+
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const fetchNews = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('news')
+        .select(`
+          *,
+          categories (
+            name
+          ),
+          profiles (
+            full_name
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setNews((data as any) || []);
+    } catch (error) {
+      console.error('Error fetching news:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar as notícias.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredNews = news.filter(newsItem => {
+    const matchesSearch = newsItem.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = filterCategory === 'all' || newsItem.categories?.name === filterCategory;
+    const matchesStatus = filterStatus === 'all' || 
+      (filterStatus === 'published' && newsItem.is_published) ||
+      (filterStatus === 'draft' && !newsItem.is_published);
     
     return matchesSearch && matchesCategory && matchesStatus;
   });
 
-  const handleEdit = (id: number) => {
-    console.log('Edit news:', id);
-  };
+  const handleEdit = async (newsItem: News) => {
+    try {
+      const { data, error } = await supabase
+        .from('news')
+        .select('*')
+        .eq('id', newsItem.id)
+        .single();
 
-  const handleDelete = (id: number) => {
-    if (confirm('Tem certeza que deseja excluir esta notícia?')) {
-      console.log('Delete news:', id);
+      if (error) throw error;
+      
+      setEditingNews(data);
+      setShowEditor(true);
+    } catch (error) {
+      console.error('Error fetching news for edit:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar a notícia para edição.",
+        variant: "destructive",
+      });
     }
   };
 
-  const handleToggleStatus = (id: number) => {
-    console.log('Toggle status:', id);
+  const handleDelete = async (id: string) => {
+    if (!confirm('Tem certeza que deseja excluir esta notícia?')) return;
+    
+    try {
+      const { error } = await supabase
+        .from('news')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Notícia excluída",
+        description: "A notícia foi excluída com sucesso.",
+      });
+
+      fetchNews();
+    } catch (error) {
+      console.error('Error deleting news:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível excluir a notícia.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'published':
-        return <Badge variant="default">Publicado</Badge>;
-      case 'draft':
-        return <Badge variant="secondary">Rascunho</Badge>;
-      default:
-        return <Badge variant="outline">Desconhecido</Badge>;
+  const handleEditorSave = () => {
+    setShowEditor(false);
+    setEditingNews(null);
+    fetchNews();
+  };
+
+  const getStatusBadge = (isPublished: boolean) => {
+    if (isPublished) {
+      return <Badge variant="default">Publicado</Badge>;
+    } else {
+      return <Badge variant="secondary">Rascunho</Badge>;
     }
   };
 
@@ -115,6 +191,25 @@ export const NewsList = () => {
     if (!dateString) return 'Não publicado';
     return new Date(dateString).toLocaleString('pt-BR');
   };
+
+  if (showEditor) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              setShowEditor(false);
+              setEditingNews(null);
+            }}
+          >
+            ← Voltar para lista
+          </Button>
+        </div>
+        <NewsEditor editingNews={editingNews} onSave={handleEditorSave} />
+      </div>
+    );
+  }
 
   return (
     <Card>
@@ -143,8 +238,8 @@ export const NewsList = () => {
             <SelectContent>
               <SelectItem value="all">Todas as categorias</SelectItem>
               {categories.map((category) => (
-                <SelectItem key={category} value={category}>
-                  {category}
+                <SelectItem key={category.id} value={category.name}>
+                  {category.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -176,52 +271,60 @@ export const NewsList = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredNews.map((news) => (
-                <TableRow key={news.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
-                      {news.isBreaking && (
-                        <AlertCircle className="w-4 h-4 text-destructive" />
-                      )}
-                      <span className="line-clamp-2">{news.title}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{news.category}</Badge>
-                  </TableCell>
-                  <TableCell>{getStatusBadge(news.status)}</TableCell>
-                  <TableCell>{news.author}</TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {formatDate(news.publishedAt)}
-                  </TableCell>
-                  <TableCell>{news.views.toLocaleString()}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleEdit(news.id)}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleDelete(news.id)}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center">
+                    Carregando notícias...
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                filteredNews.map((newsItem) => (
+                  <TableRow key={newsItem.id}>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-2">
+                        {newsItem.is_breaking && (
+                          <AlertCircle className="w-4 h-4 text-destructive" />
+                        )}
+                        <span className="line-clamp-2">{newsItem.title}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{newsItem.categories?.name || 'Sem categoria'}</Badge>
+                    </TableCell>
+                    <TableCell>{getStatusBadge(newsItem.is_published)}</TableCell>
+                    <TableCell>{newsItem.profiles?.full_name || 'Desconhecido'}</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {formatDate(newsItem.published_at)}
+                    </TableCell>
+                    <TableCell>{newsItem.views.toLocaleString()}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleEdit(newsItem)}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleDelete(newsItem.id)}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </div>

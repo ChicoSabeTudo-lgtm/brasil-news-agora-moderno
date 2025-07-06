@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,40 +13,116 @@ import {
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { Save, Eye, Send } from 'lucide-react';
 
-const categories = [
-  'Política',
-  'Economia', 
-  'Esportes',
-  'Tecnologia',
-  'Internacional',
-  'Nacional',
-  'Entretenimento',
-  'Saúde'
-];
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
 
-export const NewsEditor = () => {
+export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?: () => void }) => {
   const [article, setArticle] = useState({
     title: '',
+    subtitle: '',
     summary: '',
     content: '',
-    category: '',
+    categoryId: '',
     imageUrl: '',
     isBreaking: false,
+    tags: '',
     status: 'draft' // draft, published
   });
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    fetchCategories();
+    if (editingNews) {
+      setArticle({
+        title: editingNews.title || '',
+        subtitle: editingNews.subtitle || '',
+        summary: editingNews.summary || '',
+        content: editingNews.content || '',
+        categoryId: editingNews.category_id || '',
+        imageUrl: editingNews.image_url || '',
+        isBreaking: editingNews.is_breaking || false,
+        tags: editingNews.tags?.join(', ') || '',
+        status: editingNews.is_published ? 'published' : 'draft'
+      });
+    }
+  }, [editingNews]);
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('id, name, slug')
+        .eq('is_active', true)
+        .order('sort_order');
+
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível carregar as categorias.",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleSave = async (status: 'draft' | 'published') => {
+    if (!article.title || !article.summary || !article.content || !article.categoryId) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Preencha título, resumo, conteúdo e categoria.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
     
     try {
-      // Aqui você implementaria a lógica para salvar no Supabase
-      // Por enquanto, apenas simulamos o salvamento
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const newsData = {
+        title: article.title,
+        subtitle: article.subtitle || null,
+        summary: article.summary,
+        content: article.content,
+        category_id: article.categoryId,
+        image_url: article.imageUrl || null,
+        is_breaking: article.isBreaking,
+        is_published: status === 'published',
+        published_at: status === 'published' ? new Date().toISOString() : null,
+        tags: article.tags ? article.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [],
+        author_id: user?.id
+      };
+
+      let result;
+      if (editingNews) {
+        // Update existing news
+        result = await supabase
+          .from('news')
+          .update(newsData)
+          .eq('id', editingNews.id)
+          .select()
+          .single();
+      } else {
+        // Create new news
+        result = await supabase
+          .from('news')
+          .insert(newsData)
+          .select()
+          .single();
+      }
+
+      if (result.error) throw result.error;
       
       toast({
         title: status === 'draft' ? "Rascunho salvo" : "Notícia publicada",
@@ -55,19 +131,24 @@ export const NewsEditor = () => {
           : "A notícia foi publicada e está disponível no site.",
       });
 
-      if (status === 'published') {
-        // Reset form after publishing
+      if (status === 'published' && !editingNews) {
+        // Reset form after publishing new article
         setArticle({
           title: '',
+          subtitle: '',
           summary: '',
           content: '',
-          category: '',
+          categoryId: '',
           imageUrl: '',
           isBreaking: false,
+          tags: '',
           status: 'draft'
         });
       }
+
+      onSave?.();
     } catch (error) {
+      console.error('Error saving news:', error);
       toast({
         title: "Erro",
         description: "Não foi possível salvar a notícia.",
@@ -81,9 +162,9 @@ export const NewsEditor = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Editor de Notícias</CardTitle>
+        <CardTitle>{editingNews ? 'Editar Notícia' : 'Editor de Notícias'}</CardTitle>
         <CardDescription>
-          Crie ou edite notícias para o portal
+          {editingNews ? 'Edite a notícia selecionada' : 'Crie uma nova notícia para o portal'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -101,21 +182,31 @@ export const NewsEditor = () => {
           <div className="space-y-2">
             <Label htmlFor="category">Categoria</Label>
             <Select 
-              value={article.category} 
-              onValueChange={(value) => setArticle({ ...article, category: value })}
+              value={article.categoryId} 
+              onValueChange={(value) => setArticle({ ...article, categoryId: value })}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione uma categoria" />
               </SelectTrigger>
               <SelectContent>
                 {categories.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="subtitle">Subtítulo (opcional)</Label>
+          <Input
+            id="subtitle"
+            placeholder="Digite o subtítulo da notícia..."
+            value={article.subtitle}
+            onChange={(e) => setArticle({ ...article, subtitle: e.target.value })}
+          />
         </div>
 
         <div className="space-y-2">
@@ -150,6 +241,16 @@ export const NewsEditor = () => {
           />
         </div>
 
+        <div className="space-y-2">
+          <Label htmlFor="tags">Tags (separadas por vírgula)</Label>
+          <Input
+            id="tags"
+            placeholder="política, economia, brasil..."
+            value={article.tags}
+            onChange={(e) => setArticle({ ...article, tags: e.target.value })}
+          />
+        </div>
+
         <div className="flex items-center space-x-2">
           <Switch
             id="breaking"
@@ -174,10 +275,10 @@ export const NewsEditor = () => {
           </Button>
           <Button 
             onClick={() => handleSave('published')}
-            disabled={loading || !article.title || !article.content}
+            disabled={loading || !article.title || !article.summary || !article.content || !article.categoryId}
           >
             <Send className="w-4 h-4 mr-2" />
-            {loading ? 'Publicando...' : 'Publicar'}
+            {loading ? 'Publicando...' : editingNews ? 'Atualizar' : 'Publicar'}
           </Button>
         </div>
       </CardContent>

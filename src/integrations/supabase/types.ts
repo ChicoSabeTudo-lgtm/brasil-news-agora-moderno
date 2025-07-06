@@ -93,6 +93,71 @@ export type Database = {
         }
         Relationships: []
       }
+      news: {
+        Row: {
+          author_id: string | null
+          category_id: string | null
+          content: string
+          created_at: string
+          id: string
+          image_url: string | null
+          is_breaking: boolean | null
+          is_published: boolean | null
+          published_at: string | null
+          slug: string | null
+          subtitle: string | null
+          summary: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          views: number | null
+        }
+        Insert: {
+          author_id?: string | null
+          category_id?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_breaking?: boolean | null
+          is_published?: boolean | null
+          published_at?: string | null
+          slug?: string | null
+          subtitle?: string | null
+          summary: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          views?: number | null
+        }
+        Update: {
+          author_id?: string | null
+          category_id?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_breaking?: boolean | null
+          is_published?: boolean | null
+          published_at?: string | null
+          slug?: string | null
+          subtitle?: string | null
+          summary?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          views?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "news_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -146,6 +211,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_slug: {
+        Args: { title: string }
+        Returns: string
+      }
       has_role: {
         Args: {
           _user_id: string

@@ -171,13 +171,6 @@ export default function Admin() {
 
             <TabsContent value="news">
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">Gerenciar Notícias</h2>
-                  <Button>
-                    <PlusCircle className="w-4 h-4 mr-2" />
-                    Criar Nova Notícia
-                  </Button>
-                </div>
                 <NewsList />
               </div>
             </TabsContent>
