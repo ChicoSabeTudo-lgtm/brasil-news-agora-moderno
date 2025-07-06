@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 
 interface NewsCardProps {
   title: string;
-  summary: string;
+  metaDescription: string;
   imageUrl: string;
   category: string;
   author: string;
@@ -14,7 +14,7 @@ interface NewsCardProps {
 
 export const NewsCard = ({
   title,
-  summary,
+  metaDescription,
   imageUrl,
   category,
   author,
@@ -72,7 +72,7 @@ export const NewsCard = ({
         <p className={`text-muted-foreground line-clamp-3 mb-3 ${
           size === "large" ? "text-base" : "text-sm"
         }`}>
-          {summary}
+          {metaDescription}
         </p>
 
         <div className="flex items-center justify-between text-xs text-muted-foreground">

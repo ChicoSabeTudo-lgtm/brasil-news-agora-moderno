@@ -25,7 +25,7 @@ const imageMap = {
 interface NewsItem {
   id: number;
   title: string;
-  summary: string;
+  metaDescription: string;
   imageUrl: string;
   category: string;
   author: string;
@@ -45,22 +45,22 @@ const generateCategoryNews = (category: string, count: number = 12): NewsItem[] 
   const baseNews = [
     {
       title: `${category}: Decisão histórica marca mudança no setor`,
-      summary: `Autoridades anunciam nova regulamentação que promete transformar o cenário atual de ${category.toLowerCase()}, impactando milhões de brasileiros.`,
+      metaDescription: `Autoridades anunciam nova regulamentação que promete transformar o cenário atual de ${category.toLowerCase()}, impactando milhões de brasileiros.`,
       author: "Redação NewsPortal"
     },
     {
       title: `Especialistas analisam cenário atual de ${category.toLowerCase()}`,
-      summary: `Análise detalhada revela tendências importantes e projeções para os próximos meses no setor de ${category.toLowerCase()}.`,
+      metaDescription: `Análise detalhada revela tendências importantes e projeções para os próximos meses no setor de ${category.toLowerCase()}.`,
       author: "Equipe de Análise"
     },
     {
       title: `${category}: Novos investimentos chegam ao Brasil`,
-      summary: `Setor recebe aporte milionário que deve gerar empregos e movimentar a economia nacional nos próximos anos.`,
+      metaDescription: `Setor recebe aporte milionário que deve gerar empregos e movimentar a economia nacional nos próximos anos.`,
       author: "Correspondente Econômico"
     },
     {
       title: `Mudanças estruturais em ${category.toLowerCase()} geram debate`,
-      summary: `Proposta divide opiniões entre especialistas e promete alterar significativamente o panorama atual do setor.`,
+      metaDescription: `Proposta divide opiniões entre especialistas e promete alterar significativamente o panorama atual do setor.`,
       author: "Redação Especializada"
     }
   ];
@@ -68,7 +68,7 @@ const generateCategoryNews = (category: string, count: number = 12): NewsItem[] 
   return Array.from({ length: count }, (_, index) => ({
     id: index + 1,
     title: baseNews[index % baseNews.length].title,
-    summary: baseNews[index % baseNews.length].summary,
+    metaDescription: baseNews[index % baseNews.length].metaDescription,
     imageUrl: imageMap[category as keyof typeof imageMap] || breakingImage,
     category,
     author: baseNews[index % baseNews.length].author,

@@ -17,7 +17,7 @@ const newsData = [
   {
     id: 1,
     title: "Congresso Nacional aprova reforma tributária em votação histórica",
-    summary: "Em sessão que durou mais de 12 horas, deputados e senadores aprovaram por ampla maioria a proposta de reforma do sistema tributário brasileiro, prometendo simplificar impostos e reduzir a burocracia.",
+    metaDescription: "Em sessão que durou mais de 12 horas, deputados e senadores aprovaram por ampla maioria a proposta de reforma do sistema tributário brasileiro, prometendo simplificar impostos e reduzir a burocracia.",
     imageUrl: politicsImage,
     category: "Política",
     author: "Ana Silva",
@@ -28,7 +28,7 @@ const newsData = [
   {
     id: 2,
     title: "Banco Central mantém Selic em 10,75% e sinaliza cautela para 2024",
-    summary: "Em decisão unânime, o Comitê de Política Monetária optou por manter a taxa básica de juros, citando cenário inflacionário ainda desafiador e necessidade de monitoramento contínuo.",
+    metaDescription: "Em decisão unânime, o Comitê de Política Monetária optou por manter a taxa básica de juros, citando cenário inflacionário ainda desafiador e necessidade de monitoramento contínuo.",
     imageUrl: economyImage,
     category: "Economia",
     author: "Carlos Santos",
@@ -38,7 +38,7 @@ const newsData = [
   {
     id: 3,
     title: "Brasil conquista ouro inédito no Mundial de Atletismo em Budapeste",
-    summary: "Atleta brasileira faz história ao conquistar a primeira medalha de ouro do país na competição, quebrando recorde sul-americano na prova dos 400m com barreiras.",
+    metaDescription: "Atleta brasileira faz história ao conquistar a primeira medalha de ouro do país na competição, quebrando recorde sul-americano na prova dos 400m com barreiras.",
     imageUrl: sportsImage,
     category: "Esportes",
     author: "Pedro Lima",
@@ -48,7 +48,7 @@ const newsData = [
   {
     id: 4,
     title: "Nova lei de inteligência artificial entra em vigor no país",
-    summary: "Regulamentação estabelece diretrizes para uso ético de IA, proteção de dados pessoais e responsabilidade de empresas de tecnologia no desenvolvimento de sistemas automatizados.",
+    metaDescription: "Regulamentação estabelece diretrizes para uso ético de IA, proteção de dados pessoais e responsabilidade de empresas de tecnologia no desenvolvimento de sistemas automatizados.",
     imageUrl: techImage,
     category: "Tecnologia",
     author: "Marina Costa",
@@ -58,7 +58,7 @@ const newsData = [
   {
     id: 5,
     title: "Cúpula do G20 define compromissos climáticos ambiciosos",
-    summary: "Líderes mundiais chegam a acordo sobre metas de redução de emissões e financiamento para países em desenvolvimento enfrentarem mudanças climáticas.",
+    metaDescription: "Líderes mundiais chegam a acordo sobre metas de redução de emissões e financiamento para países em desenvolvimento enfrentarem mudanças climáticas.",
     imageUrl: internationalImage,
     category: "Internacional",
     author: "Roberto Fernandes",
@@ -68,7 +68,7 @@ const newsData = [
   {
     id: 6,
     title: "Descoberta arqueológica revela civilização pré-colombiana",
-    summary: "Pesquisadores encontram sítio arqueológico no interior do Brasil com evidências de ocupação humana anterior às estimativas conhecidas, reescrevendo história regional.",
+    metaDescription: "Pesquisadores encontram sítio arqueológico no interior do Brasil com evidências de ocupação humana anterior às estimativas conhecidas, reescrevendo história regional.",
     imageUrl: breakingImage,
     category: "Nacional",
     author: "Laura Oliveira",
@@ -82,7 +82,7 @@ const politicsNews = [
   {
     id: 7,
     title: "STF julga caso histórico sobre direitos digitais",
-    summary: "Supremo Tribunal Federal analisa marco regulatório das redes sociais e proteção de dados pessoais em ambiente digital.",
+    metaDescription: "Supremo Tribunal Federal analisa marco regulatório das redes sociais e proteção de dados pessoais em ambiente digital.",
     imageUrl: politicsImage,
     category: "Política",
     author: "Ricardo Alves",
@@ -92,7 +92,7 @@ const politicsNews = [
   {
     id: 8,
     title: "Senado debate PEC da transição energética",
-    summary: "Proposta prevê incentivos para energia renovável e criação de empregos verdes em todo o território nacional.",
+    metaDescription: "Proposta prevê incentivos para energia renovável e criação de empregos verdes em todo o território nacional.",
     imageUrl: politicsImage,
     category: "Política",
     author: "Fernanda Castro",
@@ -102,7 +102,7 @@ const politicsNews = [
   {
     id: 9,
     title: "Governadores se reúnem para discutir segurança pública",
-    summary: "Encontro busca alinhamento de estratégias entre estados para combate ao crime organizado e narcotráfico.",
+    metaDescription: "Encontro busca alinhamento de estratégias entre estados para combate ao crime organizado e narcotráfico.",
     imageUrl: politicsImage,
     category: "Política",
     author: "João Santos",
@@ -115,7 +115,7 @@ const economyNews = [
   {
     id: 10,
     title: "PIB brasileiro cresce acima do esperado no trimestre",
-    summary: "Economia registra alta de 2,1% impulsionada pelo setor de serviços e investimentos em infraestrutura.",
+    metaDescription: "Economia registra alta de 2,1% impulsionada pelo setor de serviços e investimentos em infraestrutura.",
     imageUrl: economyImage,
     category: "Economia",
     author: "Márcia Souza",
@@ -125,7 +125,7 @@ const economyNews = [
   {
     id: 11,
     title: "Inflação recua pelo terceiro mês consecutivo",
-    summary: "IPCA registra 0,15% em dezembro, menor índice dos últimos 18 meses, sinalizando estabilização dos preços.",
+    metaDescription: "IPCA registra 0,15% em dezembro, menor índice dos últimos 18 meses, sinalizando estabilização dos preços.",
     imageUrl: economyImage,
     category: "Economia",
     author: "Paulo Mendes",
@@ -135,7 +135,7 @@ const economyNews = [
   {
     id: 12,
     title: "Bolsa brasileira atinge novo recorde histórico",
-    summary: "Ibovespa fecha em alta de 1,8% puxado por ações do setor bancário e commodities.",
+    metaDescription: "Ibovespa fecha em alta de 1,8% puxado por ações do setor bancário e commodities.",
     imageUrl: economyImage,
     category: "Economia",
     author: "Luciana Lima",
@@ -148,7 +148,7 @@ const sportsNews = [
   {
     id: 13,
     title: "Seleção brasileira convocada para Copa América",
-    summary: "Técnico anuncia lista com 26 jogadores, incluindo três estreantes que se destacaram no campeonato nacional.",
+    metaDescription: "Técnico anuncia lista com 26 jogadores, incluindo três estreantes que se destacaram no campeonato nacional.",
     imageUrl: sportsImage,
     category: "Esportes",
     author: "Carlos Rodrigues",
@@ -158,7 +158,7 @@ const sportsNews = [
   {
     id: 14,
     title: "Flamengo contrata atacante europeu por R$ 40 milhões",
-    summary: "Clube carioca anuncia chegada de jogador da Liga dos Campeões em negócio que pode chegar a R$ 60 milhões.",
+    metaDescription: "Clube carioca anuncia chegada de jogador da Liga dos Campeões em negócio que pode chegar a R$ 60 milhões.",
     imageUrl: sportsImage,
     category: "Esportes",
     author: "Rafael Costa",
@@ -168,7 +168,7 @@ const sportsNews = [
   {
     id: 15,
     title: "Brasil garante vaga nas Olimpíadas de Paris no vôlei",
-    summary: "Equipe feminina conquista classificação após vitória por 3 sets a 1 contra a Argentina no torneio sul-americano.",
+    metaDescription: "Equipe feminina conquista classificação após vitória por 3 sets a 1 contra a Argentina no torneio sul-americano.",
     imageUrl: sportsImage,
     category: "Esportes",
     author: "Beatriz Santos",
@@ -181,7 +181,7 @@ const techNews = [
   {
     id: 16,
     title: "Startup brasileira desenvolve IA para diagnóstico médico",
-    summary: "Empresa de São Paulo cria sistema que detecta doenças raras em exames de imagem com 95% de precisão.",
+    metaDescription: "Empresa de São Paulo cria sistema que detecta doenças raras em exames de imagem com 95% de precisão.",
     imageUrl: techImage,
     category: "Tecnologia",
     author: "Thiago Oliveira",
@@ -191,7 +191,7 @@ const techNews = [
   {
     id: 17,
     title: "5G chega a mais 50 cidades brasileiras",
-    summary: "Anatel autoriza expansão da rede de quinta geração, beneficiando 12 milhões de habitantes em todo país.",
+    metaDescription: "Anatel autoriza expansão da rede de quinta geração, beneficiando 12 milhões de habitantes em todo país.",
     imageUrl: techImage,
     category: "Tecnologia",
     author: "Amanda Silva",
@@ -201,7 +201,7 @@ const techNews = [
   {
     id: 18,
     title: "Brasil lidera investimentos em fintech na América Latina",
-    summary: "Setor de tecnologia financeira recebe US$ 2,1 bilhões em 2024, crescimento de 45% em relação ao ano anterior.",
+    metaDescription: "Setor de tecnologia financeira recebe US$ 2,1 bilhões em 2024, crescimento de 45% em relação ao ano anterior.",
     imageUrl: techImage,
     category: "Tecnologia",
     author: "Bruno Pereira",
@@ -214,7 +214,7 @@ const internationalNews = [
   {
     id: 19,
     title: "União Europeia anuncia novo pacote de sanções",
-    summary: "Bloco econômico expande medidas restritivas e busca maior coordenação na política externa global.",
+    metaDescription: "Bloco econômico expande medidas restritivas e busca maior coordenação na política externa global.",
     imageUrl: internationalImage,
     category: "Internacional",
     author: "Carla Mendonça",
@@ -224,7 +224,7 @@ const internationalNews = [
   {
     id: 20,
     title: "China e Estados Unidos retomam diálogo comercial",
-    summary: "Países marcam reunião bilateral para discutir tarifas e acordos de cooperação tecnológica.",
+    metaDescription: "Países marcam reunião bilateral para discutir tarifas e acordos de cooperação tecnológica.",
     imageUrl: internationalImage,
     category: "Internacional",
     author: "Diego Fernandes",
@@ -234,7 +234,7 @@ const internationalNews = [
   {
     id: 21,
     title: "ONU aprova resolução sobre mudanças climáticas",
-    summary: "Assembleia Geral adota medidas para acelerar transição energética e proteção de ecossistemas vulneráveis.",
+    metaDescription: "Assembleia Geral adota medidas para acelerar transição energética e proteção de ecossistemas vulneráveis.",
     imageUrl: internationalImage,
     category: "Internacional",
     author: "Elena Rodriguez",
@@ -428,7 +428,7 @@ const Index = () => {
                       {news.title}
                     </h4>
                     <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
-                      {news.summary}
+                      {news.metaDescription}
                     </p>
                     <div className="flex items-center text-xs text-muted-foreground">
                       <span>{news.author}</span>

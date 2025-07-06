@@ -29,7 +29,7 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
   const [article, setArticle] = useState({
     title: '',
     subtitle: '',
-    summary: '',
+    metaDescription: '',
     content: '',
     categoryId: '',
     isBreaking: false,
@@ -48,7 +48,7 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
       setArticle({
         title: editingNews.title || '',
         subtitle: editingNews.subtitle || '',
-        summary: editingNews.summary || '',
+        metaDescription: editingNews.meta_description || '',
         content: editingNews.content || '',
         categoryId: editingNews.category_id || '',
         isBreaking: editingNews.is_breaking || false,
@@ -79,10 +79,10 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
   };
 
   const handleSave = async (status: 'draft' | 'published') => {
-    if (!article.title || !article.summary || !article.content || !article.categoryId) {
+    if (!article.title || !article.metaDescription || !article.content || !article.categoryId) {
       toast({
         title: "Campos obrigatórios",
-        description: "Preencha título, resumo, conteúdo e categoria.",
+        description: "Preencha título, meta-descrição, conteúdo e categoria.",
         variant: "destructive",
       });
       return;
@@ -94,7 +94,7 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
       const newsData = {
         title: article.title,
         subtitle: article.subtitle || null,
-        summary: article.summary,
+        meta_description: article.metaDescription,
         content: article.content,
         category_id: article.categoryId,
         is_breaking: article.isBreaking,
@@ -136,7 +136,7 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
         setArticle({
           title: '',
           subtitle: '',
-          summary: '',
+          metaDescription: '',
           content: '',
           categoryId: '',
           isBreaking: false,
@@ -210,13 +210,13 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="summary">Resumo</Label>
+          <Label htmlFor="metaDescription">Meta-descrição</Label>
           <Textarea
-            id="summary"
-            placeholder="Escreva um breve resumo da notícia..."
+            id="metaDescription"
+            placeholder="Escreva uma meta-descrição para SEO (aparece nos resultados de busca)..."
             rows={3}
-            value={article.summary}
-            onChange={(e) => setArticle({ ...article, summary: e.target.value })}
+            value={article.metaDescription}
+            onChange={(e) => setArticle({ ...article, metaDescription: e.target.value })}
           />
         </div>
 
@@ -270,7 +270,7 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
           </Button>
           <Button 
             onClick={() => handleSave('published')}
-            disabled={loading || !article.title || !article.summary || !article.content || !article.categoryId}
+            disabled={loading || !article.title || !article.metaDescription || !article.content || !article.categoryId}
           >
             <Send className="w-4 h-4 mr-2" />
             {loading ? 'Publicando...' : editingNews ? 'Atualizar' : 'Publicar'}

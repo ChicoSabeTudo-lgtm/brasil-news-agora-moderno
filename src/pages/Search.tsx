@@ -20,7 +20,7 @@ const mockNews = [
   {
     id: "1",
     title: "Congresso Nacional aprova reforma tributária em votação histórica",
-    summary: "Decisão marca mudança estrutural no sistema brasileiro de impostos e promete simplificar a cobrança para empresas e cidadãos.",
+    metaDescription: "Decisão marca mudança estrutural no sistema brasileiro de impostos e promete simplificar a cobrança para empresas e cidadãos.",
     imageUrl: politicsImage,
     category: "Política",
     author: "Ana Silva",
@@ -30,7 +30,7 @@ const mockNews = [
   {
     id: "2", 
     title: "Banco Central mantém taxa de juros em 10,75% ao ano",
-    summary: "Decisão do Copom foi unânime e mantém a Selic no mesmo patamar pelo terceiro mês consecutivo.",
+    metaDescription: "Decisão do Copom foi unânime e mantém a Selic no mesmo patamar pelo terceiro mês consecutivo.",
     imageUrl: economyImage,
     category: "Economia",
     author: "Carlos Santos",
@@ -39,7 +39,7 @@ const mockNews = [
   {
     id: "3",
     title: "Brasil conquista ouro no Pan-Americano de atletismo",
-    summary: "Equipe brasileira brilha em Santiago e conquista primeira posição no quadro de medalhas da competição.",
+    metaDescription: "Equipe brasileira brilha em Santiago e conquista primeira posição no quadro de medalhas da competição.",
     imageUrl: sportsImage,
     category: "Esportes", 
     author: "Marina Costa",
@@ -48,7 +48,7 @@ const mockNews = [
   {
     id: "4",
     title: "Startup brasileira desenvolve IA para diagnóstico médico",
-    summary: "Tecnologia promete revolucionar a medicina preventiva com precisão de 95% em exames de imagem.",
+    metaDescription: "Tecnologia promete revolucionar a medicina preventiva com precisão de 95% em exames de imagem.",
     imageUrl: techImage,
     category: "Tecnologia",
     author: "João Oliveira",
@@ -57,7 +57,7 @@ const mockNews = [
   {
     id: "5",
     title: "ONU aprova nova resolução sobre mudanças climáticas",
-    summary: "Decisão histórica estabelece metas mais rígidas para redução de emissões de carbono até 2030.",
+    metaDescription: "Decisão histórica estabelece metas mais rígidas para redução de emissões de carbono até 2030.",
     imageUrl: internationalImage,
     category: "Internacional",
     author: "Fernanda Lima",

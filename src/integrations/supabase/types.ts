@@ -102,10 +102,10 @@ export type Database = {
           id: string
           is_breaking: boolean | null
           is_published: boolean | null
+          meta_description: string
           published_at: string | null
           slug: string | null
           subtitle: string | null
-          summary: string
           tags: string[] | null
           title: string
           updated_at: string
@@ -119,10 +119,10 @@ export type Database = {
           id?: string
           is_breaking?: boolean | null
           is_published?: boolean | null
+          meta_description: string
           published_at?: string | null
           slug?: string | null
           subtitle?: string | null
-          summary: string
           tags?: string[] | null
           title: string
           updated_at?: string
@@ -136,10 +136,10 @@ export type Database = {
           id?: string
           is_breaking?: boolean | null
           is_published?: boolean | null
+          meta_description?: string
           published_at?: string | null
           slug?: string | null
           subtitle?: string | null
-          summary?: string
           tags?: string[] | null
           title?: string
           updated_at?: string
