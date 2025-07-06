@@ -9,6 +9,7 @@ import { UserManagement } from '@/components/admin/UserManagement';
 import { NewsEditor } from '@/components/admin/NewsEditor';
 import { NewsList } from '@/components/admin/NewsList';
 import { CategoryManagement } from '@/components/admin/CategoryManagement';
+import { AdvertisementManagement } from '@/components/admin/AdvertisementManagement';
 import { Header } from '@/components/Header';
 import { 
   LayoutDashboard, 
@@ -17,7 +18,8 @@ import {
   Settings,
   PlusCircle,
   TrendingUp,
-  Tag
+  Tag,
+  Megaphone
 } from 'lucide-react';
 
 export default function Admin() {
@@ -55,7 +57,7 @@ export default function Admin() {
           </div>
 
           <Tabs defaultValue="dashboard" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:grid-cols-none lg:inline-flex">
+            <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:grid-cols-none lg:inline-flex">
               <TabsTrigger value="dashboard" className="flex items-center gap-2">
                 <LayoutDashboard className="w-4 h-4" />
                 Dashboard
@@ -67,6 +69,10 @@ export default function Admin() {
               <TabsTrigger value="categories" className="flex items-center gap-2">
                 <Tag className="w-4 h-4" />
                 Categorias
+              </TabsTrigger>
+              <TabsTrigger value="advertisements" className="flex items-center gap-2">
+                <Megaphone className="w-4 h-4" />
+                Propagandas
               </TabsTrigger>
               {userRole === 'admin' && (
                 <TabsTrigger value="users" className="flex items-center gap-2">
@@ -182,6 +188,15 @@ export default function Admin() {
                   <h2 className="text-2xl font-bold">Gerenciar Categorias</h2>
                 </div>
                 <CategoryManagement />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="advertisements">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold">Gerenciar Propagandas</h2>
+                </div>
+                <AdvertisementManagement />
               </div>
             </TabsContent>
 

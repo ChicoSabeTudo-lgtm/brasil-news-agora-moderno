@@ -2,6 +2,7 @@ import { Header } from "@/components/Header";
 import { NewsTicker } from "@/components/NewsTicker";
 import { NewsCard } from "@/components/NewsCard";
 import { LiveVideo } from "@/components/LiveVideo";
+import { Advertisement } from "@/components/Advertisement";
 import { Link } from "react-router-dom";
 
 // Import news images
@@ -252,6 +253,9 @@ const Index = () => {
       <Header />
       <NewsTicker />
       
+      {/* Advertisement Space - Header */}
+      <Advertisement position="header" />
+      
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section with Main News */}
         <section className="mb-12">
@@ -276,6 +280,9 @@ const Index = () => {
             ))}
           </div>
         </section>
+
+        {/* Advertisement Space - Politics */}
+        <Advertisement position="politics" />
 
         {/* Política Section */}
         <section className="mb-12">
@@ -338,6 +345,9 @@ const Index = () => {
           </div>
         </section>
 
+        {/* Advertisement Space - Sports */}
+        <Advertisement position="sports" />
+
         {/* Esportes Section - Horizontal Scroll Layout */}
         <section className="mb-12">
           <div className="flex items-center justify-between mb-6">
@@ -382,6 +392,9 @@ const Index = () => {
             </div>
           </div>
         </section>
+
+        {/* Advertisement Space - International */}
+        <Advertisement position="international" />
 
         {/* Internacional Section - List + Featured Layout */}
         <section className="mb-12">
