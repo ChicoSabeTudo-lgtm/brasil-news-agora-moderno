@@ -82,7 +82,7 @@ const Search = () => {
 
   const filteredNews = mockNews.filter(news => {
     const matchesSearch = news.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         news.summary.toLowerCase().includes(searchTerm.toLowerCase());
+                         news.metaDescription.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "Todas" || news.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -179,7 +179,7 @@ const Search = () => {
               <Link key={news.id} to={`/noticia/${news.id}`}>
                 <NewsCard
                   title={news.title}
-                  summary={news.summary}
+                  metaDescription={news.metaDescription}
                   imageUrl={news.imageUrl}
                   category={news.category}
                   author={news.author}
