@@ -87,21 +87,37 @@ export const NewsList = () => {
   const fetchNews = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data: newsData, error } = await supabase
         .from('news')
         .select(`
           *,
           categories (
             name
-          ),
-          profiles (
-            full_name
           )
         `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setNews((data as any) || []);
+
+      // Buscar perfis dos autores separadamente
+      const userIds = newsData?.map(news => news.author_id).filter(Boolean) || [];
+      let profilesData: any[] = [];
+      
+      if (userIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, full_name')
+          .in('user_id', userIds);
+        profilesData = profiles || [];
+      }
+
+      // Combinar dados
+      const newsWithProfiles = newsData?.map(news => ({
+        ...news,
+        profiles: profilesData.find(p => p.user_id === news.author_id) || null
+      })) || [];
+
+      setNews(newsWithProfiles as any);
     } catch (error) {
       console.error('Error fetching news:', error);
       toast({
@@ -214,10 +230,18 @@ export const NewsList = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Lista de Notícias</CardTitle>
-        <CardDescription>
-          Gerencie todas as notícias do portal
-        </CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Lista de Notícias</CardTitle>
+            <CardDescription>
+              Gerencie todas as notícias do portal
+            </CardDescription>
+          </div>
+          <Button onClick={() => setShowEditor(true)}>
+            <span className="mr-2">+</span>
+            Criar Nova Notícia
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -275,6 +299,20 @@ export const NewsList = () => {
                 <TableRow>
                   <TableCell colSpan={7} className="text-center">
                     Carregando notícias...
+                  </TableCell>
+                </TableRow>
+              ) : filteredNews.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-8">
+                    <div className="text-center">
+                      <Filter className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                      <p className="text-muted-foreground">
+                        {searchTerm || filterCategory !== 'all' || filterStatus !== 'all'
+                          ? 'Nenhuma notícia encontrada com os filtros aplicados.'
+                          : 'Nenhuma notícia cadastrada ainda. Clique em "Criar Nova Notícia" para começar.'
+                        }
+                      </p>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (
