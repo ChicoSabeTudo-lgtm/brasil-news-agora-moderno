@@ -166,3 +166,96 @@ All colors MUST be HSL.
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Article Content Styles */
+.prose {
+  /* Lists */
+  ul {
+    @apply list-none space-y-3 my-6;
+  }
+  
+  ul li {
+    @apply relative pl-6 text-foreground leading-relaxed;
+  }
+  
+  ul li::before {
+    content: "";
+    @apply absolute left-0 top-2 w-2 h-2 bg-primary rounded-full;
+  }
+  
+  ol {
+    @apply list-none counter-reset-item space-y-3 my-6;
+  }
+  
+  ol li {
+    @apply relative pl-8 text-foreground leading-relaxed;
+    counter-increment: item;
+  }
+  
+  ol li::before {
+    content: counter(item);
+    @apply absolute left-0 top-0 w-6 h-6 bg-primary text-primary-foreground text-sm font-bold rounded-full flex items-center justify-center;
+  }
+  
+  /* Blockquotes */
+  blockquote {
+    @apply relative my-8 py-6 px-8 bg-gradient-to-r from-muted/50 to-muted/20 border-l-4 border-primary italic text-lg font-medium text-foreground/90 rounded-r-lg;
+  }
+  
+  blockquote::before {
+    content: """;
+    @apply absolute -top-2 -left-2 text-6xl text-primary/30 font-serif;
+  }
+  
+  blockquote::after {
+    content: """;
+    @apply absolute -bottom-8 -right-2 text-6xl text-primary/30 font-serif;
+  }
+}
+
+/* Image Gallery Styles */
+.image-gallery {
+  @apply my-8 space-y-4;
+}
+
+.main-image {
+  @apply relative overflow-hidden rounded-lg shadow-lg;
+}
+
+.main-image img {
+  @apply w-full h-96 object-cover transition-transform duration-500 hover:scale-105;
+}
+
+.image-caption {
+  @apply absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent text-white p-4 text-sm font-medium;
+}
+
+.gallery-thumbnails {
+  @apply grid grid-cols-3 gap-2 mt-4;
+}
+
+.gallery-thumbnails img {
+  @apply w-full h-24 object-cover rounded cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg;
+}
+
+@media (max-width: 768px) {
+  .main-image img {
+    @apply h-64;
+  }
+  
+  .gallery-thumbnails {
+    @apply grid-cols-2 gap-1;
+  }
+  
+  .gallery-thumbnails img {
+    @apply h-20;
+  }
+  
+  .prose blockquote {
+    @apply px-4 py-4 text-base;
+  }
+  
+  .prose ul li, .prose ol li {
+    @apply text-sm leading-normal;
+  }
+}

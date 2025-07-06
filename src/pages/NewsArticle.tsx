@@ -23,20 +23,46 @@ const NewsArticle = () => {
     content: `
       <p>Em uma sessão que durou mais de 12 horas, deputados e senadores aprovaram por ampla maioria a proposta de reforma do sistema tributário brasileiro, prometendo simplificar impostos e reduzir a burocracia para empresas e cidadãos.</p>
       
+      <blockquote>"Esta reforma vai beneficiar diretamente o consumidor final, com a redução da carga tributária embutida nos produtos"</blockquote>
+      
       <p>A aprovação da reforma tributária representa um marco histórico na política econômica brasileira. O texto final, que foi resultado de intensas negociações entre governo e oposição, promete revolucionar a forma como os impostos são cobrados no país.</p>
       
       <h3>Principais mudanças aprovadas</h3>
-      <p>Entre as principais alterações está a unificação de tributos estaduais e municipais, criando um sistema mais transparente e eficiente. A medida deve reduzir significativamente os custos de conformidade fiscal para as empresas.</p>
+      <ul>
+        <li>Unificação de tributos estaduais e municipais</li>
+        <li>Criação de sistema mais transparente e eficiente</li>
+        <li>Redução dos custos de conformidade fiscal</li>
+        <li>Simplificação do processo de declaração</li>
+      </ul>
       
-      <p>O relator da proposta, deputado federal João Silva, destacou que "esta reforma vai beneficiar diretamente o consumidor final, com a redução da carga tributária embutida nos produtos". A expectativa é que os preços ao consumidor tenham uma redução média de 3% a 5%.</p>
-      
+      <p>O relator da proposta, deputado federal João Silva, destacou a importância da medida. A expectativa é que os preços ao consumidor tenham uma redução média de 3% a 5%.</p>
+    `,
+    galleryImages: [
+      { src: politicsImage, alt: "Sessão do Congresso durante votação", caption: "Plenário lotado durante a histórica votação da reforma tributária" },
+      { src: economyImage, alt: "Discussões econômicas", caption: "" },
+      { src: internationalImage, alt: "Painel de votação", caption: "" },
+      { src: techImage, alt: "Tecnologia no governo", caption: "" }
+    ],
+    additionalContent: `
       <h3>Impacto econômico esperado</h3>
-      <p>Segundo estudos do Ministério da Economia, a reforma deve gerar um impacto positivo no PIB de aproximadamente 1,5% nos próximos cinco anos. O sistema simplificado também deve atrair mais investimentos estrangeiros para o país.</p>
+      <ol>
+        <li>Impacto positivo no PIB de 1,5% em cinco anos</li>
+        <li>Atração de mais investimentos estrangeiros</li>
+        <li>Redução da burocracia empresarial</li>
+        <li>Modernização do sistema fiscal</li>
+      </ol>
+      
+      <blockquote>"Este é um passo fundamental para modernizar o Brasil e torná-lo mais competitivo no cenário internacional"</blockquote>
       
       <p>A implementação será gradual, com início previsto para 2025, permitindo que empresas e órgãos governamentais se adaptem às novas regras. Um período de transição de três anos foi estabelecido para garantir a migração suave do sistema atual.</p>
       
-      <h3>Reações políticas</h3>
-      <p>A aprovação recebeu elogios de diferentes setores da sociedade. O presidente da Confederação Nacional da Indústria (CNI) afirmou que "este é um passo fundamental para modernizar o Brasil e torná-lo mais competitivo no cenário internacional".</p>
+      <h3>Cronograma de implementação</h3>
+      <ul>
+        <li><strong>2025:</strong> Início da fase piloto em estados selecionados</li>
+        <li><strong>2026:</strong> Expansão para demais estados</li>
+        <li><strong>2027:</strong> Implementação completa do novo sistema</li>
+        <li><strong>2028:</strong> Avaliação e ajustes finais</li>
+      </ul>
       
       <p>No entanto, alguns governadores estaduais manifestaram preocupações sobre a transição e os impactos nas receitas locais durante o período de adaptação. O governo federal garantiu que mecanismos de compensação serão implementados para evitar perdas significativas.</p>
     `,
@@ -136,6 +162,34 @@ const NewsArticle = () => {
             <div 
               className="prose prose-lg max-w-none text-foreground"
               dangerouslySetInnerHTML={{ __html: article.content }}
+            />
+
+            {/* Image Gallery */}
+            <div className="image-gallery">
+              <div className="main-image">
+                <img 
+                  src={article.galleryImages[0].src} 
+                  alt={article.galleryImages[0].alt}
+                  className="w-full h-96 object-cover rounded-lg shadow-lg transition-transform duration-500 hover:scale-105"
+                />
+                <p className="image-caption">{article.galleryImages[0].caption}</p>
+              </div>
+              <div className="gallery-thumbnails">
+                {article.galleryImages.slice(1).map((image, index) => (
+                  <img 
+                    key={index}
+                    src={image.src} 
+                    alt={image.alt}
+                    className="w-full h-24 object-cover rounded cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Additional Content */}
+            <div 
+              className="prose prose-lg max-w-none text-foreground"
+              dangerouslySetInnerHTML={{ __html: article.additionalContent }}
             />
 
             {/* Article Tags */}
