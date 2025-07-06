@@ -295,7 +295,7 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Economia Section */}
+        {/* Economia Section - Featured + Sidebar Layout */}
         <section className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
@@ -307,14 +307,37 @@ const Index = () => {
               Ver todas →
             </a>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {economyNews.map((news) => (
-              <NewsCard key={news.id} {...news} />
-            ))}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Featured Story */}
+            <div className="lg:col-span-2">
+              <NewsCard {...economyNews[0]} size="large" />
+            </div>
+            {/* Sidebar Stories */}
+            <div className="lg:col-span-1 space-y-4">
+              {economyNews.slice(1).map((news) => (
+                <div key={news.id} className="flex gap-4 p-4 bg-card rounded-lg hover:shadow-card transition-shadow cursor-pointer group">
+                  <img 
+                    src={news.imageUrl} 
+                    alt={news.title}
+                    className="w-20 h-20 object-cover rounded flex-shrink-0"
+                  />
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors mb-1">
+                      {news.title}
+                    </h3>
+                    <div className="flex items-center text-xs text-muted-foreground">
+                      <span>{news.author}</span>
+                      <span className="mx-1">•</span>
+                      <span>{news.publishedAt}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
-        {/* Esportes Section */}
+        {/* Esportes Section - Horizontal Scroll Layout */}
         <section className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
@@ -326,14 +349,16 @@ const Index = () => {
               Ver todas →
             </a>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
             {sportsNews.map((news) => (
-              <NewsCard key={news.id} {...news} />
+              <div key={news.id} className="flex-shrink-0 w-80">
+                <NewsCard {...news} />
+              </div>
             ))}
           </div>
         </section>
 
-        {/* Tecnologia Section */}
+        {/* Tecnologia Section - Mosaic Layout */}
         <section className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
@@ -345,14 +370,19 @@ const Index = () => {
               Ver todas →
             </a>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {techNews.map((news) => (
-              <NewsCard key={news.id} {...news} />
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="md:col-span-2 md:row-span-2">
+              <NewsCard {...techNews[0]} size="large" />
+            </div>
+            <div className="md:col-span-2 grid grid-cols-1 gap-4">
+              {techNews.slice(1).map((news) => (
+                <NewsCard key={news.id} {...news} size="small" />
+              ))}
+            </div>
           </div>
         </section>
 
-        {/* Internacional Section */}
+        {/* Internacional Section - List + Featured Layout */}
         <section className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
@@ -364,10 +394,37 @@ const Index = () => {
               Ver todas →
             </a>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {internationalNews.map((news) => (
-              <NewsCard key={news.id} {...news} />
-            ))}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Featured International News */}
+            <div>
+              <NewsCard {...internationalNews[0]} size="medium" />
+            </div>
+            {/* News List */}
+            <div className="space-y-4">
+              <h3 className="font-bold text-lg text-foreground border-l-4 border-primary pl-4">
+                Destaques Internacionais
+              </h3>
+              {internationalNews.slice(1).map((news, index) => (
+                <div key={news.id} className="flex gap-4 p-4 bg-card rounded-lg hover:shadow-card transition-shadow cursor-pointer group border-l-2 border-transparent hover:border-primary">
+                  <div className="flex-shrink-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm">
+                    {index + 2}
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors mb-2">
+                      {news.title}
+                    </h4>
+                    <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+                      {news.summary}
+                    </p>
+                    <div className="flex items-center text-xs text-muted-foreground">
+                      <span>{news.author}</span>
+                      <span className="mx-1">•</span>
+                      <span>{news.publishedAt}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
