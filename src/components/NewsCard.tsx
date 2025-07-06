@@ -1,0 +1,93 @@
+import { Clock, User } from "lucide-react";
+import { Card } from "@/components/ui/card";
+
+interface NewsCardProps {
+  title: string;
+  summary: string;
+  imageUrl: string;
+  category: string;
+  author: string;
+  publishedAt: string;
+  isBreaking?: boolean;
+  size?: "small" | "medium" | "large";
+}
+
+export const NewsCard = ({
+  title,
+  summary,
+  imageUrl,
+  category,
+  author,
+  publishedAt,
+  isBreaking = false,
+  size = "medium",
+}: NewsCardProps) => {
+  const getSizeClasses = () => {
+    switch (size) {
+      case "small":
+        return "aspect-[16/9] h-48";
+      case "large":
+        return "aspect-[16/10] h-80";
+      default:
+        return "aspect-[16/9] h-56";
+    }
+  };
+
+  return (
+    <Card className="group overflow-hidden hover:shadow-card transition-all duration-300 cursor-pointer animate-slide-up">
+      <div className="relative">
+        <img
+          src={imageUrl}
+          alt={title}
+          className={`w-full object-cover transition-transform duration-300 group-hover:scale-105 ${getSizeClasses()}`}
+        />
+        
+        {/* Category Badge */}
+        <div className="absolute top-3 left-3">
+          <span className="bg-primary text-primary-foreground px-2 py-1 text-xs font-semibold uppercase tracking-wide">
+            {category}
+          </span>
+        </div>
+
+        {/* Breaking News Badge */}
+        {isBreaking && (
+          <div className="absolute top-3 right-3">
+            <span className="bg-news-breaking text-white px-2 py-1 text-xs font-bold uppercase tracking-wide animate-pulse">
+              URGENTE
+            </span>
+          </div>
+        )}
+
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+      </div>
+
+      <div className="p-4">
+        <h3 className={`font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-2 ${
+          size === "large" ? "text-xl" : size === "small" ? "text-sm" : "text-base"
+        }`}>
+          {title}
+        </h3>
+        
+        <p className={`text-muted-foreground line-clamp-3 mb-3 ${
+          size === "large" ? "text-base" : "text-sm"
+        }`}>
+          {summary}
+        </p>
+
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-1">
+              <User className="w-3 h-3" />
+              <span>{author}</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <Clock className="w-3 h-3" />
+              <span>{publishedAt}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+};
