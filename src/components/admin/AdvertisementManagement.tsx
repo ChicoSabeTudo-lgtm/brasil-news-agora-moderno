@@ -28,15 +28,23 @@ interface Advertisement {
   updated_at: string;
 }
 
-const positionLabels = {
-  header: 'Abaixo do Header',
-  politics: 'Antes da Política', 
-  sports: 'Antes dos Esportes',
-  international: 'Antes do Internacional'
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+// Mapeamento das posições para os slugs das categorias
+const positionToSlug = {
+  header: null, // Header não tem categoria
+  politics: 'politica',
+  sports: 'esportes', 
+  international: 'internacional'
 };
 
 export function AdvertisementManagement() {
   const [advertisements, setAdvertisements] = useState<Advertisement[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingAd, setEditingAd] = useState<Advertisement | null>(null);
@@ -54,7 +62,50 @@ export function AdvertisementManagement() {
 
   useEffect(() => {
     fetchAdvertisements();
+    fetchCategories();
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories')
+        .select('id, name, slug')
+        .eq('is_active', true);
+
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  const getPositionLabels = () => {
+    const labels: Record<string, string> = {
+      header: 'Abaixo do Header'
+    };
+
+    // Buscar os nomes das categorias para as outras posições
+    Object.entries(positionToSlug).forEach(([position, slug]) => {
+      if (slug) {
+        const category = categories.find(cat => cat.slug === slug);
+        if (category) {
+          labels[position] = `Antes da ${category.name}`;
+        } else {
+          // Fallback para nomes padrão se a categoria não for encontrada
+          const fallbacks: Record<string, string> = {
+            politics: 'Antes da Política',
+            sports: 'Antes dos Esportes', 
+            international: 'Antes do Internacional'
+          };
+          labels[position] = fallbacks[position] || `Antes da ${position}`;
+        }
+      }
+    });
+
+    return labels;
+  };
+
+  const positionLabels = getPositionLabels();
 
   const fetchAdvertisements = async () => {
     try {
