@@ -1,0 +1,251 @@
+import { useAuth } from '@/hooks/useAuth';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Stats } from '@/components/admin/Stats';
+import { UserManagement } from '@/components/admin/UserManagement';
+import { NewsEditor } from '@/components/admin/NewsEditor';
+import { NewsList } from '@/components/admin/NewsList';
+import { Header } from '@/components/Header';
+import { 
+  LayoutDashboard, 
+  Users, 
+  FileText, 
+  Settings,
+  PlusCircle,
+  TrendingUp
+} from 'lucide-react';
+
+export default function Admin() {
+  const { user, userRole } = useAuth();
+
+  return (
+    <ProtectedRoute>
+      <div className="min-h-screen bg-background">
+        <Header />
+        
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">
+                Painel Administrativo
+              </h1>
+              <p className="text-muted-foreground mt-2">
+                Bem-vindo, {user?.email} 
+                <Badge variant="secondary" className="ml-2">
+                  {userRole === 'admin' ? 'Administrador' : 'Redator'}
+                </Badge>
+              </p>
+            </div>
+            
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm">
+                <Settings className="w-4 h-4 mr-2" />
+                Configurações
+              </Button>
+              <Button size="sm">
+                <PlusCircle className="w-4 h-4 mr-2" />
+                Nova Notícia
+              </Button>
+            </div>
+          </div>
+
+          <Tabs defaultValue="dashboard" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:grid-cols-none lg:inline-flex">
+              <TabsTrigger value="dashboard" className="flex items-center gap-2">
+                <LayoutDashboard className="w-4 h-4" />
+                Dashboard
+              </TabsTrigger>
+              <TabsTrigger value="news" className="flex items-center gap-2">
+                <FileText className="w-4 h-4" />
+                Notícias
+              </TabsTrigger>
+              {userRole === 'admin' && (
+                <TabsTrigger value="users" className="flex items-center gap-2">
+                  <Users className="w-4 h-4" />
+                  Usuários
+                </TabsTrigger>
+              )}
+              <TabsTrigger value="analytics" className="flex items-center gap-2">
+                <TrendingUp className="w-4 h-4" />
+                Análises
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="dashboard" className="space-y-6">
+              <Stats />
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Atividade Recente</CardTitle>
+                    <CardDescription>
+                      Últimas ações realizadas no sistema
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between border-b pb-2">
+                        <div>
+                          <p className="font-medium">Nova notícia publicada</p>
+                          <p className="text-sm text-muted-foreground">
+                            "Reforma tributária aprovada" - Política
+                          </p>
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          2h atrás
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between border-b pb-2">
+                        <div>
+                          <p className="font-medium">Notícia editada</p>
+                          <p className="text-sm text-muted-foreground">
+                            "Selic mantida em 10,75%" - Economia
+                          </p>
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          4h atrás
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium">Usuário cadastrado</p>
+                          <p className="text-sm text-muted-foreground">
+                            Novo redator adicionado
+                          </p>
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          1d atrás
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Métricas Rápidas</CardTitle>
+                    <CardDescription>
+                      Resumo das principais estatísticas
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium">Notícias hoje</span>
+                        <span className="text-2xl font-bold text-primary">12</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium">Visualizações</span>
+                        <span className="text-2xl font-bold text-primary">8.4k</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium">Engajamento</span>
+                        <span className="text-2xl font-bold text-primary">94%</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium">Usuários ativos</span>
+                        <span className="text-2xl font-bold text-primary">
+                          {userRole === 'admin' ? '8' : '3'}
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="news">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold">Gerenciar Notícias</h2>
+                  <Button>
+                    <PlusCircle className="w-4 h-4 mr-2" />
+                    Criar Nova Notícia
+                  </Button>
+                </div>
+                <NewsList />
+              </div>
+            </TabsContent>
+
+            {userRole === 'admin' && (
+              <TabsContent value="users">
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-2xl font-bold">Gerenciar Usuários</h2>
+                    <Button>
+                      <PlusCircle className="w-4 h-4 mr-2" />
+                      Convidar Usuário
+                    </Button>
+                  </div>
+                  <UserManagement />
+                </div>
+              </TabsContent>
+            )}
+
+            <TabsContent value="analytics">
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold">Análises e Relatórios</h2>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Tráfego por Categoria</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                          <span>Política</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-20 h-2 bg-muted rounded-full">
+                              <div className="w-16 h-2 bg-primary rounded-full"></div>
+                            </div>
+                            <span className="text-sm">80%</span>
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>Economia</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-20 h-2 bg-muted rounded-full">
+                              <div className="w-12 h-2 bg-primary rounded-full"></div>
+                            </div>
+                            <span className="text-sm">60%</span>
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span>Esportes</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-20 h-2 bg-muted rounded-full">
+                              <div className="w-10 h-2 bg-primary rounded-full"></div>
+                            </div>
+                            <span className="text-sm">50%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Performance Semanal</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-center py-8">
+                        <TrendingUp className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                        <p className="text-muted-foreground">
+                          Gráficos detalhados em desenvolvimento
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </div>
+    </ProtectedRoute>
+  );
+}

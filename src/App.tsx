@@ -18,6 +18,7 @@ import NewsArticle from "./pages/NewsArticle";
 import Search from "./pages/Search";
 import AoVivo from "./pages/AoVivo";
 import Auth from "./pages/Auth";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="/politica" element={<Politica />} />
             <Route path="/economia" element={<Economia />} />
             <Route path="/esportes" element={<Esportes />} />
