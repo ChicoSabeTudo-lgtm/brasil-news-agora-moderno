@@ -278,3 +278,66 @@ All colors MUST be HSL.
     @apply text-sm leading-normal;
   }
 }
+
+/* React Quill Editor Styles */
+.rich-text-editor .ql-toolbar {
+  @apply border border-border rounded-t-lg bg-background;
+  border-bottom: none !important;
+}
+
+.rich-text-editor .ql-container {
+  @apply border border-border rounded-b-lg font-sans;
+}
+
+.rich-text-editor .ql-editor {
+  @apply bg-background text-foreground;
+  min-height: 300px !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+.rich-text-editor .ql-editor.ql-blank::before {
+  @apply text-muted-foreground;
+  font-style: normal !important;
+}
+
+.rich-text-editor .ql-toolbar .ql-stroke {
+  stroke: hsl(var(--foreground)) !important;
+}
+
+.rich-text-editor .ql-toolbar .ql-fill {
+  fill: hsl(var(--foreground)) !important;
+}
+
+.rich-text-editor .ql-toolbar button:hover {
+  @apply bg-accent;
+}
+
+.rich-text-editor .ql-toolbar button.ql-active {
+  @apply bg-primary text-primary-foreground;
+}
+
+.rich-text-editor .ql-toolbar .ql-picker-label {
+  @apply text-foreground;
+}
+
+.rich-text-editor .ql-toolbar .ql-picker-options {
+  @apply bg-background border border-border shadow-md;
+}
+
+.rich-text-editor .ql-toolbar .ql-picker-item:hover {
+  @apply bg-accent;
+}
+
+.rich-text-editor .ql-snow .ql-tooltip {
+  @apply bg-background border border-border text-foreground shadow-lg;
+}
+
+.rich-text-editor .ql-snow .ql-tooltip input[type=text] {
+  @apply bg-background border border-border text-foreground;
+}
+
+.rich-text-editor .ql-snow .ql-tooltip a.ql-action::after,
+.rich-text-editor .ql-snow .ql-tooltip a.ql-remove::after {
+  @apply text-primary;
+}

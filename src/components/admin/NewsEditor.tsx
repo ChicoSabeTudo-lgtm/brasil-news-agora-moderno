@@ -17,6 +17,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Save, Eye, Send } from 'lucide-react';
 import { ImageGalleryEditor } from './ImageGalleryEditor';
+import { RichTextEditor } from '@/components/ui/rich-text-editor';
 
 interface Category {
   id: string;
@@ -221,12 +222,10 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
 
         <div className="space-y-2">
           <Label htmlFor="content">Conteúdo</Label>
-          <Textarea
-            id="content"
-            placeholder="Escreva o conteúdo completo da notícia..."
-            rows={10}
+          <RichTextEditor
             value={article.content}
-            onChange={(e) => setArticle({ ...article, content: e.target.value })}
+            onChange={(content) => setArticle({ ...article, content })}
+            placeholder="Escreva o conteúdo completo da notícia..."
           />
         </div>
 
