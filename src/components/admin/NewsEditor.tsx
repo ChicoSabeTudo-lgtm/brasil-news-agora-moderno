@@ -12,12 +12,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Save, Eye, Send } from 'lucide-react';
+import { Save, Eye, Send, Clock, Calendar as CalendarIcon } from 'lucide-react';
 import { ImageGalleryEditor } from './ImageGalleryEditor';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface Category {
   id: string;
@@ -34,7 +38,8 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
     categoryId: '',
     isBreaking: false,
     tags: '',
-    status: 'draft' // draft, published
+    status: 'draft', // draft, published, scheduled
+    scheduledPublishAt: null as Date | null
   });
   const [newsImages, setNewsImages] = useState<any[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -53,7 +58,8 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
         categoryId: editingNews.category_id || '',
         isBreaking: editingNews.is_breaking || false,
         tags: editingNews.tags?.join(', ') || '',
-        status: editingNews.is_published ? 'published' : 'draft'
+        status: editingNews.is_published ? 'published' : (editingNews.scheduled_publish_at ? 'scheduled' : 'draft'),
+        scheduledPublishAt: editingNews.scheduled_publish_at ? new Date(editingNews.scheduled_publish_at) : null
       });
     }
   }, [editingNews]);
@@ -78,11 +84,20 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
     }
   };
 
-  const handleSave = async (status: 'draft' | 'published') => {
+  const handleSave = async (status: 'draft' | 'published' | 'scheduled') => {
     if (!article.title || !article.metaDescription || !article.content || !article.categoryId) {
       toast({
         title: "Campos obrigatórios",
         description: "Preencha título, meta-descrição, conteúdo e categoria.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (status === 'scheduled' && !article.scheduledPublishAt) {
+      toast({
+        title: "Data de agendamento obrigatória",
+        description: "Selecione uma data e hora para o agendamento.",
         variant: "destructive",
       });
       return;
@@ -100,6 +115,7 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
         is_breaking: article.isBreaking,
         is_published: status === 'published',
         published_at: status === 'published' ? new Date().toISOString() : null,
+        scheduled_publish_at: status === 'scheduled' ? article.scheduledPublishAt?.toISOString() : null,
         tags: article.tags ? article.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [],
         author_id: user?.id
       };
@@ -125,14 +141,16 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
       if (result.error) throw result.error;
       
       toast({
-        title: status === 'draft' ? "Rascunho salvo" : "Notícia publicada",
+        title: status === 'draft' ? "Rascunho salvo" : status === 'scheduled' ? "Notícia agendada" : "Notícia publicada",
         description: status === 'draft' 
           ? "Seu rascunho foi salvo com sucesso." 
+          : status === 'scheduled'
+          ? `A notícia foi agendada para ${format(article.scheduledPublishAt!, 'dd/MM/yyyy \'às\' HH:mm')}.`
           : "A notícia foi publicada e está disponível no site.",
       });
 
-      if (status === 'published' && !editingNews) {
-        // Reset form after publishing new article
+      if ((status === 'published' || status === 'scheduled') && !editingNews) {
+        // Reset form after publishing or scheduling new article
         setArticle({
           title: '',
           subtitle: '',
@@ -141,7 +159,8 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
           categoryId: '',
           isBreaking: false,
           tags: '',
-          status: 'draft'
+          status: 'draft',
+          scheduledPublishAt: null
         });
         setNewsImages([]);
       }
@@ -255,6 +274,81 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
           <Label htmlFor="breaking">Marcar como notícia urgente</Label>
         </div>
 
+        {/* Scheduling Section */}
+        <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
+          <div className="flex items-center space-x-2">
+            <Clock className="w-4 h-4" />
+            <Label className="text-sm font-medium">Agendamento de Publicação</Label>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="scheduledDate">Data e hora para publicação (opcional)</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !article.scheduledPublishAt && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {article.scheduledPublishAt ? (
+                    format(article.scheduledPublishAt, 'dd/MM/yyyy \'às\' HH:mm')
+                  ) : (
+                    <span>Selecione data e hora</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={article.scheduledPublishAt}
+                  onSelect={(date) => {
+                    if (date) {
+                      // Set time to current time if no time is set
+                      const now = new Date();
+                      date.setHours(now.getHours(), now.getMinutes());
+                    }
+                    setArticle({ ...article, scheduledPublishAt: date });
+                  }}
+                  disabled={(date) => date < new Date()}
+                  initialFocus
+                  className="pointer-events-auto"
+                />
+                {article.scheduledPublishAt && (
+                  <div className="p-3 border-t">
+                    <Label htmlFor="time" className="text-sm">Hora</Label>
+                    <Input
+                      id="time"
+                      type="time"
+                      value={article.scheduledPublishAt ? format(article.scheduledPublishAt, 'HH:mm') : ''}
+                      onChange={(e) => {
+                        if (article.scheduledPublishAt && e.target.value) {
+                          const [hours, minutes] = e.target.value.split(':');
+                          const newDate = new Date(article.scheduledPublishAt);
+                          newDate.setHours(parseInt(hours), parseInt(minutes));
+                          setArticle({ ...article, scheduledPublishAt: newDate });
+                        }
+                      }}
+                      className="mt-1"
+                    />
+                  </div>
+                )}
+              </PopoverContent>
+            </Popover>
+            {article.scheduledPublishAt && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setArticle({ ...article, scheduledPublishAt: null })}
+                className="text-muted-foreground"
+              >
+                Remover agendamento
+              </Button>
+            )}
+          </div>
+        </div>
+
         <div className="flex justify-end gap-2 pt-4 border-t">
           <Button variant="outline" disabled={loading}>
             <Eye className="w-4 h-4 mr-2" />
@@ -268,6 +362,17 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
             <Save className="w-4 h-4 mr-2" />
             Salvar Rascunho
           </Button>
+          {article.scheduledPublishAt && (
+            <Button
+              variant="outline"
+              onClick={() => handleSave('scheduled')}
+              disabled={loading || !article.title || !article.metaDescription || !article.content || !article.categoryId}
+              className="bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100"
+            >
+              <Clock className="w-4 h-4 mr-2" />
+              {loading ? 'Agendando...' : 'Agendar Publicação'}
+            </Button>
+          )}
           <Button 
             onClick={() => handleSave('published')}
             disabled={loading || !article.title || !article.metaDescription || !article.content || !article.categoryId}

@@ -104,6 +104,7 @@ export type Database = {
           is_published: boolean | null
           meta_description: string
           published_at: string | null
+          scheduled_publish_at: string | null
           slug: string | null
           subtitle: string | null
           tags: string[] | null
@@ -121,6 +122,7 @@ export type Database = {
           is_published?: boolean | null
           meta_description: string
           published_at?: string | null
+          scheduled_publish_at?: string | null
           slug?: string | null
           subtitle?: string | null
           tags?: string[] | null
@@ -138,6 +140,7 @@ export type Database = {
           is_published?: boolean | null
           meta_description?: string
           published_at?: string | null
+          scheduled_publish_at?: string | null
           slug?: string | null
           subtitle?: string | null
           tags?: string[] | null
@@ -259,6 +262,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
         }
         Returns: boolean
+      }
+      publish_scheduled_news: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
     }
     Enums: {
