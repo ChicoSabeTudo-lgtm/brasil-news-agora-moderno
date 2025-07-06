@@ -184,7 +184,8 @@ All colors MUST be HSL.
   }
   
   ol {
-    @apply list-none counter-reset-item space-y-3 my-6;
+    @apply list-none space-y-3 my-6;
+    counter-reset: item;
   }
   
   ol li {
