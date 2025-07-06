@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 const navigationItems = [
-  { name: "Ao Vivo", href: "#", isLive: true },
+  { name: "Ao Vivo", href: "/ao-vivo", isLive: true },
   { name: "Política", href: "/politica" },
   { name: "Economia", href: "/economia" },
   { name: "Nacional", href: "/nacional" },
@@ -69,9 +69,9 @@ export const Header = () => {
           <div className="hidden md:flex items-center space-x-6">
             {navigationItems.map((item) => (
               item.isLive ? (
-                <a
+                <Link
                   key={item.name}
-                  href={item.href}
+                  to={item.href}
                   className={`flex items-center space-x-1 px-3 py-2 text-sm font-medium transition-colors hover:text-primary text-primary`}
                 >
                   <div className="flex items-center space-x-1">
@@ -79,7 +79,7 @@ export const Header = () => {
                     <Play className="w-3 h-3" />
                   </div>
                   <span>{item.name}</span>
-                </a>
+                </Link>
               ) : (
                 <Link
                   key={item.name}
@@ -108,9 +108,9 @@ export const Header = () => {
             <div className="flex flex-col space-y-2">
               {navigationItems.map((item) => (
                 item.isLive ? (
-                  <a
+                  <Link
                     key={item.name}
-                    href={item.href}
+                    to={item.href}
                     className="flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-colors hover:text-primary text-primary"
                   >
                     <div className="flex items-center space-x-1">
@@ -118,7 +118,7 @@ export const Header = () => {
                       <Play className="w-3 h-3" />
                     </div>
                     <span>{item.name}</span>
-                  </a>
+                  </Link>
                 ) : (
                   <Link
                     key={item.name}
