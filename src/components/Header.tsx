@@ -1,17 +1,18 @@
 import { Search, Menu, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 import { useState } from "react";
 
 const navigationItems = [
   { name: "Ao Vivo", href: "#", isLive: true },
-  { name: "Política", href: "#" },
-  { name: "Economia", href: "#" },
-  { name: "Nacional", href: "#" },
-  { name: "Internacional", href: "#" },
-  { name: "Esportes", href: "#" },
-  { name: "Entretenimento", href: "#" },
-  { name: "Tecnologia", href: "#" },
+  { name: "Política", href: "/politica" },
+  { name: "Economia", href: "/economia" },
+  { name: "Nacional", href: "/nacional" },
+  { name: "Internacional", href: "/internacional" },
+  { name: "Esportes", href: "/esportes" },
+  { name: "Entretenimento", href: "/entretenimento" },
+  { name: "Tecnologia", href: "/tecnologia" },
 ];
 
 export const Header = () => {
@@ -23,9 +24,9 @@ export const Header = () => {
       <div className="border-b border-gray-700">
         <div className="container mx-auto px-4 py-2 flex items-center justify-between">
           <div className="flex items-center space-x-6">
-            <div className="text-2xl font-bold text-primary">
+            <Link to="/" className="text-2xl font-bold text-primary">
               NEWS<span className="text-news-header-foreground">BRASIL</span>
-            </div>
+            </Link>
           </div>
           <div className="hidden md:flex items-center space-x-4">
             <div className="relative">
@@ -55,21 +56,27 @@ export const Header = () => {
 
           <div className="hidden md:flex items-center space-x-6">
             {navigationItems.map((item) => (
-              <a
-                key={item.name}
-                href={item.href}
-                className={`flex items-center space-x-1 px-3 py-2 text-sm font-medium transition-colors hover:text-primary ${
-                  item.isLive ? "text-primary" : "text-news-header-foreground"
-                }`}
-              >
-                {item.isLive && (
+              item.isLive ? (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  className={`flex items-center space-x-1 px-3 py-2 text-sm font-medium transition-colors hover:text-primary text-primary`}
+                >
                   <div className="flex items-center space-x-1">
                     <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
                     <Play className="w-3 h-3" />
                   </div>
-                )}
-                <span>{item.name}</span>
-              </a>
+                  <span>{item.name}</span>
+                </a>
+              ) : (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className="flex items-center space-x-1 px-3 py-2 text-sm font-medium transition-colors hover:text-primary text-news-header-foreground"
+                >
+                  <span>{item.name}</span>
+                </Link>
+              )
             ))}
           </div>
 
@@ -88,21 +95,27 @@ export const Header = () => {
           <div className="md:hidden pb-4 border-t border-gray-700 mt-2 pt-4">
             <div className="flex flex-col space-y-2">
               {navigationItems.map((item) => (
-                <a
-                  key={item.name}
-                  href={item.href}
-                  className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-colors hover:text-primary ${
-                    item.isLive ? "text-primary" : "text-news-header-foreground"
-                  }`}
-                >
-                  {item.isLive && (
+                item.isLive ? (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    className="flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-colors hover:text-primary text-primary"
+                  >
                     <div className="flex items-center space-x-1">
                       <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
                       <Play className="w-3 h-3" />
                     </div>
-                  )}
-                  <span>{item.name}</span>
-                </a>
+                    <span>{item.name}</span>
+                  </a>
+                ) : (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className="flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-colors hover:text-primary text-news-header-foreground"
+                  >
+                    <span>{item.name}</span>
+                  </Link>
+                )
               ))}
             </div>
             <div className="mt-4">

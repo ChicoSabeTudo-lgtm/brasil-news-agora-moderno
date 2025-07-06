@@ -2,6 +2,7 @@ import { Header } from "@/components/Header";
 import { NewsTicker } from "@/components/NewsTicker";
 import { NewsCard } from "@/components/NewsCard";
 import { LiveVideo } from "@/components/LiveVideo";
+import { Link } from "react-router-dom";
 
 // Import news images
 import politicsImage from "@/assets/politics-news.jpg";
@@ -284,9 +285,9 @@ const Index = () => {
                 Política
               </span>
             </h2>
-            <a href="#" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
+            <Link to="/politica" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
               Ver todas →
-            </a>
+            </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {politicsNews.map((news) => (
@@ -303,9 +304,9 @@ const Index = () => {
                 Economia
               </span>
             </h2>
-            <a href="#" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
+            <Link to="/economia" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
               Ver todas →
-            </a>
+            </Link>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Featured Story */}
@@ -345,9 +346,9 @@ const Index = () => {
                 Esportes
               </span>
             </h2>
-            <a href="#" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
+            <Link to="/esportes" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
               Ver todas →
-            </a>
+            </Link>
           </div>
           <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
             {sportsNews.map((news) => (
@@ -366,9 +367,9 @@ const Index = () => {
                 Tecnologia
               </span>
             </h2>
-            <a href="#" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
+            <Link to="/tecnologia" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
               Ver todas →
-            </a>
+            </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="md:col-span-2 md:row-span-2">
@@ -390,9 +391,9 @@ const Index = () => {
                 Internacional
               </span>
             </h2>
-            <a href="#" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
+            <Link to="/internacional" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
               Ver todas →
-            </a>
+            </Link>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Featured International News */}
@@ -617,17 +618,24 @@ const Index = () => {
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {[
-              "Política", "Economia", "Esportes", "Tecnologia", 
-              "Internacional", "Nacional", "Entretenimento", "Saúde"
+              { name: "Política", path: "/politica" },
+              { name: "Economia", path: "/economia" },
+              { name: "Esportes", path: "/esportes" },
+              { name: "Tecnologia", path: "/tecnologia" },
+              { name: "Internacional", path: "/internacional" },
+              { name: "Nacional", path: "/nacional" },
+              { name: "Entretenimento", path: "/entretenimento" },
+              { name: "Saúde", path: "/saude" }
             ].map((category) => (
-              <div
-                key={category}
-                className="bg-card hover:bg-muted p-4 rounded-lg text-center cursor-pointer transition-colors group border shadow-sm hover:shadow-card"
-              >
-                <h3 className="font-semibold text-card-foreground group-hover:text-primary transition-colors">
-                  {category}
-                </h3>
-              </div>
+            <Link
+              key={category.name}
+              to={category.path}
+              className="bg-card hover:bg-muted p-4 rounded-lg text-center cursor-pointer transition-colors group border shadow-sm hover:shadow-card block"
+            >
+              <h3 className="font-semibold text-card-foreground group-hover:text-primary transition-colors">
+                {category.name}
+              </h3>
+            </Link>
             ))}
           </div>
         </section>
