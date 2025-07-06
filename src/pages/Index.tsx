@@ -75,6 +75,172 @@ const newsData = [
   }
 ];
 
+// Notícias por categoria
+const politicsNews = [
+  {
+    id: 7,
+    title: "STF julga caso histórico sobre direitos digitais",
+    summary: "Supremo Tribunal Federal analisa marco regulatório das redes sociais e proteção de dados pessoais em ambiente digital.",
+    imageUrl: politicsImage,
+    category: "Política",
+    author: "Ricardo Alves",
+    publishedAt: "3 horas atrás",
+    size: "medium" as const
+  },
+  {
+    id: 8,
+    title: "Senado debate PEC da transição energética",
+    summary: "Proposta prevê incentivos para energia renovável e criação de empregos verdes em todo o território nacional.",
+    imageUrl: politicsImage,
+    category: "Política",
+    author: "Fernanda Castro",
+    publishedAt: "5 horas atrás",
+    size: "medium" as const
+  },
+  {
+    id: 9,
+    title: "Governadores se reúnem para discutir segurança pública",
+    summary: "Encontro busca alinhamento de estratégias entre estados para combate ao crime organizado e narcotráfico.",
+    imageUrl: politicsImage,
+    category: "Política",
+    author: "João Santos",
+    publishedAt: "7 horas atrás",
+    size: "medium" as const
+  }
+];
+
+const economyNews = [
+  {
+    id: 10,
+    title: "PIB brasileiro cresce acima do esperado no trimestre",
+    summary: "Economia registra alta de 2,1% impulsionada pelo setor de serviços e investimentos em infraestrutura.",
+    imageUrl: economyImage,
+    category: "Economia",
+    author: "Márcia Souza",
+    publishedAt: "1 hora atrás",
+    size: "medium" as const
+  },
+  {
+    id: 11,
+    title: "Inflação recua pelo terceiro mês consecutivo",
+    summary: "IPCA registra 0,15% em dezembro, menor índice dos últimos 18 meses, sinalizando estabilização dos preços.",
+    imageUrl: economyImage,
+    category: "Economia",
+    author: "Paulo Mendes",
+    publishedAt: "3 horas atrás",
+    size: "medium" as const
+  },
+  {
+    id: 12,
+    title: "Bolsa brasileira atinge novo recorde histórico",
+    summary: "Ibovespa fecha em alta de 1,8% puxado por ações do setor bancário e commodities.",
+    imageUrl: economyImage,
+    category: "Economia",
+    author: "Luciana Lima",
+    publishedAt: "6 horas atrás",
+    size: "medium" as const
+  }
+];
+
+const sportsNews = [
+  {
+    id: 13,
+    title: "Seleção brasileira convocada para Copa América",
+    summary: "Técnico anuncia lista com 26 jogadores, incluindo três estreantes que se destacaram no campeonato nacional.",
+    imageUrl: sportsImage,
+    category: "Esportes",
+    author: "Carlos Rodrigues",
+    publishedAt: "2 horas atrás",
+    size: "medium" as const
+  },
+  {
+    id: 14,
+    title: "Flamengo contrata atacante europeu por R$ 40 milhões",
+    summary: "Clube carioca anuncia chegada de jogador da Liga dos Campeões em negócio que pode chegar a R$ 60 milhões.",
+    imageUrl: sportsImage,
+    category: "Esportes",
+    author: "Rafael Costa",
+    publishedAt: "4 horas atrás",
+    size: "medium" as const
+  },
+  {
+    id: 15,
+    title: "Brasil garante vaga nas Olimpíadas de Paris no vôlei",
+    summary: "Equipe feminina conquista classificação após vitória por 3 sets a 1 contra a Argentina no torneio sul-americano.",
+    imageUrl: sportsImage,
+    category: "Esportes",
+    author: "Beatriz Santos",
+    publishedAt: "8 horas atrás",
+    size: "medium" as const
+  }
+];
+
+const techNews = [
+  {
+    id: 16,
+    title: "Startup brasileira desenvolve IA para diagnóstico médico",
+    summary: "Empresa de São Paulo cria sistema que detecta doenças raras em exames de imagem com 95% de precisão.",
+    imageUrl: techImage,
+    category: "Tecnologia",
+    author: "Thiago Oliveira",
+    publishedAt: "1 hora atrás",
+    size: "medium" as const
+  },
+  {
+    id: 17,
+    title: "5G chega a mais 50 cidades brasileiras",
+    summary: "Anatel autoriza expansão da rede de quinta geração, beneficiando 12 milhões de habitantes em todo país.",
+    imageUrl: techImage,
+    category: "Tecnologia",
+    author: "Amanda Silva",
+    publishedAt: "5 horas atrás",
+    size: "medium" as const
+  },
+  {
+    id: 18,
+    title: "Brasil lidera investimentos em fintech na América Latina",
+    summary: "Setor de tecnologia financeira recebe US$ 2,1 bilhões em 2024, crescimento de 45% em relação ao ano anterior.",
+    imageUrl: techImage,
+    category: "Tecnologia",
+    author: "Bruno Pereira",
+    publishedAt: "9 horas atrás",
+    size: "medium" as const
+  }
+];
+
+const internationalNews = [
+  {
+    id: 19,
+    title: "União Europeia anuncia novo pacote de sanções",
+    summary: "Bloco econômico expande medidas restritivas e busca maior coordenação na política externa global.",
+    imageUrl: internationalImage,
+    category: "Internacional",
+    author: "Carla Mendonça",
+    publishedAt: "2 horas atrás",
+    size: "medium" as const
+  },
+  {
+    id: 20,
+    title: "China e Estados Unidos retomam diálogo comercial",
+    summary: "Países marcam reunião bilateral para discutir tarifas e acordos de cooperação tecnológica.",
+    imageUrl: internationalImage,
+    category: "Internacional",
+    author: "Diego Fernandes",
+    publishedAt: "6 horas atrás",
+    size: "medium" as const
+  },
+  {
+    id: 21,
+    title: "ONU aprova resolução sobre mudanças climáticas",
+    summary: "Assembleia Geral adota medidas para acelerar transição energética e proteção de ecossistemas vulneráveis.",
+    imageUrl: internationalImage,
+    category: "Internacional",
+    author: "Elena Rodriguez",
+    publishedAt: "11 horas atrás",
+    size: "medium" as const
+  }
+];
+
 const Index = () => {
   const mainNews = newsData[0];
   const secondaryNews = newsData.slice(1, 3);
@@ -110,11 +276,111 @@ const Index = () => {
           </div>
         </section>
 
+        {/* Política Section */}
+        <section className="mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
+              <span className="bg-primary text-primary-foreground px-3 py-1 text-sm font-bold uppercase tracking-wide">
+                Política
+              </span>
+            </h2>
+            <a href="#" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
+              Ver todas →
+            </a>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {politicsNews.map((news) => (
+              <NewsCard key={news.id} {...news} />
+            ))}
+          </div>
+        </section>
+
+        {/* Economia Section */}
+        <section className="mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
+              <span className="bg-primary text-primary-foreground px-3 py-1 text-sm font-bold uppercase tracking-wide">
+                Economia
+              </span>
+            </h2>
+            <a href="#" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
+              Ver todas →
+            </a>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {economyNews.map((news) => (
+              <NewsCard key={news.id} {...news} />
+            ))}
+          </div>
+        </section>
+
+        {/* Esportes Section */}
+        <section className="mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
+              <span className="bg-primary text-primary-foreground px-3 py-1 text-sm font-bold uppercase tracking-wide">
+                Esportes
+              </span>
+            </h2>
+            <a href="#" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
+              Ver todas →
+            </a>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sportsNews.map((news) => (
+              <NewsCard key={news.id} {...news} />
+            ))}
+          </div>
+        </section>
+
+        {/* Tecnologia Section */}
+        <section className="mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
+              <span className="bg-primary text-primary-foreground px-3 py-1 text-sm font-bold uppercase tracking-wide">
+                Tecnologia
+              </span>
+            </h2>
+            <a href="#" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
+              Ver todas →
+            </a>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {techNews.map((news) => (
+              <NewsCard key={news.id} {...news} />
+            ))}
+          </div>
+        </section>
+
+        {/* Internacional Section */}
+        <section className="mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
+              <span className="bg-primary text-primary-foreground px-3 py-1 text-sm font-bold uppercase tracking-wide">
+                Internacional
+              </span>
+            </h2>
+            <a href="#" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
+              Ver todas →
+            </a>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {internationalNews.map((news) => (
+              <NewsCard key={news.id} {...news} />
+            ))}
+          </div>
+        </section>
+
         {/* Other News Grid */}
         <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-6 text-foreground border-b-2 border-primary pb-2">
-            Outras Notícias
-          </h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2">
+              Outras Notícias
+            </h2>
+            <a href="#" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
+              Ver todas →
+            </a>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {otherNews.map((news) => (
               <NewsCard key={news.id} {...news} />
@@ -122,10 +388,10 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Categories Section */}
+        {/* Quick Categories Navigation */}
         <section className="mb-12">
           <h2 className="text-2xl font-bold mb-6 text-foreground border-b-2 border-primary pb-2">
-            Por Categoria
+            Navegar por Categoria
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {[
@@ -134,7 +400,7 @@ const Index = () => {
             ].map((category) => (
               <div
                 key={category}
-                className="bg-card hover:bg-muted p-4 rounded-lg text-center cursor-pointer transition-colors group border"
+                className="bg-card hover:bg-muted p-4 rounded-lg text-center cursor-pointer transition-colors group border shadow-sm hover:shadow-card"
               >
                 <h3 className="font-semibold text-card-foreground group-hover:text-primary transition-colors">
                   {category}
