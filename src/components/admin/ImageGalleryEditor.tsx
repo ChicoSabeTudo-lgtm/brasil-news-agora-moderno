@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Upload, X, Star, StarOff, MoveUp, MoveDown } from 'lucide-react';
+import { Upload, X, Star, StarOff, ChevronUp, ChevronDown, GripVertical } from 'lucide-react';
 
 interface NewsImage {
   id?: string;
@@ -297,33 +297,44 @@ export const ImageGalleryEditor = ({ newsId, onImagesChange, initialImages = [] 
                       variant="outline"
                       size="sm"
                       onClick={() => toggleFeatured(index)}
+                      title={image.is_featured ? "Remover da capa" : "Definir como capa"}
                     >
                       {image.is_featured ? <StarOff className="w-4 h-4" /> : <Star className="w-4 h-4" />}
                     </Button>
                     
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => moveImage(index, 'up')}
-                      disabled={index === 0}
-                    >
-                      <MoveUp className="w-4 h-4" />
-                    </Button>
-                    
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => moveImage(index, 'down')}
-                      disabled={index === images.length - 1}
-                    >
-                      <MoveDown className="w-4 h-4" />
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <GripVertical className="w-3 h-3 text-muted-foreground" />
+                      <div className="flex flex-col">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => moveImage(index, 'up')}
+                          disabled={index === 0}
+                          title="Mover para cima"
+                          className="h-6 px-1"
+                        >
+                          <ChevronUp className="w-3 h-3" />
+                        </Button>
+                        
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => moveImage(index, 'down')}
+                          disabled={index === images.length - 1}
+                          title="Mover para baixo"
+                          className="h-6 px-1"
+                        >
+                          <ChevronDown className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
                     
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => removeImage(index)}
                       className="text-destructive hover:text-destructive"
+                      title="Remover imagem"
                     >
                       <X className="w-4 h-4" />
                     </Button>
