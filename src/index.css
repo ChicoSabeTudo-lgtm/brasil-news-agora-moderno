@@ -220,7 +220,7 @@ All colors MUST be HSL.
 }
 
 .main-image {
-  @apply relative overflow-hidden rounded-lg shadow-lg group;
+  @apply relative overflow-hidden rounded-lg shadow-lg;
 }
 
 .main-image img {
