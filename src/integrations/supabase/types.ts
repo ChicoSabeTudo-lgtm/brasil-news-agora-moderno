@@ -100,7 +100,6 @@ export type Database = {
           content: string
           created_at: string
           id: string
-          image_url: string | null
           is_breaking: boolean | null
           is_published: boolean | null
           published_at: string | null
@@ -118,7 +117,6 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
-          image_url?: string | null
           is_breaking?: boolean | null
           is_published?: boolean | null
           published_at?: string | null
@@ -136,7 +134,6 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
-          image_url?: string | null
           is_breaking?: boolean | null
           is_published?: boolean | null
           published_at?: string | null
@@ -154,6 +151,47 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      news_images: {
+        Row: {
+          caption: string | null
+          created_at: string
+          id: string
+          image_url: string
+          is_featured: boolean
+          news_id: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          image_url: string
+          is_featured?: boolean
+          news_id: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string
+          is_featured?: boolean
+          news_id?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "news_images_news_id_fkey"
+            columns: ["news_id"]
+            isOneToOne: false
+            referencedRelation: "news"
             referencedColumns: ["id"]
           },
         ]

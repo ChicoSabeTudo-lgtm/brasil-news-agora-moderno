@@ -46,6 +46,11 @@ interface News {
   profiles: {
     full_name: string | null;
   } | null;
+  news_images?: {
+    image_url: string;
+    is_featured: boolean;
+    caption: string;
+  }[];
 }
 
 interface Category {
@@ -93,6 +98,11 @@ export const NewsList = () => {
           *,
           categories (
             name
+          ),
+          news_images (
+            image_url,
+            is_featured,
+            caption
           )
         `)
         .order('created_at', { ascending: false });
@@ -286,6 +296,7 @@ export const NewsList = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>Título</TableHead>
+                <TableHead>Imagem</TableHead>
                 <TableHead>Categoria</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Autor</TableHead>
@@ -297,13 +308,13 @@ export const NewsList = () => {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center">
+                  <TableCell colSpan={8} className="text-center">
                     Carregando notícias...
                   </TableCell>
                 </TableRow>
               ) : filteredNews.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8">
+                  <TableCell colSpan={8} className="text-center py-8">
                     <div className="text-center">
                       <Filter className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                       <p className="text-muted-foreground">
@@ -325,6 +336,22 @@ export const NewsList = () => {
                         )}
                         <span className="line-clamp-2">{newsItem.title}</span>
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      {newsItem.news_images && newsItem.news_images.length > 0 ? (
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={newsItem.news_images.find(img => img.is_featured)?.image_url || newsItem.news_images[0]?.image_url}
+                            alt="Capa da notícia"
+                            className="w-10 h-10 object-cover rounded"
+                          />
+                          <span className="text-xs text-muted-foreground">
+                            {newsItem.news_images.length} imagem{newsItem.news_images.length > 1 ? 's' : ''}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">Sem imagem</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{newsItem.categories?.name || 'Sem categoria'}</Badge>

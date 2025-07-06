@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Save, Eye, Send } from 'lucide-react';
+import { ImageGalleryEditor } from './ImageGalleryEditor';
 
 interface Category {
   id: string;
@@ -30,11 +31,11 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
     summary: '',
     content: '',
     categoryId: '',
-    imageUrl: '',
     isBreaking: false,
     tags: '',
     status: 'draft' // draft, published
   });
+  const [newsImages, setNewsImages] = useState<any[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -49,7 +50,6 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
         summary: editingNews.summary || '',
         content: editingNews.content || '',
         categoryId: editingNews.category_id || '',
-        imageUrl: editingNews.image_url || '',
         isBreaking: editingNews.is_breaking || false,
         tags: editingNews.tags?.join(', ') || '',
         status: editingNews.is_published ? 'published' : 'draft'
@@ -96,7 +96,6 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
         summary: article.summary,
         content: article.content,
         category_id: article.categoryId,
-        image_url: article.imageUrl || null,
         is_breaking: article.isBreaking,
         is_published: status === 'published',
         published_at: status === 'published' ? new Date().toISOString() : null,
@@ -139,11 +138,11 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
           summary: '',
           content: '',
           categoryId: '',
-          imageUrl: '',
           isBreaking: false,
           tags: '',
           status: 'draft'
         });
+        setNewsImages([]);
       }
 
       onSave?.();
@@ -231,15 +230,12 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="imageUrl">URL da Imagem</Label>
-          <Input
-            id="imageUrl"
-            placeholder="https://exemplo.com/imagem.jpg"
-            value={article.imageUrl}
-            onChange={(e) => setArticle({ ...article, imageUrl: e.target.value })}
-          />
-        </div>
+        {/* Image Gallery */}
+        <ImageGalleryEditor
+          newsId={editingNews?.id}
+          onImagesChange={setNewsImages}
+          initialImages={newsImages}
+        />
 
         <div className="space-y-2">
           <Label htmlFor="tags">Tags (separadas por vírgula)</Label>
