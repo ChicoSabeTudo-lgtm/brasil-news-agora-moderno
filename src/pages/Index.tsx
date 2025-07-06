@@ -445,6 +445,171 @@ const Index = () => {
           </div>
         </section>
 
+        {/* Mais Lidas Section */}
+        <section className="mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
+              <span className="bg-primary text-primary-foreground px-3 py-1 text-sm font-bold uppercase tracking-wide">
+                Mais Lidas
+              </span>
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Lista Mais Lidas */}
+            <div className="bg-card rounded-lg p-6 shadow-card">
+              <div className="space-y-4">
+                {[
+                  "Congresso Nacional aprova reforma tributária em votação histórica",
+                  "PIB brasileiro cresce acima do esperado no trimestre", 
+                  "Seleção brasileira convocada para Copa América",
+                  "Startup brasileira desenvolve IA para diagnóstico médico",
+                  "União Europeia anuncia novo pacote de sanções"
+                ].map((title, index) => (
+                  <div key={index} className="flex items-start gap-4 p-3 hover:bg-muted rounded-lg cursor-pointer group transition-colors">
+                    <div className="flex-shrink-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm">
+                      {index + 1}
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors">
+                        {title}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {Math.floor(Math.random() * 50) + 10}k visualizações
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Trending Topics */}
+            <div className="bg-card rounded-lg p-6 shadow-card">
+              <h3 className="font-bold text-lg text-foreground border-l-4 border-primary pl-4 mb-4">
+                Trending Topics
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  "#ReformaTributária", "#Copa2024", "#InteligênciaArtificial", 
+                  "#Economia", "#PIB", "#Eleições2024", "#Tecnologia", "#Esportes"
+                ].map((tag, index) => (
+                  <span
+                    key={index}
+                    className="bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground px-3 py-1 rounded-full text-sm cursor-pointer transition-colors"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+              <div className="mt-6 space-y-3">
+                <h4 className="font-semibold text-foreground">Assuntos em Alta</h4>
+                {[
+                  { topic: "Reforma Tributária", posts: "2.5k posts" },
+                  { topic: "Copa América", posts: "1.8k posts" },
+                  { topic: "Inteligência Artificial", posts: "1.2k posts" }
+                ].map((item, index) => (
+                  <div key={index} className="flex justify-between items-center p-2 hover:bg-muted rounded cursor-pointer transition-colors">
+                    <span className="text-sm font-medium">{item.topic}</span>
+                    <span className="text-xs text-muted-foreground">{item.posts}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Vídeos Section */}
+        <section className="mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
+              <span className="bg-primary text-primary-foreground px-3 py-1 text-sm font-bold uppercase tracking-wide">
+                Vídeos
+              </span>
+            </h2>
+            <a href="#" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
+              Ver todos →
+            </a>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[
+              {
+                title: "Análise completa da reforma tributária aprovada no Congresso",
+                duration: "8:45",
+                views: "156k",
+                thumbnail: breakingImage,
+                category: "Política"
+              },
+              {
+                title: "Mercado financeiro reage à decisão do Banco Central sobre a Selic",
+                duration: "5:32",
+                views: "89k",
+                thumbnail: economyImage,
+                category: "Economia"
+              },
+              {
+                title: "Convocação da Seleção: análise dos escolhidos para a Copa América",
+                duration: "12:18",
+                views: "234k",
+                thumbnail: sportsImage,
+                category: "Esportes"
+              },
+              {
+                title: "Nova tecnologia de IA revoluciona diagnósticos médicos no Brasil",
+                duration: "6:55",
+                views: "67k",
+                thumbnail: techImage,
+                category: "Tecnologia"
+              },
+              {
+                title: "Cúpula do G20: principais decisões sobre mudanças climáticas",
+                duration: "9:21",
+                views: "112k",
+                thumbnail: internationalImage,
+                category: "Internacional"
+              },
+              {
+                title: "Descoberta arqueológica muda história pré-colombiana do Brasil",
+                duration: "7:03",
+                views: "78k",
+                thumbnail: politicsImage,
+                category: "Nacional"
+              }
+            ].map((video, index) => (
+              <div key={index} className="bg-card rounded-lg overflow-hidden shadow-card hover:shadow-lg transition-shadow cursor-pointer group">
+                <div className="relative">
+                  <img 
+                    src={video.thumbnail} 
+                    alt={video.title}
+                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+                  <div className="absolute bottom-2 right-2 bg-black/80 text-white px-2 py-1 rounded text-xs font-medium">
+                    {video.duration}
+                  </div>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center group-hover:bg-white transition-colors">
+                      <div className="w-0 h-0 border-l-6 border-l-black border-t-4 border-t-transparent border-b-4 border-b-transparent ml-1"></div>
+                    </div>
+                  </div>
+                  <div className="absolute top-2 left-2">
+                    <span className="bg-primary text-primary-foreground px-2 py-1 text-xs font-bold uppercase tracking-wide rounded">
+                      {video.category}
+                    </span>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors mb-2">
+                    {video.title}
+                  </h3>
+                  <div className="flex items-center text-xs text-muted-foreground justify-between">
+                    <span>{video.views} visualizações</span>
+                    <span>há {Math.floor(Math.random() * 12) + 1} horas</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* Quick Categories Navigation */}
         <section className="mb-12">
           <h2 className="text-2xl font-bold mb-6 text-foreground border-b-2 border-primary pb-2">
