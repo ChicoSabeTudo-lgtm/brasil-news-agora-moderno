@@ -158,7 +158,8 @@ const NewsArticle = () => {
     const currentUrl = window.location.href;
     const featuredImage = newsData.news_images?.find(img => img.is_featured) || newsData.news_images?.[0];
     const imageUrl = featuredImage ? getImageUrl(featuredImage) : null;
-    const siteName = "Portal de Notícias"; // Altere para o nome do seu site
+    const siteName = "News Brasil"; // Nome do seu site
+    const excerpt = newsData.subtitle || newsData.meta_description;
     
     // Limpar meta tags existentes
     const existingMetas = document.querySelectorAll('meta[data-dynamic-seo]');
@@ -181,24 +182,25 @@ const NewsArticle = () => {
     document.title = `${newsData.title} | ${siteName}`;
 
     // Meta tags básicas
-    createMetaTag('description', newsData.meta_description);
+    createMetaTag('description', excerpt);
     createMetaTag('keywords', newsData.tags?.join(', ') || '');
     createMetaTag('author', newsData.profiles?.full_name || 'Redação');
     createMetaTag('robots', 'index, follow');
     
     // Open Graph tags (Facebook, LinkedIn, etc.)
     createMetaTag('og:type', 'article', true);
-    createMetaTag('og:title', newsData.title, true);
-    createMetaTag('og:description', newsData.meta_description, true);
+    createMetaTag('og:title', newsData.title, true); // Título da notícia
+    createMetaTag('og:description', excerpt, true); // Subtítulo ou meta description
     createMetaTag('og:url', currentUrl, true);
-    createMetaTag('og:site_name', siteName, true);
+    createMetaTag('og:site_name', siteName, true); // Nome do site
     createMetaTag('og:locale', 'pt_BR', true);
     
     if (imageUrl) {
-      createMetaTag('og:image', imageUrl, true);
+      createMetaTag('og:image', imageUrl, true); // Imagem em destaque da notícia
       createMetaTag('og:image:width', '1200', true);
       createMetaTag('og:image:height', '630', true);
       createMetaTag('og:image:alt', newsData.title, true);
+      createMetaTag('og:image:type', 'image/jpeg', true);
     }
 
     // Dados específicos para artigos
@@ -215,12 +217,13 @@ const NewsArticle = () => {
 
     // Twitter Cards
     createMetaTag('twitter:card', 'summary_large_image');
-    createMetaTag('twitter:title', newsData.title);
-    createMetaTag('twitter:description', newsData.meta_description);
+    createMetaTag('twitter:title', newsData.title); // Título da notícia
+    createMetaTag('twitter:description', excerpt); // Subtítulo ou meta description
     createMetaTag('twitter:url', currentUrl);
+    createMetaTag('twitter:site', '@newsbrasil'); // Altere para seu Twitter
     
     if (imageUrl) {
-      createMetaTag('twitter:image', imageUrl);
+      createMetaTag('twitter:image', imageUrl); // Imagem em destaque da notícia
       createMetaTag('twitter:image:alt', newsData.title);
     }
 
@@ -234,7 +237,7 @@ const NewsArticle = () => {
       "@context": "https://schema.org",
       "@type": "NewsArticle",
       "headline": newsData.title,
-      "description": newsData.meta_description,
+      "description": excerpt,
       "image": imageUrl ? [imageUrl] : [],
       "datePublished": newsData.published_at,
       "dateModified": newsData.updated_at,
@@ -261,6 +264,16 @@ const NewsArticle = () => {
     script.setAttribute('data-dynamic-seo', 'true');
     script.textContent = JSON.stringify(jsonLd);
     document.head.appendChild(script);
+
+    // Forçar atualização do cache do Facebook (apenas para desenvolvimento)
+    if (window.location.hostname === 'localhost' || window.location.hostname.includes('lovable')) {
+      console.log('Meta tags configuradas para:', {
+        title: newsData.title,
+        description: excerpt,
+        image: imageUrl,
+        url: currentUrl
+      });
+    }
   };
 
   // Limpar meta tags ao desmontar o componente
