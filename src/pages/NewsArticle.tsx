@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { NewsTicker } from "@/components/NewsTicker";
 import { Advertisement } from "@/components/Advertisement";
+import { NewsImageGallery } from "@/components/NewsImageGallery";
 import { Clock, User, Share2, Eye, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -293,21 +294,12 @@ const NewsArticle = () => {
               </Button>
             </div>
 
-            {/* Featured Image */}
-            {featuredImage && (
-              <div className="mb-8">
-                <img
-                  src={getImageUrl(featuredImage)}
-                  alt={news.title}
-                  className="w-full h-auto rounded-lg shadow-lg"
-                />
-                {featuredImage.caption && (
-                  <p className="text-sm text-muted-foreground mt-2 italic">
-                    {featuredImage.caption}
-                  </p>
-                )}
-              </div>
-            )}
+            {/* Image Gallery */}
+            <NewsImageGallery 
+              images={news.news_images || []}
+              newsTitle={news.title}
+              getImageUrl={getImageUrl}
+            />
 
             {/* Advertisement */}
             <Advertisement position="international" />
@@ -318,32 +310,6 @@ const NewsArticle = () => {
               dangerouslySetInnerHTML={{ __html: news.content }}
             />
 
-            {/* Additional Images */}
-            {news.news_images && news.news_images.length > 1 && (
-              <div className="mb-8">
-                <h3 className="text-lg font-semibold mb-4">Galeria de Imagens</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {news.news_images
-                    .filter(img => !img.is_featured)
-                    .map((image, index) => (
-                      <div key={index} className="space-y-2">
-                        {getImageUrl(image) && (
-                          <img
-                            src={getImageUrl(image)}
-                            alt={image.caption || news.title}
-                            className="w-full h-auto rounded-lg shadow-md"
-                          />
-                        )}
-                        {image.caption && (
-                          <p className="text-sm text-muted-foreground italic">
-                            {image.caption}
-                          </p>
-                        )}
-                      </div>
-                    ))}
-                </div>
-              </div>
-            )}
 
             {/* Tags */}
             {news.tags && news.tags.length > 0 && (
