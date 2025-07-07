@@ -78,8 +78,8 @@ export const Header = () => {
               </DropdownMenu>
             ) : (
               <Link to="/auth">
-                <Button variant="outline" size="sm" className="text-news-header-foreground border-gray-600">
-                  Login
+                <Button variant="ghost" size="icon" className="text-news-header-foreground">
+                  <User className="h-5 w-5" />
                 </Button>
               </Link>
             )}
