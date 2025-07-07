@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { NewsTicker } from "@/components/NewsTicker";
+import { Footer } from "@/components/Footer";
 import { NewsCard } from "@/components/NewsCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -201,6 +202,8 @@ const Search = () => {
           </div>
         )}
       </main>
+      
+      <Footer />
     </div>
   );
 };

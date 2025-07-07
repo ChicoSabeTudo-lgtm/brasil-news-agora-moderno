@@ -2,6 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { NewsTicker } from "@/components/NewsTicker";
+import { Footer } from "@/components/Footer";
 import { Advertisement } from "@/components/Advertisement";
 import { NewsImageGallery } from "@/components/NewsImageGallery";
 import { ShareButtons } from "@/components/ShareButtons";
@@ -519,6 +520,8 @@ const NewsArticle = () => {
           </aside>
         </div>
       </main>
+      
+      <Footer />
     </div>
   );
 };
