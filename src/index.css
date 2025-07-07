@@ -249,6 +249,57 @@ All colors MUST be HSL.
   @apply w-full h-24 object-cover rounded cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg border-2 border-transparent hover:border-primary/50;
 }
 
+/* Print Styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  body {
+    font-size: 12pt;
+    line-height: 1.4;
+  }
+  
+  h1 { 
+    font-size: 20pt; 
+    margin-bottom: 10pt;
+  }
+  
+  h2 { 
+    font-size: 16pt; 
+    margin-bottom: 8pt;
+  }
+  
+  h3 { 
+    font-size: 14pt; 
+    margin-bottom: 6pt;
+  }
+  
+  .print-content {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  .print-hide {
+    display: none !important;
+  }
+  
+  .print-show {
+    display: block !important;
+  }
+  
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+    page-break-inside: avoid;
+  }
+  
+  .prose {
+    max-width: none !important;
+  }
+}
+
 @media (max-width: 768px) {
   .main-image img {
     @apply h-64;

@@ -4,7 +4,8 @@ import { Header } from "@/components/Header";
 import { NewsTicker } from "@/components/NewsTicker";
 import { Advertisement } from "@/components/Advertisement";
 import { NewsImageGallery } from "@/components/NewsImageGallery";
-import { Clock, User, Share2, Eye, ArrowLeft } from "lucide-react";
+import { ShareButtons } from "@/components/ShareButtons";
+import { Clock, User, Eye, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
@@ -163,18 +164,6 @@ const NewsArticle = () => {
     }
   };
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: news?.title,
-        text: news?.meta_description,
-        url: window.location.href,
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      alert('Link copiado para a área de transferência!');
-    }
-  };
 
   if (loading) {
     return (
@@ -232,12 +221,14 @@ const NewsArticle = () => {
         </nav>
 
         {/* Back Button */}
-        <Button variant="ghost" className="mb-6 -ml-3" asChild>
-          <Link to={`/${news.categories.slug}`}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar para {news.categories.name}
-          </Link>
-        </Button>
+        <div className="no-print">
+          <Button variant="ghost" className="mb-6 -ml-3" asChild>
+            <Link to={`/${news.categories.slug}`}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Voltar para {news.categories.name}
+            </Link>
+          </Button>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Article */}
@@ -283,15 +274,11 @@ const NewsArticle = () => {
                 </div>
               </div>
               
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleShare}
-                className="flex items-center space-x-1"
-              >
-                <Share2 className="w-4 h-4" />
-                <span>Compartilhar</span>
-              </Button>
+              <ShareButtons
+                title={news.title}
+                description={news.meta_description}
+                url={window.location.href}
+              />
             </div>
 
             {/* Image Gallery */}
@@ -302,7 +289,9 @@ const NewsArticle = () => {
             />
 
             {/* Advertisement */}
-            <Advertisement position="international" />
+            <div className="no-print">
+              <Advertisement position="international" />
+            </div>
 
             {/* Article Content */}
             <div 
@@ -329,11 +318,13 @@ const NewsArticle = () => {
             )}
 
             {/* Advertisement */}
-            <Advertisement position="sports" />
+            <div className="no-print">
+              <Advertisement position="sports" />
+            </div>
           </article>
 
           {/* Sidebar */}
-          <aside className="lg:col-span-1">
+          <aside className="lg:col-span-1 no-print">
             <div className="bg-card rounded-lg p-6 shadow-card sticky top-8">
               <h3 className="font-bold text-lg mb-4 border-l-4 border-primary pl-4">
                 Notícias Relacionadas
