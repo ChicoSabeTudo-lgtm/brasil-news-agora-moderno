@@ -141,8 +141,8 @@ export const NewsTicker = () => {
         </div>
       )}
 
-      {/* Market Data Ticker */}
-      <div className="py-2">
+      {/* Market Data Ticker - Hidden on Mobile */}
+      <div className="py-2 hidden md:block">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between overflow-x-auto">
             <div className="flex items-center space-x-6 min-w-max">
