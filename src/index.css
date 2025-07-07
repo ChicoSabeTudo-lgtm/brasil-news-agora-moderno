@@ -176,7 +176,30 @@ All colors MUST be HSL.
   
   ul li {
     @apply relative pl-6 text-foreground leading-relaxed;
-  }
+}
+
+/* Backlinks automáticos */
+.internal-backlink {
+  @apply text-primary underline font-medium;
+  transition: all 0.2s ease;
+}
+
+.internal-backlink:hover {
+  @apply text-primary/80 no-underline;
+  text-shadow: 0 1px 2px rgba(0, 102, 204, 0.1);
+}
+
+/* Destaque especial para backlinks em artigos */
+.prose .internal-backlink {
+  @apply border-b border-primary/30;
+  text-decoration: none;
+}
+
+.prose .internal-backlink:hover {
+  @apply border-primary bg-primary/5;
+  border-radius: 2px;
+  padding: 1px 2px;
+}
   
   ul li::before {
     content: "";

@@ -5,6 +5,7 @@ import { NewsTicker } from "@/components/NewsTicker";
 import { Advertisement } from "@/components/Advertisement";
 import { NewsImageGallery } from "@/components/NewsImageGallery";
 import { ShareButtons } from "@/components/ShareButtons";
+import { useBacklinks } from "@/hooks/useBacklinks";
 import { Clock, User, Eye, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,6 +43,8 @@ const NewsArticle = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [relatedNews, setRelatedNews] = useState<any[]>([]);
+  const [processedContent, setProcessedContent] = useState<string>('');
+  const { generateBacklinks, isProcessing } = useBacklinks();
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -97,6 +100,23 @@ const NewsArticle = () => {
 
         // Configurar SEO e meta tags para social sharing
         configureSEO(newsWithProfile);
+
+        // Gerar backlinks automáticos
+        try {
+          const backlinksResult = await generateBacklinks(
+            newsWithProfile.content,
+            newsWithProfile.id,
+            newsWithProfile.categories.slug
+          );
+          setProcessedContent(backlinksResult.processedContent);
+          
+          if (backlinksResult.backlinksAdded > 0) {
+            console.log(`Added ${backlinksResult.backlinksAdded} backlinks:`, backlinksResult.backlinks);
+          }
+        } catch (error) {
+          console.error('Error generating backlinks:', error);
+          setProcessedContent(newsWithProfile.content);
+        }
 
         // Buscar notícias relacionadas da mesma categoria
         const { data: related } = await supabase
@@ -431,7 +451,7 @@ const NewsArticle = () => {
             {/* Article Content */}
             <div 
               className="prose prose-lg max-w-none text-foreground mb-8"
-              dangerouslySetInnerHTML={{ __html: news.content }}
+              dangerouslySetInnerHTML={{ __html: processedContent || news.content }}
             />
 
 
