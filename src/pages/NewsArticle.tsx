@@ -354,16 +354,6 @@ const NewsArticle = () => {
       <NewsTicker />
       
       <main className="container mx-auto px-4 py-8">
-        {/* Breadcrumb */}
-        <nav className="mb-6 text-sm text-muted-foreground">
-          <Link to="/" className="hover:text-primary">Início</Link>
-          <span className="mx-2">›</span>
-          <Link to={`/${news.categories.slug}`} className="hover:text-primary">
-            {news.categories.name}
-          </Link>
-          <span className="mx-2">›</span>
-          <span className="text-foreground">{news.title}</span>
-        </nav>
 
         {/* Back Button */}
         <div className="no-print">
