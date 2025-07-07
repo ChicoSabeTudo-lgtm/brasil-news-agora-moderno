@@ -407,7 +407,7 @@ const NewsArticle = () => {
               <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                 <div className="flex items-center space-x-1">
                   <User className="w-4 h-4" />
-                  <span>{news.profiles?.full_name || 'Redação'}</span>
+                  <span>Portal ChicoSabeTudo</span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <Clock className="w-4 h-4" />
