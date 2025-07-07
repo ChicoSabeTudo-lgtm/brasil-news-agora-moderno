@@ -18,6 +18,7 @@ interface NewsData {
   content: string;
   meta_description: string;
   published_at: string;
+  updated_at: string;
   views: number;
   tags: string[];
   is_breaking: boolean;
@@ -94,6 +95,9 @@ const NewsArticle = () => {
 
         setNews(newsWithProfile);
 
+        // Configurar SEO e meta tags
+        configureSEO(newsWithProfile);
+
         // Buscar notícias relacionadas da mesma categoria
         const { data: related } = await supabase
           .from('news')
@@ -150,6 +154,127 @@ const NewsArticle = () => {
     return news.news_images.find(img => img.is_featured) || news.news_images[0];
   };
 
+  const configureSEO = (newsData: NewsData) => {
+    const currentUrl = window.location.href;
+    const featuredImage = newsData.news_images?.find(img => img.is_featured) || newsData.news_images?.[0];
+    const imageUrl = featuredImage ? getImageUrl(featuredImage) : null;
+    const siteName = "Portal de Notícias"; // Altere para o nome do seu site
+    
+    // Limpar meta tags existentes
+    const existingMetas = document.querySelectorAll('meta[data-dynamic-seo]');
+    existingMetas.forEach(meta => meta.remove());
+
+    // Função para criar meta tag
+    const createMetaTag = (property: string, content: string, isProperty = false) => {
+      const meta = document.createElement('meta');
+      if (isProperty) {
+        meta.setAttribute('property', property);
+      } else {
+        meta.setAttribute('name', property);
+      }
+      meta.setAttribute('content', content);
+      meta.setAttribute('data-dynamic-seo', 'true');
+      document.head.appendChild(meta);
+    };
+
+    // Atualizar título da página
+    document.title = `${newsData.title} | ${siteName}`;
+
+    // Meta tags básicas
+    createMetaTag('description', newsData.meta_description);
+    createMetaTag('keywords', newsData.tags?.join(', ') || '');
+    createMetaTag('author', newsData.profiles?.full_name || 'Redação');
+    createMetaTag('robots', 'index, follow');
+    
+    // Open Graph tags (Facebook, LinkedIn, etc.)
+    createMetaTag('og:type', 'article', true);
+    createMetaTag('og:title', newsData.title, true);
+    createMetaTag('og:description', newsData.meta_description, true);
+    createMetaTag('og:url', currentUrl, true);
+    createMetaTag('og:site_name', siteName, true);
+    createMetaTag('og:locale', 'pt_BR', true);
+    
+    if (imageUrl) {
+      createMetaTag('og:image', imageUrl, true);
+      createMetaTag('og:image:width', '1200', true);
+      createMetaTag('og:image:height', '630', true);
+      createMetaTag('og:image:alt', newsData.title, true);
+    }
+
+    // Dados específicos para artigos
+    createMetaTag('article:author', newsData.profiles?.full_name || 'Redação', true);
+    createMetaTag('article:published_time', newsData.published_at, true);
+    createMetaTag('article:modified_time', newsData.updated_at, true);
+    createMetaTag('article:section', newsData.categories.name, true);
+    
+    if (newsData.tags) {
+      newsData.tags.forEach(tag => {
+        createMetaTag('article:tag', tag, true);
+      });
+    }
+
+    // Twitter Cards
+    createMetaTag('twitter:card', 'summary_large_image');
+    createMetaTag('twitter:title', newsData.title);
+    createMetaTag('twitter:description', newsData.meta_description);
+    createMetaTag('twitter:url', currentUrl);
+    
+    if (imageUrl) {
+      createMetaTag('twitter:image', imageUrl);
+      createMetaTag('twitter:image:alt', newsData.title);
+    }
+
+    // Schema.org JSON-LD
+    const existingJsonLd = document.querySelector('script[data-dynamic-seo]');
+    if (existingJsonLd) {
+      existingJsonLd.remove();
+    }
+
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "NewsArticle",
+      "headline": newsData.title,
+      "description": newsData.meta_description,
+      "image": imageUrl ? [imageUrl] : [],
+      "datePublished": newsData.published_at,
+      "dateModified": newsData.updated_at,
+      "author": {
+        "@type": "Person",
+        "name": newsData.profiles?.full_name || "Redação"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": siteName,
+        "url": window.location.origin
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": currentUrl
+      },
+      "articleSection": newsData.categories.name,
+      "keywords": newsData.tags?.join(', ') || '',
+      "url": currentUrl
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-dynamic-seo', 'true');
+    script.textContent = JSON.stringify(jsonLd);
+    document.head.appendChild(script);
+  };
+
+  // Limpar meta tags ao desmontar o componente
+  useEffect(() => {
+    return () => {
+      // Limpar meta tags dinâmicas ao sair da página
+      const dynamicMetas = document.querySelectorAll('[data-dynamic-seo]');
+      dynamicMetas.forEach(meta => meta.remove());
+      
+      // Restaurar título padrão
+      document.title = "Portal de Notícias";
+    };
+  }, []);
+
   const formatPublishedAt = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
@@ -163,7 +288,6 @@ const NewsArticle = () => {
       return format(date, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
     }
   };
-
 
   if (loading) {
     return (
