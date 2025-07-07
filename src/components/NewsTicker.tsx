@@ -1,4 +1,6 @@
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const marketData = [
   { symbol: "IBOV", value: "125.850", change: "+1.2%", trend: "up" },
@@ -9,13 +11,55 @@ const marketData = [
   { symbol: "VALE3", value: "R$ 68,90", change: "-1.5%", trend: "down" },
 ];
 
-const breakingNews = [
-  "Congresso aprova nova lei de incentivo tecnológico",
-  "Banco Central mantém taxa de juros em 10,75%",
-  "Brasil registra menor taxa de desemprego em 5 anos",
-];
+interface BreakingNewsItem {
+  id: string;
+  title: string;
+  slug: string;
+  categories: {
+    slug: string;
+  };
+}
 
 export const NewsTicker = () => {
+  const [breakingNews, setBreakingNews] = useState<BreakingNewsItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBreakingNews = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('news')
+          .select(`
+            id,
+            title,
+            slug,
+            categories!inner (
+              slug
+            )
+          `)
+          .eq('is_breaking', true)
+          .eq('is_published', true)
+          .order('published_at', { ascending: false })
+          .limit(5);
+
+        if (error) throw error;
+        setBreakingNews(data || []);
+      } catch (error) {
+        console.error('Error fetching breaking news:', error);
+        // Fallback para notícias estáticas em caso de erro
+        setBreakingNews([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBreakingNews();
+
+    // Atualizar a cada 30 segundos
+    const interval = setInterval(fetchBreakingNews, 30000);
+    
+    return () => clearInterval(interval);
+  }, []);
   const getTrendIcon = (trend: string) => {
     switch (trend) {
       case "up":
@@ -41,24 +85,30 @@ export const NewsTicker = () => {
   return (
     <div className="bg-news-ticker text-white border-b border-gray-700">
       {/* Breaking News Ticker */}
-      <div className="border-b border-gray-600 py-2">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center">
-            <div className="bg-primary px-3 py-1 text-xs font-bold uppercase tracking-wide mr-4">
-              Breaking
-            </div>
-            <div className="flex-1 overflow-hidden">
-              <div className="animate-marquee whitespace-nowrap">
-                {breakingNews.map((news, index) => (
-                  <span key={index} className="text-sm mr-8">
-                    {news}
-                  </span>
-                ))}
+      {(!loading && breakingNews.length > 0) && (
+        <div className="border-b border-gray-600 py-2">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center">
+              <div className="bg-primary px-3 py-1 text-xs font-bold uppercase tracking-wide mr-4">
+                Breaking
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <div className="animate-marquee whitespace-nowrap">
+                  {breakingNews.map((news) => (
+                    <a
+                      key={news.id}
+                      href={`/${news.categories.slug}/${news.slug}`}
+                      className="text-sm mr-8 hover:text-primary transition-colors cursor-pointer"
+                    >
+                      {news.title}
+                    </a>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Market Data Ticker */}
       <div className="py-2">
