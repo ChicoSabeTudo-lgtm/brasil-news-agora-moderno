@@ -2,6 +2,9 @@ import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { NewsTicker } from "@/components/NewsTicker";
 import { NewsCard } from "@/components/NewsCard";
+import { useNews } from "@/hooks/useNews";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 // Import news images
 import politicsImage from "@/assets/politics-news.jpg";
@@ -22,17 +25,17 @@ const imageMap = {
   "Saúde": techImage
 };
 
-interface NewsItem {
-  id: number;
-  title: string;
-  metaDescription: string;
-  imageUrl: string;
-  category: string;
-  author: string;
-  publishedAt: string;
-  isBreaking?: boolean;
-  size: "small" | "medium" | "large";
-}
+// Mapeamento de nomes de categoria para slugs
+const categorySlugMap: Record<string, string> = {
+  "Política": "politica",
+  "Economia": "economia", 
+  "Esportes": "esportes",
+  "Tecnologia": "tecnologia",
+  "Internacional": "internacional",
+  "Nacional": "nacional",
+  "Entretenimento": "entretenimento",
+  "Saúde": "saude"
+};
 
 interface CategoryPageProps {
   category: string;
@@ -40,49 +43,123 @@ interface CategoryPageProps {
   description?: string;
 }
 
-// Mock data generator for category news
-const generateCategoryNews = (category: string, count: number = 12): NewsItem[] => {
-  const baseNews = [
-    {
-      title: `${category}: Decisão histórica marca mudança no setor`,
-      metaDescription: `Autoridades anunciam nova regulamentação que promete transformar o cenário atual de ${category.toLowerCase()}, impactando milhões de brasileiros.`,
-      author: "Redação NewsPortal"
-    },
-    {
-      title: `Especialistas analisam cenário atual de ${category.toLowerCase()}`,
-      metaDescription: `Análise detalhada revela tendências importantes e projeções para os próximos meses no setor de ${category.toLowerCase()}.`,
-      author: "Equipe de Análise"
-    },
-    {
-      title: `${category}: Novos investimentos chegam ao Brasil`,
-      metaDescription: `Setor recebe aporte milionário que deve gerar empregos e movimentar a economia nacional nos próximos anos.`,
-      author: "Correspondente Econômico"
-    },
-    {
-      title: `Mudanças estruturais em ${category.toLowerCase()} geram debate`,
-      metaDescription: `Proposta divide opiniões entre especialistas e promete alterar significativamente o panorama atual do setor.`,
-      author: "Redação Especializada"
+export const CategoryPage = ({ category, categoryColor = "#0066cc", description }: CategoryPageProps) => {
+  const { news, loading, error, getNewsByCategory } = useNews();
+  
+  // Obter slug da categoria
+  const categorySlug = categorySlugMap[category];
+  
+  // Filtrar notícias por categoria
+  const categoryNews = getNewsByCategory(categorySlug);
+
+  // Helper function to format date
+  const formatPublishedAt = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) {
+      return "Agora há pouco";
+    } else if (diffInHours < 24) {
+      return `há ${diffInHours} ${diffInHours === 1 ? 'hora' : 'horas'}`;
+    } else {
+      return format(date, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
     }
-  ];
+  };
 
-  return Array.from({ length: count }, (_, index) => ({
-    id: index + 1,
-    title: baseNews[index % baseNews.length].title,
-    metaDescription: baseNews[index % baseNews.length].metaDescription,
-    imageUrl: imageMap[category as keyof typeof imageMap] || breakingImage,
-    category,
-    author: baseNews[index % baseNews.length].author,
-    publishedAt: `${Math.floor(Math.random() * 24) + 1} horas atrás`,
-    isBreaking: index === 0,
-    size: index === 0 ? "large" as const : (index < 3 ? "medium" as const : "small" as const)
-  }));
-};
+  // Helper function to get image URL
+  const getImageUrl = (newsItem: any) => {
+    if (newsItem.news_images && newsItem.news_images.length > 0) {
+      const featuredImage = newsItem.news_images.find((img: any) => img.is_featured);
+      const imageUrl = featuredImage?.image_url || newsItem.news_images[0]?.image_url;
+      
+      // Se a URL já é completa (começa com http), usar como está
+      if (imageUrl && imageUrl.startsWith('http')) {
+        return imageUrl;
+      }
+      
+      // Se é uma URL do Supabase Storage, construir a URL completa
+      if (imageUrl && imageUrl.startsWith('news-images/')) {
+        return `https://spgusjrjrhfychhdwixn.supabase.co/storage/v1/object/public/${imageUrl}`;
+      }
+      
+      return imageUrl;
+    }
+    return imageMap[category] || breakingImage;
+  };
 
-export const CategoryPage = ({ category, categoryColor = "primary", description }: CategoryPageProps) => {
-  const news = generateCategoryNews(category);
-  const featuredNews = news[0];
-  const secondaryNews = news.slice(1, 4);
-  const otherNews = news.slice(4);
+  // Transform news data for NewsCard component
+  const transformNewsItem = (newsItem: any, size: "small" | "medium" | "large" = "medium") => ({
+    id: newsItem.id,
+    title: newsItem.title,
+    metaDescription: newsItem.meta_description,
+    imageUrl: getImageUrl(newsItem),
+    category: newsItem.categories?.name || category,
+    author: newsItem.profiles?.full_name || 'Redação',
+    publishedAt: formatPublishedAt(newsItem.published_at),
+    isBreaking: newsItem.is_breaking,
+    size,
+    slug: newsItem.slug,
+    categorySlug: newsItem.categories?.slug
+  });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <NewsTicker />
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <p className="text-lg text-muted-foreground">Carregando notícias...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <NewsTicker />
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <p className="text-lg text-destructive">Erro ao carregar notícias: {error}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (categoryNews.length === 0) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <NewsTicker />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center py-12">
+            <h1 className="text-4xl font-bold mb-4" style={{ color: categoryColor }}>
+              {category}
+            </h1>
+            {description && (
+              <p className="text-lg text-muted-foreground mb-8 max-w-3xl mx-auto">
+                {description}
+              </p>
+            )}
+            <p className="text-lg text-muted-foreground">
+              Ainda não há notícias publicadas nesta categoria.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Separar notícias por tipo
+  const featuredNews = transformNewsItem(categoryNews[0], "large");
+  const breakingNews = categoryNews.filter(news => news.is_breaking).slice(0, 3);
+  const secondaryNews = categoryNews.slice(1, 7).map(news => transformNewsItem(news, "medium"));
+  const otherNews = categoryNews.slice(7).map(news => transformNewsItem(news, "small"));
 
   return (
     <div className="min-h-screen bg-background">
@@ -97,7 +174,7 @@ export const CategoryPage = ({ category, categoryColor = "primary", description 
               {category}
             </h1>
             <span className="bg-primary text-primary-foreground px-4 py-2 text-sm font-bold uppercase tracking-wide rounded-full">
-              {news.length} notícias
+              {categoryNews.length} notícias
             </span>
           </div>
           {description && (
@@ -107,7 +184,7 @@ export const CategoryPage = ({ category, categoryColor = "primary", description 
           )}
         </section>
 
-        {/* Featured News */}
+        {/* Featured Story */}
         <section className="mb-12">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Story */}
@@ -117,59 +194,60 @@ export const CategoryPage = ({ category, categoryColor = "primary", description 
             
             {/* Breaking News Sidebar */}
             <div className="lg:col-span-1">
-              <div className="bg-card rounded-lg p-6 shadow-card">
-                <h2 className="font-bold text-lg text-foreground border-l-4 border-primary pl-4 mb-4">
-                  Últimas de {category}
-                </h2>
-                <div className="space-y-4">
-                  {secondaryNews.slice(0, 4).map((item, index) => (
-                    <div key={item.id} className="flex gap-3 p-3 hover:bg-muted rounded-lg cursor-pointer group transition-colors">
-                      <img 
-                        src={item.imageUrl} 
-                        alt={item.title}
-                        className="w-16 h-16 object-cover rounded flex-shrink-0"
-                      />
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors mb-1">
-                          {item.title}
-                        </h3>
-                        <div className="flex items-center text-xs text-muted-foreground">
-                          <span>{item.author}</span>
-                          <span className="mx-1">•</span>
-                          <span>{item.publishedAt}</span>
+              {breakingNews.length > 0 && (
+                <div className="bg-card rounded-lg p-6 shadow-card">
+                  <h3 className="font-bold text-lg mb-4 border-l-4 border-destructive pl-4">
+                    Notícias Urgentes
+                  </h3>
+                  <div className="space-y-4">
+                    {breakingNews.slice(0, 3).map((news) => (
+                      <Link 
+                        key={news.id}
+                        to={`/${news.categories?.slug}/${news.slug}`}
+                        className="block p-3 hover:bg-muted rounded-lg transition-colors"
+                      >
+                        <h4 className="font-semibold text-sm line-clamp-2 mb-1">
+                          {news.title}
+                        </h4>
+                        <div className="text-xs text-muted-foreground">
+                          {formatPublishedAt(news.published_at)}
                         </div>
-                      </div>
-                    </div>
-                  ))}
+                      </Link>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </section>
 
-        {/* Secondary News Grid */}
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 mb-6">
-            Principais Notícias
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {secondaryNews.map((news) => (
-              <NewsCard key={news.id} {...news} />
-            ))}
-          </div>
-        </section>
+        {/* Secondary News */}
+        {secondaryNews.length > 0 && (
+          <section className="mb-12">
+            <h2 className="text-2xl font-bold mb-6 border-l-4 border-primary pl-4">
+              Principais Notícias
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {secondaryNews.map((news) => (
+                <NewsCard key={news.id} {...news} />
+              ))}
+            </div>
+          </section>
+        )}
 
-        {/* All News List */}
-        <section className="mb-12">
-          <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 mb-6">
-            Todas as Notícias de {category}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {otherNews.map((news) => (
-              <NewsCard key={news.id} {...news} />
-            ))}
-          </div>
-        </section>
+        {/* Other News */}
+        {otherNews.length > 0 && (
+          <section className="mb-12">
+            <h2 className="text-2xl font-bold mb-6 border-l-4 border-primary pl-4">
+              Todas as Notícias de {category}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {otherNews.map((news) => (
+                <NewsCard key={news.id} {...news} />
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Related Categories */}
         <section className="mb-12">
@@ -178,16 +256,22 @@ export const CategoryPage = ({ category, categoryColor = "primary", description 
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {[
-              "Política", "Economia", "Esportes", "Tecnologia", 
-              "Internacional", "Nacional", "Entretenimento", "Saúde"
-            ].filter(cat => cat !== category).map((cat) => (
+              { name: "Política", slug: "politica" },
+              { name: "Economia", slug: "economia" },
+              { name: "Esportes", slug: "esportes" },
+              { name: "Tecnologia", slug: "tecnologia" },
+              { name: "Internacional", slug: "internacional" },
+              { name: "Nacional", slug: "nacional" },
+              { name: "Entretenimento", slug: "entretenimento" },
+              { name: "Saúde", slug: "saude" }
+            ].filter(cat => cat.name !== category).map((cat) => (
               <Link
-                key={cat}
-                to={`/${cat.toLowerCase()}`}
+                key={cat.name}
+                to={`/${cat.slug}`}
                 className="bg-card hover:bg-muted p-4 rounded-lg text-center cursor-pointer transition-colors group border shadow-sm hover:shadow-card"
               >
                 <h3 className="font-semibold text-card-foreground group-hover:text-primary transition-colors">
-                  {cat}
+                  {cat.name}
                 </h3>
               </Link>
             ))}
