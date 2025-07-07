@@ -1,5 +1,6 @@
 import { Clock, User } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 
 interface NewsCardProps {
   title: string;
@@ -10,6 +11,8 @@ interface NewsCardProps {
   publishedAt: string;
   isBreaking?: boolean;
   size?: "small" | "medium" | "large";
+  slug?: string;
+  categorySlug?: string;
 }
 
 export const NewsCard = ({
@@ -21,6 +24,8 @@ export const NewsCard = ({
   publishedAt,
   isBreaking = false,
   size = "medium",
+  slug,
+  categorySlug,
 }: NewsCardProps) => {
   const getSizeClasses = () => {
     switch (size) {
@@ -33,8 +38,11 @@ export const NewsCard = ({
     }
   };
 
-  return (
-    <Card className="group overflow-hidden hover:shadow-card transition-all duration-300 cursor-pointer animate-slide-up">
+  // Gerar link no formato: /categoria/titulo-da-noticia
+  const newsLink = slug && categorySlug ? `/${categorySlug}/${slug}` : '#';
+
+  const cardContent = (
+    <>
       <div className="relative">
         <img
           src={imageUrl}
@@ -88,6 +96,22 @@ export const NewsCard = ({
           </div>
         </div>
       </div>
+    </>
+  );
+
+  if (slug && categorySlug) {
+    return (
+      <Link to={newsLink}>
+        <Card className="group overflow-hidden hover:shadow-card transition-all duration-300 cursor-pointer animate-slide-up">
+          {cardContent}
+        </Card>
+      </Link>
+    );
+  }
+
+  return (
+    <Card className="group overflow-hidden hover:shadow-card transition-all duration-300 cursor-pointer animate-slide-up">
+      {cardContent}
     </Card>
   );
 };

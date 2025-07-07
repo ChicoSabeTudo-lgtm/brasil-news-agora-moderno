@@ -50,7 +50,19 @@ const Index = () => {
   const getImageUrl = (newsItem: any) => {
     if (newsItem.news_images && newsItem.news_images.length > 0) {
       const featuredImage = newsItem.news_images.find((img: any) => img.is_featured);
-      return featuredImage?.image_url || newsItem.news_images[0]?.image_url;
+      const imageUrl = featuredImage?.image_url || newsItem.news_images[0]?.image_url;
+      
+      // Se a URL já é completa (começa com http), usar como está
+      if (imageUrl && imageUrl.startsWith('http')) {
+        return imageUrl;
+      }
+      
+      // Se é uma URL do Supabase Storage, construir a URL completa
+      if (imageUrl && imageUrl.startsWith('news-images/')) {
+        return `https://spgusjrjrhfychhdwixn.supabase.co/storage/v1/object/public/${imageUrl}`;
+      }
+      
+      return imageUrl;
     }
     return categoryImages[newsItem.categories?.slug] || breakingImage;
   };
@@ -65,7 +77,9 @@ const Index = () => {
     author: newsItem.profiles?.full_name || 'Redação',
     publishedAt: formatPublishedAt(newsItem.published_at),
     isBreaking: newsItem.is_breaking,
-    size
+    size,
+    slug: newsItem.slug,
+    categorySlug: newsItem.categories?.slug
   });
 
   if (loading) {

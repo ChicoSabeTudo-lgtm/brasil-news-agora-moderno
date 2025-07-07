@@ -1,78 +1,217 @@
 import { useParams, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { NewsTicker } from "@/components/NewsTicker";
-import { ArrowLeft, Calendar, User, Share2, BookmarkPlus } from "lucide-react";
+import { Advertisement } from "@/components/Advertisement";
+import { Clock, User, Share2, Eye, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
-// Import news images
-import politicsImage from "@/assets/politics-news.jpg";
-import economyImage from "@/assets/economy-news.jpg";
-import sportsImage from "@/assets/sports-news.jpg";
-import techImage from "@/assets/tech-news.jpg";
-import internationalImage from "@/assets/international-news.jpg";
-import breakingImage from "@/assets/breaking-news-hero.jpg";
+interface NewsData {
+  id: string;
+  title: string;
+  subtitle: string;
+  content: string;
+  meta_description: string;
+  published_at: string;
+  views: number;
+  tags: string[];
+  is_breaking: boolean;
+  categories: {
+    name: string;
+    slug: string;
+  };
+  profiles: {
+    full_name: string;
+  };
+  news_images: {
+    image_url: string;
+    is_featured: boolean;
+    caption: string;
+  }[];
+}
 
 const NewsArticle = () => {
-  const { id } = useParams();
-  
-  // Mock article data - in real app would fetch based on ID
-  const article = {
-    id: id || "1",
-    title: "Congresso Nacional aprova reforma tributária em votação histórica",
-    subtitle: "Decisão marca mudança estrutural no sistema brasileiro de impostos",
-    content: `
-      <p>Em uma sessão que durou mais de 12 horas, deputados e senadores aprovaram por ampla maioria a proposta de reforma do sistema tributário brasileiro, prometendo simplificar impostos e reduzir a burocracia para empresas e cidadãos.</p>
-      
-      <blockquote>"Esta reforma vai beneficiar diretamente o consumidor final, com a redução da carga tributária embutida nos produtos"</blockquote>
-      
-      <p>A aprovação da reforma tributária representa um marco histórico na política econômica brasileira. O texto final, que foi resultado de intensas negociações entre governo e oposição, promete revolucionar a forma como os impostos são cobrados no país.</p>
-      
-      <h3>Principais mudanças aprovadas</h3>
-      <ul>
-        <li>Unificação de tributos estaduais e municipais</li>
-        <li>Criação de sistema mais transparente e eficiente</li>
-        <li>Redução dos custos de conformidade fiscal</li>
-        <li>Simplificação do processo de declaração</li>
-      </ul>
-      
-      <p>O relator da proposta, deputado federal João Silva, destacou a importância da medida. A expectativa é que os preços ao consumidor tenham uma redução média de 3% a 5%.</p>
-    `,
-    galleryImages: [
-      { src: politicsImage, alt: "Sessão do Congresso durante votação", caption: "Plenário lotado durante a histórica votação da reforma tributária" },
-      { src: economyImage, alt: "Discussões econômicas", caption: "" },
-      { src: internationalImage, alt: "Painel de votação", caption: "" },
-      { src: techImage, alt: "Tecnologia no governo", caption: "" }
-    ],
-    additionalContent: `
-      <h3>Impacto econômico esperado</h3>
-      <ol>
-        <li>Impacto positivo no PIB de 1,5% em cinco anos</li>
-        <li>Atração de mais investimentos estrangeiros</li>
-        <li>Redução da burocracia empresarial</li>
-        <li>Modernização do sistema fiscal</li>
-      </ol>
-      
-      <blockquote>"Este é um passo fundamental para modernizar o Brasil e torná-lo mais competitivo no cenário internacional"</blockquote>
-      
-      <p>A implementação será gradual, com início previsto para 2025, permitindo que empresas e órgãos governamentais se adaptem às novas regras. Um período de transição de três anos foi estabelecido para garantir a migração suave do sistema atual.</p>
-      
-      <h3>Cronograma de implementação</h3>
-      <ul>
-        <li><strong>2025:</strong> Início da fase piloto em estados selecionados</li>
-        <li><strong>2026:</strong> Expansão para demais estados</li>
-        <li><strong>2027:</strong> Implementação completa do novo sistema</li>
-        <li><strong>2028:</strong> Avaliação e ajustes finais</li>
-      </ul>
-      
-      <p>No entanto, alguns governadores estaduais manifestaram preocupações sobre a transição e os impactos nas receitas locais durante o período de adaptação. O governo federal garantiu que mecanismos de compensação serão implementados para evitar perdas significativas.</p>
-    `,
-    imageUrl: politicsImage,
-    category: "Política",
-    author: "Ana Silva",
-    publishedAt: "2 horas atrás",
-    readTime: "8 min de leitura",
-    isBreaking: true
+  const { categorySlug, slug, id } = useParams();
+  const [news, setNews] = useState<NewsData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [relatedNews, setRelatedNews] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchNews = async () => {
+      try {
+        setLoading(true);
+        
+        let query = supabase
+          .from('news')
+          .select(`
+            *,
+            categories!inner (
+              name,
+              slug
+            ),
+            news_images (
+              image_url,
+              is_featured,
+              caption
+            )
+          `)
+          .eq('is_published', true);
+
+        // Buscar por slug ou por ID (compatibilidade com rotas antigas)
+        if (slug) {
+          query = query.eq('slug', slug);
+        } else if (id) {
+          query = query.eq('id', id);
+        } else {
+          throw new Error('Parâmetros inválidos');
+        }
+
+        const { data: newsData, error: newsError } = await query.single();
+
+        if (newsError) throw newsError;
+
+        // Buscar perfil do autor
+        let profileData = null;
+        if (newsData.author_id) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('user_id', newsData.author_id)
+            .single();
+          profileData = profile;
+        }
+
+        const newsWithProfile = {
+          ...newsData,
+          profiles: profileData
+        };
+
+        setNews(newsWithProfile);
+
+        // Buscar notícias relacionadas da mesma categoria
+        const { data: related } = await supabase
+          .from('news')
+          .select(`
+            id,
+            title,
+            slug,
+            published_at,
+            categories!inner (
+              name,
+              slug
+            ),
+            news_images (
+              image_url,
+              is_featured
+            )
+          `)
+          .eq('is_published', true)
+          .eq('categories.slug', newsData.categories.slug)
+          .neq('id', newsData.id)
+          .order('published_at', { ascending: false })
+          .limit(3);
+
+        setRelatedNews(related || []);
+
+        // Incrementar visualizações
+        await supabase
+          .from('news')
+          .update({ views: (newsData.views || 0) + 1 })
+          .eq('id', newsData.id);
+
+      } catch (error) {
+        console.error('Error fetching news:', error);
+        setError('Notícia não encontrada');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNews();
+  }, [slug, id]);
+
+  const getImageUrl = (imageItem: any) => {
+    if (!imageItem?.image_url) return null;
+    
+    if (imageItem.image_url.startsWith('http')) {
+      return imageItem.image_url;
+    }
+    return `https://spgusjrjrhfychhdwixn.supabase.co/storage/v1/object/public/${imageItem.image_url}`;
   };
+
+  const getFeaturedImage = () => {
+    if (!news?.news_images?.length) return null;
+    return news.news_images.find(img => img.is_featured) || news.news_images[0];
+  };
+
+  const formatPublishedAt = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) {
+      return "Agora há pouco";
+    } else if (diffInHours < 24) {
+      return `há ${diffInHours} ${diffInHours === 1 ? 'hora' : 'horas'}`;
+    } else {
+      return format(date, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
+    }
+  };
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: news?.title,
+        text: news?.meta_description,
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert('Link copiado para a área de transferência!');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <NewsTicker />
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <p className="text-lg text-muted-foreground">Carregando notícia...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !news) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <NewsTicker />
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <h1 className="text-2xl font-bold mb-4">Notícia não encontrada</h1>
+              <p className="text-muted-foreground mb-6">
+                A notícia que você está procurando não existe ou foi removida.
+              </p>
+              <Link to="/">
+                <Button>Voltar à página inicial</Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const featuredImage = getFeaturedImage();
 
   return (
     <div className="min-h-screen bg-background">
@@ -81,131 +220,150 @@ const NewsArticle = () => {
       
       <main className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 mb-6 text-sm text-muted-foreground">
-          <Link to="/" className="hover:text-primary transition-colors">Home</Link>
-          <span>/</span>
-          <Link to={`/${article.category.toLowerCase()}`} className="hover:text-primary transition-colors">
-            {article.category}
+        <nav className="mb-6 text-sm text-muted-foreground">
+          <Link to="/" className="hover:text-primary">Início</Link>
+          <span className="mx-2">›</span>
+          <Link to={`/${news.categories.slug}`} className="hover:text-primary">
+            {news.categories.name}
           </Link>
-          <span>/</span>
-          <span>Notícia</span>
-        </div>
+          <span className="mx-2">›</span>
+          <span className="text-foreground">{news.title}</span>
+        </nav>
 
         {/* Back Button */}
         <Button variant="ghost" className="mb-6 -ml-3" asChild>
-          <Link to={`/${article.category.toLowerCase()}`}>
+          <Link to={`/${news.categories.slug}`}>
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar para {article.category}
+            Voltar para {news.categories.name}
           </Link>
         </Button>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Article */}
           <article className="lg:col-span-3">
-            {/* Category Badge */}
-            {article.isBreaking && (
-              <div className="mb-4 flex items-center gap-2">
-                <span className="bg-news-breaking text-white px-3 py-1 text-sm font-bold uppercase tracking-wide rounded">
-                  Breaking News
+            {/* Category and Breaking Badge */}
+            <div className="mb-4 flex items-center gap-2">
+              {news.is_breaking && (
+                <span className="bg-news-breaking text-white px-3 py-1 text-sm font-bold uppercase tracking-wide animate-pulse">
+                  URGENTE
                 </span>
-                <span className="bg-primary text-primary-foreground px-3 py-1 text-sm font-bold uppercase tracking-wide rounded">
-                  {article.category}
-                </span>
-              </div>
-            )}
+              )}
+              <span className="bg-primary text-primary-foreground px-3 py-1 text-sm font-bold uppercase tracking-wide">
+                {news.categories.name}
+              </span>
+            </div>
 
             {/* Title */}
-            <h1 className="text-4xl font-bold text-foreground mb-4 leading-tight">
-              {article.title}
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4 leading-tight">
+              {news.title}
             </h1>
 
             {/* Subtitle */}
-            <h2 className="text-xl text-muted-foreground mb-6 leading-relaxed">
-              {article.subtitle}
-            </h2>
+            {news.subtitle && (
+              <h2 className="text-xl text-muted-foreground mb-6 leading-relaxed">
+                {news.subtitle}
+              </h2>
+            )}
 
             {/* Article Meta */}
-            <div className="flex items-center gap-6 mb-6 text-sm text-muted-foreground border-b border-border pb-4">
-              <div className="flex items-center gap-2">
-                <User className="w-4 h-4" />
-                <span>{article.author}</span>
+            <div className="flex items-center justify-between mb-6 pb-6 border-b border-border">
+              <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                <div className="flex items-center space-x-1">
+                  <User className="w-4 h-4" />
+                  <span>{news.profiles?.full_name || 'Redação'}</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Clock className="w-4 h-4" />
+                  <span>{formatPublishedAt(news.published_at)}</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Eye className="w-4 h-4" />
+                  <span>{news.views} visualizações</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                <span>{article.publishedAt}</span>
-              </div>
-              <span>{article.readTime}</span>
-            </div>
-
-            {/* Article Actions */}
-            <div className="flex items-center gap-3 mb-8">
-              <Button size="sm" variant="outline">
-                <Share2 className="w-4 h-4 mr-2" />
-                Compartilhar
-              </Button>
-              <Button size="sm" variant="outline">
-                <BookmarkPlus className="w-4 h-4 mr-2" />
-                Salvar
+              
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleShare}
+                className="flex items-center space-x-1"
+              >
+                <Share2 className="w-4 h-4" />
+                <span>Compartilhar</span>
               </Button>
             </div>
 
             {/* Featured Image */}
-            <div className="mb-8">
-              <img 
-                src={article.imageUrl} 
-                alt={article.title}
-                className="w-full h-96 object-cover rounded-lg shadow-lg"
-              />
-            </div>
+            {featuredImage && (
+              <div className="mb-8">
+                <img
+                  src={getImageUrl(featuredImage)}
+                  alt={news.title}
+                  className="w-full h-auto rounded-lg shadow-lg"
+                />
+                {featuredImage.caption && (
+                  <p className="text-sm text-muted-foreground mt-2 italic">
+                    {featuredImage.caption}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Advertisement */}
+            <Advertisement position="international" />
 
             {/* Article Content */}
             <div 
-              className="prose prose-lg max-w-none text-foreground"
-              dangerouslySetInnerHTML={{ __html: article.content }}
+              className="prose prose-lg max-w-none text-foreground mb-8"
+              dangerouslySetInnerHTML={{ __html: news.content }}
             />
 
-            {/* Image Gallery */}
-            <div className="image-gallery">
-              <div className="main-image">
-                <img 
-                  src={article.galleryImages[0].src} 
-                  alt={article.galleryImages[0].alt}
-                  className="w-full h-96 object-cover rounded-lg shadow-lg transition-transform duration-500 hover:scale-105"
-                />
-                <p className="image-caption">{article.galleryImages[0].caption}</p>
+            {/* Additional Images */}
+            {news.news_images && news.news_images.length > 1 && (
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold mb-4">Galeria de Imagens</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {news.news_images
+                    .filter(img => !img.is_featured)
+                    .map((image, index) => (
+                      <div key={index} className="space-y-2">
+                        {getImageUrl(image) && (
+                          <img
+                            src={getImageUrl(image)}
+                            alt={image.caption || news.title}
+                            className="w-full h-auto rounded-lg shadow-md"
+                          />
+                        )}
+                        {image.caption && (
+                          <p className="text-sm text-muted-foreground italic">
+                            {image.caption}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                </div>
               </div>
-              <div className="gallery-thumbnails">
-                {article.galleryImages.slice(1).map((image, index) => (
-                  <img 
-                    key={index}
-                    src={image.src} 
-                    alt={image.alt}
-                    className="w-full h-24 object-cover rounded cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                  />
-                ))}
-              </div>
-            </div>
+            )}
 
-            {/* Additional Content */}
-            <div 
-              className="prose prose-lg max-w-none text-foreground"
-              dangerouslySetInnerHTML={{ __html: article.additionalContent }}
-            />
-
-            {/* Article Tags */}
-            <div className="mt-8 pt-6 border-t border-border">
-              <h4 className="font-semibold mb-3">Tags:</h4>
-              <div className="flex flex-wrap gap-2">
-                {["reforma-tributaria", "politica", "economia", "impostos", "congresso"].map((tag) => (
-                  <span
-                    key={tag}
-                    className="bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground px-3 py-1 rounded-full text-sm cursor-pointer transition-colors"
-                  >
-                    #{tag}
-                  </span>
-                ))}
+            {/* Tags */}
+            {news.tags && news.tags.length > 0 && (
+              <div className="mb-8 pt-6 border-t border-border">
+                <h4 className="font-semibold mb-3">Tags:</h4>
+                <div className="flex flex-wrap gap-2">
+                  {news.tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="bg-muted text-muted-foreground px-3 py-1 rounded-full text-sm hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Advertisement */}
+            <Advertisement position="sports" />
           </article>
 
           {/* Sidebar */}
@@ -215,27 +373,35 @@ const NewsArticle = () => {
                 Notícias Relacionadas
               </h3>
               <div className="space-y-4">
-                {[
-                  "STF julga caso histórico sobre direitos digitais",
-                  "Senado debate PEC da transição energética", 
-                  "Governadores se reúnem para discutir segurança pública"
-                ].map((title, index) => (
-                  <div key={index} className="flex gap-3 p-3 hover:bg-muted rounded-lg cursor-pointer group transition-colors">
-                    <img 
-                      src={politicsImage} 
-                      alt={title}
-                      className="w-16 h-16 object-cover rounded flex-shrink-0"
-                    />
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors mb-1">
-                        {title}
-                      </h4>
-                      <div className="text-xs text-muted-foreground">
-                        {Math.floor(Math.random() * 5) + 1} horas atrás
+                {relatedNews.length > 0 ? (
+                  relatedNews.map((relatedItem) => (
+                    <Link 
+                      key={relatedItem.id}
+                      to={`/${relatedItem.categories.slug}/${relatedItem.slug}`}
+                      className="flex gap-3 p-3 hover:bg-muted rounded-lg cursor-pointer group transition-colors"
+                    >
+                      {relatedItem.news_images?.[0] && (
+                        <img 
+                          src={getImageUrl(relatedItem.news_images[0])} 
+                          alt={relatedItem.title}
+                          className="w-16 h-16 object-cover rounded flex-shrink-0"
+                        />
+                      )}
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors mb-1">
+                          {relatedItem.title}
+                        </h4>
+                        <div className="text-xs text-muted-foreground">
+                          {formatPublishedAt(relatedItem.published_at)}
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                ))}
+                    </Link>
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Nenhuma notícia relacionada encontrada.
+                  </p>
+                )}
               </div>
             </div>
           </aside>
