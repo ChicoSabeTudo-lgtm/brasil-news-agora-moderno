@@ -416,7 +416,7 @@ const NewsArticle = () => {
             {/* Article Meta */}
             <div className="flex items-center justify-between mb-6 pb-6 border-b border-border">
               <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                <div className="flex items-center space-x-1">
+                <div className="hidden md:flex items-center space-x-1">
                   <User className="w-4 h-4" />
                   <span>Portal ChicoSabeTudo</span>
                 </div>
