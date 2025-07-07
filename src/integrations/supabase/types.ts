@@ -59,6 +59,57 @@ export type Database = {
         }
         Relationships: []
       }
+      advertising_requests: {
+        Row: {
+          advertising_type: string
+          budget_range: string
+          campaign_description: string
+          company_name: string
+          contact_name: string
+          created_at: string
+          email: string
+          id: string
+          phone: string
+          responded_at: string | null
+          responded_by: string | null
+          status: string
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          advertising_type: string
+          budget_range: string
+          campaign_description: string
+          company_name: string
+          contact_name: string
+          created_at?: string
+          email: string
+          id?: string
+          phone: string
+          responded_at?: string | null
+          responded_by?: string | null
+          status?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          advertising_type?: string
+          budget_range?: string
+          campaign_description?: string
+          company_name?: string
+          contact_name?: string
+          created_at?: string
+          email?: string
+          id?: string
+          phone?: string
+          responded_at?: string | null
+          responded_by?: string | null
+          status?: string
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           color: string | null
@@ -94,6 +145,48 @@ export type Database = {
           name?: string
           slug?: string
           sort_order?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      contact_messages: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string
+          name: string
+          phone: string | null
+          responded_at: string | null
+          responded_by: string | null
+          status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          name: string
+          phone?: string | null
+          responded_at?: string | null
+          responded_by?: string | null
+          status?: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          name?: string
+          phone?: string | null
+          responded_at?: string | null
+          responded_by?: string | null
+          status?: string
+          subject?: string
           updated_at?: string
         }
         Relationships: []

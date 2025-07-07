@@ -19,6 +19,8 @@ import Search from "./pages/Search";
 import AoVivo from "./pages/AoVivo";
 import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
+import Contact from "./pages/Contact";
+import Advertise from "./pages/Advertise";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +45,8 @@ const App = () => (
             <Route path="/saude" element={<Saude />} />
             <Route path="/busca" element={<Search />} />
             <Route path="/ao-vivo" element={<AoVivo />} />
+            <Route path="/contato" element={<Contact />} />
+            <Route path="/anuncie" element={<Advertise />} />
             <Route path="/noticia/:id" element={<NewsArticle />} />
             <Route path="/:categorySlug/:slug" element={<NewsArticle />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

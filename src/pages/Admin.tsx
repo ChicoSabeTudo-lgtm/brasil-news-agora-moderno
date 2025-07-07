@@ -10,6 +10,8 @@ import { NewsEditor } from '@/components/admin/NewsEditor';
 import { NewsList } from '@/components/admin/NewsList';
 import { CategoryManagement } from '@/components/admin/CategoryManagement';
 import { AdvertisementManagement } from '@/components/admin/AdvertisementManagement';
+import { ContactManagement } from '@/components/admin/ContactManagement';
+import { AdvertisingManagement } from '@/components/admin/AdvertisingManagement';
 import { Header } from '@/components/Header';
 import { 
   LayoutDashboard, 
@@ -19,7 +21,9 @@ import {
   PlusCircle,
   TrendingUp,
   Tag,
-  Megaphone
+  Megaphone,
+  Mail,
+  Building
 } from 'lucide-react';
 
 export default function Admin() {
@@ -57,7 +61,7 @@ export default function Admin() {
           </div>
 
           <Tabs defaultValue="dashboard" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:grid-cols-none lg:inline-flex">
+            <TabsList className="grid w-full grid-cols-8 lg:w-auto lg:grid-cols-none lg:inline-flex">
               <TabsTrigger value="dashboard" className="flex items-center gap-2">
                 <LayoutDashboard className="w-4 h-4" />
                 Dashboard
@@ -73,6 +77,14 @@ export default function Admin() {
               <TabsTrigger value="advertisements" className="flex items-center gap-2">
                 <Megaphone className="w-4 h-4" />
                 Propagandas
+              </TabsTrigger>
+              <TabsTrigger value="contact" className="flex items-center gap-2">
+                <Mail className="w-4 h-4" />
+                Contato
+              </TabsTrigger>
+              <TabsTrigger value="advertising" className="flex items-center gap-2">
+                <Building className="w-4 h-4" />
+                Anunciantes
               </TabsTrigger>
               {userRole === 'admin' && (
                 <TabsTrigger value="users" className="flex items-center gap-2">
@@ -190,6 +202,24 @@ export default function Admin() {
                   <h2 className="text-2xl font-bold">Gerenciar Propagandas</h2>
                 </div>
                 <AdvertisementManagement />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="contact">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold">Mensagens de Contato</h2>
+                </div>
+                <ContactManagement />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="advertising">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold">Solicitações de Anúncios</h2>
+                </div>
+                <AdvertisingManagement />
               </div>
             </TabsContent>
 
