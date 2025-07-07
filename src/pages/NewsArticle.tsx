@@ -95,7 +95,7 @@ const NewsArticle = () => {
 
         setNews(newsWithProfile);
 
-        // Configurar SEO e meta tags
+        // Configurar SEO e meta tags para social sharing
         configureSEO(newsWithProfile);
 
         // Buscar notícias relacionadas da mesma categoria
