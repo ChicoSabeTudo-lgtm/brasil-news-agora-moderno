@@ -293,16 +293,21 @@ const NewsArticle = () => {
 
   const formatPublishedAt = (dateString: string) => {
     const date = new Date(dateString);
-    const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    return format(date, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
+  };
+
+  const formatUpdatedAt = (publishedDate: string, updatedDate: string) => {
+    const published = new Date(publishedDate);
+    const updated = new Date(updatedDate);
     
-    if (diffInHours < 1) {
-      return "Agora há pouco";
-    } else if (diffInHours < 24) {
-      return `há ${diffInHours} ${diffInHours === 1 ? 'hora' : 'horas'}`;
-    } else {
-      return format(date, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
+    // Se a diferença for maior que 1 minuto, considerar como atualizada
+    const diffInMinutes = Math.abs(updated.getTime() - published.getTime()) / (1000 * 60);
+    
+    if (diffInMinutes > 1) {
+      return `Atualizada em ${format(updated, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`;
     }
+    
+    return `Publicada em ${format(published, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`;
   };
 
   if (loading) {
@@ -406,7 +411,7 @@ const NewsArticle = () => {
                 </div>
                 <div className="flex items-center space-x-1">
                   <Clock className="w-4 h-4" />
-                  <span>{formatPublishedAt(news.published_at)}</span>
+                  <span>{formatUpdatedAt(news.published_at, news.updated_at)}</span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <Eye className="w-4 h-4" />
