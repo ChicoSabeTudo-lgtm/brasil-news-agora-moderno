@@ -424,10 +424,6 @@ const NewsArticle = () => {
                   <Clock className="w-4 h-4" />
                   <span>{formatUpdatedAt(news.published_at, news.updated_at)}</span>
                 </div>
-                <div className="flex items-center space-x-1">
-                  <Eye className="w-4 h-4" />
-                  <span>{news.views} visualizações</span>
-                </div>
               </div>
               
               <ShareButtons
