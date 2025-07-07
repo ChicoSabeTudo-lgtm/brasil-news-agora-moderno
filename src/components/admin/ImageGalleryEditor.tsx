@@ -57,17 +57,52 @@ export const ImageGalleryEditor = ({ newsId, onImagesChange, initialImages = [] 
     }
   };
 
+  const convertToAvif = async (file: File): Promise<File> => {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx?.drawImage(img, 0, 0);
+        
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const avifFile = new File([blob], `${file.name.split('.')[0]}.avif`, {
+                type: 'image/avif',
+                lastModified: Date.now()
+              });
+              resolve(avifFile);
+            } else {
+              reject(new Error('Failed to convert image to AVIF'));
+            }
+          },
+          'image/avif',
+          0.8 // Quality setting (0-1)
+        );
+      };
+      
+      img.onerror = () => reject(new Error('Failed to load image'));
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
   const handleFileUpload = async (file: File) => {
     setUploading(true);
     
     try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
+      // Convert image to AVIF format
+      const avifFile = await convertToAvif(file);
+      
+      const fileName = `${Math.random()}.avif`;
       const filePath = `${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('news-images')
-        .upload(filePath, file);
+        .upload(filePath, avifFile);
 
       if (uploadError) throw uploadError;
 
@@ -80,7 +115,7 @@ export const ImageGalleryEditor = ({ newsId, onImagesChange, initialImages = [] 
         caption: '',
         is_featured: images.length === 0, // Primeira imagem é destaque automaticamente
         sort_order: images.length,
-        file
+        file: avifFile
       };
 
       return newImage;
