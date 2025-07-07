@@ -2,14 +2,12 @@ import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-const marketData = [
-  { symbol: "IBOV", value: "125.850", change: "+1.2%", trend: "up" },
-  { symbol: "DÓLAR", value: "R$ 5,15", change: "-0.3%", trend: "down" },
-  { symbol: "EURO", value: "R$ 5,48", change: "+0.8%", trend: "up" },
-  { symbol: "BITCOIN", value: "US$ 43.250", change: "+2.1%", trend: "up" },
-  { symbol: "PETRO4", value: "R$ 32,45", change: "0.0%", trend: "neutral" },
-  { symbol: "VALE3", value: "R$ 68,90", change: "-1.5%", trend: "down" },
-];
+interface MarketDataItem {
+  symbol: string;
+  value: string;
+  change: string;
+  trend: 'up' | 'down' | 'neutral';
+}
 
 interface BreakingNewsItem {
   id: string;
@@ -22,6 +20,7 @@ interface BreakingNewsItem {
 
 export const NewsTicker = () => {
   const [breakingNews, setBreakingNews] = useState<BreakingNewsItem[]>([]);
+  const [marketData, setMarketData] = useState<MarketDataItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -46,19 +45,51 @@ export const NewsTicker = () => {
         setBreakingNews(data || []);
       } catch (error) {
         console.error('Error fetching breaking news:', error);
-        // Fallback para notícias estáticas em caso de erro
         setBreakingNews([]);
+      }
+    };
+
+    const fetchMarketData = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('market-data');
+        
+        if (error) throw error;
+        
+        if (data?.data) {
+          setMarketData(data.data);
+        }
+      } catch (error) {
+        console.error('Error fetching market data:', error);
+        // Fallback para dados estáticos em caso de erro
+        setMarketData([
+          { symbol: "IBOV", value: "125.850", change: "+1.2%", trend: "up" },
+          { symbol: "DÓLAR", value: "R$ 5,15", change: "-0.3%", trend: "down" },
+          { symbol: "EURO", value: "R$ 5,48", change: "+0.8%", trend: "up" },
+          { symbol: "BITCOIN", value: "US$ 43.250", change: "+2.1%", trend: "up" },
+          { symbol: "PETRO4", value: "R$ 32,45", change: "0.0%", trend: "neutral" },
+          { symbol: "VALE3", value: "R$ 68,90", change: "-1.5%", trend: "down" }
+        ]);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchBreakingNews();
+    const loadData = async () => {
+      await Promise.all([fetchBreakingNews(), fetchMarketData()]);
+    };
 
-    // Atualizar a cada 30 segundos
-    const interval = setInterval(fetchBreakingNews, 30000);
+    loadData();
+
+    // Atualizar breaking news a cada 30 segundos
+    const newsInterval = setInterval(fetchBreakingNews, 30000);
     
-    return () => clearInterval(interval);
+    // Atualizar dados do mercado a cada 2 minutos
+    const marketInterval = setInterval(fetchMarketData, 120000);
+    
+    return () => {
+      clearInterval(newsInterval);
+      clearInterval(marketInterval);
+    };
   }, []);
   const getTrendIcon = (trend: string) => {
     switch (trend) {
