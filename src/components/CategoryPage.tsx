@@ -305,8 +305,8 @@ export const CategoryPage = ({ category, categoryColor = "#0066cc", description 
               <ul className="space-y-2 text-sm text-gray-400">
                 <li><a href="#" className="hover:text-primary transition-colors">Sobre Nós</a></li>
                 <li><a href="#" className="hover:text-primary transition-colors">Equipe</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Contato</a></li>
-                <li><a href="#" className="hover:text-primary transition-colors">Anuncie</a></li>
+                <li><Link to="/contato" className="hover:text-primary transition-colors">Contato</Link></li>
+                <li><Link to="/anuncie" className="hover:text-primary transition-colors">Anuncie</Link></li>
               </ul>
             </div>
             <div>
