@@ -158,21 +158,23 @@ const NewsArticle = () => {
     const currentUrl = window.location.href;
     const featuredImage = newsData.news_images?.find(img => img.is_featured) || newsData.news_images?.[0];
     const imageUrl = featuredImage ? getImageUrl(featuredImage) : null;
-    const siteName = "News Brasil"; // Nome do seu site
+    const siteName = "News Brasil";
     const excerpt = newsData.subtitle || newsData.meta_description;
     
     // Limpar meta tags existentes
     const existingMetas = document.querySelectorAll('meta[data-dynamic-seo]');
     existingMetas.forEach(meta => meta.remove());
 
-    // Função para criar meta tag
-    const createMetaTag = (property: string, content: string, isProperty = false) => {
+    // Função para criar ou atualizar meta tag
+    const createOrUpdateMetaTag = (selector: string, content: string, attributes: Record<string, string>) => {
+      // Remover meta tag existente se houver
+      const existing = document.querySelector(selector);
+      if (existing) existing.remove();
+      
       const meta = document.createElement('meta');
-      if (isProperty) {
-        meta.setAttribute('property', property);
-      } else {
-        meta.setAttribute('name', property);
-      }
+      Object.entries(attributes).forEach(([key, value]) => {
+        meta.setAttribute(key, value);
+      });
       meta.setAttribute('content', content);
       meta.setAttribute('data-dynamic-seo', 'true');
       document.head.appendChild(meta);
@@ -182,49 +184,50 @@ const NewsArticle = () => {
     document.title = `${newsData.title} | ${siteName}`;
 
     // Meta tags básicas
-    createMetaTag('description', excerpt);
-    createMetaTag('keywords', newsData.tags?.join(', ') || '');
-    createMetaTag('author', newsData.profiles?.full_name || 'Redação');
-    createMetaTag('robots', 'index, follow');
+    createOrUpdateMetaTag('meta[name="description"]', excerpt, { name: 'description' });
+    createOrUpdateMetaTag('meta[name="keywords"]', newsData.tags?.join(', ') || '', { name: 'keywords' });
+    createOrUpdateMetaTag('meta[name="author"]', newsData.profiles?.full_name || 'Redação', { name: 'author' });
+    createOrUpdateMetaTag('meta[name="robots"]', 'index, follow', { name: 'robots' });
     
     // Open Graph tags (Facebook, LinkedIn, etc.)
-    createMetaTag('og:type', 'article', true);
-    createMetaTag('og:title', newsData.title, true); // Título da notícia
-    createMetaTag('og:description', excerpt, true); // Subtítulo ou meta description
-    createMetaTag('og:url', currentUrl, true);
-    createMetaTag('og:site_name', siteName, true); // Nome do site
-    createMetaTag('og:locale', 'pt_BR', true);
+    createOrUpdateMetaTag('meta[property="og:type"]', 'article', { property: 'og:type' });
+    createOrUpdateMetaTag('meta[property="og:title"]', newsData.title, { property: 'og:title' });
+    createOrUpdateMetaTag('meta[property="og:description"]', excerpt, { property: 'og:description' });
+    createOrUpdateMetaTag('meta[property="og:url"]', currentUrl, { property: 'og:url' });
+    createOrUpdateMetaTag('meta[property="og:site_name"]', siteName, { property: 'og:site_name' });
+    createOrUpdateMetaTag('meta[property="og:locale"]', 'pt_BR', { property: 'og:locale' });
     
     if (imageUrl) {
-      createMetaTag('og:image', imageUrl, true); // Imagem em destaque da notícia
-      createMetaTag('og:image:width', '1200', true);
-      createMetaTag('og:image:height', '630', true);
-      createMetaTag('og:image:alt', newsData.title, true);
-      createMetaTag('og:image:type', 'image/jpeg', true);
+      createOrUpdateMetaTag('meta[property="og:image"]', imageUrl, { property: 'og:image' });
+      createOrUpdateMetaTag('meta[property="og:image:width"]', '1200', { property: 'og:image:width' });
+      createOrUpdateMetaTag('meta[property="og:image:height"]', '630', { property: 'og:image:height' });
+      createOrUpdateMetaTag('meta[property="og:image:alt"]', newsData.title, { property: 'og:image:alt' });
+      createOrUpdateMetaTag('meta[property="og:image:type"]', 'image/jpeg', { property: 'og:image:type' });
+      createOrUpdateMetaTag('meta[property="og:image:secure_url"]', imageUrl, { property: 'og:image:secure_url' });
     }
 
     // Dados específicos para artigos
-    createMetaTag('article:author', newsData.profiles?.full_name || 'Redação', true);
-    createMetaTag('article:published_time', newsData.published_at, true);
-    createMetaTag('article:modified_time', newsData.updated_at, true);
-    createMetaTag('article:section', newsData.categories.name, true);
+    createOrUpdateMetaTag('meta[property="article:author"]', newsData.profiles?.full_name || 'Redação', { property: 'article:author' });
+    createOrUpdateMetaTag('meta[property="article:published_time"]', newsData.published_at, { property: 'article:published_time' });
+    createOrUpdateMetaTag('meta[property="article:modified_time"]', newsData.updated_at, { property: 'article:modified_time' });
+    createOrUpdateMetaTag('meta[property="article:section"]', newsData.categories.name, { property: 'article:section' });
     
     if (newsData.tags) {
       newsData.tags.forEach(tag => {
-        createMetaTag('article:tag', tag, true);
+        createOrUpdateMetaTag(`meta[property="article:tag"][content="${tag}"]`, tag, { property: 'article:tag' });
       });
     }
 
     // Twitter Cards
-    createMetaTag('twitter:card', 'summary_large_image');
-    createMetaTag('twitter:title', newsData.title); // Título da notícia
-    createMetaTag('twitter:description', excerpt); // Subtítulo ou meta description
-    createMetaTag('twitter:url', currentUrl);
-    createMetaTag('twitter:site', '@newsbrasil'); // Altere para seu Twitter
+    createOrUpdateMetaTag('meta[name="twitter:card"]', 'summary_large_image', { name: 'twitter:card' });
+    createOrUpdateMetaTag('meta[name="twitter:title"]', newsData.title, { name: 'twitter:title' });
+    createOrUpdateMetaTag('meta[name="twitter:description"]', excerpt, { name: 'twitter:description' });
+    createOrUpdateMetaTag('meta[name="twitter:url"]', currentUrl, { name: 'twitter:url' });
+    createOrUpdateMetaTag('meta[name="twitter:site"]', '@newsbrasil', { name: 'twitter:site' });
     
     if (imageUrl) {
-      createMetaTag('twitter:image', imageUrl); // Imagem em destaque da notícia
-      createMetaTag('twitter:image:alt', newsData.title);
+      createOrUpdateMetaTag('meta[name="twitter:image"]', imageUrl, { name: 'twitter:image' });
+      createOrUpdateMetaTag('meta[name="twitter:image:alt"]', newsData.title, { name: 'twitter:image:alt' });
     }
 
     // Schema.org JSON-LD
