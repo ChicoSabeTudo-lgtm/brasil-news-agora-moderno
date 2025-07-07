@@ -127,7 +127,7 @@ export const Header = () => {
             ))}
           </div>
 
-          <div className="text-sm text-gray-400">
+          <div className="hidden md:block text-sm text-gray-400">
             {new Date().toLocaleDateString("pt-BR", {
               weekday: "long",
               year: "numeric",

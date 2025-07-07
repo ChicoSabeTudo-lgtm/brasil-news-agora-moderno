@@ -376,15 +376,6 @@ const NewsArticle = () => {
       
       <main className="container mx-auto px-4 py-8">
 
-        {/* Back Button */}
-        <div className="no-print">
-          <Button variant="ghost" className="mb-6 -ml-3" asChild>
-            <Link to={`/${news.categories.slug}`}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Voltar para {news.categories.name}
-            </Link>
-          </Button>
-        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Article */}
