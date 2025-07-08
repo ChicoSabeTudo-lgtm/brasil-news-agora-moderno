@@ -22,6 +22,7 @@ import { ImageGalleryEditor } from './ImageGalleryEditor';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 interface Category {
   id: string;
@@ -44,6 +45,7 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
   const [newsImages, setNewsImages] = useState<any[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -390,10 +392,79 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
         </div>
 
         <div className="flex justify-end gap-2 pt-4 border-t">
-          <Button variant="outline" disabled={loading}>
-            <Eye className="w-4 h-4 mr-2" />
-            Pré-visualizar
-          </Button>
+          <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" disabled={loading}>
+                <Eye className="w-4 h-4 mr-2" />
+                Pré-visualizar
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Pré-visualização da Notícia</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <h1 className="text-2xl font-bold">{article.title || 'Título da notícia'}</h1>
+                  {article.subtitle && (
+                    <p className="text-lg text-muted-foreground">{article.subtitle}</p>
+                  )}
+                  {article.isBreaking && (
+                    <div className="inline-block bg-destructive text-destructive-foreground px-2 py-1 rounded text-sm font-bold">
+                      URGENTE
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <span>Por: {user?.email || 'Autor'}</span>
+                  <span>•</span>
+                  <span>{format(new Date(), 'dd/MM/yyyy \'às\' HH:mm')}</span>
+                  {article.categoryId && (
+                    <>
+                      <span>•</span>
+                      <span>{categories.find(c => c.id === article.categoryId)?.name || 'Categoria'}</span>
+                    </>
+                  )}
+                </div>
+
+                {newsImages.length > 0 && (
+                  <div className="space-y-2">
+                    {newsImages.map((image, index) => (
+                      <div key={index} className="space-y-1">
+                        <img 
+                          src={image.image_url} 
+                          alt={image.caption || 'Imagem da notícia'}
+                          className="w-full h-auto rounded"
+                        />
+                        {image.caption && (
+                          <p className="text-sm text-muted-foreground italic">{image.caption}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div 
+                  className="prose prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: article.content || '<p>Conteúdo da notícia aparecerá aqui...</p>' }}
+                />
+
+                {article.tags && (
+                  <div className="flex flex-wrap gap-1 pt-4 border-t">
+                    {article.tags.split(',').map((tag, index) => (
+                      <span 
+                        key={index}
+                        className="bg-primary/10 text-primary px-2 py-1 rounded text-xs"
+                      >
+                        {tag.trim()}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
           <Button 
             variant="outline"
             onClick={() => handleSave('draft')}
