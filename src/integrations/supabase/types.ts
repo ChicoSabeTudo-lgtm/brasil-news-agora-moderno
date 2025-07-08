@@ -191,6 +191,104 @@ export type Database = {
         }
         Relationships: []
       }
+      live_programs: {
+        Row: {
+          created_at: string
+          days_of_week: number[]
+          description: string | null
+          end_time: string
+          id: string
+          is_active: boolean
+          live_stream_id: string | null
+          start_time: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          days_of_week?: number[]
+          description?: string | null
+          end_time: string
+          id?: string
+          is_active?: boolean
+          live_stream_id?: string | null
+          start_time: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          days_of_week?: number[]
+          description?: string | null
+          end_time?: string
+          id?: string
+          is_active?: boolean
+          live_stream_id?: string | null
+          start_time?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_programs_live_stream_id_fkey"
+            columns: ["live_stream_id"]
+            isOneToOne: false
+            referencedRelation: "live_streams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_streams: {
+        Row: {
+          actual_end: string | null
+          actual_start: string | null
+          chat_enabled: boolean
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          scheduled_start: string | null
+          stream_url: string | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          viewer_count: number
+        }
+        Insert: {
+          actual_end?: string | null
+          actual_start?: string | null
+          chat_enabled?: boolean
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          scheduled_start?: string | null
+          stream_url?: string | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          viewer_count?: number
+        }
+        Update: {
+          actual_end?: string | null
+          actual_start?: string | null
+          chat_enabled?: boolean
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          scheduled_start?: string | null
+          stream_url?: string | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          viewer_count?: number
+        }
+        Relationships: []
+      }
       news: {
         Row: {
           author_id: string | null

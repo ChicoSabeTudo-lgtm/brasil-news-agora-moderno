@@ -12,6 +12,7 @@ import { CategoryManagement } from '@/components/admin/CategoryManagement';
 import { AdvertisementManagement } from '@/components/admin/AdvertisementManagement';
 import { ContactManagement } from '@/components/admin/ContactManagement';
 import { AdvertisingManagement } from '@/components/admin/AdvertisingManagement';
+import { LiveStreamManagement } from '@/components/admin/LiveStreamManagement';
 import { Header } from '@/components/Header';
 import { 
   LayoutDashboard, 
@@ -23,7 +24,8 @@ import {
   Tag,
   Megaphone,
   Mail,
-  Building
+  Building,
+  Radio
 } from 'lucide-react';
 
 export default function Admin() {
@@ -61,7 +63,7 @@ export default function Admin() {
           </div>
 
           <Tabs defaultValue="dashboard" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-8 lg:w-auto lg:grid-cols-none lg:inline-flex">
+            <TabsList className="grid w-full grid-cols-9 lg:w-auto lg:grid-cols-none lg:inline-flex">
               <TabsTrigger value="dashboard" className="flex items-center gap-2">
                 <LayoutDashboard className="w-4 h-4" />
                 Dashboard
@@ -69,6 +71,10 @@ export default function Admin() {
               <TabsTrigger value="news" className="flex items-center gap-2">
                 <FileText className="w-4 h-4" />
                 Notícias
+              </TabsTrigger>
+              <TabsTrigger value="live" className="flex items-center gap-2">
+                <Radio className="w-4 h-4" />
+                Ao Vivo
               </TabsTrigger>
               <TabsTrigger value="categories" className="flex items-center gap-2">
                 <Tag className="w-4 h-4" />
@@ -184,6 +190,15 @@ export default function Admin() {
             <TabsContent value="news">
               <div className="space-y-6">
                 <NewsList />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="live">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold">Transmissões ao Vivo</h2>
+                </div>
+                <LiveStreamManagement />
               </div>
             </TabsContent>
 

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { useLiveStreams } from "@/hooks/useLiveStreams";
 import { 
   Play, 
   Pause, 
@@ -55,20 +56,27 @@ const chatMessages = [
 ];
 
 const AoVivo = () => {
+  const { streams, programs, loading, getActiveStream, getCurrentPrograms, getUpcomingPrograms, updateViewerCount } = useLiveStreams();
   const [isPlaying, setIsPlaying] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
   const [chatMessage, setChatMessage] = useState("");
   const [messages, setMessages] = useState(chatMessages);
-  const [viewerCount, setViewerCount] = useState(15420);
+  
+  const activeStream = getActiveStream();
+  const currentPrograms = getCurrentPrograms();
+  const upcomingPrograms = getUpcomingPrograms();
 
   useEffect(() => {
     // Simular atualização do contador de visualizadores
-    const interval = setInterval(() => {
-      setViewerCount(prev => prev + Math.floor(Math.random() * 10) - 5);
-    }, 5000);
+    if (activeStream) {
+      const interval = setInterval(() => {
+        const newCount = activeStream.viewer_count + Math.floor(Math.random() * 10) - 5;
+        updateViewerCount(activeStream.id, Math.max(0, newCount));
+      }, 5000);
 
-    return () => clearInterval(interval);
-  }, []);
+      return () => clearInterval(interval);
+    }
+  }, [activeStream]);
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -141,7 +149,7 @@ const AoVivo = () => {
                   </div>
                   <div className="flex items-center space-x-2 bg-black/50 px-3 py-1 rounded text-white text-sm">
                     <Users className="w-4 h-4" />
-                    <span>{viewerCount.toLocaleString()} espectadores</span>
+                    <span>{activeStream?.viewer_count?.toLocaleString() || 0} espectadores</span>
                   </div>
                 </div>
 
@@ -184,10 +192,10 @@ const AoVivo = () => {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-xl font-bold text-foreground mb-2">
-                    Jornal Nacional - Edição Especial
+                    {activeStream?.title || "Nenhuma transmissão ativa"}
                   </h3>
                   <p className="text-muted-foreground mb-4">
-                    Acompanhe as principais notícias do dia com análises aprofundadas e entrevistas exclusivas com especialistas e autoridades.
+                    {activeStream?.description || "No momento não há transmissões ao vivo. Volte em breve para acompanhar nossos programas."}
                   </p>
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
@@ -246,42 +254,69 @@ const AoVivo = () => {
             <Card className="p-4">
               <h3 className="font-bold text-lg mb-4">Programação</h3>
               <div className="space-y-3">
-                {currentPrograms.map((program, index) => (
-                  <div key={program.id}>
-                    <div className="flex items-start gap-3">
-                      <div className="text-sm text-muted-foreground min-w-fit">
-                        {program.time}
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <h4 className="font-semibold text-sm">{program.title}</h4>
-                          {program.status === "ao-vivo" && (
-                            <Badge variant="destructive" className="text-xs animate-pulse">
-                              AO VIVO
-                            </Badge>
-                          )}
-                          {program.status === "proximo" && (
-                            <Badge variant="secondary" className="text-xs">
-                              PRÓXIMO
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-xs text-muted-foreground mb-2">
-                          {program.description}
-                        </p>
-                        {program.viewers && (
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <Users className="w-3 h-3" />
-                            <span>{program.viewers.toLocaleString()} assistindo</span>
+                {loading ? (
+                  <div className="text-center py-4 text-muted-foreground">
+                    Carregando programação...
+                  </div>
+                ) : (
+                  <>
+                    {/* Programas atuais */}
+                    {currentPrograms.map((program, index) => (
+                      <div key={program.id}>
+                        <div className="flex items-start gap-3">
+                          <div className="text-sm text-muted-foreground min-w-fit">
+                            {program.start_time} - {program.end_time}
                           </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-semibold text-sm">{program.title}</h4>
+                              <Badge variant="destructive" className="text-xs animate-pulse">
+                                AO VIVO
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground mb-2">
+                              {program.description}
+                            </p>
+                          </div>
+                        </div>
+                        {index < currentPrograms.length - 1 && (
+                          <Separator className="my-3" />
                         )}
                       </div>
-                    </div>
-                    {index < currentPrograms.length - 1 && (
-                      <Separator className="my-3" />
+                    ))}
+                    
+                    {/* Próximos programas */}
+                    {upcomingPrograms.map((program, index) => (
+                      <div key={`upcoming-${program.id}`}>
+                        <div className="flex items-start gap-3">
+                          <div className="text-sm text-muted-foreground min-w-fit">
+                            {program.start_time} - {program.end_time}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h4 className="font-semibold text-sm">{program.title}</h4>
+                              <Badge variant="secondary" className="text-xs">
+                                PRÓXIMO
+                              </Badge>
+                            </div>
+                            <p className="text-xs text-muted-foreground mb-2">
+                              {program.description}
+                            </p>
+                          </div>
+                        </div>
+                        {index < upcomingPrograms.length - 1 && (
+                          <Separator className="my-3" />
+                        )}
+                      </div>
+                    ))}
+                    
+                    {currentPrograms.length === 0 && upcomingPrograms.length === 0 && (
+                      <div className="text-center py-4 text-muted-foreground">
+                        Nenhum programa agendado para hoje.
+                      </div>
                     )}
-                  </div>
-                ))}
+                  </>
+                )}
               </div>
             </Card>
           </div>
