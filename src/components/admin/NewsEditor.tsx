@@ -140,6 +140,40 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
 
       if (result.error) throw result.error;
       
+      // Save images if there are any and we have a news ID
+      const savedNewsId = result.data.id;
+      if (newsImages.length > 0) {
+        try {
+          // Delete existing images for this news
+          await supabase
+            .from('news_images')
+            .delete()
+            .eq('news_id', savedNewsId);
+
+          // Insert new images
+          const imagesToSave = newsImages.map((img, index) => ({
+            news_id: savedNewsId,
+            image_url: img.image_url,
+            caption: img.caption || null,
+            is_featured: img.is_featured,
+            sort_order: index
+          }));
+
+          const { error: imagesError } = await supabase
+            .from('news_images')
+            .insert(imagesToSave);
+
+          if (imagesError) throw imagesError;
+        } catch (error) {
+          console.error('Error saving images:', error);
+          toast({
+            title: "Aviso",
+            description: "A notícia foi salva, mas houve um erro ao salvar as imagens.",
+            variant: "destructive",
+          });
+        }
+      }
+      
       toast({
         title: status === 'draft' ? "Rascunho salvo" : status === 'scheduled' ? "Notícia agendada" : "Notícia publicada",
         description: status === 'draft' 
