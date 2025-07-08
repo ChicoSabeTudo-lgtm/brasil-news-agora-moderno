@@ -66,63 +66,47 @@ serve(async (req) => {
 
     console.log(`Found ${allNews.length} news articles for potential backlinks`)
 
-    // Limpar o conteúdo HTML para análise
-    const textContent = content
-      .replace(/<[^>]+>/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim()
-      .toLowerCase()
+    // Obter tags da notícia atual
+    let currentTags: string[] = []
+    
+    if (currentNewsId) {
+      const { data: currentNews } = await supabase
+        .from('news')
+        .select('tags')
+        .eq('id', currentNewsId)
+        .single()
+      
+      currentTags = currentNews?.tags || []
+    }
 
-    // Encontrar matches potenciais
+    console.log('Current news tags:', currentTags)
+
+    // Encontrar matches potenciais apenas por tags em comum
     const potentialMatches: BacklinkMatch[] = []
 
     for (const news of allNews) {
-      const newsTitle = news.title.toLowerCase()
-      const newsWords = newsTitle.split(/\s+/).filter(word => word.length > 3)
-      
-      // Verificar se o título da notícia aparece no conteúdo
-      if (textContent.includes(newsTitle)) {
-        potentialMatches.push({
-          keyword: news.title,
-          newsId: news.id,
-          title: news.title,
-          slug: news.slug,
-          categorySlug: news.categories.slug,
-          relevanceScore: 10 // Alta relevância para título completo
-        })
-      }
-
-      // Verificar palavras-chave individuais do título
-      for (const word of newsWords) {
-        if (textContent.includes(word)) {
-          const regex = new RegExp(`\\b${word}\\b`, 'gi')
-          const matches = textContent.match(regex)
-          if (matches && matches.length > 0) {
-            potentialMatches.push({
-              keyword: word,
-              newsId: news.id,
-              title: news.title,
-              slug: news.slug,
-              categorySlug: news.categories.slug,
-              relevanceScore: matches.length * 2
-            })
-          }
-        }
-      }
-
-      // Verificar tags
-      if (news.tags) {
-        for (const tag of news.tags) {
-          if (textContent.includes(tag.toLowerCase())) {
-            potentialMatches.push({
-              keyword: tag,
-              newsId: news.id,
-              title: news.title,
-              slug: news.slug,
-              categorySlug: news.categories.slug,
-              relevanceScore: 5
-            })
-          }
+      // Verificar apenas tags em comum
+      if (news.tags && currentTags.length > 0) {
+        const commonTags = news.tags.filter(tag => 
+          currentTags.some(currentTag => 
+            currentTag.toLowerCase() === tag.toLowerCase()
+          )
+        )
+        
+        if (commonTags.length > 0) {
+          // Usar a primeira tag em comum como keyword
+          const firstCommonTag = commonTags[0]
+          
+          potentialMatches.push({
+            keyword: firstCommonTag,
+            newsId: news.id,
+            title: news.title,
+            slug: news.slug,
+            categorySlug: news.categories.slug,
+            relevanceScore: commonTags.length * 5 // 5 pontos por tag em comum
+          })
+          
+          console.log(`Found common tags between current and "${news.title}":`, commonTags)
         }
       }
     }
@@ -145,26 +129,30 @@ serve(async (req) => {
 
     // Filtrar e ordenar por relevância
     const finalMatches = Array.from(newsScores.values())
-      .filter(match => match.relevanceScore >= 3) // Score mínimo
+      .filter(match => match.relevanceScore >= 5) // Score mínimo aumentado para tags
       .sort((a, b) => b.relevanceScore - a.relevanceScore)
       .slice(0, 5) // Máximo 5 backlinks por artigo
 
-    console.log(`Found ${finalMatches.length} potential backlinks`)
+    console.log(`Found ${finalMatches.length} potential backlinks based on common tags`)
 
-    // Processar o conteúdo adicionando backlinks
+    // Processar o conteúdo adicionando backlinks apenas se a tag aparecer no conteúdo
     let processedContent = content
+    const contentLower = content.toLowerCase()
 
     for (const match of finalMatches) {
-      const linkUrl = `/${match.categorySlug}/${match.slug}`
-      const linkHTML = `<a href="${linkUrl}" class="internal-backlink" title="${match.title}">${match.keyword}</a>`
-      
-      // Criar regex para encontrar a primeira ocorrência da keyword que não está dentro de uma tag
-      const regex = new RegExp(`(?![^<]*>)\\b${match.keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i')
-      
-      // Substituir apenas a primeira ocorrência
-      if (regex.test(processedContent)) {
-        processedContent = processedContent.replace(regex, linkHTML)
-        console.log(`Added backlink for: ${match.keyword} -> ${match.title}`)
+      // Verificar se a tag (keyword) aparece no conteúdo
+      if (contentLower.includes(match.keyword.toLowerCase())) {
+        const linkUrl = `/${match.categorySlug}/${match.slug}`
+        const linkHTML = `<a href="${linkUrl}" class="internal-backlink" title="${match.title}">${match.keyword}</a>`
+        
+        // Criar regex para encontrar a primeira ocorrência da keyword que não está dentro de uma tag
+        const regex = new RegExp(`(?![^<]*>)\\b${match.keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i')
+        
+        // Substituir apenas a primeira ocorrência
+        if (regex.test(processedContent)) {
+          processedContent = processedContent.replace(regex, linkHTML)
+          console.log(`Added backlink for tag: ${match.keyword} -> ${match.title}`)
+        }
       }
     }
 
