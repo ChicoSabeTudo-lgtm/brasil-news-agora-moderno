@@ -93,8 +93,10 @@ export const useNews = () => {
     fetchNews();
   }, []);
 
-  const getNewsByCategory = (categorySlug: string) => {
-    return news.filter(item => item.categories?.slug === categorySlug);
+  const getNewsByCategory = (categorySlug: string, excludeIds: string[] = []) => {
+    return news.filter(item => 
+      item.categories?.slug === categorySlug && !excludeIds.includes(item.id)
+    );
   };
 
   const getBreakingNews = () => {

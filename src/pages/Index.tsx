@@ -118,11 +118,114 @@ const Index = () => {
   const secondaryNews = featuredNews.slice(1, 3).map(item => transformNewsItem(item, "medium"));
   const otherNews = featuredNews.slice(3).map(item => transformNewsItem(item, "small"));
 
-  const politicsNews = getNewsByCategory('politica').slice(0, 3).map(item => transformNewsItem(item, "medium"));
-  const economyNews = getNewsByCategory('economia').slice(0, 3).map(item => transformNewsItem(item, "medium"));
-  const sportsNews = getNewsByCategory('esportes').slice(0, 3).map(item => transformNewsItem(item, "medium"));
-  const techNews = getNewsByCategory('tecnologia').slice(0, 3).map(item => transformNewsItem(item, "medium"));
-  const internationalNews = getNewsByCategory('internacional').slice(0, 3).map(item => transformNewsItem(item, "medium"));
+  // Define todas as categorias e seus layouts
+  const categories = [
+    { name: 'Política', slug: 'politica', path: '/politica' },
+    { name: 'Economia', slug: 'economia', path: '/economia' },
+    { name: 'Esportes', slug: 'esportes', path: '/esportes' },
+    { name: 'Tecnologia', slug: 'tecnologia', path: '/tecnologia' },
+    { name: 'Internacional', slug: 'internacional', path: '/internacional' },
+    { name: 'Nacional', slug: 'nacional', path: '/nacional' },
+    { name: 'Entretenimento', slug: 'entretenimento', path: '/entretenimento' },
+    { name: 'Saúde', slug: 'saude', path: '/saude' }
+  ];
+
+  // IDs das notícias em destaque para excluir das seções
+  const featuredNewsIds = featuredNews.map(item => item.id);
+
+  // Função para renderizar seção modelo 1 - Grid padrão
+  const renderSectionModel1 = (category: any, newsItems: any[]) => (
+    <section key={category.slug} className="mb-12">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
+          <span className="bg-primary text-primary-foreground px-3 py-1 text-sm font-bold uppercase tracking-wide">
+            {category.name}
+          </span>
+        </h2>
+        <Link to={category.path} className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
+          Ver todas →
+        </Link>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {newsItems.map((news) => (
+          <NewsCard key={news.id} {...news} size="small" />
+        ))}
+      </div>
+    </section>
+  );
+
+  // Função para renderizar seção modelo 2 - Destaque + Lista
+  const renderSectionModel2 = (category: any, newsItems: any[]) => (
+    <section key={category.slug} className="mb-12">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
+          <span className="bg-primary text-primary-foreground px-3 py-1 text-sm font-bold uppercase tracking-wide">
+            {category.name}
+          </span>
+        </h2>
+        <Link to={category.path} className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
+          Ver todas →
+        </Link>
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Notícia em destaque */}
+        {newsItems[0] && (
+          <div className="lg:col-span-2">
+            <NewsCard {...newsItems[0]} size="large" />
+          </div>
+        )}
+        {/* Lista lateral */}
+        {newsItems.length > 1 && (
+          <div className="lg:col-span-1 space-y-4">
+            {newsItems.slice(1).map((news) => (
+              <div key={news.id} className="flex gap-4 p-4 bg-card rounded-lg hover:shadow-card transition-shadow cursor-pointer group">
+                <img 
+                  src={news.imageUrl} 
+                  alt={news.title}
+                  className="w-20 h-20 object-cover rounded flex-shrink-0"
+                />
+                <div className="flex-1">
+                  <Link to={`/${news.categorySlug}/${news.slug}`}>
+                    <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors mb-1">
+                      {news.title}
+                    </h3>
+                  </Link>
+                  <div className="flex items-center text-xs text-muted-foreground">
+                    <span>{news.author}</span>
+                    <span className="mx-1">•</span>
+                    <span>{news.publishedAt}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+
+  // Função para renderizar seção modelo 3 - Scroll horizontal
+  const renderSectionModel3 = (category: any, newsItems: any[]) => (
+    <section key={category.slug} className="mb-12">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
+          <span className="bg-primary text-primary-foreground px-3 py-1 text-sm font-bold uppercase tracking-wide">
+            {category.name}
+          </span>
+        </h2>
+        <Link to={category.path} className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
+          Ver todas →
+        </Link>
+      </div>
+      <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+        {newsItems.map((news) => (
+          <div key={news.id} className="flex-shrink-0 w-80">
+            <NewsCard {...news} size="medium" />
+          </div>
+        ))}
+      </div>
+    </section>
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -161,204 +264,34 @@ const Index = () => {
           </section>
         )}
 
-        {/* Advertisement Space - Politics */}
+        {/* Advertisement Space - Sections */}
         <Advertisement position="politics" />
 
-        {/* Política Section */}
-        {politicsNews.length > 0 && (
-          <section className="mb-12">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
-                <span className="bg-primary text-primary-foreground px-3 py-1 text-sm font-bold uppercase tracking-wide">
-                  Política
-                </span>
-              </h2>
-              <Link to="/politica" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
-                Ver todas →
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {politicsNews.map((news) => (
-                <NewsCard key={news.id} {...news} />
-              ))}
-            </div>
-          </section>
-        )}
+        {/* Seções de Categorias com Modelos Alternados */}
+        {categories.map((category, index) => {
+          const categoryNews = getNewsByCategory(category.slug, featuredNewsIds)
+            .slice(0, 4)
+            .map(item => transformNewsItem(item, "medium"));
+          
+          if (categoryNews.length === 0) return null;
 
-        {/* Economia Section - Featured + Sidebar Layout */}
-        {economyNews.length > 0 && (
-          <section className="mb-12">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
-                <span className="bg-primary text-primary-foreground px-3 py-1 text-sm font-bold uppercase tracking-wide">
-                  Economia
-                </span>
-              </h2>
-              <Link to="/economia" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
-                Ver todas →
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Featured Story */}
-              {economyNews[0] && (
-                <div className="lg:col-span-2">
-                  <NewsCard {...economyNews[0]} size="large" />
-                </div>
-              )}
-              {/* Sidebar Stories */}
-              {economyNews.length > 1 && (
-                <div className="lg:col-span-1 space-y-4">
-                  {economyNews.slice(1).map((news) => (
-                    <div key={news.id} className="flex gap-4 p-4 bg-card rounded-lg hover:shadow-card transition-shadow cursor-pointer group">
-                      <img 
-                        src={news.imageUrl} 
-                        alt={news.title}
-                        className="w-20 h-20 object-cover rounded flex-shrink-0"
-                      />
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors mb-1">
-                          {news.title}
-                        </h3>
-                        <div className="flex items-center text-xs text-muted-foreground">
-                          <span>{news.author}</span>
-                          <span className="mx-1">•</span>
-                          <span>{news.publishedAt}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </section>
-        )}
+          // Alternar entre os 3 modelos
+          const modelIndex = index % 3;
+          
+          switch (modelIndex) {
+            case 0:
+              return renderSectionModel1(category, categoryNews);
+            case 1:
+              return renderSectionModel2(category, categoryNews);
+            case 2:
+              return renderSectionModel3(category, categoryNews);
+            default:
+              return renderSectionModel1(category, categoryNews);
+          }
+        })}
 
-        {/* Advertisement Space - Sports */}
+        {/* Advertisement Space - Bottom */}
         <Advertisement position="sports" />
-
-        {/* Esportes Section - Horizontal Scroll Layout */}
-        {sportsNews.length > 0 && (
-          <section className="mb-12">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
-                <span className="bg-primary text-primary-foreground px-3 py-1 text-sm font-bold uppercase tracking-wide">
-                  Esportes
-                </span>
-              </h2>
-              <Link to="/esportes" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
-                Ver todas →
-              </Link>
-            </div>
-            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-              {sportsNews.map((news) => (
-                <div key={news.id} className="flex-shrink-0 w-80">
-                  <NewsCard {...news} />
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Tecnologia Section - Mosaic Layout */}
-        {techNews.length > 0 && (
-          <section className="mb-12">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
-                <span className="bg-primary text-primary-foreground px-3 py-1 text-sm font-bold uppercase tracking-wide">
-                  Tecnologia
-                </span>
-              </h2>
-              <Link to="/tecnologia" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
-                Ver todas →
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {techNews[0] && (
-                <div className="md:col-span-2 md:row-span-2">
-                  <NewsCard {...techNews[0]} size="large" />
-                </div>
-              )}
-              {techNews.length > 1 && (
-                <div className="md:col-span-2 grid grid-cols-1 gap-4">
-                  {techNews.slice(1).map((news) => (
-                    <NewsCard key={news.id} {...news} size="small" />
-                  ))}
-                </div>
-              )}
-            </div>
-          </section>
-        )}
-
-        {/* Advertisement Space - International */}
-        <Advertisement position="international" />
-
-        {/* Internacional Section - List + Featured Layout */}
-        {internationalNews.length > 0 && (
-          <section className="mb-12">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
-                <span className="bg-primary text-primary-foreground px-3 py-1 text-sm font-bold uppercase tracking-wide">
-                  Internacional
-                </span>
-              </h2>
-              <Link to="/internacional" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
-                Ver todas →
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Featured International News */}
-              {internationalNews[0] && (
-                <div>
-                  <NewsCard {...internationalNews[0]} size="medium" />
-                </div>
-              )}
-              {/* News List */}
-              {internationalNews.length > 1 && (
-                <div className="space-y-4">
-                  <h3 className="font-bold text-lg text-foreground border-l-4 border-primary pl-4">
-                    Destaques Internacionais
-                  </h3>
-                  {internationalNews.slice(1).map((news, index) => (
-                    <div key={news.id} className="flex gap-4 p-4 bg-card rounded-lg hover:shadow-card transition-shadow cursor-pointer group border-l-2 border-transparent hover:border-primary">
-                      <div className="flex-shrink-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm">
-                        {index + 2}
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors mb-2">
-                          {news.title}
-                        </h4>
-                        <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
-                          {news.metaDescription}
-                        </p>
-                        <div className="flex items-center text-xs text-muted-foreground">
-                          <span>{news.author}</span>
-                          <span className="mx-1">•</span>
-                          <span>{news.publishedAt}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </section>
-        )}
-
-        {/* Other News Grid */}
-        {otherNews.length > 0 && (
-          <section className="mb-12">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2">
-                Outras Notícias
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {otherNews.map((news) => (
-                <NewsCard key={news.id} {...news} />
-              ))}
-            </div>
-          </section>
-        )}
 
         {/* Mais Lidas Section */}
         <section className="mb-12">
