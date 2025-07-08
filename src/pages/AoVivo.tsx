@@ -122,65 +122,84 @@ const AoVivo = () => {
           <div className="lg:col-span-2 space-y-6">
             <Card className="overflow-hidden bg-black">
               <div className="relative aspect-video">
-                {/* Video Background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black flex items-center justify-center">
-                  <div className="text-center text-white">
-                    <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-                      {isPlaying ? (
-                        <Camera className="w-10 h-10" />
-                      ) : (
-                        <Play className="w-10 h-10 ml-1" />
-                      )}
+                {activeStream?.stream_url ? (
+                  /* Real Video Embed */
+                  <div className="w-full h-full">
+                    <iframe 
+                      src={activeStream.stream_url.replace('watch?v=', 'embed/')}
+                      className="w-full h-full"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      title={activeStream.title}
+                    />
+                  </div>
+                ) : (
+                  /* Video Placeholder */
+                  <div className="absolute inset-0 bg-gradient-to-br from-gray-900 to-black flex items-center justify-center">
+                    <div className="text-center text-white">
+                      <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
+                        {isPlaying ? (
+                          <Camera className="w-10 h-10" />
+                        ) : (
+                          <Play className="w-10 h-10 ml-1" />
+                        )}
+                      </div>
+                      <h3 className="text-xl font-semibold mb-2">
+                        {isPlaying ? "TRANSMISSÃO AO VIVO" : "TRANSMISSÃO PAUSADA"}
+                      </h3>
+                      <p className="text-gray-300">
+                        {activeStream ? activeStream.title : "Aguardando URL do vídeo"}
+                      </p>
                     </div>
-                    <h3 className="text-xl font-semibold mb-2">
-                      {isPlaying ? "TRANSMISSÃO AO VIVO" : "TRANSMISSÃO PAUSADA"}
-                    </h3>
-                    <p className="text-gray-300">
-                      {isPlaying ? "Jornal Nacional - Edição das 20:30" : "Clique play para retomar"}
-                    </p>
                   </div>
-                </div>
+                )}
 
-                {/* Live Indicators */}
-                <div className="absolute top-4 left-4 flex items-center gap-3">
-                  <div className="flex items-center space-x-2 bg-primary px-3 py-1 rounded">
-                    <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                    <span className="text-white text-sm font-bold uppercase">AO VIVO</span>
-                  </div>
-                  <div className="flex items-center space-x-2 bg-black/50 px-3 py-1 rounded text-white text-sm">
-                    <Users className="w-4 h-4" />
-                    <span>{activeStream?.viewer_count?.toLocaleString() || 0} espectadores</span>
-                  </div>
-                </div>
+                {/* Overlays - apenas se não há vídeo real */}
+                {!activeStream?.stream_url && (
+                  <>
+                    {/* Live Indicators */}
+                    <div className="absolute top-4 left-4 flex items-center gap-3">
+                      <div className="flex items-center space-x-2 bg-primary px-3 py-1 rounded">
+                        <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                        <span className="text-white text-sm font-bold uppercase">AO VIVO</span>
+                      </div>
+                      <div className="flex items-center space-x-2 bg-black/50 px-3 py-1 rounded text-white text-sm">
+                        <Users className="w-4 h-4" />
+                        <span>{activeStream?.viewer_count?.toLocaleString() || 0} espectadores</span>
+                      </div>
+                    </div>
 
-                {/* Controls */}
-                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="bg-black/50 hover:bg-black/70"
-                      onClick={() => setIsPlaying(!isPlaying)}
-                    >
-                      {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="bg-black/50 hover:bg-black/70"
-                      onClick={() => setIsMuted(!isMuted)}
-                    >
-                      {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-                    </Button>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    className="bg-black/50 hover:bg-black/70"
-                  >
-                    <Maximize className="w-4 h-4" />
-                  </Button>
-                </div>
+                    {/* Controls */}
+                    <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className="bg-black/50 hover:bg-black/70"
+                          onClick={() => setIsPlaying(!isPlaying)}
+                        >
+                          {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className="bg-black/50 hover:bg-black/70"
+                          onClick={() => setIsMuted(!isMuted)}
+                        >
+                          {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                        </Button>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="bg-black/50 hover:bg-black/70"
+                      >
+                        <Maximize className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </>
+                )}
               </div>
             </Card>
 
@@ -206,6 +225,12 @@ const AoVivo = () => {
                       <Calendar className="w-4 h-4" />
                       <span>Segunda a Sexta</span>
                     </div>
+                    {activeStream && (
+                      <div className="flex items-center gap-1">
+                        <Users className="w-4 h-4" />
+                        <span>{activeStream.viewer_count.toLocaleString()} espectadores</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
