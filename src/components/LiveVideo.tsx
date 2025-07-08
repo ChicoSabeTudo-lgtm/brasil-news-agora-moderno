@@ -1,8 +1,38 @@
-import { Play, Volume2, Maximize } from "lucide-react";
+import { Play, Volume2, Maximize, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useLiveStreams } from "@/hooks/useLiveStreams";
+import { Link } from "react-router-dom";
 
 export const LiveVideo = () => {
+  const { getActiveStream } = useLiveStreams();
+  const activeStream = getActiveStream();
+
+  if (!activeStream) {
+    return (
+      <Card className="overflow-hidden bg-black">
+        <div className="relative aspect-video bg-gradient-to-br from-gray-900 to-black">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-center text-white">
+              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <Play className="w-8 h-8 ml-1 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">NENHUMA TRANSMISSÃO</h3>
+              <p className="text-sm text-gray-300">Não há transmissões ao vivo no momento</p>
+            </div>
+          </div>
+        </div>
+        <div className="p-4 bg-card">
+          <h3 className="font-bold text-lg mb-2">Transmissão ao Vivo</h3>
+          <p className="text-muted-foreground text-sm">
+            Volte em breve para acompanhar nossas transmissões ao vivo.
+          </p>
+        </div>
+      </Card>
+    );
+  }
+
   return (
     <Card className="overflow-hidden bg-black">
       <div className="relative aspect-video bg-gradient-to-br from-gray-900 to-black">
@@ -12,8 +42,8 @@ export const LiveVideo = () => {
             <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
               <Play className="w-8 h-8 ml-1" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">JORNAL AO VIVO</h3>
-            <p className="text-sm text-gray-300">Transmissão em tempo real</p>
+            <h3 className="text-lg font-semibold mb-2">TRANSMISSÃO AO VIVO</h3>
+            <p className="text-sm text-gray-300">{activeStream.title}</p>
           </div>
         </div>
 
@@ -37,17 +67,29 @@ export const LiveVideo = () => {
 
         {/* Viewer Count */}
         <div className="absolute bottom-4 left-4">
-          <div className="bg-black/50 px-3 py-1 rounded text-white text-sm">
-            12.545 espectadores
+          <div className="bg-black/50 px-3 py-1 rounded text-white text-sm flex items-center gap-1">
+            <Users className="w-3 h-3" />
+            {activeStream.viewer_count.toLocaleString()} espectadores
           </div>
         </div>
       </div>
 
       <div className="p-4 bg-card">
-        <h3 className="font-bold text-lg mb-2">Jornal da Tarde - Edição Especial</h3>
-        <p className="text-muted-foreground text-sm">
-          Acompanhe as principais notícias do dia com análises ao vivo e entrevistas exclusivas.
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="font-bold text-lg">{activeStream.title}</h3>
+          <Badge variant="destructive" className="animate-pulse">
+            AO VIVO
+          </Badge>
+        </div>
+        <p className="text-muted-foreground text-sm mb-3">
+          {activeStream.description || "Acompanhe nossa transmissão ao vivo"}
         </p>
+        <Link 
+          to="/ao-vivo" 
+          className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors"
+        >
+          Ver página completa →
+        </Link>
       </div>
     </Card>
   );
