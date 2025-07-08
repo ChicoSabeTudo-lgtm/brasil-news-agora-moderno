@@ -50,12 +50,6 @@ export const NewsCard = ({
           className={`w-full object-cover transition-transform duration-300 group-hover:scale-105 ${getSizeClasses()}`}
         />
         
-        {/* Category Badge */}
-        <div className="absolute top-3 left-3">
-          <span className="bg-primary text-primary-foreground px-2 py-1 text-xs font-semibold uppercase tracking-wide">
-            {category}
-          </span>
-        </div>
 
         {/* Breaking News Badge */}
         {isBreaking && (
