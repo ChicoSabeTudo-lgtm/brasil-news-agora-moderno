@@ -24,13 +24,14 @@ export const RichTextEditor = ({
 
   useEffect(() => {
     const loadQuill = async () => {
-      if (typeof window !== 'undefined' && !ReactQuill) {
-        const { default: RQ } = await import('react-quill');
-        ReactQuill = RQ;
-        
-        // Import Quill CSS
-        await import('react-quill/dist/quill.snow.css');
-        
+      if (typeof window !== 'undefined') {
+        if (!ReactQuill) {
+          const { default: RQ } = await import('react-quill');
+          ReactQuill = RQ;
+          
+          // Import Quill CSS
+          await import('react-quill/dist/quill.snow.css');
+        }
         setIsLoaded(true);
       }
     };
