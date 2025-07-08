@@ -104,7 +104,7 @@ export const useNews = () => {
   };
 
   const getFeaturedNews = () => {
-    return news.slice(0, 6);
+    return news.slice(0, 3);
   };
 
   return {
