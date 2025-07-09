@@ -57,10 +57,6 @@ export default function Admin() {
                 <Settings className="w-4 h-4 mr-2" />
                 Configurações
               </Button>
-              <Button size="sm">
-                <PlusCircle className="w-4 h-4 mr-2" />
-                Nova Notícia
-              </Button>
             </div>
           </div>
 
