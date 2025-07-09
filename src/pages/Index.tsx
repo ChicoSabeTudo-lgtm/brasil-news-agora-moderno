@@ -6,6 +6,7 @@ import { LiveVideo } from "@/components/LiveVideo";
 import { Advertisement } from "@/components/Advertisement";
 import { Link } from "react-router-dom";
 import { useNews } from "@/hooks/useNews";
+import { useVideos } from "@/hooks/useVideos";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -31,6 +32,7 @@ const categoryImages: Record<string, string> = {
 
 const Index = () => {
   const { news, loading, error, getNewsByCategory, getBreakingNews, getFeaturedNews } = useNews();
+  const { videos, loading: videosLoading } = useVideos();
 
   // Helper function to format date
   const formatPublishedAt = (dateString: string) => {
@@ -371,85 +373,55 @@ const Index = () => {
               Ver todos →
             </a>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              {
-                title: "Análise completa da reforma tributária aprovada no Congresso",
-                duration: "8:45",
-                views: "156k",
-                thumbnail: breakingImage,
-                category: "Política"
-              },
-              {
-                title: "Mercado financeiro reage à decisão do Banco Central sobre a Selic",
-                duration: "5:32",
-                views: "89k",
-                thumbnail: economyImage,
-                category: "Economia"
-              },
-              {
-                title: "Convocação da Seleção: análise dos escolhidos para a Copa América",
-                duration: "12:18",
-                views: "234k",
-                thumbnail: sportsImage,
-                category: "Esportes"
-              },
-              {
-                title: "Nova tecnologia de IA revoluciona diagnósticos médicos no Brasil",
-                duration: "6:55",
-                views: "67k",
-                thumbnail: techImage,
-                category: "Tecnologia"
-              },
-              {
-                title: "Cúpula do G20: principais decisões sobre mudanças climáticas",
-                duration: "9:21",
-                views: "112k",
-                thumbnail: internationalImage,
-                category: "Internacional"
-              },
-              {
-                title: "Descoberta arqueológica muda história pré-colombiana do Brasil",
-                duration: "7:03",
-                views: "78k",
-                thumbnail: politicsImage,
-                category: "Nacional"
-              }
-            ].map((video, index) => (
-              <div key={index} className="bg-card rounded-lg overflow-hidden shadow-card hover:shadow-lg transition-shadow cursor-pointer group">
-                <div className="relative">
-                  <img 
-                    src={video.thumbnail} 
-                    alt={video.title}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
-                  <div className="absolute bottom-2 right-2 bg-black/80 text-white px-2 py-1 rounded text-xs font-medium">
-                    {video.duration}
+          
+          {videosLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <p className="text-muted-foreground">Carregando vídeos...</p>
+            </div>
+          ) : videos.length === 0 ? (
+            <div className="flex items-center justify-center py-12">
+              <p className="text-muted-foreground">Nenhum vídeo disponível.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {videos.slice(0, 6).map((video) => (
+                <div key={video.id} className="bg-card rounded-lg overflow-hidden shadow-card hover:shadow-lg transition-shadow cursor-pointer group">
+                  <div className="relative">
+                    <img 
+                      src={video.thumbnail_url || breakingImage} 
+                      alt={video.title}
+                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
+                    <div className="absolute bottom-2 right-2 bg-black/80 text-white px-2 py-1 rounded text-xs font-medium">
+                      {video.duration}
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center group-hover:bg-white transition-colors">
+                        <div className="w-0 h-0 border-l-6 border-l-black border-t-4 border-t-transparent border-b-4 border-b-transparent ml-1"></div>
+                      </div>
+                    </div>
+                    {video.categories && (
+                      <div className="absolute top-2 left-2">
+                        <span className="bg-primary text-primary-foreground px-2 py-1 text-xs font-bold uppercase tracking-wide rounded">
+                          {video.categories.name}
+                        </span>
+                      </div>
+                    )}
                   </div>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center group-hover:bg-white transition-colors">
-                      <div className="w-0 h-0 border-l-6 border-l-black border-t-4 border-t-transparent border-b-4 border-b-transparent ml-1"></div>
+                  <div className="p-4">
+                    <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors mb-2">
+                      {video.title}
+                    </h3>
+                    <div className="flex items-center text-xs text-muted-foreground justify-between">
+                      <span>{video.views.toLocaleString()} visualizações</span>
+                      <span>{formatPublishedAt(video.published_at || video.created_at)}</span>
                     </div>
                   </div>
-                  <div className="absolute top-2 left-2">
-                    <span className="bg-primary text-primary-foreground px-2 py-1 text-xs font-bold uppercase tracking-wide rounded">
-                      {video.category}
-                    </span>
-                  </div>
                 </div>
-                <div className="p-4">
-                  <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors mb-2">
-                    {video.title}
-                  </h3>
-                  <div className="flex items-center text-xs text-muted-foreground justify-between">
-                    <span>{video.views} visualizações</span>
-                    <span>há {Math.floor(Math.random() * 12) + 1} horas</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Quick Categories Navigation */}
