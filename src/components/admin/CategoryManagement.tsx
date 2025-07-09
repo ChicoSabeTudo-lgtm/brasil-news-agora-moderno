@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { 
   Table,
@@ -36,6 +37,7 @@ interface Category {
   icon?: string;
   is_active: boolean;
   sort_order: number;
+  template_type?: string;
   created_at: string;
   updated_at: string;
 }
@@ -52,7 +54,8 @@ export const CategoryManagement = () => {
     color: '#0066cc',
     icon: '',
     is_active: true,
-    sort_order: 0
+    sort_order: 0,
+    template_type: 'standard' as 'standard' | 'grid' | 'list' | 'magazine'
   });
   
   const { userRole } = useAuth();
@@ -149,7 +152,8 @@ export const CategoryManagement = () => {
       color: category.color,
       icon: category.icon || '',
       is_active: category.is_active,
-      sort_order: category.sort_order
+      sort_order: category.sort_order,
+      template_type: (category.template_type as 'standard' | 'grid' | 'list' | 'magazine') || 'standard'
     });
     setIsDialogOpen(true);
   };
@@ -214,7 +218,8 @@ export const CategoryManagement = () => {
       color: '#0066cc',
       icon: '',
       is_active: true,
-      sort_order: 0
+      sort_order: 0,
+      template_type: 'standard' as 'standard' | 'grid' | 'list' | 'magazine'
     });
     setEditingCategory(null);
   };
@@ -335,6 +340,26 @@ export const CategoryManagement = () => {
                   </div>
                 </div>
 
+                <div className="space-y-2">
+                  <Label htmlFor="template_type">Tipo de Template</Label>
+                  <Select 
+                    value={formData.template_type} 
+                    onValueChange={(value: 'standard' | 'grid' | 'list' | 'magazine') => 
+                      setFormData({ ...formData, template_type: value })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o tipo de template" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="standard">Padrão</SelectItem>
+                      <SelectItem value="grid">Grade</SelectItem>
+                      <SelectItem value="list">Lista</SelectItem>
+                      <SelectItem value="magazine">Revista</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="is_active"
@@ -365,6 +390,7 @@ export const CategoryManagement = () => {
               <TableHead>Nome</TableHead>
               <TableHead>Slug</TableHead>
               <TableHead>Cor</TableHead>
+              <TableHead>Template</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Ordem</TableHead>
               <TableHead className="text-right">Ações</TableHead>
@@ -394,6 +420,15 @@ export const CategoryManagement = () => {
                       {category.color}
                     </span>
                   </div>
+                </TableCell>
+                <TableCell>
+                  <Badge variant="outline">
+                    {category.template_type === 'standard' && 'Padrão'}
+                    {category.template_type === 'grid' && 'Grade'}
+                    {category.template_type === 'list' && 'Lista'}
+                    {category.template_type === 'magazine' && 'Revista'}
+                    {!category.template_type && 'Padrão'}
+                  </Badge>
                 </TableCell>
                 <TableCell>
                   <Badge variant={category.is_active ? 'default' : 'secondary'}>

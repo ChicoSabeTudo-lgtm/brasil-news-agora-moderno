@@ -121,6 +121,9 @@ export type Database = {
           name: string
           slug: string
           sort_order: number | null
+          template_type:
+            | Database["public"]["Enums"]["category_template_type"]
+            | null
           updated_at: string
         }
         Insert: {
@@ -133,6 +136,9 @@ export type Database = {
           name: string
           slug: string
           sort_order?: number | null
+          template_type?:
+            | Database["public"]["Enums"]["category_template_type"]
+            | null
           updated_at?: string
         }
         Update: {
@@ -145,6 +151,9 @@ export type Database = {
           name?: string
           slug?: string
           sort_order?: number | null
+          template_type?:
+            | Database["public"]["Enums"]["category_template_type"]
+            | null
           updated_at?: string
         }
         Relationships: []
@@ -532,6 +541,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "redator"
+      category_template_type: "standard" | "grid" | "list" | "magazine"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -660,6 +670,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "redator"],
+      category_template_type: ["standard", "grid", "list", "magazine"],
     },
   },
 } as const
