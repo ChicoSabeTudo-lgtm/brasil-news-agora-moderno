@@ -515,6 +515,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_video_views: {
+        Args: { video_id: string }
+        Returns: undefined
+      }
       publish_scheduled_news: {
         Args: Record<PropertyKey, never>
         Returns: undefined
