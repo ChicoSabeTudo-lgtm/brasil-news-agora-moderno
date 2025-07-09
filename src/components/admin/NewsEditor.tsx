@@ -38,6 +38,7 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
     content: '',
     categoryId: '',
     isBreaking: false,
+    isFeatured: false,
     tags: '',
     embedCode: '',
     status: 'draft', // draft, published, scheduled
@@ -60,6 +61,7 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
         content: editingNews.content || '',
         categoryId: editingNews.category_id || '',
         isBreaking: editingNews.is_breaking || false,
+        isFeatured: editingNews.is_featured || false,
         tags: editingNews.tags?.join(', ') || '',
         embedCode: editingNews.embed_code || '',
         status: editingNews.is_published ? 'published' : (editingNews.scheduled_publish_at ? 'scheduled' : 'draft'),
@@ -117,6 +119,7 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
         content: article.content,
         category_id: article.categoryId,
         is_breaking: article.isBreaking,
+        is_featured: article.isFeatured,
         is_published: status === 'published',
         published_at: status === 'published' ? new Date().toISOString() : null,
         scheduled_publish_at: status === 'scheduled' ? article.scheduledPublishAt?.toISOString() : null,
@@ -197,6 +200,7 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
           content: '',
           categoryId: '',
           isBreaking: false,
+          isFeatured: false,
           tags: '',
           embedCode: '',
           status: 'draft',
@@ -319,13 +323,24 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
           </p>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="breaking"
-            checked={article.isBreaking}
-            onCheckedChange={(checked) => setArticle({ ...article, isBreaking: checked })}
-          />
-          <Label htmlFor="breaking">Marcar como notícia urgente</Label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="breaking"
+              checked={article.isBreaking}
+              onCheckedChange={(checked) => setArticle({ ...article, isBreaking: checked })}
+            />
+            <Label htmlFor="breaking">Marcar como notícia urgente</Label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="featured"
+              checked={article.isFeatured}
+              onCheckedChange={(checked) => setArticle({ ...article, isFeatured: checked })}
+            />
+            <Label htmlFor="featured">Marcar como destaque na home</Label>
+          </div>
         </div>
 
         {/* Scheduling Section */}

@@ -298,6 +298,7 @@ export type Database = {
           embed_code: string | null
           id: string
           is_breaking: boolean | null
+          is_featured: boolean | null
           is_published: boolean | null
           meta_description: string
           published_at: string | null
@@ -317,6 +318,7 @@ export type Database = {
           embed_code?: string | null
           id?: string
           is_breaking?: boolean | null
+          is_featured?: boolean | null
           is_published?: boolean | null
           meta_description: string
           published_at?: string | null
@@ -336,6 +338,7 @@ export type Database = {
           embed_code?: string | null
           id?: string
           is_breaking?: boolean | null
+          is_featured?: boolean | null
           is_published?: boolean | null
           meta_description?: string
           published_at?: string | null

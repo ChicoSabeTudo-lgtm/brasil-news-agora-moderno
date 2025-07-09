@@ -36,6 +36,7 @@ interface News {
   summary: string;
   is_published: boolean;
   is_breaking: boolean;
+  is_featured: boolean;
   published_at: string | null;
   created_at: string;
   views: number;
@@ -335,6 +336,18 @@ export const NewsList = () => {
                           <AlertCircle className="w-4 h-4 text-destructive" />
                         )}
                         <span className="line-clamp-2">{newsItem.title}</span>
+                        <div className="flex gap-1 ml-auto">
+                          {newsItem.is_featured && (
+                            <Badge variant="default" className="text-xs bg-amber-500 hover:bg-amber-600">
+                              DESTAQUE
+                            </Badge>
+                          )}
+                          {newsItem.is_breaking && (
+                            <Badge variant="destructive" className="text-xs">
+                              URGENTE
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                     </TableCell>
                     <TableCell>
