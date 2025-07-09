@@ -39,6 +39,7 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
     categoryId: '',
     isBreaking: false,
     tags: '',
+    embedCode: '',
     status: 'draft', // draft, published, scheduled
     scheduledPublishAt: null as Date | null
   });
@@ -60,6 +61,7 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
         categoryId: editingNews.category_id || '',
         isBreaking: editingNews.is_breaking || false,
         tags: editingNews.tags?.join(', ') || '',
+        embedCode: editingNews.embed_code || '',
         status: editingNews.is_published ? 'published' : (editingNews.scheduled_publish_at ? 'scheduled' : 'draft'),
         scheduledPublishAt: editingNews.scheduled_publish_at ? new Date(editingNews.scheduled_publish_at) : null
       });
@@ -119,6 +121,7 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
         published_at: status === 'published' ? new Date().toISOString() : null,
         scheduled_publish_at: status === 'scheduled' ? article.scheduledPublishAt?.toISOString() : null,
         tags: article.tags ? article.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [],
+        embed_code: article.embedCode || null,
         author_id: user?.id
       };
 
@@ -195,6 +198,7 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
           categoryId: '',
           isBreaking: false,
           tags: '',
+          embedCode: '',
           status: 'draft',
           scheduledPublishAt: null
         });
@@ -299,6 +303,20 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
             value={article.tags}
             onChange={(e) => setArticle({ ...article, tags: e.target.value })}
           />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="embedCode">Código Embed (opcional)</Label>
+          <Textarea
+            id="embedCode"
+            placeholder="Cole aqui códigos embed do YouTube, Instagram, Twitter, etc..."
+            rows={4}
+            value={article.embedCode}
+            onChange={(e) => setArticle({ ...article, embedCode: e.target.value })}
+          />
+          <p className="text-xs text-muted-foreground">
+            Exemplo: códigos de incorporação de vídeos do YouTube, posts do Instagram, tweets, etc.
+          </p>
         </div>
 
         <div className="flex items-center space-x-2">
@@ -449,6 +467,16 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
                   className="prose prose-sm max-w-none"
                   dangerouslySetInnerHTML={{ __html: article.content || '<p>Conteúdo da notícia aparecerá aqui...</p>' }}
                 />
+
+                {article.embedCode && (
+                  <div className="my-6 p-4 border-2 border-dashed border-muted rounded-lg">
+                    <p className="text-sm text-muted-foreground mb-2">Conteúdo Incorporado:</p>
+                    <div 
+                      className="embed-content"
+                      dangerouslySetInnerHTML={{ __html: article.embedCode }}
+                    />
+                  </div>
+                )}
 
                 {article.tags && (
                   <div className="flex flex-wrap gap-1 pt-4 border-t">
