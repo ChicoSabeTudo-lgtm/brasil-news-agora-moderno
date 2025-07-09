@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { SiteCodeInjector } from "@/components/SiteCodeInjector";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Politica from "./pages/Politica";
@@ -23,6 +24,8 @@ import Admin from "./pages/Admin";
 import Contact from "./pages/Contact";
 import Advertise from "./pages/Advertise";
 import Videos from "./pages/Videos";
+import SiteConfigurations from "./pages/SiteConfigurations";
+import AdsTxt from "./pages/AdsTxt";
 
 const queryClient = new QueryClient();
 
@@ -32,11 +35,13 @@ const App = () => (
       <AuthProvider>
         <Toaster />
         <Sonner />
+        <SiteCodeInjector />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/configuracoes" element={<SiteConfigurations />} />
             {/* Rota dinâmica para todas as categorias */}
             <Route path="/:categorySlug" element={<DynamicCategoryRoute />} />
             <Route path="/busca" element={<Search />} />
@@ -44,6 +49,7 @@ const App = () => (
             <Route path="/videos" element={<Videos />} />
             <Route path="/contato" element={<Contact />} />
             <Route path="/anuncie" element={<Advertise />} />
+            <Route path="/ads.txt" element={<AdsTxt />} />
             <Route path="/noticia/:id" element={<NewsArticle />} />
             <Route path="/:categorySlug/:slug" element={<NewsArticle />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

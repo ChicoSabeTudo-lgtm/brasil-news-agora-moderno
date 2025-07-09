@@ -437,6 +437,36 @@ export type Database = {
         }
         Relationships: []
       }
+      site_configurations: {
+        Row: {
+          ads_txt_content: string | null
+          created_at: string
+          footer_code: string | null
+          header_code: string | null
+          id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          ads_txt_content?: string | null
+          created_at?: string
+          footer_code?: string | null
+          header_code?: string | null
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          ads_txt_content?: string | null
+          created_at?: string
+          footer_code?: string | null
+          header_code?: string | null
+          id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
