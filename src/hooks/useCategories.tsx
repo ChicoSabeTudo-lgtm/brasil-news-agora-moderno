@@ -10,6 +10,7 @@ interface Category {
   icon?: string;
   is_active: boolean;
   sort_order: number;
+  template_type?: string;
 }
 
 export const useCategories = () => {

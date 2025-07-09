@@ -6,6 +6,7 @@ import { LiveVideo } from "@/components/LiveVideo";
 import { Advertisement } from "@/components/Advertisement";
 import { Link } from "react-router-dom";
 import { useNews } from "@/hooks/useNews";
+import { useCategories } from "@/hooks/useCategories";
 import { useVideos } from "@/hooks/useVideos";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -32,6 +33,7 @@ const categoryImages: Record<string, string> = {
 
 const Index = () => {
   const { news, loading, error, getNewsByCategory, getBreakingNews, getFeaturedNews } = useNews();
+  const { categories, loading: categoriesLoading } = useCategories();
   const { videos, loading: videosLoading } = useVideos();
 
   // Helper function to format date
@@ -85,7 +87,7 @@ const Index = () => {
     categorySlug: newsItem.categories?.slug
   });
 
-  if (loading) {
+  if (loading || categoriesLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
@@ -120,23 +122,11 @@ const Index = () => {
   const secondaryNews = featuredNews.slice(1, 3).map(item => transformNewsItem(item, "medium"));
   const otherNews = featuredNews.slice(3).map(item => transformNewsItem(item, "small"));
 
-  // Define todas as categorias e seus layouts
-  const categories = [
-    { name: 'Política', slug: 'politica', path: '/politica' },
-    { name: 'Economia', slug: 'economia', path: '/economia' },
-    { name: 'Esportes', slug: 'esportes', path: '/esportes' },
-    { name: 'Tecnologia', slug: 'tecnologia', path: '/tecnologia' },
-    { name: 'Internacional', slug: 'internacional', path: '/internacional' },
-    { name: 'Nacional', slug: 'nacional', path: '/nacional' },
-    { name: 'Entretenimento', slug: 'entretenimento', path: '/entretenimento' },
-    { name: 'Saúde', slug: 'saude', path: '/saude' }
-  ];
-
   // IDs das notícias em destaque para excluir das seções
   const featuredNewsIds = featuredNews.map(item => item.id);
 
-  // Função para renderizar seção modelo 1 - Grid padrão
-  const renderSectionModel1 = (category: any, newsItems: any[]) => (
+  // Função para renderizar template 'standard' - Grid padrão
+  const renderStandardTemplate = (category: any, newsItems: any[]) => (
     <section key={category.slug} className="mb-12">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
@@ -144,7 +134,7 @@ const Index = () => {
             {category.name}
           </span>
         </h2>
-        <Link to={category.path} className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
+        <Link to={`/${category.slug}`} className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
           Ver todas →
         </Link>
       </div>
@@ -156,8 +146,8 @@ const Index = () => {
     </section>
   );
 
-  // Função para renderizar seção modelo 2 - Destaque + Lista
-  const renderSectionModel2 = (category: any, newsItems: any[]) => (
+  // Função para renderizar template 'grid' - Grade compacta
+  const renderGridTemplate = (category: any, newsItems: any[]) => (
     <section key={category.slug} className="mb-12">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
@@ -165,7 +155,70 @@ const Index = () => {
             {category.name}
           </span>
         </h2>
-        <Link to={category.path} className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
+        <Link to={`/${category.slug}`} className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
+          Ver todas →
+        </Link>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {newsItems.map((news) => (
+          <NewsCard key={news.id} {...news} size="medium" />
+        ))}
+      </div>
+    </section>
+  );
+
+  // Função para renderizar template 'list' - Lista simples
+  const renderListTemplate = (category: any, newsItems: any[]) => (
+    <section key={category.slug} className="mb-12">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
+          <span className="bg-primary text-primary-foreground px-3 py-1 text-sm font-bold uppercase tracking-wide">
+            {category.name}
+          </span>
+        </h2>
+        <Link to={`/${category.slug}`} className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
+          Ver todas →
+        </Link>
+      </div>
+      <div className="space-y-4">
+        {newsItems.map((news) => (
+          <div key={news.id} className="flex gap-4 p-4 bg-card rounded-lg hover:shadow-card transition-shadow cursor-pointer group">
+            <img 
+              src={news.imageUrl} 
+              alt={news.title}
+              className="w-24 h-24 object-cover rounded flex-shrink-0"
+            />
+            <div className="flex-1">
+              <Link to={`/${news.categorySlug}/${news.slug}`}>
+                <h3 className="font-semibold text-lg line-clamp-2 group-hover:text-primary transition-colors mb-2">
+                  {news.title}
+                </h3>
+              </Link>
+              <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
+                {news.metaDescription}
+              </p>
+              <div className="flex items-center text-xs text-muted-foreground">
+                <span>{news.author}</span>
+                <span className="mx-1">•</span>
+                <span>{news.publishedAt}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+
+  // Função para renderizar template 'magazine' - Destaque + Lista lateral
+  const renderMagazineTemplate = (category: any, newsItems: any[]) => (
+    <section key={category.slug} className="mb-12">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
+          <span className="bg-primary text-primary-foreground px-3 py-1 text-sm font-bold uppercase tracking-wide">
+            {category.name}
+          </span>
+        </h2>
+        <Link to={`/${category.slug}`} className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
           Ver todas →
         </Link>
       </div>
@@ -202,29 +255,6 @@ const Index = () => {
             ))}
           </div>
         )}
-      </div>
-    </section>
-  );
-
-  // Função para renderizar seção modelo 3 - Scroll horizontal
-  const renderSectionModel3 = (category: any, newsItems: any[]) => (
-    <section key={category.slug} className="mb-12">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
-          <span className="bg-primary text-primary-foreground px-3 py-1 text-sm font-bold uppercase tracking-wide">
-            {category.name}
-          </span>
-        </h2>
-        <Link to={category.path} className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
-          Ver todas →
-        </Link>
-      </div>
-      <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-        {newsItems.map((news) => (
-          <div key={news.id} className="flex-shrink-0 w-80">
-            <NewsCard {...news} size="medium" />
-          </div>
-        ))}
       </div>
     </section>
   );
@@ -269,26 +299,27 @@ const Index = () => {
         {/* Advertisement Space - Sections */}
         <Advertisement position="politics" />
 
-        {/* Seções de Categorias com Modelos Alternados */}
-        {categories.map((category, index) => {
+        {/* Seções de Categorias com Templates Dinâmicos */}
+        {categories.map((category) => {
           const categoryNews = getNewsByCategory(category.slug, featuredNewsIds)
             .slice(0, 4)
             .map(item => transformNewsItem(item, "medium"));
           
           if (categoryNews.length === 0) return null;
 
-          // Alternar entre os 3 modelos
-          const modelIndex = index % 3;
+          // Usar o template_type da categoria ou 'standard' como padrão
+          const templateType = category.template_type || 'standard';
           
-          switch (modelIndex) {
-            case 0:
-              return renderSectionModel1(category, categoryNews);
-            case 1:
-              return renderSectionModel2(category, categoryNews);
-            case 2:
-              return renderSectionModel3(category, categoryNews);
+          switch (templateType) {
+            case 'grid':
+              return renderGridTemplate(category, categoryNews);
+            case 'list':
+              return renderListTemplate(category, categoryNews);
+            case 'magazine':
+              return renderMagazineTemplate(category, categoryNews);
+            case 'standard':
             default:
-              return renderSectionModel1(category, categoryNews);
+              return renderStandardTemplate(category, categoryNews);
           }
         })}
 
