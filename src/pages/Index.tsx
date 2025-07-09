@@ -301,14 +301,18 @@ const Index = () => {
 
         {/* Seções de Categorias com Templates Dinâmicos */}
         {categories.map((category) => {
+          // Determinar quantas notícias buscar baseado no template
+          const templateType = category.template_type || 'standard';
+          let newsCount = 4; // padrão
+          
+          if (templateType === 'grid') newsCount = 6;
+          else if (templateType === 'magazine') newsCount = 5;
+          
           const categoryNews = getNewsByCategory(category.slug, featuredNewsIds)
-            .slice(0, 4)
+            .slice(0, newsCount)
             .map(item => transformNewsItem(item, "medium"));
           
           if (categoryNews.length === 0) return null;
-
-          // Usar o template_type da categoria ou 'standard' como padrão
-          const templateType = category.template_type || 'standard';
           
           switch (templateType) {
             case 'grid':
