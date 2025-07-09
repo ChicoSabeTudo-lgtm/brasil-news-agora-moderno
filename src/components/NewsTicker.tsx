@@ -121,7 +121,7 @@ export const NewsTicker = () => {
           <div className="container mx-auto px-4">
             <div className="flex items-center">
               <div className="bg-primary px-3 py-1 text-xs font-bold uppercase tracking-wide mr-4">
-                Breaking
+                URGENTE
               </div>
               <div className="flex-1 overflow-hidden">
                 <div className="animate-marquee whitespace-nowrap">
