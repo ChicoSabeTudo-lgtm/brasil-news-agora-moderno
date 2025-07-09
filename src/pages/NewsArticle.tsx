@@ -24,6 +24,7 @@ interface NewsData {
   views: number;
   tags: string[];
   is_breaking: boolean;
+  embed_code?: string;
   categories: {
     name: string;
     slug: string;
@@ -441,6 +442,16 @@ const NewsArticle = () => {
               className="prose prose-lg max-w-none text-foreground mb-8"
               dangerouslySetInnerHTML={{ __html: processedContent || news.content }}
             />
+
+            {/* Embed Content */}
+            {news.embed_code && (
+              <div className="mb-8">
+                <div 
+                  className="embed-content"
+                  dangerouslySetInnerHTML={{ __html: news.embed_code }}
+                />
+              </div>
+            )}
 
 
             {/* Tags */}

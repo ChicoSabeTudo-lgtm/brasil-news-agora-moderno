@@ -421,56 +421,70 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
               <DialogHeader>
                 <DialogTitle>Pré-visualização da Notícia</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <h1 className="text-2xl font-bold">{article.title || 'Título da notícia'}</h1>
-                  {article.subtitle && (
-                    <p className="text-lg text-muted-foreground">{article.subtitle}</p>
-                  )}
+              <div className="space-y-6">
+                {/* Category and Breaking Badge */}
+                <div className="flex items-center gap-2">
                   {article.isBreaking && (
-                    <div className="inline-block bg-destructive text-destructive-foreground px-2 py-1 rounded text-sm font-bold">
+                    <span className="bg-news-breaking text-white px-3 py-1 text-sm font-bold uppercase tracking-wide animate-pulse">
                       URGENTE
-                    </div>
+                    </span>
                   )}
-                </div>
-                
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span>Por: {user?.email || 'Autor'}</span>
-                  <span>•</span>
-                  <span>{format(new Date(), 'dd/MM/yyyy \'às\' HH:mm')}</span>
-                  {article.categoryId && (
-                    <>
-                      <span>•</span>
-                      <span>{categories.find(c => c.id === article.categoryId)?.name || 'Categoria'}</span>
-                    </>
-                  )}
+                  <span className="bg-primary text-primary-foreground px-3 py-1 text-sm font-bold uppercase tracking-wide">
+                    {categories.find(c => c.id === article.categoryId)?.name || 'Categoria'}
+                  </span>
                 </div>
 
+                {/* Title */}
+                <h1 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+                  {article.title || 'Título da notícia'}
+                </h1>
+
+                {/* Subtitle */}
+                {article.subtitle && (
+                  <h2 className="text-xl text-muted-foreground leading-relaxed">
+                    {article.subtitle}
+                  </h2>
+                )}
+
+                {/* Article Meta */}
+                <div className="flex items-center justify-between pb-6 border-b border-border">
+                  <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                    <div className="flex items-center space-x-1">
+                      <span>Por: {user?.email || 'Autor'}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <span>{format(new Date(), 'dd/MM/yyyy \'às\' HH:mm')}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Images */}
                 {newsImages.length > 0 && (
-                  <div className="space-y-2">
+                  <div className="space-y-4">
                     {newsImages.map((image, index) => (
-                      <div key={index} className="space-y-1">
+                      <div key={index} className="space-y-2">
                         <img 
                           src={image.image_url} 
                           alt={image.caption || 'Imagem da notícia'}
                           className="w-full h-auto rounded"
                         />
                         {image.caption && (
-                          <p className="text-sm text-muted-foreground italic">{image.caption}</p>
+                          <p className="text-sm text-muted-foreground italic text-center">{image.caption}</p>
                         )}
                       </div>
                     ))}
                   </div>
                 )}
 
+                {/* Article Content */}
                 <div 
-                  className="prose prose-sm max-w-none"
+                  className="prose prose-lg max-w-none text-foreground"
                   dangerouslySetInnerHTML={{ __html: article.content || '<p>Conteúdo da notícia aparecerá aqui...</p>' }}
                 />
 
+                {/* Embed Content */}
                 {article.embedCode && (
-                  <div className="my-6 p-4 border-2 border-dashed border-muted rounded-lg">
-                    <p className="text-sm text-muted-foreground mb-2">Conteúdo Incorporado:</p>
+                  <div className="my-6">
                     <div 
                       className="embed-content"
                       dangerouslySetInnerHTML={{ __html: article.embedCode }}
@@ -478,16 +492,20 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
                   </div>
                 )}
 
+                {/* Tags */}
                 {article.tags && (
-                  <div className="flex flex-wrap gap-1 pt-4 border-t">
-                    {article.tags.split(',').map((tag, index) => (
-                      <span 
-                        key={index}
-                        className="bg-primary/10 text-primary px-2 py-1 rounded text-xs"
-                      >
-                        {tag.trim()}
-                      </span>
-                    ))}
+                  <div className="pt-6 border-t border-border">
+                    <h4 className="font-semibold mb-3">Tags:</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {article.tags.split(',').map((tag, index) => (
+                        <span 
+                          key={index}
+                          className="bg-muted text-muted-foreground px-3 py-1 rounded-full text-sm"
+                        >
+                          #{tag.trim()}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
