@@ -21,6 +21,7 @@ import Auth from "./pages/Auth";
 import Admin from "./pages/Admin";
 import Contact from "./pages/Contact";
 import Advertise from "./pages/Advertise";
+import Videos from "./pages/Videos";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,7 @@ const App = () => (
             <Route path="/saude" element={<Saude />} />
             <Route path="/busca" element={<Search />} />
             <Route path="/ao-vivo" element={<AoVivo />} />
+            <Route path="/videos" element={<Videos />} />
             <Route path="/contato" element={<Contact />} />
             <Route path="/anuncie" element={<Advertise />} />
             <Route path="/noticia/:id" element={<NewsArticle />} />

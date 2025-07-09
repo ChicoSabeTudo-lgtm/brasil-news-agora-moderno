@@ -14,6 +14,7 @@ import {
 
 const navigationItems = [
   { name: "Ao Vivo", href: "/ao-vivo", isLive: true },
+  { name: "Vídeos", href: "/videos" },
   { name: "Política", href: "/politica" },
   { name: "Economia", href: "/economia" },
   { name: "Nacional", href: "/nacional" },

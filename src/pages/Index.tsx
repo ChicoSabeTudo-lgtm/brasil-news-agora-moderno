@@ -369,9 +369,9 @@ const Index = () => {
                 Vídeos
               </span>
             </h2>
-            <a href="#" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
+            <Link to="/videos" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
               Ver todos →
-            </a>
+            </Link>
           </div>
           
           {videosLoading ? (

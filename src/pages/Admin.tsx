@@ -13,6 +13,7 @@ import { AdvertisementManagement } from '@/components/admin/AdvertisementManagem
 import { ContactManagement } from '@/components/admin/ContactManagement';
 import { AdvertisingManagement } from '@/components/admin/AdvertisingManagement';
 import { LiveStreamManagement } from '@/components/admin/LiveStreamManagement';
+import { VideoManagement } from '@/components/admin/VideoManagement';
 import { Header } from '@/components/Header';
 import { 
   LayoutDashboard, 
@@ -25,7 +26,8 @@ import {
   Megaphone,
   Mail,
   Building,
-  Radio
+  Radio,
+  Video
 } from 'lucide-react';
 
 export default function Admin() {
@@ -196,9 +198,29 @@ export default function Admin() {
             <TabsContent value="live">
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">Transmissões ao Vivo</h2>
+                  <h2 className="text-2xl font-bold">Conteúdo Ao Vivo</h2>
                 </div>
-                <LiveStreamManagement />
+                
+                <Tabs defaultValue="streams" className="space-y-6">
+                  <TabsList>
+                    <TabsTrigger value="streams" className="flex items-center gap-2">
+                      <Radio className="w-4 h-4" />
+                      Transmissões
+                    </TabsTrigger>
+                    <TabsTrigger value="videos" className="flex items-center gap-2">
+                      <Video className="w-4 h-4" />
+                      Vídeos
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="streams">
+                    <LiveStreamManagement />
+                  </TabsContent>
+                  
+                  <TabsContent value="videos">
+                    <VideoManagement />
+                  </TabsContent>
+                </Tabs>
               </div>
             </TabsContent>
 
