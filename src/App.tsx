@@ -14,6 +14,7 @@ import Internacional from "./pages/Internacional";
 import Nacional from "./pages/Nacional";
 import Entretenimento from "./pages/Entretenimento";
 import Saude from "./pages/Saude";
+import { DynamicCategoryRoute } from "./components/DynamicCategoryRoute";
 import NewsArticle from "./pages/NewsArticle";
 import Search from "./pages/Search";
 import AoVivo from "./pages/AoVivo";
@@ -36,14 +37,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<Admin />} />
-            <Route path="/politica" element={<Politica />} />
-            <Route path="/economia" element={<Economia />} />
-            <Route path="/esportes" element={<Esportes />} />
-            <Route path="/tecnologia" element={<Tecnologia />} />
-            <Route path="/internacional" element={<Internacional />} />
-            <Route path="/nacional" element={<Nacional />} />
-            <Route path="/entretenimento" element={<Entretenimento />} />
-            <Route path="/saude" element={<Saude />} />
+            {/* Rota dinâmica para todas as categorias */}
+            <Route path="/:categorySlug" element={<DynamicCategoryRoute />} />
             <Route path="/busca" element={<Search />} />
             <Route path="/ao-vivo" element={<AoVivo />} />
             <Route path="/videos" element={<Videos />} />
