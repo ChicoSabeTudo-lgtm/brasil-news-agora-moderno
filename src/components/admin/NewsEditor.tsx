@@ -19,6 +19,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Save, Eye, Send, Clock, Calendar as CalendarIcon } from 'lucide-react';
 import { ImageGalleryEditor } from './ImageGalleryEditor';
+import { NewsImageGallery } from '@/components/NewsImageGallery';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -473,22 +474,13 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
                   </div>
                 </div>
 
-                {/* Images */}
+                {/* Images Gallery */}
                 {newsImages.length > 0 && (
-                  <div className="space-y-4">
-                    {newsImages.map((image, index) => (
-                      <div key={index} className="space-y-2">
-                        <img 
-                          src={image.image_url} 
-                          alt={image.caption || 'Imagem da notícia'}
-                          className="w-full h-auto rounded"
-                        />
-                        {image.caption && (
-                          <p className="text-sm text-muted-foreground italic text-center">{image.caption}</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                  <NewsImageGallery
+                    images={newsImages}
+                    newsTitle={article.title || 'Título da notícia'}
+                    getImageUrl={(image) => image.image_url}
+                  />
                 )}
 
                 {/* Article Content */}
