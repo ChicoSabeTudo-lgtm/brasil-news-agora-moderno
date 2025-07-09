@@ -4,6 +4,7 @@ import { NewsTicker } from "@/components/NewsTicker";
 import { Footer } from "@/components/Footer";
 import { NewsCard } from "@/components/NewsCard";
 import { useNews } from "@/hooks/useNews";
+import { useCategories } from "@/hooks/useCategories";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -46,6 +47,7 @@ interface CategoryPageProps {
 
 export const CategoryPage = ({ category, categoryColor = "#0066cc", description }: CategoryPageProps) => {
   const { news, loading, error, getNewsByCategory } = useNews();
+  const { categories } = useCategories();
   
   // Obter slug da categoria
   const categorySlug = categorySlugMap[category];
@@ -256,26 +258,19 @@ export const CategoryPage = ({ category, categoryColor = "#0066cc", description 
             Outras Categorias
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {[
-              { name: "Política", slug: "politica" },
-              { name: "Economia", slug: "economia" },
-              { name: "Esportes", slug: "esportes" },
-              { name: "Tecnologia", slug: "tecnologia" },
-              { name: "Internacional", slug: "internacional" },
-              { name: "Nacional", slug: "nacional" },
-              { name: "Entretenimento", slug: "entretenimento" },
-              { name: "Saúde", slug: "saude" }
-            ].filter(cat => cat.name !== category).map((cat) => (
-              <Link
-                key={cat.name}
-                to={`/${cat.slug}`}
-                className="bg-card hover:bg-muted p-4 rounded-lg text-center cursor-pointer transition-colors group border shadow-sm hover:shadow-card"
-              >
-                <h3 className="font-semibold text-card-foreground group-hover:text-primary transition-colors">
-                  {cat.name}
-                </h3>
-              </Link>
-            ))}
+            {categories
+              .filter(cat => cat.name !== category)
+              .map((cat) => (
+                <Link
+                  key={cat.id}
+                  to={`/${cat.slug}`}
+                  className="bg-card hover:bg-muted p-4 rounded-lg text-center cursor-pointer transition-colors group border shadow-sm hover:shadow-card"
+                >
+                  <h3 className="font-semibold text-card-foreground group-hover:text-primary transition-colors">
+                    {cat.name}
+                  </h3>
+                </Link>
+              ))}
           </div>
         </section>
       </main>

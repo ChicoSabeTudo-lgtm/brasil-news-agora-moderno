@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { useCategories } from "@/hooks/useCategories";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,23 +13,28 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const navigationItems = [
-  { name: "Ao Vivo", href: "/ao-vivo", isLive: true },
-  { name: "Vídeos", href: "/videos" },
-  { name: "Política", href: "/politica" },
-  { name: "Economia", href: "/economia" },
-  { name: "Nacional", href: "/nacional" },
-  { name: "Internacional", href: "/internacional" },
-  { name: "Esportes", href: "/esportes" },
-  { name: "Entretenimento", href: "/entretenimento" },
-  { name: "Tecnologia", href: "/tecnologia" },
-];
-
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
   const { user, signOut, userRole } = useAuth();
+  const { categories } = useCategories();
+
+  // Static navigation items
+  const staticItems = [
+    { name: "Ao Vivo", href: "/ao-vivo", isLive: true },
+    { name: "Vídeos", href: "/videos" },
+  ];
+
+  // Dynamic category navigation items
+  const categoryItems = categories.map(category => ({
+    name: category.name,
+    href: `/${category.slug}`,
+    isLive: false
+  }));
+
+  // Combine all navigation items
+  const navigationItems = [...staticItems, ...categoryItems];
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
