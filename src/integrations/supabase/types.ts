@@ -443,6 +443,62 @@ export type Database = {
         }
         Relationships: []
       }
+      videos: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          duration: string
+          id: string
+          is_published: boolean
+          published_at: string | null
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          video_url: string
+          views: number
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          duration: string
+          id?: string
+          is_published?: boolean
+          published_at?: string | null
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          video_url: string
+          views?: number
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          duration?: string
+          id?: string
+          is_published?: boolean
+          published_at?: string | null
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          video_url?: string
+          views?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "videos_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
