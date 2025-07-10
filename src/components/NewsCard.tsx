@@ -1,4 +1,4 @@
-import { Clock, User } from "lucide-react";
+import { Clock } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 
@@ -77,16 +77,10 @@ export const NewsCard = ({
           {metaDescription}
         </p>
 
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center space-x-1">
-              <User className="w-3 h-3" />
-              <span>{author}</span>
-            </div>
-            <div className="flex items-center space-x-1">
-              <Clock className="w-3 h-3" />
-              <span>{publishedAt}</span>
-            </div>
+        <div className="flex items-center text-xs text-muted-foreground">
+          <div className="flex items-center space-x-1">
+            <Clock className="w-3 h-3" />
+            <span>{publishedAt}</span>
           </div>
         </div>
       </div>
