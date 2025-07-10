@@ -72,7 +72,7 @@ export function Advertisement({ position }: AdvertisementProps) {
           src={ad.image_url} 
           alt={ad.title}
           className="max-w-full h-auto object-contain rounded-lg shadow-sm"
-          style={{ aspectRatio: 'auto' }}
+          style={{ maxWidth: '100%', width: 'auto', height: 'auto' }}
         />
       </div>
     );
