@@ -1,5 +1,3 @@
-import { Header } from "@/components/Header";
-import { NewsTicker } from "@/components/NewsTicker";
 import { Footer } from "@/components/Footer";
 import { NewsCard } from "@/components/NewsCard";
 import { LiveVideo } from "@/components/LiveVideo";
@@ -89,13 +87,9 @@ const Index = () => {
 
   if (loading || categoriesLoading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <NewsTicker />
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <p className="text-lg text-muted-foreground">Carregando notícias...</p>
-          </div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <p className="text-lg text-muted-foreground">Carregando notícias...</p>
         </div>
       </div>
     );
@@ -103,15 +97,11 @@ const Index = () => {
 
   if (error || news.length === 0) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <NewsTicker />
-        <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <p className="text-lg text-muted-foreground">
-              {error || 'Nenhuma notícia encontrada. Publique algumas notícias para vê-las aqui.'}
-            </p>
-          </div>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <p className="text-lg text-muted-foreground">
+            {error || 'Nenhuma notícia encontrada. Publique algumas notícias para vê-las aqui.'}
+          </p>
         </div>
       </div>
     );
@@ -260,13 +250,7 @@ const Index = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <NewsTicker />
-      
-      {/* Advertisement Space - Header */}
-      <Advertisement position="header" />
-      
+    <>
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section with Main News */}
         {mainNews && (
@@ -490,7 +474,7 @@ const Index = () => {
       </main>
       
       <Footer />
-    </div>
+    </>
   );
 };
 

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Advertisement } from "@/components/Advertisement";
 import { Link } from "react-router-dom";
@@ -32,8 +31,7 @@ const Videos = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
+      <>
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="flex items-center gap-2">
@@ -43,14 +41,13 @@ const Videos = () => {
           </div>
         </div>
         <Footer />
-      </div>
+      </>
     );
   }
 
   if (error || videos.length === 0) {
     return (
-      <div className="min-h-screen bg-background">
-        <Header />
+      <>
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
@@ -63,7 +60,7 @@ const Videos = () => {
           </div>
         </div>
         <Footer />
-      </div>
+      </>
     );
   }
 
@@ -71,9 +68,7 @@ const Videos = () => {
   const otherVideos = videos.slice(1);
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      
+    <>
       <div className="bg-gradient-to-b from-primary/10 to-background border-b">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl">
@@ -98,8 +93,6 @@ const Videos = () => {
       </div>
 
       <main className="container mx-auto px-4 py-8">
-        {/* Advertisement Space */}
-        <Advertisement position="header" />
 
         {/* Featured Video */}
         {featuredVideo && (
@@ -239,7 +232,7 @@ const Videos = () => {
       </main>
       
       <Footer />
-    </div>
+    </>
   );
 };
 
