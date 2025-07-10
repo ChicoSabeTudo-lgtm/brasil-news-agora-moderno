@@ -1,6 +1,5 @@
 import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Header } from "@/components/Header";
 import { NewsTicker } from "@/components/NewsTicker";
 import { Footer } from "@/components/Footer";
 import { Advertisement } from "@/components/Advertisement";
@@ -335,7 +334,6 @@ const NewsArticle = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
         <NewsTicker />
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-[400px]">
@@ -349,7 +347,6 @@ const NewsArticle = () => {
   if (error || !news) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
         <NewsTicker />
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-[400px]">
@@ -372,7 +369,6 @@ const NewsArticle = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
       <NewsTicker />
       
       <main className="container mx-auto px-4 py-8">

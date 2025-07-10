@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useSiteConfigurations } from '@/hooks/useSiteConfigurations';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
-import { Header } from '@/components/Header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -53,9 +52,7 @@ export default function SiteConfigurations() {
 
   return (
     <ProtectedRoute requiredRole="admin">
-      <div className="min-h-screen bg-background">
-        <Header />
-        
+      <div className="min-h-screen bg-background">        
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-between mb-8">
             <div>

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { Header } from "@/components/Header";
 import { NewsTicker } from "@/components/NewsTicker";
 import { Footer } from "@/components/Footer";
 import { NewsCard } from "@/components/NewsCard";
@@ -97,7 +96,6 @@ const Search = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
       <NewsTicker />
       
       <main className="container mx-auto px-4 py-8">

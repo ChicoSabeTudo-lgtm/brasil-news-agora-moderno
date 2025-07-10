@@ -14,7 +14,6 @@ import { ContactManagement } from '@/components/admin/ContactManagement';
 import { AdvertisingManagement } from '@/components/admin/AdvertisingManagement';
 import { LiveStreamManagement } from '@/components/admin/LiveStreamManagement';
 import { VideoManagement } from '@/components/admin/VideoManagement';
-import { Header } from '@/components/Header';
 import { useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -37,9 +36,7 @@ export default function Admin() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-background">
-        <Header />
-        
+      <div className="min-h-screen bg-background">        
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-between mb-8">
             <div>
