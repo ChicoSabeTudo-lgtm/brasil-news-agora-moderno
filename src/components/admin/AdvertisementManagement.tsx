@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { PlusCircle, Edit, Trash2, Eye, EyeOff } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Eye, EyeOff, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 
@@ -58,6 +58,7 @@ export function AdvertisementManagement() {
     start_date: '',
     end_date: ''
   });
+  const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -258,6 +259,44 @@ export function AdvertisementManagement() {
     }
   };
 
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('advertisements')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage
+        .from('advertisements')
+        .getPublicUrl(filePath);
+
+      setFormData({ ...formData, image_url: data.publicUrl });
+      
+      toast({
+        title: "Sucesso",
+        description: "Imagem carregada com sucesso"
+      });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao carregar imagem",
+        variant: "destructive"
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       title: '',
@@ -346,9 +385,35 @@ export function AdvertisementManagement() {
 
               <div className="text-center text-muted-foreground">OU</div>
 
+              <div>
+                <Label htmlFor="image_upload">Upload de Imagem</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="image_upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={uploading}
+                  />
+                  <Button type="button" disabled={uploading}>
+                    <Upload className="w-4 h-4 mr-2" />
+                    {uploading ? 'Enviando...' : 'Upload'}
+                  </Button>
+                </div>
+                {formData.image_url && (
+                  <div className="mt-2">
+                    <img 
+                      src={formData.image_url} 
+                      alt="Preview" 
+                      className="w-32 h-20 object-cover rounded border"
+                    />
+                  </div>
+                )}
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="image_url">URL da Imagem</Label>
+                  <Label htmlFor="image_url">URL da Imagem (Opcional)</Label>
                   <Input
                     id="image_url"
                     value={formData.image_url}

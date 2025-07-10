@@ -71,7 +71,8 @@ export function Advertisement({ position }: AdvertisementProps) {
         <img 
           src={ad.image_url} 
           alt={ad.title}
-          className="w-full h-auto object-contain max-h-96 rounded-lg shadow-sm"
+          className="w-full h-auto object-contain rounded-lg shadow-sm max-w-full"
+          style={{ aspectRatio: 'auto' }}
         />
       </div>
     );
