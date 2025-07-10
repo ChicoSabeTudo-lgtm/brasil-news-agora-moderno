@@ -67,7 +67,7 @@ export function Advertisement({ position }: AdvertisementProps) {
   // Render image advertisement
   if (ad.image_url) {
     const content = (
-      <div className="advertisement-space my-6 flex justify-center">
+      <div className="advertisement-space my-6 flex justify-center px-4">
         <img 
           src={ad.image_url} 
           alt={ad.title}
