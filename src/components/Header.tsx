@@ -52,7 +52,7 @@ export const Header = () => {
         <div className="container mx-auto px-4 py-2 flex items-center justify-between">
           <div className="flex items-center space-x-6">
             <Link to="/" className="flex items-center">
-              <img src={logo} alt="C SABE" className="h-8" />
+              <img src={logo} alt="CHICOSABETUDO" className="h-8" />
             </Link>
           </div>
           <div className="hidden md:flex items-center space-x-4">
