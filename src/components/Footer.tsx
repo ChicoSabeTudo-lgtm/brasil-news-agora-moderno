@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import logo from "@/assets/logo.png";
 
 export const Footer = () => {
   return (
@@ -6,8 +7,8 @@ export const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <div className="text-2xl font-bold text-primary mb-4">
-              NEWS<span className="text-news-header-foreground">BRASIL</span>
+            <div className="mb-4">
+              <img src={logo} alt="C SABE" className="h-8" />
             </div>
             <p className="text-sm text-gray-400">
               Seu portal de notícias confiável, trazendo informações precisas e atualizadas 24 horas por dia.
@@ -42,7 +43,7 @@ export const Footer = () => {
           </div>
         </div>
         <div className="border-t border-gray-700 mt-8 pt-6 text-center text-sm text-gray-400">
-          <p>&copy; 2024 News Brasil. Todos os direitos reservados.</p>
+          <p>&copy; 2024 C SABE. Todos os direitos reservados.</p>
         </div>
       </div>
     </footer>
