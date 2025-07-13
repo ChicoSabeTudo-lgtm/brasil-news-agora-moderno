@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { NewsTicker } from "@/components/NewsTicker";
-import { Footer } from "@/components/Footer";
+import { Layout } from "@/components/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -95,9 +94,7 @@ const AoVivo = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <NewsTicker />
-      
+    <Layout>
       <main className="container mx-auto px-4 py-8">
         {/* Page Header */}
         <div className="mb-8">
@@ -345,9 +342,7 @@ const AoVivo = () => {
           </div>
         </div>
       </main>
-      
-      <Footer />
-    </div>
+    </Layout>
   );
 };
 

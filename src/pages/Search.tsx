@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { NewsTicker } from "@/components/NewsTicker";
-import { Footer } from "@/components/Footer";
+import { Layout } from "@/components/Layout";
 import { NewsCard } from "@/components/NewsCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -95,9 +94,7 @@ const Search = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background">
-      <NewsTicker />
-      
+    <Layout>
       <main className="container mx-auto px-4 py-8">
         {/* Search Header */}
         <div className="mb-8">
@@ -200,9 +197,7 @@ const Search = () => {
           </div>
         )}
       </main>
-      
-      <Footer />
-    </div>
+    </Layout>
   );
 };
 

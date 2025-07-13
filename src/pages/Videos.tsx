@@ -1,5 +1,5 @@
 import React from 'react';
-import { Footer } from "@/components/Footer";
+import { Layout } from "@/components/Layout";
 import { Advertisement } from "@/components/Advertisement";
 import { Link } from "react-router-dom";
 import { useVideos } from "@/hooks/useVideos";
@@ -31,7 +31,7 @@ const Videos = () => {
 
   if (loading) {
     return (
-      <>
+      <Layout>
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="flex items-center gap-2">
@@ -40,14 +40,13 @@ const Videos = () => {
             </div>
           </div>
         </div>
-        <Footer />
-      </>
+      </Layout>
     );
   }
 
   if (error || videos.length === 0) {
     return (
-      <>
+      <Layout>
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
@@ -59,8 +58,7 @@ const Videos = () => {
             </div>
           </div>
         </div>
-        <Footer />
-      </>
+      </Layout>
     );
   }
 
@@ -68,7 +66,7 @@ const Videos = () => {
   const otherVideos = videos.slice(1);
 
   return (
-    <>
+    <Layout>
       <div className="bg-gradient-to-b from-primary/10 to-background border-b">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl">
@@ -230,9 +228,7 @@ const Videos = () => {
         {/* Advertisement Space */}
         <Advertisement position="sports" />
       </main>
-      
-      <Footer />
-    </>
+    </Layout>
   );
 };
 
