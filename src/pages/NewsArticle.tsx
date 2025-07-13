@@ -1,7 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { NewsTicker } from "@/components/NewsTicker";
-import { Footer } from "@/components/Footer";
+import { Layout } from "@/components/Layout";
 import { Advertisement } from "@/components/Advertisement";
 import { NewsImageGallery } from "@/components/NewsImageGallery";
 import { ShareButtons } from "@/components/ShareButtons";
@@ -333,21 +332,19 @@ const NewsArticle = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <NewsTicker />
+      <Layout>
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-[400px]">
             <p className="text-lg text-muted-foreground">Carregando notícia...</p>
           </div>
         </div>
-      </div>
+      </Layout>
     );
   }
 
   if (error || !news) {
     return (
-      <div className="min-h-screen bg-background">
-        <NewsTicker />
+      <Layout>
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
@@ -361,16 +358,14 @@ const NewsArticle = () => {
             </div>
           </div>
         </div>
-      </div>
+      </Layout>
     );
   }
 
   const featuredImage = getFeaturedImage();
 
   return (
-    <div className="min-h-screen bg-background">
-      <NewsTicker />
-      
+    <Layout>
       <main className="container mx-auto px-4 py-8">
 
 
@@ -514,9 +509,7 @@ const NewsArticle = () => {
           </aside>
         </div>
       </main>
-      
-      <Footer />
-    </div>
+    </Layout>
   );
 };
 
