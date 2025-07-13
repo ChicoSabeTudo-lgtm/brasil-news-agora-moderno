@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import logo from "@/assets/logo.png";
+import chicosabetudoLogo from "@/assets/chicosabetudo-logo.png";
 
 export const Footer = () => {
   return (
@@ -8,7 +8,7 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <div className="mb-4">
-              <img src={logo} alt="CHICOSABETUDO" className="h-8" />
+              <img src={chicosabetudoLogo} alt="CHICOSABETUDO" className="h-8" />
             </div>
             <p className="text-sm text-gray-400">
               Seu portal de notícias confiável, trazendo informações precisas e atualizadas 24 horas por dia.
