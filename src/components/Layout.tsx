@@ -1,6 +1,7 @@
 import { Header } from "@/components/Header";
 import { NewsTicker } from "@/components/NewsTicker";
 import { Advertisement } from "@/components/Advertisement";
+import { Footer } from "@/components/Footer";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -16,6 +17,8 @@ export const Layout = ({ children }: LayoutProps) => {
       <Advertisement position="header" />
       
       {children}
+      
+      <Footer />
     </div>
   );
 };

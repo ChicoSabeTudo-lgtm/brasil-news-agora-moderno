@@ -1,4 +1,4 @@
-import { Footer } from "@/components/Footer";
+import { Layout } from "@/components/Layout";
 import { NewsCard } from "@/components/NewsCard";
 import { LiveVideo } from "@/components/LiveVideo";
 import { Advertisement } from "@/components/Advertisement";
@@ -250,7 +250,7 @@ const Index = () => {
   );
 
   return (
-    <>
+    <Layout>
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section with Main News */}
         {mainNews && (
@@ -472,9 +472,7 @@ const Index = () => {
           </div>
         </section>
       </main>
-      
-      <Footer />
-    </>
+    </Layout>
   );
 };
 

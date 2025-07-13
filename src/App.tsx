@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { SiteCodeInjector } from "@/components/SiteCodeInjector";
-import { Layout } from "@/components/Layout";
+
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Politica from "./pages/Politica";
@@ -38,26 +38,24 @@ const App = () => (
         <Sonner />
         <SiteCodeInjector />
         <BrowserRouter>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/admin/configuracoes" element={<SiteConfigurations />} />
-              {/* Rota dinâmica para todas as categorias */}
-              <Route path="/:categorySlug" element={<DynamicCategoryRoute />} />
-              <Route path="/busca" element={<Search />} />
-              <Route path="/ao-vivo" element={<AoVivo />} />
-              <Route path="/videos" element={<Videos />} />
-              <Route path="/contato" element={<Contact />} />
-              <Route path="/anuncie" element={<Advertise />} />
-              <Route path="/ads.txt" element={<AdsTxt />} />
-              <Route path="/noticia/:id" element={<NewsArticle />} />
-              <Route path="/:categorySlug/:slug" element={<NewsArticle />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Layout>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/configuracoes" element={<SiteConfigurations />} />
+            {/* Rota dinâmica para todas as categorias */}
+            <Route path="/:categorySlug" element={<DynamicCategoryRoute />} />
+            <Route path="/busca" element={<Search />} />
+            <Route path="/ao-vivo" element={<AoVivo />} />
+            <Route path="/videos" element={<Videos />} />
+            <Route path="/contato" element={<Contact />} />
+            <Route path="/anuncie" element={<Advertise />} />
+            <Route path="/ads.txt" element={<AdsTxt />} />
+            <Route path="/noticia/:id" element={<NewsArticle />} />
+            <Route path="/:categorySlug/:slug" element={<NewsArticle />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </BrowserRouter>
       </AuthProvider>
     </TooltipProvider>
