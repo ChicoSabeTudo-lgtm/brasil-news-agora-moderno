@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Footer } from "@/components/Footer";
+import { Layout } from "@/components/Layout";
 import { NewsCard } from "@/components/NewsCard";
 import { useNews } from "@/hooks/useNews";
 import { useCategories } from "@/hooks/useCategories";
@@ -106,41 +106,47 @@ export const CategoryPage = ({ category, categoryColor = "#0066cc", description 
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <p className="text-lg text-muted-foreground">Carregando notícias...</p>
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <p className="text-lg text-muted-foreground">Carregando notícias...</p>
+          </div>
         </div>
-      </div>
+      </Layout>
     );
   }
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <p className="text-lg text-destructive">Erro ao carregar notícias: {error}</p>
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <p className="text-lg text-destructive">Erro ao carregar notícias: {error}</p>
+          </div>
         </div>
-      </div>
+      </Layout>
     );
   }
 
   if (categoryNews.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center py-12">
-          <h1 className="text-4xl font-bold mb-4" style={{ color: categoryColor }}>
-            {category}
-          </h1>
-          {description && (
-            <p className="text-lg text-muted-foreground mb-8 max-w-3xl mx-auto">
-              {description}
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center py-12">
+            <h1 className="text-4xl font-bold mb-4" style={{ color: categoryColor }}>
+              {category}
+            </h1>
+            {description && (
+              <p className="text-lg text-muted-foreground mb-8 max-w-3xl mx-auto">
+                {description}
+              </p>
+            )}
+            <p className="text-lg text-muted-foreground">
+              Ainda não há notícias publicadas nesta categoria.
             </p>
-          )}
-          <p className="text-lg text-muted-foreground">
-            Ainda não há notícias publicadas nesta categoria.
-          </p>
+          </div>
         </div>
-      </div>
+      </Layout>
     );
   }
 
@@ -151,7 +157,7 @@ export const CategoryPage = ({ category, categoryColor = "#0066cc", description 
   const otherNews = categoryNews.slice(7).map(news => transformNewsItem(news, "small"));
 
   return (
-    <>
+    <Layout>
       <main className="container mx-auto px-4 py-8">
         {/* Category Header */}
         <section className="mb-8">
@@ -257,8 +263,6 @@ export const CategoryPage = ({ category, categoryColor = "#0066cc", description 
           </div>
         </section>
       </main>
-      
-      <Footer />
-    </>
+    </Layout>
   );
 };
