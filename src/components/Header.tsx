@@ -20,7 +20,7 @@ export const Header = () => {
   const navigate = useNavigate();
   const { user, signOut, userRole } = useAuth();
   const { categories } = useCategories();
-  const siteLogo = useSiteLogo();
+  const { logoUrl } = useSiteLogo();
 
   // Static navigation items
   const staticItems = [
@@ -53,7 +53,7 @@ export const Header = () => {
         <div className="container mx-auto px-4 py-2 flex items-center justify-between">
           <div className="flex items-center space-x-6">
             <Link to="/" className="flex items-center">
-              <img src={siteLogo} alt="CHICOSABETUDO" className="h-8" />
+              <img src={logoUrl} alt="CHICOSABETUDO" className="h-8" />
             </Link>
           </div>
           <div className="hidden md:flex items-center space-x-4">

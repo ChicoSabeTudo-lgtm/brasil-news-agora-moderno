@@ -62,6 +62,7 @@ export const useSiteConfigurations = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['site-configurations'] });
+      queryClient.invalidateQueries({ queryKey: ['site-logo'] }); // Invalida também o cache da logo
       toast({
         title: 'Sucesso',
         description: 'Configurações atualizadas com sucesso.',

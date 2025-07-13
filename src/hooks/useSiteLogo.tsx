@@ -3,8 +3,8 @@ import { supabase } from '@/integrations/supabase/client';
 import chicosabetudoLogo from "@/assets/chicosabetudo-logo.png";
 
 export const useSiteLogo = () => {
-  const { data: configuration } = useQuery({
-    queryKey: ['site-configurations'],
+  const { data: configuration, refetch } = useQuery({
+    queryKey: ['site-logo'], // Chave diferente para evitar conflito
     queryFn: async () => {
       const { data, error } = await supabase
         .from('site_configurations')
@@ -19,8 +19,13 @@ export const useSiteLogo = () => {
 
       return data?.[0] || null;
     },
+    staleTime: 0, // Força refetch imediato
+    refetchOnWindowFocus: true, // Refetch quando a janela ganha foco
   });
 
   // Retorna a logo do banco de dados ou a logo padrão
-  return configuration?.logo_url || chicosabetudoLogo;
+  return {
+    logoUrl: configuration?.logo_url || chicosabetudoLogo,
+    refetchLogo: refetch
+  };
 };
