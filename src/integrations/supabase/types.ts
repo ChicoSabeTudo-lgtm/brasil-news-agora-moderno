@@ -369,6 +369,51 @@ export type Database = {
           },
         ]
       }
+      news_advertisements: {
+        Row: {
+          advertisement_id: string
+          created_at: string
+          id: string
+          is_active: boolean
+          news_id: string
+          paragraph_position: number
+          updated_at: string
+        }
+        Insert: {
+          advertisement_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          news_id: string
+          paragraph_position?: number
+          updated_at?: string
+        }
+        Update: {
+          advertisement_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          news_id?: string
+          paragraph_position?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "news_advertisements_advertisement_id_fkey"
+            columns: ["advertisement_id"]
+            isOneToOne: false
+            referencedRelation: "advertisements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "news_advertisements_news_id_fkey"
+            columns: ["news_id"]
+            isOneToOne: false
+            referencedRelation: "news"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       news_images: {
         Row: {
           caption: string | null

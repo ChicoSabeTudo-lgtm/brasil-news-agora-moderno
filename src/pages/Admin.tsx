@@ -10,6 +10,7 @@ import { NewsEditor } from '@/components/admin/NewsEditor';
 import { NewsList } from '@/components/admin/NewsList';
 import { CategoryManagement } from '@/components/admin/CategoryManagement';
 import { AdvertisementManagement } from '@/components/admin/AdvertisementManagement';
+import { InContentAdsManagement } from '@/components/admin/InContentAdsManagement';
 import { ContactManagement } from '@/components/admin/ContactManagement';
 import { AdvertisingManagement } from '@/components/admin/AdvertisingManagement';
 import { LiveStreamManagement } from '@/components/admin/LiveStreamManagement';
@@ -84,6 +85,10 @@ export default function Admin() {
               <TabsTrigger value="advertisements" className="flex items-center gap-2">
                 <Megaphone className="w-4 h-4" />
                 Propagandas
+              </TabsTrigger>
+              <TabsTrigger value="in-content-ads" className="flex items-center gap-2">
+                <FileText className="w-4 h-4" />
+                In-Content
               </TabsTrigger>
               <TabsTrigger value="contact" className="flex items-center gap-2">
                 <Mail className="w-4 h-4" />
@@ -238,6 +243,15 @@ export default function Admin() {
                   <h2 className="text-2xl font-bold">Gerenciar Propagandas</h2>
                 </div>
                 <AdvertisementManagement />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="in-content-ads">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold">Anúncios In-Content</h2>
+                </div>
+                <InContentAdsManagement />
               </div>
             </TabsContent>
 

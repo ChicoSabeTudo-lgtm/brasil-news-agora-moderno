@@ -2,9 +2,11 @@ import { useParams, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout";
 import { Advertisement } from "@/components/Advertisement";
+import { InContentAd } from "@/components/InContentAd";
 import { NewsImageGallery } from "@/components/NewsImageGallery";
 import { ShareButtons } from "@/components/ShareButtons";
 import { useBacklinks } from "@/hooks/useBacklinks";
+import { insertInContentAds } from "@/utils/contentUtils";
 import { Clock, User, Eye, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,6 +46,7 @@ const NewsArticle = () => {
   const [error, setError] = useState<string | null>(null);
   const [relatedNews, setRelatedNews] = useState<any[]>([]);
   const [processedContent, setProcessedContent] = useState<string>('');
+  const [contentWithAds, setContentWithAds] = useState<string>('');
   const { generateBacklinks, isProcessing } = useBacklinks();
 
   useEffect(() => {
@@ -110,12 +113,19 @@ const NewsArticle = () => {
           );
           setProcessedContent(backlinksResult.processedContent);
           
+          // Inserir placeholders para anúncios in-content
+          const contentWithAdPlaceholders = insertInContentAds(backlinksResult.processedContent, newsWithProfile.id);
+          setContentWithAds(contentWithAdPlaceholders);
           if (backlinksResult.backlinksAdded > 0) {
             console.log(`Added ${backlinksResult.backlinksAdded} backlinks:`, backlinksResult.backlinks);
           }
         } catch (error) {
           console.error('Error generating backlinks:', error);
           setProcessedContent(newsWithProfile.content);
+          
+          // Inserir placeholders para anúncios in-content mesmo sem backlinks
+          const contentWithAdPlaceholders = insertInContentAds(newsWithProfile.content, newsWithProfile.id);
+          setContentWithAds(contentWithAdPlaceholders);
         }
 
         // Buscar notícias relacionadas da mesma categoria
@@ -428,11 +438,33 @@ const NewsArticle = () => {
               <Advertisement position="international" />
             </div>
 
-            {/* Article Content */}
-            <div 
-              className="prose prose-lg max-w-none text-foreground mb-8"
-              dangerouslySetInnerHTML={{ __html: processedContent || news.content }}
-            />
+            {/* Article Content with In-Content Ads */}
+            <div className="prose prose-lg max-w-none text-foreground mb-8">
+              {contentWithAds ? (
+                <div dangerouslySetInnerHTML={{ 
+                  __html: contentWithAds.replace(
+                    /<div data-in-content-ad="([^"]+)" data-paragraph="(\d+)"><\/div>/g,
+                    (match, newsId, paragraphPos) => 
+                      `<div id="in-content-ad-${paragraphPos}"></div>`
+                  )
+                }} />
+              ) : (
+                <div dangerouslySetInnerHTML={{ __html: processedContent || news.content }} />
+              )}
+              
+              {/* Render in-content ads after content is loaded */}
+              {contentWithAds && news && (
+                <>
+                  {Array.from({ length: 10 }, (_, i) => i + 1).map(paragraphPos => (
+                    <InContentAd 
+                      key={`ad-${paragraphPos}`} 
+                      newsId={news.id} 
+                      paragraphPosition={paragraphPos} 
+                    />
+                  ))}
+                </>
+              )}
+            </div>
 
             {/* Embed Content */}
             {news.embed_code && (

@@ -39,7 +39,8 @@ const positionToSlug = {
   header: null, // Header não tem categoria
   politics: 'politica',
   sports: 'esportes', 
-  international: 'internacional'
+  international: 'internacional',
+  in_content: null // In-content é gerenciado separadamente
 };
 
 export function AdvertisementManagement() {
@@ -82,7 +83,8 @@ export function AdvertisementManagement() {
 
   const getPositionLabels = () => {
     const labels: Record<string, string> = {
-      header: 'Abaixo do Header'
+      header: 'Abaixo do Header',
+      in_content: 'Dentro das Notícias (In-Content)'
     };
 
     // Buscar os nomes das categorias para as outras posições
