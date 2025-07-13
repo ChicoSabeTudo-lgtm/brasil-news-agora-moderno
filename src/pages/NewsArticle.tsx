@@ -7,6 +7,7 @@ import { NewsImageGallery } from "@/components/NewsImageGallery";
 import { ShareButtons } from "@/components/ShareButtons";
 import { useBacklinks } from "@/hooks/useBacklinks";
 import { insertInContentAds } from "@/utils/contentUtils";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Clock, User, Eye, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -374,10 +375,30 @@ const NewsArticle = () => {
 
   const featuredImage = getFeaturedImage();
 
+  const getBreadcrumbItems = () => {
+    if (!news) return [];
+    
+    const items = [];
+    
+    if (news.categories?.name) {
+      items.push({
+        label: news.categories.name,
+        href: `/${news.categories.slug}`
+      });
+    }
+    
+    items.push({
+      label: news.title
+    });
+    
+    return items;
+  };
+
   return (
     <Layout>
       <main className="container mx-auto px-4 py-8">
-
+        {/* Breadcrumbs */}
+        <Breadcrumbs items={getBreadcrumbItems()} />
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Article */}
