@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { NewsTicker } from "@/components/NewsTicker";
-import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -66,10 +64,7 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <NewsTicker />
-      
-      <main className="container mx-auto px-4 py-8">
+    <main className="container mx-auto px-4 py-8">
         {/* Page Header */}
         <section className="text-center mb-12">
           <h1 className="text-4xl font-bold text-foreground mb-4">
@@ -314,11 +309,8 @@ const Contact = () => {
               </CardContent>
             </Card>
           </div>
-        </section>
-      </main>
-      
-      <Footer />
-    </div>
+      </section>
+    </main>
   );
 };
 
