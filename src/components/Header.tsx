@@ -1,5 +1,5 @@
 import { Search, Menu, Play, User, LogOut } from "lucide-react";
-import chicosabetudoLogo from "@/assets/logo.png";
+import chicosabetudoLogo from "@/assets/chicosabetudo-logo.png";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link, useNavigate } from "react-router-dom";
