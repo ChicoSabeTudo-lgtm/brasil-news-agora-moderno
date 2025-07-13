@@ -1,14 +1,16 @@
 import { Link } from "react-router-dom";
-import chicosabetudoLogo from "@/assets/chicosabetudo-logo.png";
+import { useSiteLogo } from "@/hooks/useSiteLogo";
 
 export const Footer = () => {
+  const siteLogo = useSiteLogo();
+  
   return (
     <footer className="bg-news-header text-news-header-foreground py-8 mt-16">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
             <div className="mb-4">
-              <img src={chicosabetudoLogo} alt="CHICOSABETUDO" className="h-8" />
+              <img src={siteLogo} alt="CHICOSABETUDO" className="h-8" />
             </div>
             <p className="text-sm text-gray-400">
               Seu portal de notícias confiável, trazendo informações precisas e atualizadas 24 horas por dia.

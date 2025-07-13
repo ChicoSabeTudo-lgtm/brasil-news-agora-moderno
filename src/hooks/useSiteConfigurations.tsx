@@ -7,6 +7,7 @@ export interface SiteConfiguration {
   ads_txt_content: string | null;
   header_code: string | null;
   footer_code: string | null;
+  logo_url: string | null;
   created_at: string;
   updated_at: string;
   updated_by: string | null;

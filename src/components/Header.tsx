@@ -1,5 +1,5 @@
 import { Search, Menu, Play, User, LogOut } from "lucide-react";
-import chicosabetudoLogo from "@/assets/chicosabetudo-logo.png";
+import { useSiteLogo } from "@/hooks/useSiteLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Link, useNavigate } from "react-router-dom";
@@ -20,6 +20,7 @@ export const Header = () => {
   const navigate = useNavigate();
   const { user, signOut, userRole } = useAuth();
   const { categories } = useCategories();
+  const siteLogo = useSiteLogo();
 
   // Static navigation items
   const staticItems = [
@@ -52,7 +53,7 @@ export const Header = () => {
         <div className="container mx-auto px-4 py-2 flex items-center justify-between">
           <div className="flex items-center space-x-6">
             <Link to="/" className="flex items-center">
-              <img src={chicosabetudoLogo} alt="CHICOSABETUDO" className="h-8" />
+              <img src={siteLogo} alt="CHICOSABETUDO" className="h-8" />
             </Link>
           </div>
           <div className="hidden md:flex items-center space-x-4">

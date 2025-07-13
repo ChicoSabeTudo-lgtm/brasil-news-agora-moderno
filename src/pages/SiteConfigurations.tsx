@@ -8,7 +8,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import { Save, FileText, Code, Code2 } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Save, FileText, Code, Code2, Image, Upload } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 export default function SiteConfigurations() {
   const { user } = useAuth();
@@ -17,6 +20,10 @@ export default function SiteConfigurations() {
   const [adsTxtContent, setAdsTxtContent] = useState(configuration?.ads_txt_content || '');
   const [headerCode, setHeaderCode] = useState(configuration?.header_code || '');
   const [footerCode, setFooterCode] = useState(configuration?.footer_code || '');
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(configuration?.logo_url || null);
+  const [isUploading, setIsUploading] = useState(false);
+  const { toast } = useToast();
 
   // Update states when configuration is loaded
   if (configuration && !isLoading) {
@@ -29,13 +36,65 @@ export default function SiteConfigurations() {
     if (footerCode !== (configuration.footer_code || '')) {
       setFooterCode(configuration.footer_code || '');
     }
+    if (logoPreview !== (configuration.logo_url || null)) {
+      setLogoPreview(configuration.logo_url || null);
+    }
   }
 
-  const handleSave = () => {
+  const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setLogoFile(file);
+      const preview = URL.createObjectURL(file);
+      setLogoPreview(preview);
+    }
+  };
+
+  const uploadLogo = async () => {
+    if (!logoFile) return null;
+
+    setIsUploading(true);
+    try {
+      const fileExt = logoFile.name.split('.').pop();
+      const fileName = `logo-${Date.now()}.${fileExt}`;
+      
+      const { data, error } = await supabase.storage
+        .from('logos')
+        .upload(fileName, logoFile);
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('logos')
+        .getPublicUrl(fileName);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Erro ao fazer upload da logo:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao fazer upload da logo. Tente novamente.",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    let logoUrl = configuration?.logo_url;
+    
+    if (logoFile) {
+      logoUrl = await uploadLogo();
+      if (!logoUrl) return; // Se falhou o upload, não continua
+    }
+
     updateConfiguration.mutate({
       ads_txt_content: adsTxtContent,
       header_code: headerCode,
       footer_code: footerCode,
+      logo_url: logoUrl,
     });
   };
 
@@ -74,8 +133,12 @@ export default function SiteConfigurations() {
             </Button>
           </div>
 
-          <Tabs defaultValue="ads-txt" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
+          <Tabs defaultValue="logo" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="logo" className="flex items-center gap-2">
+                <Image className="w-4 h-4" />
+                Logo
+              </TabsTrigger>
               <TabsTrigger value="ads-txt" className="flex items-center gap-2">
                 <FileText className="w-4 h-4" />
                 Ads.txt
@@ -89,6 +152,53 @@ export default function SiteConfigurations() {
                 Footer
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="logo">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Logomarca do Site</CardTitle>
+                  <CardDescription>
+                    Faça upload da logomarca que aparecerá no header e footer do site.
+                    Recomendamos PNG com fundo transparente, altura ideal: 32-40px.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="logo-upload">Nova Logomarca</Label>
+                    <Input
+                      id="logo-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoFileChange}
+                      className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                    />
+                  </div>
+                  
+                  {logoPreview && (
+                    <div className="space-y-2">
+                      <Label>Preview da Logo</Label>
+                      <div className="border rounded-lg p-4 bg-muted/50">
+                        <img 
+                          src={logoPreview} 
+                          alt="Preview da logo" 
+                          className="h-10 max-w-full object-contain"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="text-sm text-muted-foreground">
+                    <p className="font-medium mb-2">Dicas para a logo:</p>
+                    <ul className="list-disc ml-4 space-y-1">
+                      <li>Use PNG com fundo transparente</li>
+                      <li>Altura recomendada: 32-40px</li>
+                      <li>Largura máxima: 200px</li>
+                      <li>Certifique-se de que tenha bom contraste</li>
+                    </ul>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
             <TabsContent value="ads-txt">
               <Card>
@@ -204,11 +314,11 @@ export default function SiteConfigurations() {
           <div className="flex justify-end">
             <Button 
               onClick={handleSave}
-              disabled={updateConfiguration.isPending}
+              disabled={updateConfiguration.isPending || isUploading}
               size="lg"
             >
               <Save className="w-4 h-4 mr-2" />
-              {updateConfiguration.isPending ? 'Salvando...' : 'Salvar Todas as Configurações'}
+              {updateConfiguration.isPending || isUploading ? 'Salvando...' : 'Salvar Todas as Configurações'}
             </Button>
           </div>
         </div>
