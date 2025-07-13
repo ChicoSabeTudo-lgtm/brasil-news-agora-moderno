@@ -16,6 +16,7 @@ import breakingImage from "@/assets/breaking-news-hero.jpg";
 
 const imageMap = {
   "Política": politicsImage,
+  "Polícia": politicsImage,
   "Economia": economyImage,
   "Esportes": sportsImage,
   "Tecnologia": techImage,
@@ -28,6 +29,7 @@ const imageMap = {
 // Mapeamento de nomes de categoria para slugs
 const categorySlugMap: Record<string, string> = {
   "Política": "politica",
+  "Polícia": "policia",
   "Economia": "economia", 
   "Esportes": "esportes",
   "Tecnologia": "tecnologia",
