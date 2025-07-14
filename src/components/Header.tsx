@@ -62,7 +62,7 @@ export const Header = () => {
                 style={{ imageRendering: 'crisp-edges' }}
               />
             </Link>
-            <div className="flex-1 flex justify-end items-center space-x-2">
+            <div className="flex-1 flex justify-end">
               <form onSubmit={handleSearch} className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
@@ -72,31 +72,6 @@ export const Header = () => {
                   className="pl-10 w-36 bg-secondary border-gray-600"
                 />
               </form>
-              {user ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="text-news-header-foreground">
-                      <User className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem disabled>
-                      {userRole === 'admin' ? 'Administrador' : 'Redator'}
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={signOut}>
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Sair
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <Link to="/auth">
-                  <Button variant="ghost" size="icon" className="text-news-header-foreground">
-                    <User className="h-4 w-4" />
-                  </Button>
-                </Link>
-              )}
             </div>
           </div>
 
@@ -196,7 +171,7 @@ export const Header = () => {
             ))}
           </div>
 
-          <div className="hidden md:block text-sm text-gray-400">
+          <div className="text-sm text-gray-400">
             {new Date().toLocaleDateString("pt-BR", {
               weekday: "long",
               year: "numeric",
