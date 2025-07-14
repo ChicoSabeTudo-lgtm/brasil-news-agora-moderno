@@ -1,4 +1,4 @@
-import { Search, Menu, Play, User, LogOut } from "lucide-react";
+import { Search, Menu, Play, User, LogOut, X } from "lucide-react";
 import { useSiteLogo } from "@/hooks/useSiteLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,10 +13,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const navigate = useNavigate();
   const { user, signOut, userRole } = useAuth();
   const { categories } = useCategories();
@@ -43,7 +49,12 @@ export const Header = () => {
     if (searchTerm.trim()) {
       navigate(`/busca?q=${encodeURIComponent(searchTerm)}`);
       setSearchTerm("");
+      setIsSearchModalOpen(false);
     }
+  };
+
+  const handleMobileSearch = () => {
+    setIsSearchModalOpen(true);
   };
 
   return (
@@ -62,16 +73,30 @@ export const Header = () => {
                 style={{ imageRendering: 'crisp-edges' }}
               />
             </Link>
-            <div className="flex-1 flex justify-end">
-              <form onSubmit={handleSearch} className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="Buscar..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-36 bg-secondary border-gray-600"
-                />
-              </form>
+            <div className="flex-1 flex justify-end items-center space-x-4">
+              <Dialog open={isSearchModalOpen} onOpenChange={setIsSearchModalOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="ghost" size="icon" className="text-news-header-foreground">
+                    <Search className="h-5 w-5" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <div className="flex items-center space-x-2">
+                    <div className="grid flex-1 gap-2">
+                      <form onSubmit={handleSearch} className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <Input
+                          placeholder="Buscar notícias..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="pl-10 bg-secondary border-gray-600"
+                          autoFocus
+                        />
+                      </form>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
 
