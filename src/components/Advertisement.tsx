@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { SafeHtmlRenderer } from '@/utils/contentSanitizer';
 
 interface Advertisement {
   id: string;
@@ -56,9 +57,9 @@ export function Advertisement({ position }: AdvertisementProps) {
   if (ad.ad_code) {
     return (
       <div className="advertisement-space my-6">
-        <div 
+        <SafeHtmlRenderer 
+          content={ad.ad_code}
           className="w-full"
-          dangerouslySetInnerHTML={{ __html: ad.ad_code }}
         />
       </div>
     );

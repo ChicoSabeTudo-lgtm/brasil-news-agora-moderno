@@ -91,16 +91,15 @@ export const UserManagement = () => {
 
   const updateUserRole = async (userId: string, role: 'admin' | 'redator') => {
     try {
-      // Delete existing role
-      await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', userId);
-
-      // Insert new role
-      const { error } = await supabase
-        .from('user_roles')
-        .insert({ user_id: userId, role });
+      // Use secure edge function for role updates
+      const { data, error } = await supabase.functions.invoke('admin-user-management', {
+        body: {
+          action: 'update_role',
+          target_user_id: userId,
+          new_role: role,
+          reason: 'Role updated via admin panel'
+        }
+      });
 
       if (error) throw error;
 
@@ -125,7 +124,15 @@ export const UserManagement = () => {
     if (!confirm('Tem certeza que deseja remover este usuário?')) return;
 
     try {
-      const { error } = await supabase.auth.admin.deleteUser(userId);
+      // Use secure edge function for user deletion
+      const { data, error } = await supabase.functions.invoke('admin-user-management', {
+        body: {
+          action: 'delete_user',
+          target_user_id: userId,
+          reason: 'User deleted via admin panel'
+        }
+      });
+
       if (error) throw error;
 
       toast({

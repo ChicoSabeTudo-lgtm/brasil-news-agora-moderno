@@ -1,4 +1,5 @@
 import DOMPurify from 'dompurify';
+import React from 'react';
 
 // Configure DOMPurify with safe settings
 const purifyConfig = {
@@ -112,12 +113,9 @@ export const sanitizeUserInput = (input: string, maxLength: number = 1000): stri
  * @param className - Optional CSS class
  * @returns JSX element with sanitized content
  */
-export const SafeHtmlRenderer = ({ 
+export const SafeHtmlRenderer: React.FC<{ content: string; className?: string }> = ({ 
   content, 
   className = '' 
-}: { 
-  content: string; 
-  className?: string; 
 }) => {
   const sanitizedContent = sanitizeHtml(content);
   

@@ -24,6 +24,8 @@ import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { SafeHtmlRenderer, sanitizeEmbedCode } from '@/utils/contentSanitizer';
+import { validateAndSanitize, newsSchema } from '@/utils/validation';
 
 interface Category {
   id: string;
@@ -92,14 +94,30 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
   };
 
   const handleSave = async (status: 'draft' | 'published' | 'scheduled') => {
-    if (!article.title || !article.metaDescription || !article.content || !article.categoryId) {
+    // Validate input data
+    const validationResult = validateAndSanitize(newsSchema, {
+      title: article.title,
+      subtitle: article.subtitle,
+      meta_description: article.metaDescription,
+      content: article.content,
+      category_id: article.categoryId,
+      tags: article.tags ? article.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [],
+      embed_code: article.embedCode,
+      is_breaking: article.isBreaking,
+      is_featured: article.isFeatured
+    });
+
+    if (!validationResult.success) {
       toast({
-        title: "Campos obrigatórios",
-        description: "Preencha título, meta-descrição, conteúdo e categoria.",
+        title: "Erro de validação",
+        description: validationResult.errors.join(', '),
         variant: "destructive",
       });
       return;
     }
+
+    // Use the validated data
+    const validatedData = validationResult.data;
 
     if (status === 'scheduled' && !article.scheduledPublishAt) {
       toast({
@@ -484,17 +502,17 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
                 )}
 
                 {/* Article Content */}
-                <div 
+                <SafeHtmlRenderer 
+                  content={article.content || '<p>Conteúdo da notícia aparecerá aqui...</p>'}
                   className="prose prose-lg max-w-none text-foreground"
-                  dangerouslySetInnerHTML={{ __html: article.content || '<p>Conteúdo da notícia aparecerá aqui...</p>' }}
                 />
 
                 {/* Embed Content */}
                 {article.embedCode && (
                   <div className="my-6">
-                    <div 
+                    <SafeHtmlRenderer 
+                      content={sanitizeEmbedCode(article.embedCode)}
                       className="embed-content"
-                      dangerouslySetInnerHTML={{ __html: article.embedCode }}
                     />
                   </div>
                 )}

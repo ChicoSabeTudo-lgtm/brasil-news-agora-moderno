@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { SafeHtmlRenderer, sanitizeEmbedCode } from '@/utils/contentSanitizer';
 
 interface NewsData {
   id: string;
@@ -462,15 +463,19 @@ const NewsArticle = () => {
             {/* Article Content with In-Content Ads */}
             <div className="prose prose-lg max-w-none text-foreground mb-8">
               {contentWithAds ? (
-                <div dangerouslySetInnerHTML={{ 
-                  __html: contentWithAds.replace(
+                <SafeHtmlRenderer 
+                  content={contentWithAds.replace(
                     /<div data-in-content-ad="([^"]+)" data-paragraph="(\d+)"><\/div>/g,
                     (match, newsId, paragraphPos) => 
                       `<div id="in-content-ad-${paragraphPos}"></div>`
-                  )
-                }} />
+                  )}
+                  className=""
+                />
               ) : (
-                <div dangerouslySetInnerHTML={{ __html: processedContent || news.content }} />
+                <SafeHtmlRenderer 
+                  content={processedContent || news.content}
+                  className=""
+                />
               )}
               
               {/* Render in-content ads after content is loaded */}
@@ -490,9 +495,9 @@ const NewsArticle = () => {
             {/* Embed Content */}
             {news.embed_code && (
               <div className="mb-8">
-                <div 
+                <SafeHtmlRenderer 
+                  content={sanitizeEmbedCode(news.embed_code)}
                   className="embed-content"
-                  dangerouslySetInnerHTML={{ __html: news.embed_code }}
                 />
               </div>
             )}

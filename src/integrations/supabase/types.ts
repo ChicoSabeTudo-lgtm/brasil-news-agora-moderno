@@ -482,6 +482,36 @@ export type Database = {
         }
         Relationships: []
       }
+      role_audit_log: {
+        Row: {
+          changed_at: string
+          changed_by: string
+          id: string
+          new_role: Database["public"]["Enums"]["app_role"] | null
+          old_role: Database["public"]["Enums"]["app_role"] | null
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          changed_at?: string
+          changed_by: string
+          id?: string
+          new_role?: Database["public"]["Enums"]["app_role"] | null
+          old_role?: Database["public"]["Enums"]["app_role"] | null
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string
+          id?: string
+          new_role?: Database["public"]["Enums"]["app_role"] | null
+          old_role?: Database["public"]["Enums"]["app_role"] | null
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       site_configurations: {
         Row: {
           ads_txt_content: string | null
@@ -597,6 +627,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      delete_user_safe: {
+        Args: { target_user_id: string; reason?: string }
+        Returns: boolean
+      }
       generate_slug: {
         Args: { title: string }
         Returns: string
@@ -615,6 +649,14 @@ export type Database = {
       publish_scheduled_news: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      update_user_role: {
+        Args: {
+          target_user_id: string
+          new_role: Database["public"]["Enums"]["app_role"]
+          reason?: string
+        }
+        Returns: boolean
       }
     }
     Enums: {

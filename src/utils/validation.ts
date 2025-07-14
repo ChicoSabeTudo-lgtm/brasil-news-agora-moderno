@@ -29,9 +29,7 @@ export const newsSchema = z.object({
 
 export const userRoleSchema = z.object({
   user_id: z.string().uuid('ID do usuário inválido'),
-  role: z.enum(['admin', 'redator'], {
-    errorMap: () => ({ message: 'Papel inválido' })
-  })
+  role: z.enum(['admin', 'redator'])
 });
 
 export const categorySchema = z.object({
@@ -64,19 +62,19 @@ export const advertisementSchema = z.object({
 export const validateAndSanitize = <T>(
   schema: z.ZodSchema<T>,
   data: unknown
-): { success: true; data: T } | { success: false; errors: string[] } => {
+) => {
   try {
     const result = schema.parse(data);
-    return { success: true, data: result };
+    return { success: true as const, data: result };
   } catch (error) {
     if (error instanceof z.ZodError) {
       return { 
-        success: false, 
-        errors: error.errors.map(e => e.message) 
+        success: false as const, 
+        errors: error.issues.map(e => e.message) 
       };
     }
     return { 
-      success: false, 
+      success: false as const, 
       errors: ['Erro de validação desconhecido'] 
     };
   }

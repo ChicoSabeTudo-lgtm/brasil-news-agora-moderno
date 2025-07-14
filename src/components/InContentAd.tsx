@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { SafeHtmlRenderer } from '@/utils/contentSanitizer';
 
 interface InContentAdProps {
   newsId: string;
@@ -101,9 +102,9 @@ export function InContentAd({ newsId, paragraphPosition }: InContentAdProps) {
           <p className="text-xs text-muted-foreground mb-4 uppercase tracking-wide">
             Publicidade
           </p>
-          <div 
+          <SafeHtmlRenderer 
+            content={advertisements.ad_code}
             className="in-content-ad"
-            dangerouslySetInnerHTML={{ __html: advertisements.ad_code }}
           />
         </div>
       </div>
