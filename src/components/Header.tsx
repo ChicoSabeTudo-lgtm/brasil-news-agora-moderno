@@ -51,7 +51,57 @@ export const Header = () => {
       {/* Fixed Top Bar - Logo and Search */}
       <div className="fixed top-0 left-0 right-0 z-50 bg-news-header text-news-header-foreground border-b border-gray-700">
         <div className="container mx-auto px-4 py-2 flex items-center justify-between">
-          <div className="flex items-center space-x-6">
+          {/* Mobile Layout */}
+          <div className="md:hidden flex items-center justify-between w-full">
+            <div className="flex-1"></div>
+            <Link to="/" className="flex items-center">
+              <img 
+                src={logoUrl} 
+                alt="CHICOSABETUDO" 
+                className="h-12 w-auto object-contain"
+                style={{ imageRendering: 'crisp-edges' }}
+              />
+            </Link>
+            <div className="flex-1 flex justify-end items-center space-x-2">
+              <form onSubmit={handleSearch} className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  placeholder="Buscar..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 w-36 bg-secondary border-gray-600"
+                />
+              </form>
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="text-news-header-foreground">
+                      <User className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem disabled>
+                      {userRole === 'admin' ? 'Administrador' : 'Redator'}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={signOut}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sair
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Link to="/auth">
+                  <Button variant="ghost" size="icon" className="text-news-header-foreground">
+                    <User className="h-4 w-4" />
+                  </Button>
+                </Link>
+              )}
+            </div>
+          </div>
+
+          {/* Desktop Layout */}
+          <div className="hidden md:flex items-center space-x-6">
             <Link to="/" className="flex items-center">
               <img 
                 src={logoUrl} 
@@ -61,14 +111,15 @@ export const Header = () => {
               />
             </Link>
           </div>
-          <div className="flex items-center space-x-4">
+          
+          <div className="hidden md:flex items-center space-x-4">
             <form onSubmit={handleSearch} className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
                 placeholder="Buscar notícias..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-64 md:w-80 bg-secondary border-gray-600"
+                className="pl-10 w-80 bg-secondary border-gray-600"
               />
             </form>
             
@@ -145,7 +196,7 @@ export const Header = () => {
             ))}
           </div>
 
-          <div className="text-sm text-gray-400">
+          <div className="hidden md:block text-sm text-gray-400">
             {new Date().toLocaleDateString("pt-BR", {
               weekday: "long",
               year: "numeric",
