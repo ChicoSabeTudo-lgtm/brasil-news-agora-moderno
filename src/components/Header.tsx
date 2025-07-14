@@ -47,9 +47,9 @@ export const Header = () => {
   };
 
   return (
-    <header className="bg-news-header text-news-header-foreground">
-      {/* Top Bar */}
-      <div className="border-b border-gray-700">
+    <>
+      {/* Fixed Top Bar - Logo and Search */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-news-header text-news-header-foreground border-b border-gray-700">
         <div className="container mx-auto px-4 py-2 flex items-center justify-between">
           <div className="flex items-center space-x-6">
             <Link to="/" className="flex items-center">
@@ -61,14 +61,14 @@ export const Header = () => {
               />
             </Link>
           </div>
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="flex items-center space-x-4">
             <form onSubmit={handleSearch} className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
                 placeholder="Buscar notícias..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-80 bg-secondary border-gray-600"
+                className="pl-10 w-64 md:w-80 bg-secondary border-gray-600"
               />
             </form>
             
@@ -101,8 +101,12 @@ export const Header = () => {
         </div>
       </div>
 
+      {/* Spacer to push content below fixed header */}
+      <div className="h-16"></div>
+
       {/* Main Navigation */}
-      <nav className="container mx-auto px-4">
+      <header className="bg-news-header text-news-header-foreground">
+        <nav className="container mx-auto px-4">
         <div className="flex items-center justify-between py-3">
           <div className="md:hidden">
             <Button
@@ -179,20 +183,10 @@ export const Header = () => {
                 )
               ))}
             </div>
-            <div className="mt-4">
-              <form onSubmit={handleSearch} className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  placeholder="Buscar notícias..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-secondary border-gray-600"
-                />
-              </form>
-            </div>
           </div>
         )}
-      </nav>
-    </header>
+        </nav>
+      </header>
+    </>
   );
 };
