@@ -10,14 +10,14 @@ export const useSiteLogo = () => {
         .from('site_configurations')
         .select('logo_url')
         .order('created_at', { ascending: false })
-        .limit(1);
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching logo configuration:', error);
         return null;
       }
 
-      return data?.[0] || null;
+      return data;
     },
     staleTime: 0, // Força refetch imediato
     refetchOnWindowFocus: true, // Refetch quando a janela ganha foco
