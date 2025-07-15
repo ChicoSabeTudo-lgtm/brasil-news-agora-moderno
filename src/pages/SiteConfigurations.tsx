@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useSiteConfigurations } from '@/hooks/useSiteConfigurations';
+import { useSiteLogo } from '@/hooks/useSiteLogo';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,30 +17,25 @@ import { useToast } from '@/hooks/use-toast';
 export default function SiteConfigurations() {
   const { user } = useAuth();
   const { configuration, isLoading, updateConfiguration } = useSiteConfigurations();
+  const { refetchLogo } = useSiteLogo();
   
-  const [adsTxtContent, setAdsTxtContent] = useState(configuration?.ads_txt_content || '');
-  const [headerCode, setHeaderCode] = useState(configuration?.header_code || '');
-  const [footerCode, setFooterCode] = useState(configuration?.footer_code || '');
+  const [adsTxtContent, setAdsTxtContent] = useState('');
+  const [headerCode, setHeaderCode] = useState('');
+  const [footerCode, setFooterCode] = useState('');
   const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [logoPreview, setLogoPreview] = useState<string | null>(configuration?.logo_url || null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
 
   // Update states when configuration is loaded
-  if (configuration && !isLoading) {
-    if (adsTxtContent !== (configuration.ads_txt_content || '')) {
+  useEffect(() => {
+    if (configuration && !isLoading) {
       setAdsTxtContent(configuration.ads_txt_content || '');
-    }
-    if (headerCode !== (configuration.header_code || '')) {
       setHeaderCode(configuration.header_code || '');
-    }
-    if (footerCode !== (configuration.footer_code || '')) {
       setFooterCode(configuration.footer_code || '');
-    }
-    if (logoPreview !== (configuration.logo_url || null)) {
       setLogoPreview(configuration.logo_url || null);
     }
-  }
+  }, [configuration, isLoading]);
 
   const handleLogoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -95,6 +91,13 @@ export default function SiteConfigurations() {
       header_code: headerCode,
       footer_code: footerCode,
       logo_url: logoUrl,
+    }, {
+      onSuccess: () => {
+        // Força atualização da logo após salvar
+        setTimeout(() => {
+          refetchLogo();
+        }, 100);
+      }
     });
   };
 

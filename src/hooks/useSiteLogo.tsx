@@ -4,7 +4,7 @@ import chicosabetudoLogo from "@/assets/chicosabetudo-logo.png";
 
 export const useSiteLogo = () => {
   const { data: configuration, refetch } = useQuery({
-    queryKey: ['site-logo'], // Chave diferente para evitar conflito
+    queryKey: ['site-logo'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('site_configurations')
@@ -19,13 +19,19 @@ export const useSiteLogo = () => {
 
       return data;
     },
-    staleTime: 0, // Força refetch imediato
-    refetchOnWindowFocus: true, // Refetch quando a janela ganha foco
+    staleTime: 0,
+    gcTime: 0, // Não manter cache após ser unused
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 
   // Retorna a logo do banco de dados ou a logo padrão
+  const logoUrl = configuration?.logo_url 
+    ? `${configuration.logo_url}?t=${Date.now()}`  // Cache busting
+    : chicosabetudoLogo;
+    
   return {
-    logoUrl: configuration?.logo_url || chicosabetudoLogo,
+    logoUrl,
     refetchLogo: refetch
   };
 };
