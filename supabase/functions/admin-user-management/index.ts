@@ -57,6 +57,10 @@ serve(async (req) => {
         return await updateUserRole(supabase, user.user.id, body);
       case 'delete_user':
         return await deleteUser(supabase, user.user.id, body);
+      case 'approve_user':
+        return await approveUser(supabase, user.user.id, body);
+      case 'revoke_user':
+        return await revokeUser(supabase, user.user.id, body);
       case 'get_audit_log':
         return await getAuditLog(supabase);
       default:
@@ -124,6 +128,56 @@ async function deleteUser(supabase: any, adminId: string, { target_user_id, reas
     });
   } catch (error) {
     console.error('Error deleting user:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 400,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+async function approveUser(supabase: any, adminId: string, { target_user_id, reason }: any) {
+  try {
+    // Call the secure database function
+    const { data, error } = await supabase.rpc('approve_user_access', {
+      target_user_id,
+      reason: reason || 'User access approved by admin'
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return new Response(JSON.stringify({ success: true, data }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    console.error('Error approving user:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 400,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+}
+
+async function revokeUser(supabase: any, adminId: string, { target_user_id, reason }: any) {
+  try {
+    // Call the secure database function
+    const { data, error } = await supabase.rpc('revoke_user_access', {
+      target_user_id,
+      reason: reason || 'User access revoked by admin'
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return new Response(JSON.stringify({ success: true, data }), {
+      status: 200,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    console.error('Error revoking user:', error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 400,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

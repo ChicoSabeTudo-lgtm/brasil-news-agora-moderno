@@ -457,26 +457,44 @@ export type Database = {
       }
       profiles: {
         Row: {
+          access_revoked: boolean | null
+          approved_at: string | null
+          approved_by: string | null
           avatar_url: string | null
           created_at: string
           full_name: string | null
           id: string
+          is_approved: boolean | null
+          revoked_at: string | null
+          revoked_by: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          access_revoked?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
           avatar_url?: string | null
           created_at?: string
           full_name?: string | null
           id?: string
+          is_approved?: boolean | null
+          revoked_at?: string | null
+          revoked_by?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          access_revoked?: boolean | null
+          approved_at?: string | null
+          approved_by?: string | null
           avatar_url?: string | null
           created_at?: string
           full_name?: string | null
           id?: string
+          is_approved?: boolean | null
+          revoked_at?: string | null
+          revoked_by?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -627,6 +645,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_user_access: {
+        Args: { target_user_id: string; reason?: string }
+        Returns: boolean
+      }
       delete_user_safe: {
         Args: { target_user_id: string; reason?: string }
         Returns: boolean
@@ -649,6 +671,10 @@ export type Database = {
       publish_scheduled_news: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      revoke_user_access: {
+        Args: { target_user_id: string; reason?: string }
+        Returns: boolean
       }
       update_user_role: {
         Args: {
