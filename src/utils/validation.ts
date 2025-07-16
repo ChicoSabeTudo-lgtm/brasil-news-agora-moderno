@@ -19,10 +19,7 @@ export const newsSchema = z.object({
   content: z.string().min(50, 'Conteúdo muito curto').max(50000, 'Conteúdo muito longo'),
   category_id: z.string().uuid('ID da categoria inválido'),
   tags: z.array(z.string().max(50, 'Tag muito longa')).optional(),
-  embed_code: z.string().optional().refine(
-    (code) => !code || code.length <= 5000,
-    'Código embed muito longo'
-  ),
+  embed_code: z.string().optional(),
   is_breaking: z.boolean().optional(),
   is_featured: z.boolean().optional()
 });
