@@ -19,6 +19,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Save, Eye, Send, Clock, Calendar as CalendarIcon } from 'lucide-react';
 import { ImageGalleryEditor } from './ImageGalleryEditor';
+import { NewsDownloadManager } from './NewsDownloadManager';
 import { NewsImageGallery } from '@/components/NewsImageGallery';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { format } from 'date-fns';
@@ -317,6 +318,9 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
           onImagesChange={setNewsImages}
           initialImages={newsImages}
         />
+
+        {/* Downloads Manager */}
+        <NewsDownloadManager newsId={editingNews?.id} />
 
         <div className="space-y-2">
           <Label htmlFor="tags">Tags (separadas por vírgula)</Label>

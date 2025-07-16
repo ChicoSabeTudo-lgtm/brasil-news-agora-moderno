@@ -414,6 +414,53 @@ export type Database = {
           },
         ]
       }
+      news_downloads: {
+        Row: {
+          created_at: string
+          description: string | null
+          file_size: number | null
+          file_type: string | null
+          file_url: string
+          filename: string
+          id: string
+          news_id: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          file_url: string
+          filename: string
+          id?: string
+          news_id: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string
+          filename?: string
+          id?: string
+          news_id?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_news_downloads_news"
+            columns: ["news_id"]
+            isOneToOne: false
+            referencedRelation: "news"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       news_images: {
         Row: {
           caption: string | null

@@ -5,6 +5,7 @@ import { Advertisement } from "@/components/Advertisement";
 import { InContentAd } from "@/components/InContentAd";
 import { NewsImageGallery } from "@/components/NewsImageGallery";
 import { ShareButtons } from "@/components/ShareButtons";
+import { NewsDownloads } from "@/components/NewsDownloads";
 import { useBacklinks } from "@/hooks/useBacklinks";
 import { insertInContentAds } from "@/utils/contentUtils";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -502,6 +503,8 @@ const NewsArticle = () => {
               </div>
             )}
 
+            {/* Downloads */}
+            <NewsDownloads newsId={news.id} />
 
             {/* Tags */}
             {news.tags && news.tags.length > 0 && (
