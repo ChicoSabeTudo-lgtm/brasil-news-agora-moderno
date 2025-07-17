@@ -232,12 +232,12 @@ export function VideoManagement() {
 
               <div className="space-y-2">
                 <Label htmlFor="category_id">Categoria</Label>
-                <Select value={formData.category_id} onValueChange={(value) => setFormData({...formData, category_id: value})}>
+                <Select value={formData.category_id || "none"} onValueChange={(value) => setFormData({...formData, category_id: value === "none" ? null : value})}>
                   <SelectTrigger>
                     <SelectValue placeholder="Selecione uma categoria" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Sem categoria</SelectItem>
+                    <SelectItem value="none">Sem categoria</SelectItem>
                     {categories.map((category) => (
                       <SelectItem key={category.id} value={category.id}>
                         {category.name}
