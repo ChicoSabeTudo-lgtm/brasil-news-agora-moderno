@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useVideos } from '@/hooks/useVideos';
+import { useCategories } from '@/hooks/useCategories';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Edit, Trash2, Plus, Play, Eye, Calendar } from 'lucide-react';
@@ -17,6 +18,7 @@ import { ptBR } from 'date-fns/locale';
 
 export function VideoManagement() {
   const { videos, loading, refetch } = useVideos();
+  const { categories } = useCategories();
   const { toast } = useToast();
   const [editingVideo, setEditingVideo] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -38,6 +40,7 @@ export function VideoManagement() {
       
       const videoData = {
         ...formData,
+        category_id: formData.category_id || null,
         created_by: user?.id,
         published_at: formData.is_published ? new Date().toISOString() : null
       };
@@ -225,6 +228,23 @@ export function VideoManagement() {
                   placeholder="Digite a descrição do vídeo"
                   rows={3}
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="category_id">Categoria</Label>
+                <Select value={formData.category_id} onValueChange={(value) => setFormData({...formData, category_id: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione uma categoria" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Sem categoria</SelectItem>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
