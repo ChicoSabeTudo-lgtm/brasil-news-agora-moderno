@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 
 // Lazy load ReactQuill to avoid SSR issues
@@ -23,7 +23,7 @@ export const RichTextEditor = ({
   const quillRef = useRef<any>(null);
 
   // Function to process pasted content and add proper spacing
-  const processPastedContent = (html: string) => {
+  const processPastedContent = useCallback((html: string) => {
     // Remove extra whitespace and normalize line breaks
     let processed = html.replace(/\s+/g, ' ').trim();
     
@@ -46,7 +46,7 @@ export const RichTextEditor = ({
     processed = processed.replace(/<p>\s*<\/p>/g, '');
     
     return processed;
-  };
+  }, []);
 
   useEffect(() => {
     const loadQuill = async () => {
@@ -113,8 +113,8 @@ export const RichTextEditor = ({
     }
   }, [isLoaded, processPastedContent]);
 
-  // Quill modules configuration
-  const modules = {
+  // Quill modules configuration - memoized to prevent unnecessary re-renders
+  const modules = useMemo(() => ({
     toolbar: [
       [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
       ['bold', 'italic', 'underline', 'strike'],
@@ -134,15 +134,15 @@ export const RichTextEditor = ({
         }]
       ]
     }
-  };
+  }), []);
 
-  const formats = [
+  const formats = useMemo(() => [
     'header', 'font', 'size',
     'bold', 'italic', 'underline', 'strike', 'blockquote',
     'list', 'bullet', 'indent',
     'link', 'color', 'background',
     'align', 'code-block'
-  ];
+  ], []);
 
   if (!isLoaded || !ReactQuill) {
     return (
