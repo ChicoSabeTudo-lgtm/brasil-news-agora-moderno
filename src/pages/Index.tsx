@@ -32,7 +32,11 @@ const categoryImages: Record<string, string> = {
 const Index = () => {
   const { news, loading, error, getNewsByCategory, getBreakingNews, getFeaturedNews } = useNews();
   const { categories, loading: categoriesLoading } = useCategories();
-  const { videos, loading: videosLoading } = useVideos();
+  const { videos, loading: videosLoading, updateViews } = useVideos();
+
+  const handleVideoClick = (videoId: string) => {
+    updateViews(videoId);
+  };
 
   // Helper function to format date
   const formatPublishedAt = (dateString: string) => {
@@ -404,7 +408,11 @@ const Index = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {videos.slice(0, 6).map((video) => (
-                <div key={video.id} className="bg-card rounded-lg overflow-hidden shadow-card hover:shadow-lg transition-shadow cursor-pointer group">
+                <div 
+                  key={video.id} 
+                  className="bg-card rounded-lg overflow-hidden shadow-card hover:shadow-lg transition-shadow cursor-pointer group"
+                  onClick={() => handleVideoClick(video.id)}
+                >
                   <div className="relative">
                     <img 
                       src={video.thumbnail_url || breakingImage} 
