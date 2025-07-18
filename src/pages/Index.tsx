@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { NewsCard } from "@/components/NewsCard";
 import { LiveVideo } from "@/components/LiveVideo";
 import { Advertisement } from "@/components/Advertisement";
+import { VideoModal } from "@/components/VideoModal";
 import { Link } from "react-router-dom";
 import { useNews } from "@/hooks/useNews";
 import { useCategories } from "@/hooks/useCategories";
@@ -33,9 +35,16 @@ const Index = () => {
   const { news, loading, error, getNewsByCategory, getBreakingNews, getFeaturedNews } = useNews();
   const { categories, loading: categoriesLoading } = useCategories();
   const { videos, loading: videosLoading, updateViews } = useVideos();
+  const [selectedVideo, setSelectedVideo] = useState<any>(null);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
 
   const handleVideoClick = (videoId: string) => {
-    updateViews(videoId);
+    const video = videos.find(v => v.id === videoId);
+    if (video) {
+      setSelectedVideo(video);
+      setIsVideoModalOpen(true);
+      updateViews(videoId);
+    }
   };
 
   // Helper function to format date
@@ -480,6 +489,13 @@ const Index = () => {
           </div>
         </section>
       </main>
+
+      {/* Video Modal */}
+      <VideoModal 
+        isOpen={isVideoModalOpen} 
+        onClose={() => setIsVideoModalOpen(false)} 
+        video={selectedVideo} 
+      />
     </Layout>
   );
 };
