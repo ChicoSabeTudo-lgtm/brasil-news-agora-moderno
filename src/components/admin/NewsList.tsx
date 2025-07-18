@@ -34,6 +34,7 @@ interface News {
   id: string;
   title: string;
   summary: string;
+  slug: string | null;
   is_published: boolean;
   is_breaking: boolean;
   is_featured: boolean;
@@ -204,6 +205,19 @@ export const NewsList = () => {
     setShowEditor(false);
     setEditingNews(null);
     fetchNews();
+  };
+
+  const handleView = (newsItem: News) => {
+    if (newsItem.is_published && newsItem.slug) {
+      // Open published article in new tab
+      window.open(`/noticia/${newsItem.slug}`, '_blank');
+    } else {
+      toast({
+        title: "Notícia não disponível",
+        description: "Esta notícia ainda não foi publicada ou não possui um slug válido.",
+        variant: "destructive",
+      });
+    }
   };
 
   const getStatusBadge = (isPublished: boolean) => {
@@ -387,6 +401,7 @@ export const NewsList = () => {
                         <Button 
                           variant="outline" 
                           size="sm"
+                          onClick={() => handleView(newsItem)}
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
