@@ -10,6 +10,7 @@ import { useCategories } from "@/hooks/useCategories";
 import { useVideos } from "@/hooks/useVideos";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { getBestVideoThumbnail } from "@/utils/videoUtils";
 
 // Import default images
 import politicsImage from "@/assets/politics-news.jpg";
@@ -424,7 +425,7 @@ const Index = () => {
                 >
                   <div className="relative">
                     <img 
-                      src={video.thumbnail_url || breakingImage} 
+                      src={getBestVideoThumbnail(video.thumbnail_url, video.video_url, breakingImage)}
                       alt={video.title}
                       className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                     />

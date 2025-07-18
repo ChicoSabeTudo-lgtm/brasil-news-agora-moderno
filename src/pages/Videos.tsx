@@ -7,6 +7,7 @@ import { Play, Eye, Calendar, ChevronRight, Loader2 } from 'lucide-react';
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import breakingImage from "@/assets/breaking-news-hero.jpg";
+import { getBestVideoThumbnail } from "@/utils/videoUtils";
 
 const Videos = () => {
   const { videos, loading, error, updateViews } = useVideos();
@@ -108,7 +109,7 @@ const Videos = () => {
               >
                 <div className="relative overflow-hidden rounded-lg">
                   <img 
-                    src={featuredVideo.thumbnail_url || breakingImage} 
+                    src={getBestVideoThumbnail(featuredVideo.thumbnail_url, featuredVideo.video_url, breakingImage)}
                     alt={featuredVideo.title}
                     className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300"
                   />
@@ -181,7 +182,7 @@ const Videos = () => {
                 >
                   <div className="relative">
                     <img 
-                      src={video.thumbnail_url || breakingImage} 
+                      src={getBestVideoThumbnail(video.thumbnail_url, video.video_url, breakingImage)}
                       alt={video.title}
                       className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
                     />
