@@ -57,19 +57,9 @@ export const VideoModal = ({ isOpen, onClose, video }: VideoModalProps) => {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl w-full p-0 overflow-hidden">
         <DialogHeader className="p-6 pb-0">
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl font-bold line-clamp-2 pr-4">
-              {video.title}
-            </DialogTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="flex-shrink-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+          <DialogTitle className="text-xl font-bold line-clamp-2">
+            {video.title}
+          </DialogTitle>
           <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2">
             {video.categories && (
               <span className="bg-primary text-primary-foreground px-2 py-1 text-xs font-bold uppercase tracking-wide rounded">
