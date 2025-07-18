@@ -39,7 +39,7 @@ export const RichTextEditor = ({
     loadQuill();
   }, []);
 
-  // Quill modules configuration - simplified to allow normal paste functionality
+  // Quill modules configuration - with clipboard support for formatting
   const modules = useMemo(() => ({
     toolbar: [
       [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
@@ -50,7 +50,10 @@ export const RichTextEditor = ({
       [{ 'align': [] }],
       ['link', 'blockquote', 'code-block'],
       ['clean']
-    ]
+    ],
+    clipboard: {
+      matchVisual: true
+    }
   }), []);
 
   const formats = useMemo(() => [
