@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Layout } from "@/components/Layout";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -64,7 +65,8 @@ const Contact = () => {
   };
 
   return (
-    <main className="container mx-auto px-4 py-8">
+    <Layout>
+      <main className="container mx-auto px-4 py-8">
         {/* Page Header */}
         <section className="text-center mb-12">
           <h1 className="text-4xl font-bold text-foreground mb-4">
@@ -310,7 +312,8 @@ const Contact = () => {
             </Card>
           </div>
       </section>
-    </main>
+      </main>
+    </Layout>
   );
 };
 

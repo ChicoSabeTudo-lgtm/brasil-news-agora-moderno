@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Users, Eye, Target, DollarSign, Star, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Layout } from "@/components/Layout";
 
 const Advertise = () => {
   const [formData, setFormData] = useState({
@@ -79,7 +80,8 @@ const Advertise = () => {
   };
 
   return (
-    <main className="container mx-auto px-4 py-8">
+    <Layout>
+      <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <section className="text-center mb-12">
           <h1 className="text-4xl font-bold text-foreground mb-4">
@@ -439,7 +441,8 @@ const Advertise = () => {
           </div>
         </div>
       </main>
-    );
-  };
+    </Layout>
+  );
+};
 
 export default Advertise;
