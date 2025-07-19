@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { NewsCard } from "@/components/NewsCard";
@@ -6,71 +6,125 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search as SearchIcon, Filter, SortAsc, SortDesc } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useCategories } from "@/hooks/useCategories";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
-// Import news images
-import politicsImage from "@/assets/politics-news.jpg";
-import economyImage from "@/assets/economy-news.jpg";
-import sportsImage from "@/assets/sports-news.jpg";
-import techImage from "@/assets/tech-news.jpg";
-import internationalImage from "@/assets/international-news.jpg";
-import breakingImage from "@/assets/breaking-news-hero.jpg";
-
-const mockNews = [
-  {
-    id: "1",
-    title: "Congresso Nacional aprova reforma tributária em votação histórica",
-    metaDescription: "Decisão marca mudança estrutural no sistema brasileiro de impostos e promete simplificar a cobrança para empresas e cidadãos.",
-    imageUrl: politicsImage,
-    category: "Política",
-    author: "Ana Silva",
-    publishedAt: "2 horas atrás",
-    isBreaking: true
-  },
-  {
-    id: "2", 
-    title: "Banco Central mantém taxa de juros em 10,75% ao ano",
-    metaDescription: "Decisão do Copom foi unânime e mantém a Selic no mesmo patamar pelo terceiro mês consecutivo.",
-    imageUrl: economyImage,
-    category: "Economia",
-    author: "Carlos Santos",
-    publishedAt: "4 horas atrás"
-  },
-  {
-    id: "3",
-    title: "Brasil conquista ouro no Pan-Americano de atletismo",
-    metaDescription: "Equipe brasileira brilha em Santiago e conquista primeira posição no quadro de medalhas da competição.",
-    imageUrl: sportsImage,
-    category: "Esportes", 
-    author: "Marina Costa",
-    publishedAt: "6 horas atrás"
-  },
-  {
-    id: "4",
-    title: "Startup brasileira desenvolve IA para diagnóstico médico",
-    metaDescription: "Tecnologia promete revolucionar a medicina preventiva com precisão de 95% em exames de imagem.",
-    imageUrl: techImage,
-    category: "Tecnologia",
-    author: "João Oliveira",
-    publishedAt: "8 horas atrás"
-  },
-  {
-    id: "5",
-    title: "ONU aprova nova resolução sobre mudanças climáticas",
-    metaDescription: "Decisão histórica estabelece metas mais rígidas para redução de emissões de carbono até 2030.",
-    imageUrl: internationalImage,
-    category: "Internacional",
-    author: "Fernanda Lima",
-    publishedAt: "10 horas atrás"
-  }
-];
-
-const categories = ["Todas", "Política", "Economia", "Esportes", "Tecnologia", "Internacional", "Nacional", "Entretenimento", "Saúde"];
+interface NewsItem {
+  id: string;
+  title: string;
+  subtitle?: string;
+  meta_description: string;
+  published_at: string;
+  slug?: string;
+  categories: {
+    name: string;
+    slug: string;
+  };
+  news_images: {
+    image_url: string;
+    is_featured: boolean;
+  }[];
+  views: number;
+  is_breaking: boolean;
+}
 
 const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState(searchParams.get("q") || "");
   const [selectedCategory, setSelectedCategory] = useState("Todas");
   const [sortOrder, setSortOrder] = useState("newest");
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const { categories } = useCategories();
+
+  const categoriesWithAll = ["Todas", ...categories.map(cat => cat.name)];
+
+  // Buscar notícias quando o termo de pesquisa mudar
+  useEffect(() => {
+    const query = searchParams.get("q");
+    if (query) {
+      setSearchTerm(query);
+      fetchNews(query);
+    } else {
+      fetchAllNews();
+    }
+  }, [searchParams]);
+
+  const fetchNews = async (query: string) => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('news')
+        .select(`
+          id,
+          title,
+          subtitle,
+          meta_description,
+          published_at,
+          views,
+          is_breaking,
+          slug,
+          categories!inner (
+            name,
+            slug
+          ),
+          news_images (
+            image_url,
+            is_featured
+          )
+        `)
+        .eq('is_published', true)
+        .or(`title.ilike.%${query}%,meta_description.ilike.%${query}%,subtitle.ilike.%${query}%`)
+        .order('published_at', { ascending: false });
+
+      if (error) throw error;
+      setNews(data || []);
+    } catch (error) {
+      console.error('Erro ao buscar notícias:', error);
+      setNews([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchAllNews = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('news')
+        .select(`
+          id,
+          title,
+          subtitle,
+          meta_description,
+          published_at,
+          views,
+          is_breaking,
+          slug,
+          categories!inner (
+            name,
+            slug
+          ),
+          news_images (
+            image_url,
+            is_featured
+          )
+        `)
+        .eq('is_published', true)
+        .order('published_at', { ascending: false })
+        .limit(20);
+
+      if (error) throw error;
+      setNews(data || []);
+    } catch (error) {
+      console.error('Erro ao buscar notícias:', error);
+      setNews([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,18 +133,28 @@ const Search = () => {
     }
   };
 
-  const filteredNews = mockNews.filter(news => {
-    const matchesSearch = news.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         news.metaDescription.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === "Todas" || news.category === selectedCategory;
-    return matchesSearch && matchesCategory;
+  const getImageUrl = (newsItem: NewsItem) => {
+    if (!newsItem.news_images?.length) return null;
+    
+    const featuredImage = newsItem.news_images.find(img => img.is_featured) || newsItem.news_images[0];
+    if (!featuredImage?.image_url) return null;
+    
+    if (featuredImage.image_url.startsWith('http')) {
+      return featuredImage.image_url;
+    }
+    return `https://spgusjrjrhfychhdwixn.supabase.co/storage/v1/object/public/${featuredImage.image_url}`;
+  };
+
+  const filteredNews = news.filter(newsItem => {
+    const matchesCategory = selectedCategory === "Todas" || newsItem.categories.name === selectedCategory;
+    return matchesCategory;
   });
 
   const sortedNews = [...filteredNews].sort((a, b) => {
     if (sortOrder === "newest") {
-      return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
+      return new Date(b.published_at).getTime() - new Date(a.published_at).getTime();
     }
-    return new Date(a.publishedAt).getTime() - new Date(b.publishedAt).getTime();
+    return new Date(a.published_at).getTime() - new Date(b.published_at).getTime();
   });
 
   return (
@@ -131,7 +195,7 @@ const Search = () => {
                 <SelectValue placeholder="Categoria" />
               </SelectTrigger>
               <SelectContent>
-                {categories.map((category) => (
+                {categoriesWithAll.map((category) => (
                   <SelectItem key={category} value={category}>
                     {category}
                   </SelectItem>
@@ -164,23 +228,36 @@ const Search = () => {
         {/* Results */}
         <div className="mb-6">
           <p className="text-muted-foreground">
-            {sortedNews.length} resultado{sortedNews.length !== 1 ? 's' : ''} encontrado{sortedNews.length !== 1 ? 's' : ''}
+            {loading ? "Buscando..." : `${sortedNews.length} resultado${sortedNews.length !== 1 ? 's' : ''} encontrado${sortedNews.length !== 1 ? 's' : ''}`}
           </p>
         </div>
 
         {/* News Grid */}
-        {sortedNews.length > 0 ? (
+        {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sortedNews.map((news) => (
-              <Link key={news.id} to={`/noticia/${news.id}`}>
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="bg-card rounded-lg overflow-hidden border animate-pulse">
+                <div className="h-48 bg-muted"></div>
+                <div className="p-4 space-y-3">
+                  <div className="h-4 bg-muted rounded w-3/4"></div>
+                  <div className="h-3 bg-muted rounded w-1/2"></div>
+                  <div className="h-3 bg-muted rounded w-full"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : sortedNews.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sortedNews.map((newsItem) => (
+              <Link key={newsItem.id} to={`/noticia/${newsItem.slug || newsItem.id}`}>
                 <NewsCard
-                  title={news.title}
-                  metaDescription={news.metaDescription}
-                  imageUrl={news.imageUrl}
-                  category={news.category}
-                  author={news.author}
-                  publishedAt={news.publishedAt}
-                  isBreaking={news.isBreaking}
+                  title={newsItem.title}
+                  metaDescription={newsItem.subtitle || newsItem.meta_description}
+                  imageUrl={getImageUrl(newsItem)}
+                  category={newsItem.categories.name}
+                  author="Portal ChicoSabeTudo"
+                  publishedAt={format(new Date(newsItem.published_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                  isBreaking={newsItem.is_breaking}
                 />
               </Link>
             ))}
