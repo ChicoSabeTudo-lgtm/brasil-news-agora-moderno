@@ -470,12 +470,12 @@ const NewsArticle = () => {
                     (match, newsId, paragraphPos) => 
                       `<div id="in-content-ad-${paragraphPos}"></div>`
                   )}
-                  className=""
+                  className="rich-text-content"
                 />
               ) : (
                 <SafeHtmlRenderer 
                   content={processedContent || news.content}
-                  className=""
+                  className="rich-text-content"
                 />
               )}
               

@@ -415,3 +415,121 @@ All colors MUST be HSL.
 .rich-text-editor .ql-snow .ql-tooltip a.ql-remove::after {
   @apply text-primary;
 }
+
+/* Rich Text Editor Content Styling - Preserve formatting in articles */
+.prose .rich-text-content,
+.prose div:not([class]) {
+  line-height: 1.7;
+}
+
+.prose .rich-text-content h1,
+.prose h1:not([class]),
+.prose .rich-text-content h2,
+.prose h2:not([class]),
+.prose .rich-text-content h3,
+.prose h3:not([class]),
+.prose .rich-text-content h4,
+.prose h4:not([class]),
+.prose .rich-text-content h5,
+.prose h5:not([class]),
+.prose .rich-text-content h6,
+.prose h6:not([class]) {
+  @apply text-foreground font-bold mt-8 mb-4 leading-tight;
+}
+
+.prose .rich-text-content h1,
+.prose h1:not([class]) { 
+  @apply text-4xl;
+}
+
+.prose .rich-text-content h2,
+.prose h2:not([class]) { 
+  @apply text-3xl;
+}
+
+.prose .rich-text-content h3,
+.prose h3:not([class]) { 
+  @apply text-2xl;
+}
+
+.prose .rich-text-content h4,
+.prose h4:not([class]) { 
+  @apply text-xl;
+}
+
+.prose .rich-text-content h5,
+.prose h5:not([class]) { 
+  @apply text-lg;
+}
+
+.prose .rich-text-content h6,
+.prose h6:not([class]) { 
+  @apply text-base;
+}
+
+.prose .rich-text-content p,
+.prose p:not([class]) {
+  @apply mb-4 leading-relaxed text-foreground;
+}
+
+.prose .rich-text-content strong,
+.prose strong:not([class]) {
+  @apply font-bold text-foreground;
+}
+
+.prose .rich-text-content em,
+.prose em:not([class]) {
+  @apply italic;
+}
+
+.prose .rich-text-content u,
+.prose u:not([class]) {
+  @apply underline;
+}
+
+.prose .rich-text-content s,
+.prose s:not([class]),
+.prose .rich-text-content strike,
+.prose strike:not([class]) {
+  @apply line-through;
+}
+
+.prose .rich-text-content blockquote,
+.prose blockquote:not([class]) {
+  @apply border-l-4 border-primary pl-4 my-6 italic text-muted-foreground bg-muted/20 py-4 rounded-r;
+}
+
+.prose .rich-text-content ul:not([class]),
+.prose ul:not([class]) {
+  @apply list-disc ml-6 mb-4 space-y-2;
+}
+
+.prose .rich-text-content ol:not([class]),
+.prose ol:not([class]) {
+  @apply list-decimal ml-6 mb-4 space-y-2;
+}
+
+.prose .rich-text-content li:not([class]),
+.prose li:not([class]) {
+  @apply mb-2 leading-relaxed;
+}
+
+.prose .rich-text-content a:not([class]),
+.prose a:not([class]) {
+  @apply text-primary underline hover:text-primary/80;
+}
+
+.prose .rich-text-content code:not([class]),
+.prose code:not([class]) {
+  @apply bg-muted px-2 py-1 rounded text-sm font-mono;
+}
+
+.prose .rich-text-content pre:not([class]),
+.prose pre:not([class]) {
+  @apply bg-muted p-4 rounded-lg overflow-x-auto my-4;
+}
+
+.prose .rich-text-content pre code:not([class]),
+.prose pre code:not([class]) {
+  @apply bg-transparent p-0;
+}

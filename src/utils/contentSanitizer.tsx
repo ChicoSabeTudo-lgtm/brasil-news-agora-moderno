@@ -1,10 +1,11 @@
 import DOMPurify from 'dompurify';
 import React from 'react';
 
-// Configure DOMPurify with safe settings
+// Configure DOMPurify with safe settings - preserving Rich Text Editor formatting
 const purifyConfig = {
   ALLOWED_TAGS: [
-    'p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'p', 'br', 'strong', 'em', 'u', 's', 'strike', 'del', 'ins', 'sub', 'sup',
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
     'ul', 'ol', 'li', 'blockquote', 'a', 'img', 'div', 'span', 'pre', 'code',
     'table', 'thead', 'tbody', 'tr', 'td', 'th', 'hr', 'iframe', 'video',
     'audio', 'source', 'figure', 'figcaption'
@@ -13,12 +14,15 @@ const purifyConfig = {
     'href', 'src', 'alt', 'title', 'width', 'height', 'class', 'id',
     'target', 'rel', 'data-*', 'controls', 'autoplay', 'loop', 'muted',
     'poster', 'preload', 'style', 'frameborder', 'allowfullscreen',
-    'allow', 'loading', 'decoding'
+    'allow', 'loading', 'decoding', 'color', 'background-color',
+    'text-align', 'font-size', 'font-weight', 'font-style', 'text-decoration'
   ],
   ALLOW_DATA_ATTR: true,
   ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp|xxx):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
   ADD_TAGS: ['iframe'],
-  ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling']
+  ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling'],
+  KEEP_CONTENT: true,
+  FORCE_BODY: false
 };
 
 /**
