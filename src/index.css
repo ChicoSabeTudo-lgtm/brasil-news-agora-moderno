@@ -501,7 +501,9 @@ All colors MUST be HSL.
 
 .prose .rich-text-content ul:not([class]),
 .prose ul:not([class]) {
-  @apply list-none ml-6 mb-4 space-y-2;
+  @apply ml-6 mb-4 space-y-2;
+  list-style: none;
+  padding-left: 0;
 }
 
 .prose .rich-text-content ol:not([class]),
@@ -512,6 +514,7 @@ All colors MUST be HSL.
 .prose .rich-text-content li:not([class]),
 .prose li:not([class]) {
   @apply mb-2 leading-relaxed relative;
+  list-style: none;
 }
 
 .prose .rich-text-content ul:not([class]) li:not([class])::before,
@@ -521,6 +524,7 @@ All colors MUST be HSL.
   position: absolute;
   left: -1rem;
   font-weight: bold;
+  font-size: 1.2em;
 }
 
 .prose .rich-text-content a:not([class]),
