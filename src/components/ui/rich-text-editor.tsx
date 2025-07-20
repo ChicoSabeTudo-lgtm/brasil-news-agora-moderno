@@ -52,27 +52,25 @@ export const RichTextEditor = ({
       ['clean']
     ],
     clipboard: {
-      // Preserve formatting when pasting
-      matchVisual: false,
-      matchers: [
-        // Keep basic HTML formatting
-        ['h1, h2, h3, h4, h5, h6', function(node: any, delta: any) {
-          const header = parseInt(node.tagName.substring(1));
-          return delta.compose(new (window as any).Quill.Delta().retain(delta.length(), { header }));
-        }],
-        ['strong, b', function(node: any, delta: any) {
-          return delta.compose(new (window as any).Quill.Delta().retain(delta.length(), { bold: true }));
-        }],
-        ['em, i', function(node: any, delta: any) {
-          return delta.compose(new (window as any).Quill.Delta().retain(delta.length(), { italic: true }));
-        }],
-        ['u', function(node: any, delta: any) {
-          return delta.compose(new (window as any).Quill.Delta().retain(delta.length(), { underline: true }));
-        }],
-        ['s, strike', function(node: any, delta: any) {
-          return delta.compose(new (window as any).Quill.Delta().retain(delta.length(), { strike: true }));
-        }]
-      ]
+      // Enable paste functionality
+      allowed: {
+        tags: ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'strike', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'a'],
+        attributes: ['href', 'target', 'class']
+      },
+      matchers: [],
+      matchVisual: false
+    },
+    keyboard: {
+      bindings: {
+        // Enable Ctrl+V paste
+        paste: {
+          key: 'V',
+          ctrlKey: true,
+          handler: function(range: any, context: any) {
+            return true; // Allow default paste behavior
+          }
+        }
+      }
     }
   }), []);
 
