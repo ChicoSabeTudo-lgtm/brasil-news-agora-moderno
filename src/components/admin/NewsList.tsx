@@ -207,14 +207,46 @@ export const NewsList = () => {
     fetchNews();
   };
 
-  const handleView = (newsItem: News) => {
-    if (newsItem.is_published && newsItem.slug) {
-      // Open published article in new tab
-      window.open(`/noticia/${newsItem.slug}`, '_blank');
-    } else {
+  const handleView = async (newsItem: News) => {
+    if (!newsItem.is_published) {
       toast({
         title: "Notícia não disponível",
-        description: "Esta notícia ainda não foi publicada ou não possui um slug válido.",
+        description: "Esta notícia ainda não foi publicada.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Buscar dados completos da notícia incluindo categoria
+      const { data, error } = await supabase
+        .from('news')
+        .select(`
+          id,
+          slug,
+          categories (
+            slug
+          )
+        `)
+        .eq('id', newsItem.id)
+        .single();
+
+      if (error) throw error;
+
+      if (data?.slug && data?.categories?.slug) {
+        // Usar rota com categoria e slug
+        window.open(`/${data.categories.slug}/${data.slug}`, '_blank');
+      } else if (data?.id) {
+        // Fallback para rota por ID
+        window.open(`/noticia/${data.id}`, '_blank');
+      } else {
+        throw new Error('Slug ou ID não encontrado');
+      }
+    } catch (error) {
+      console.error('Error building article URL:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível abrir a notícia. Link inválido ou dados incompletos.",
         variant: "destructive",
       });
     }
