@@ -353,6 +353,37 @@ All colors MUST be HSL.
   }
 }
 
+/* Embed Content Styles */
+.embed-content {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.embed-content iframe {
+  max-width: 100%;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.embed-content blockquote {
+  margin: 0 auto;
+  max-width: 540px;
+}
+
+/* Instagram embed specific styles */
+.embed-content blockquote[data-instgrm-permalink] {
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin: 1rem auto;
+  max-width: 540px;
+  min-width: 326px;
+  padding: 0;
+  width: calc(100% - 2px);
+}
+
 /* React Quill Editor Styles */
 .rich-text-editor .ql-toolbar {
   @apply border border-border rounded-t-lg bg-background;

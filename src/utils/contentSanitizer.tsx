@@ -76,12 +76,18 @@ export const sanitizeEmbedCode = (embedCode: string): string => {
     return '';
   }
   
-  // Sanitize the embed code
+  // Sanitize the embed code with proper iframe/embed support
   const embedConfig = {
     ...purifyConfig,
     ALLOW_UNKNOWN_PROTOCOLS: false,
-    FORBID_TAGS: ['script', 'object', 'embed', 'form', 'input', 'button'],
-    FORBID_ATTR: ['onload', 'onerror', 'onclick', 'onmouseover']
+    ALLOWED_TAGS: ['iframe', 'blockquote', 'script', 'div', 'p', 'br', 'strong', 'em', 'a'],
+    ALLOWED_ATTR: [
+      'src', 'width', 'height', 'frameborder', 'allowfullscreen', 
+      'allow', 'scrolling', 'title', 'style', 'class', 'id',
+      'data-instgrm-permalink', 'data-instgrm-version', 'data-instgrm-captioned',
+      'cite', 'data-src', 'loading', 'referrerpolicy'
+    ],
+    FORBID_ATTR: ['onload', 'onerror', 'onclick', 'onmouseover', 'onmouseout', 'onfocus', 'onblur']
   };
   
   return DOMPurify.sanitize(embedCode, embedConfig);
