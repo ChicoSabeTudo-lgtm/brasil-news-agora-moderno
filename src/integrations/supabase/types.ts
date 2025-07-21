@@ -502,6 +502,45 @@ export type Database = {
           },
         ]
       }
+      news_media: {
+        Row: {
+          created_at: string
+          duration: number | null
+          file_name: string
+          file_size: number | null
+          file_type: string
+          file_url: string
+          id: string
+          mime_type: string
+          news_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          duration?: number | null
+          file_name: string
+          file_size?: number | null
+          file_type: string
+          file_url: string
+          id?: string
+          mime_type: string
+          news_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          duration?: number | null
+          file_name?: string
+          file_size?: number | null
+          file_type?: string
+          file_url?: string
+          id?: string
+          mime_type?: string
+          news_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           access_revoked: boolean | null

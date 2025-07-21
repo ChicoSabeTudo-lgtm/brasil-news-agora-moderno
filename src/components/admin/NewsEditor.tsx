@@ -22,6 +22,7 @@ import { ImageGalleryEditor } from './ImageGalleryEditor';
 import { NewsDownloadManager } from './NewsDownloadManager';
 import { NewsImageGallery } from '@/components/NewsImageGallery';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
+import { MediaManager } from '@/components/MediaManager';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -321,6 +322,9 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
 
         {/* Downloads Manager */}
         <NewsDownloadManager newsId={editingNews?.id} />
+
+        {/* Media Manager */}
+        <MediaManager newsId={editingNews?.id} />
 
         <div className="space-y-2">
           <Label htmlFor="tags">Tags (separadas por vírgula)</Label>

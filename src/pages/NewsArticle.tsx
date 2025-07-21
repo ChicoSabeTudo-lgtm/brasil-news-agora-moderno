@@ -16,6 +16,9 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { SafeHtmlRenderer, sanitizeEmbedCode } from '@/utils/contentSanitizer';
 import { InstagramEmbed } from '@/components/ui/instagram-embed';
+import { VideoPlayer } from '@/components/VideoPlayer';
+import { AudioPlayer } from '@/components/AudioPlayer';
+import { useNewsMedia } from '@/hooks/useNewsMedia';
 
 interface NewsData {
   id: string;
@@ -52,6 +55,7 @@ const NewsArticle = () => {
   const [processedContent, setProcessedContent] = useState<string>('');
   const [contentWithAds, setContentWithAds] = useState<string>('');
   const { generateBacklinks, isProcessing } = useBacklinks();
+  const { mediaFiles } = useNewsMedia(news?.id);
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -498,6 +502,28 @@ const NewsArticle = () => {
             {news.embed_code && (
               <div className="mb-8">
                 <InstagramEmbed embedCode={news.embed_code} />
+              </div>
+            )}
+
+            {/* Media Files */}
+            {mediaFiles.length > 0 && (
+              <div className="mb-8 space-y-4">
+                <h3 className="font-semibold text-lg mb-4">Mídia</h3>
+                {mediaFiles.map((media) => (
+                  <div key={media.id} className="mb-6">
+                    {media.file_type === 'video' ? (
+                      <VideoPlayer 
+                        src={media.file_url}
+                        className="w-full max-h-96"
+                      />
+                    ) : (
+                      <AudioPlayer 
+                        src={media.file_url}
+                        title={media.file_name}
+                      />
+                    )}
+                  </div>
+                ))}
               </div>
             )}
 
