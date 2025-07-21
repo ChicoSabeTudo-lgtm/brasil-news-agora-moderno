@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { SafeHtmlRenderer, sanitizeEmbedCode } from '@/utils/contentSanitizer';
+import { InstagramEmbed } from '@/components/ui/instagram-embed';
 
 interface NewsData {
   id: string;
@@ -493,13 +494,10 @@ const NewsArticle = () => {
               )}
             </div>
 
-            {/* Embed Content */}
+            {/* Instagram Embed */}
             {news.embed_code && (
               <div className="mb-8">
-                <SafeHtmlRenderer 
-                  content={sanitizeEmbedCode(news.embed_code)}
-                  className="embed-content"
-                />
+                <InstagramEmbed embedCode={news.embed_code} />
               </div>
             )}
 

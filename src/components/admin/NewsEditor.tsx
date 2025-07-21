@@ -333,17 +333,26 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="embedCode">Código Embed (opcional)</Label>
+          <Label htmlFor="embedCode">Código Embed do Instagram (opcional)</Label>
           <Textarea
             id="embedCode"
-            placeholder="Cole aqui códigos embed do YouTube, Instagram, Twitter, etc..."
-            rows={4}
+            placeholder="Cole aqui o código embed completo do Instagram, incluindo <blockquote> e <script>..."
+            rows={6}
             value={article.embedCode}
             onChange={(e) => setArticle({ ...article, embedCode: e.target.value })}
           />
           <p className="text-xs text-muted-foreground">
-            Exemplo: códigos de incorporação de vídeos do YouTube, posts do Instagram, tweets, etc.
+            Cole o código de incorporação completo do Instagram, incluindo todas as tags necessárias. O componente renderizará o HTML bruto para funcionar corretamente.
           </p>
+          {article.embedCode && (
+            <div className="mt-4 p-4 border rounded-lg bg-muted/50">
+              <Label className="text-sm font-medium mb-2 block">Pré-visualização do Embed:</Label>
+              <div 
+                dangerouslySetInnerHTML={{ __html: article.embedCode }}
+                className="instagram-embed-preview"
+              />
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
