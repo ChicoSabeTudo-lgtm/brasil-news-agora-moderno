@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface QuickMetricsData {
   newsToday: number;
-  totalViews: number;
+  viewsToday: number;
   pendingMessages: number;
   activeUsers: number;
 }
@@ -12,7 +12,7 @@ interface QuickMetricsData {
 export const QuickMetrics = () => {
   const [metrics, setMetrics] = useState<QuickMetricsData>({
     newsToday: 0,
-    totalViews: 0,
+    viewsToday: 0,
     pendingMessages: 0,
     activeUsers: 0
   });
@@ -31,13 +31,14 @@ export const QuickMetrics = () => {
           .eq('is_published', true)
           .gte('published_at', today.toISOString());
 
-        // Total de visualizações
-        const { data: viewsData } = await supabase
+        // Total de visualizações de hoje (usando notícias publicadas hoje como proxy)
+        const { data: todayNewsViews } = await supabase
           .from('news')
           .select('views')
-          .eq('is_published', true);
+          .eq('is_published', true)
+          .gte('published_at', today.toISOString());
 
-        const totalViews = viewsData?.reduce((sum, news) => sum + (news.views || 0), 0) || 0;
+        const todayViews = todayNewsViews?.reduce((sum, news) => sum + (news.views || 0), 0) || 0;
 
         // Mensagens pendentes (contato + publicidade)
         const { count: contactMessages } = await supabase
@@ -61,7 +62,7 @@ export const QuickMetrics = () => {
 
         setMetrics({
           newsToday: newsToday || 0,
-          totalViews,
+          viewsToday: todayViews,
           pendingMessages,
           activeUsers: activeUsers || 0
         });
@@ -125,9 +126,9 @@ export const QuickMetrics = () => {
             </span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium">Visualizações</span>
+            <span className="text-sm font-medium">Visualizações hoje</span>
             <span className="text-2xl font-bold text-primary">
-              {formatNumber(metrics.totalViews)}
+              {formatNumber(metrics.viewsToday)}
             </span>
           </div>
           <div className="flex justify-between items-center">
