@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Stats } from '@/components/admin/Stats';
+import { RecentActivity } from '@/components/admin/RecentActivity';
+import { QuickMetrics } from '@/components/admin/QuickMetrics';
 import { UserManagement } from '@/components/admin/UserManagement';
 import { NewsEditor } from '@/components/admin/NewsEditor';
 import { NewsList } from '@/components/admin/NewsList';
@@ -114,82 +116,8 @@ export default function Admin() {
               <Stats />
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Atividade Recente</CardTitle>
-                    <CardDescription>
-                      Últimas ações realizadas no sistema
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between border-b pb-2">
-                        <div>
-                          <p className="font-medium">Nova notícia publicada</p>
-                          <p className="text-sm text-muted-foreground">
-                            "Reforma tributária aprovada" - Política
-                          </p>
-                        </div>
-                        <span className="text-xs text-muted-foreground">
-                          2h atrás
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between border-b pb-2">
-                        <div>
-                          <p className="font-medium">Notícia editada</p>
-                          <p className="text-sm text-muted-foreground">
-                            "Selic mantida em 10,75%" - Economia
-                          </p>
-                        </div>
-                        <span className="text-xs text-muted-foreground">
-                          4h atrás
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">Usuário cadastrado</p>
-                          <p className="text-sm text-muted-foreground">
-                            Novo redator adicionado
-                          </p>
-                        </div>
-                        <span className="text-xs text-muted-foreground">
-                          1d atrás
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Métricas Rápidas</CardTitle>
-                    <CardDescription>
-                      Resumo das principais estatísticas
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium">Notícias hoje</span>
-                        <span className="text-2xl font-bold text-primary">12</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium">Visualizações</span>
-                        <span className="text-2xl font-bold text-primary">8.4k</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium">Engajamento</span>
-                        <span className="text-2xl font-bold text-primary">94%</span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium">Usuários ativos</span>
-                        <span className="text-2xl font-bold text-primary">
-                          {userRole === 'admin' ? '8' : '3'}
-                        </span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <RecentActivity />
+                <QuickMetrics />
               </div>
             </TabsContent>
 
