@@ -508,16 +508,18 @@ const NewsArticle = () => {
             {/* Media Files */}
             {mediaFiles.length > 0 && (
               <div className="mb-8 space-y-4">
-                <h3 className="font-semibold text-lg mb-4">Mídia</h3>
                 {mediaFiles.map((media) => (
                   <div key={media.id} className="mb-6">
+                    <h3 className="font-semibold text-lg mb-4">
+                      {media.file_type === 'video' ? 'Veja o vídeo:' : 'Ouça o áudio:'}
+                    </h3>
                     {media.file_type === 'video' ? (
                       <VideoPlayer 
                         src={media.file_url}
                         className="w-full max-h-96"
                       />
                     ) : (
-                      <AudioPlayer 
+                      <AudioPlayer
                         src={media.file_url}
                         title={media.file_name}
                       />
