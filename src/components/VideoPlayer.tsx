@@ -165,16 +165,17 @@ export const VideoPlayer = ({
   const progressPercentage = duration ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div
-      ref={containerRef}
-      className={cn(
-        "relative bg-black rounded-lg overflow-hidden group",
-        isFullscreen && "!fixed !inset-0 !z-50 !rounded-none",
-        className
-      )}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={() => isPlaying && setShowControls(false)}
-    >
+    <div className="w-full flex justify-center">
+      <div
+        ref={containerRef}
+        className={cn(
+          "relative bg-black rounded-lg overflow-hidden group w-full max-w-[800px]",
+          isFullscreen && "!fixed !inset-0 !z-50 !rounded-none !max-w-none",
+          className
+        )}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => isPlaying && setShowControls(false)}
+      >
       <video
         ref={videoRef}
         src={src}
@@ -308,8 +309,9 @@ export const VideoPlayer = ({
               )}
             </Button>
           </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+         </div>
+       </div>
+     </div>
+   </div>
+   );
+ };
