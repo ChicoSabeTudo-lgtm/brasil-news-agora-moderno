@@ -17,6 +17,7 @@ import { ContactManagement } from '@/components/admin/ContactManagement';
 import { AdvertisingManagement } from '@/components/admin/AdvertisingManagement';
 import { LiveStreamManagement } from '@/components/admin/LiveStreamManagement';
 import { VideoManagement } from '@/components/admin/VideoManagement';
+import { DailyBriefsPanel } from '@/components/admin/DailyBriefsPanel';
 import { useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -122,9 +123,18 @@ export default function Admin() {
             </TabsContent>
 
             <TabsContent value="news">
-              <div className="space-y-6">
-                <NewsList />
-              </div>
+              <Tabs defaultValue="list" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="list">Lista de Notícias</TabsTrigger>
+                  <TabsTrigger value="pautas">Pautas do Dia</TabsTrigger>
+                </TabsList>
+                <TabsContent value="list">
+                  <NewsList />
+                </TabsContent>
+                <TabsContent value="pautas">
+                  <DailyBriefsPanel />
+                </TabsContent>
+              </Tabs>
             </TabsContent>
 
             <TabsContent value="live">
