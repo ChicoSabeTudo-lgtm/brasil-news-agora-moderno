@@ -147,9 +147,12 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess }: DailyBriefsFormPro
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto" aria-describedby="dialog-description">
         <DialogHeader>
           <DialogTitle>Nova Pauta</DialogTitle>
+          <p id="dialog-description" className="text-sm text-muted-foreground">
+            Preencha os campos abaixo para criar uma nova pauta jornalística.
+          </p>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">

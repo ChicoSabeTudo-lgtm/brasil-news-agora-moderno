@@ -30,6 +30,8 @@ export const useDailyBriefs = () => {
       setLoading(true);
       const today = new Date().toISOString().split('T')[0];
       
+      console.log('Buscando pautas para a data:', today);
+      
       const { data, error } = await supabase
         .from('daily_briefs')
         .select(`
@@ -43,6 +45,8 @@ export const useDailyBriefs = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      
+      console.log('Pautas encontradas:', data);
       setBriefs(data || []);
     } catch (error: any) {
       console.error('Error fetching daily briefs:', error);
