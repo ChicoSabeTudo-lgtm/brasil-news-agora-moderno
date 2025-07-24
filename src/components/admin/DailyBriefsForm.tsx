@@ -43,23 +43,30 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
 
   // Populate form when editing
   useEffect(() => {
+    console.log('DailyBriefsForm useEffect triggered', { brief });
     if (brief) {
-      setFormData({
+      console.log('Brief data:', brief);
+      const newFormData = {
         title: brief.title || '',
         description: brief.description || '',
         brief_time: brief.brief_time || format(new Date(), 'HH:mm'),
         status: brief.status || 'rascunho',
         priority: brief.priority || 'media',
         category_id: brief.category_id || ''
-      });
+      };
+      console.log('Setting form data:', newFormData);
+      setFormData(newFormData);
       
       // Fix timezone issue by parsing date correctly for São Paulo timezone
       const dateParts = brief.brief_date.split('-');
       const year = parseInt(dateParts[0]);
       const month = parseInt(dateParts[1]) - 1; // Month is 0-indexed
       const day = parseInt(dateParts[2]);
-      setSelectedDate(new Date(year, month, day));
+      const parsedDate = new Date(year, month, day);
+      console.log('Setting date:', parsedDate);
+      setSelectedDate(parsedDate);
     } else {
+      console.log('No brief, resetting form');
       // Reset form for new brief
       setFormData({
         title: '',
