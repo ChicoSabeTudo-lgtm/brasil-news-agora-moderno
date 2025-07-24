@@ -28,9 +28,13 @@ export const useDailyBriefs = () => {
   const fetchBriefs = async () => {
     try {
       setLoading(true);
-      const today = new Date().toISOString().split('T')[0];
+      // Get local date in YYYY-MM-DD format (Brazil timezone)
+      const today = new Date();
+      const localDate = new Date(today.getTime() - (today.getTimezoneOffset() * 60000))
+        .toISOString()
+        .split('T')[0];
       
-      console.log('Buscando pautas para a data:', today);
+      console.log('Buscando pautas para a data:', localDate);
       
       const { data, error } = await supabase
         .from('daily_briefs')
@@ -41,7 +45,7 @@ export const useDailyBriefs = () => {
             color
           )
         `)
-        .eq('brief_date', today)
+        .eq('brief_date', localDate)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
