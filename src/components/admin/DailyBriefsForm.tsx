@@ -52,7 +52,13 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
         priority: brief.priority || 'media',
         category_id: brief.category_id || ''
       });
-      setSelectedDate(new Date(brief.brief_date));
+      
+      // Fix timezone issue by parsing date correctly for São Paulo timezone
+      const dateParts = brief.brief_date.split('-');
+      const year = parseInt(dateParts[0]);
+      const month = parseInt(dateParts[1]) - 1; // Month is 0-indexed
+      const day = parseInt(dateParts[2]);
+      setSelectedDate(new Date(year, month, day));
     } else {
       // Reset form for new brief
       setFormData({
