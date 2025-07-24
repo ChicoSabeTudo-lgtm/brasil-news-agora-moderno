@@ -43,7 +43,9 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
 
   // Populate form when editing
   useEffect(() => {
+    console.log('useEffect triggered - brief:', brief);
     if (brief) {
+      console.log('Brief received in form:', brief);
       // Use setTimeout to ensure state updates happen after component is fully mounted
       setTimeout(() => {
         setFormData({
