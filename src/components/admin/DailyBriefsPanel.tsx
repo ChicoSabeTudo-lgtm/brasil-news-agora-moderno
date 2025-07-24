@@ -5,23 +5,29 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { RefreshCw, Plus, Search, Calendar, Clock, User } from 'lucide-react';
+import { RefreshCw, Plus, Search, Calendar, Clock, Edit, Trash2, Eye } from 'lucide-react';
 import { useDailyBriefs } from '@/hooks/useDailyBriefs';
 import { useCategories } from '@/hooks/useCategories';
 import { DailyBriefsForm } from './DailyBriefsForm';
+import { DailyBriefsViewModal } from './DailyBriefsViewModal';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useToast } from '@/hooks/use-toast';
 
 export const DailyBriefsPanel = () => {
-  const { briefs, loading, refetch } = useDailyBriefs();
+  const { briefs, loading, refetch, deleteBrief } = useDailyBriefs();
   const { categories } = useCategories();
+  const { toast } = useToast();
   const [showForm, setShowForm] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [editingBrief, setEditingBrief] = useState(null);
+  const [viewingBrief, setViewingBrief] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedPriority, setSelectedPriority] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [deletingBrief, setDeletingBrief] = useState<string | null>(null);
 
-  // Contadores de status
   const statusCounts = {
     total: briefs.length,
     rascunho: briefs.filter(b => b.status === 'rascunho').length,
@@ -29,13 +35,11 @@ export const DailyBriefsPanel = () => {
     finalizada: briefs.filter(b => b.status === 'finalizada').length
   };
 
-  // Contadores por categoria
   const categoryCounts = categories.map(category => ({
     ...category,
     count: briefs.filter(b => b.category_id === category.id).length
   }));
 
-  // Filtrar pautas
   const filteredBriefs = briefs.filter(brief => {
     const matchesSearch = brief.title.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || brief.category_id === selectedCategory;
@@ -63,9 +67,52 @@ export const DailyBriefsPanel = () => {
     }
   };
 
+  const handleViewBrief = (brief) => {
+    setViewingBrief(brief);
+    setShowViewModal(true);
+  };
+
+  const handleEditBrief = (brief) => {
+    setEditingBrief(brief);
+    setShowForm(true);
+  };
+
+  const handleDeleteBrief = async (briefId: string) => {
+    if (!confirm('Tem certeza que deseja excluir esta pauta?')) {
+      return;
+    }
+
+    try {
+      setDeletingBrief(briefId);
+      await deleteBrief(briefId);
+      toast({
+        title: "Sucesso",
+        description: "Pauta excluída com sucesso!",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erro",
+        description: error.message || "Erro ao excluir pauta.",
+        variant: "destructive",
+      });
+    } finally {
+      setDeletingBrief(null);
+    }
+  };
+
+  const handleFormClose = () => {
+    setShowForm(false);
+    setEditingBrief(null);
+  };
+
+  const handleFormSuccess = () => {
+    setShowForm(false);
+    setEditingBrief(null);
+    refetch();
+  };
+
   return (
     <div className="space-y-6">
-      {/* Cabeçalho */}
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Pautas do Dia</h2>
         <div className="flex gap-2">
@@ -79,7 +126,6 @@ export const DailyBriefsPanel = () => {
         </div>
       </div>
 
-      {/* Cards de Status */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
@@ -136,7 +182,6 @@ export const DailyBriefsPanel = () => {
         </Card>
       </div>
 
-      {/* Cards de Categorias */}
       <div>
         <h3 className="text-lg font-semibold mb-3">Pautas por Categoria</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
@@ -157,7 +202,6 @@ export const DailyBriefsPanel = () => {
         </div>
       </div>
 
-      {/* Filtros e Busca */}
       <Card>
         <CardHeader>
           <CardTitle>Lista de Pautas</CardTitle>
@@ -203,7 +247,6 @@ export const DailyBriefsPanel = () => {
             </Select>
           </div>
 
-          {/* Abas de Status */}
           <Tabs value={statusFilter} onValueChange={setStatusFilter}>
             <TabsList>
               <TabsTrigger value="all">Todas</TabsTrigger>
@@ -260,6 +303,35 @@ export const DailyBriefsPanel = () => {
                               )}
                             </div>
                           </div>
+                          
+                          <div className="flex gap-2 ml-4">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleViewBrief(brief)}
+                              title="Visualizar"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEditBrief(brief)}
+                              title="Editar"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteBrief(brief.id)}
+                              disabled={deletingBrief === brief.id}
+                              title="Excluir"
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
@@ -271,15 +343,20 @@ export const DailyBriefsPanel = () => {
         </CardContent>
       </Card>
 
-      {/* Modal do Formulário */}
       {showForm && (
         <DailyBriefsForm
           open={showForm}
-          onClose={() => setShowForm(false)}
-          onSuccess={() => {
-            setShowForm(false);
-            refetch();
-          }}
+          onClose={handleFormClose}
+          onSuccess={handleFormSuccess}
+          brief={editingBrief}
+        />
+      )}
+
+      {showViewModal && viewingBrief && (
+        <DailyBriefsViewModal
+          open={showViewModal}
+          onClose={() => setShowViewModal(false)}
+          brief={viewingBrief}
         />
       )}
     </div>

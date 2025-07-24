@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,10 +21,11 @@ interface DailyBriefsFormProps {
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  brief?: any;
 }
 
-export const DailyBriefsForm = ({ open, onClose, onSuccess }: DailyBriefsFormProps) => {
-  const { createBrief } = useDailyBriefs();
+export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefsFormProps) => {
+  const { createBrief, updateBrief } = useDailyBriefs();
   const { categories } = useCategories();
   const { toast } = useToast();
   
@@ -38,6 +40,33 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess }: DailyBriefsFormPro
     priority: 'media' as 'baixa' | 'media' | 'alta',
     category_id: ''
   });
+
+  // Populate form when editing
+  useEffect(() => {
+    if (brief) {
+      setFormData({
+        title: brief.title || '',
+        description: brief.description || '',
+        brief_time: brief.brief_time || format(new Date(), 'HH:mm'),
+        status: brief.status || 'rascunho',
+        priority: brief.priority || 'media',
+        category_id: brief.category_id || ''
+      });
+      setSelectedDate(new Date(brief.brief_date));
+    } else {
+      // Reset form for new brief
+      setFormData({
+        title: '',
+        description: '',
+        brief_time: format(new Date(), 'HH:mm'),
+        status: 'rascunho',
+        priority: 'media',
+        category_id: ''
+      });
+      setSelectedDate(new Date());
+      setSelectedFile(null);
+    }
+  }, [brief]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -105,12 +134,12 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess }: DailyBriefsFormPro
     setLoading(true);
     
     try {
-      let imageUrl = null;
+      let imageUrl = brief?.image_url || null;
       if (selectedFile) {
         imageUrl = await uploadImage(selectedFile);
       }
 
-      await createBrief({
+      const briefData = {
         title: formData.title,
         description: formData.description || null,
         brief_date: format(selectedDate, 'yyyy-MM-dd'),
@@ -119,19 +148,28 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess }: DailyBriefsFormPro
         priority: formData.priority,
         category_id: formData.category_id || null,
         image_url: imageUrl
-      });
+      };
 
-      toast({
-        title: "Sucesso",
-        description: "Pauta criada com sucesso!",
-      });
+      if (brief) {
+        await updateBrief(brief.id, briefData);
+        toast({
+          title: "Sucesso",
+          description: "Pauta atualizada com sucesso!",
+        });
+      } else {
+        await createBrief(briefData);
+        toast({
+          title: "Sucesso",
+          description: "Pauta criada com sucesso!",
+        });
+      }
 
       onSuccess();
     } catch (error: any) {
-      console.error('Erro ao criar pauta:', error);
+      console.error('Erro ao salvar pauta:', error);
       toast({
         title: "Erro",
-        description: error.message || "Erro ao criar pauta.",
+        description: error.message || "Erro ao salvar pauta.",
         variant: "destructive",
       });
     } finally {
@@ -149,9 +187,9 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess }: DailyBriefsFormPro
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto" aria-describedby="dialog-description">
         <DialogHeader>
-          <DialogTitle>Nova Pauta</DialogTitle>
+          <DialogTitle>{brief ? 'Editar Pauta' : 'Nova Pauta'}</DialogTitle>
           <p id="dialog-description" className="text-sm text-muted-foreground">
-            Preencha os campos abaixo para criar uma nova pauta jornalística.
+            {brief ? 'Edite os campos abaixo para atualizar a pauta.' : 'Preencha os campos abaixo para criar uma nova pauta jornalística.'}
           </p>
         </DialogHeader>
 
@@ -169,7 +207,6 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess }: DailyBriefsFormPro
               />
             </div>
 
-            {/* Descrição */}
             <div className="md:col-span-2">
               <Label htmlFor="description">Descrição</Label>
               <Textarea
@@ -181,7 +218,6 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess }: DailyBriefsFormPro
               />
             </div>
 
-            {/* Data */}
             <div>
               <Label>Data</Label>
               <Popover>
@@ -213,7 +249,6 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess }: DailyBriefsFormPro
               </Popover>
             </div>
 
-            {/* Hora */}
             <div>
               <Label htmlFor="time">Hora</Label>
               <Input
@@ -224,7 +259,6 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess }: DailyBriefsFormPro
               />
             </div>
 
-            {/* Status */}
             <div>
               <Label>Status</Label>
               <Select 
@@ -244,7 +278,6 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess }: DailyBriefsFormPro
               </Select>
             </div>
 
-            {/* Prioridade */}
             <div>
               <Label>Prioridade</Label>
               <Select 
@@ -264,7 +297,6 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess }: DailyBriefsFormPro
               </Select>
             </div>
 
-            {/* Categoria */}
             <div className="md:col-span-2">
               <Label>Categoria</Label>
               <Select 
@@ -294,6 +326,19 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess }: DailyBriefsFormPro
             <div className="md:col-span-2">
               <Label>Imagem (opcional)</Label>
               <div className="mt-2">
+                {brief?.image_url && !selectedFile ? (
+                  <div className="flex items-center gap-2 p-3 border rounded-lg mb-2">
+                    <img 
+                      src={brief.image_url}
+                      alt="Imagem atual"
+                      className="w-12 h-12 object-cover rounded"
+                    />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">Imagem atual</p>
+                    </div>
+                  </div>
+                ) : null}
+                
                 {selectedFile ? (
                   <div className="flex items-center gap-2 p-3 border rounded-lg">
                     <img 
@@ -349,7 +394,7 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess }: DailyBriefsFormPro
               Cancelar
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Criando...' : 'Criar Pauta'}
+              {loading ? (brief ? 'Atualizando...' : 'Criando...') : (brief ? 'Atualizar Pauta' : 'Criar Pauta')}
             </Button>
           </div>
         </form>
