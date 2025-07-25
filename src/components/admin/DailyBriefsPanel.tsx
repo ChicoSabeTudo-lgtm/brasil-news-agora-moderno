@@ -286,7 +286,14 @@ export const DailyBriefsPanel = () => {
                             <div className="flex items-center gap-4 text-xs text-muted-foreground">
                               <div className="flex items-center gap-1">
                                 <Calendar className="h-3 w-3" />
-                                {format(new Date(brief.brief_date), 'dd/MM/yyyy', { locale: ptBR })}
+                                {(() => {
+                                  const dateParts = brief.brief_date.split('-');
+                                  const year = parseInt(dateParts[0]);
+                                  const month = parseInt(dateParts[1]) - 1;
+                                  const day = parseInt(dateParts[2]);
+                                  const localDate = new Date(year, month, day);
+                                  return format(localDate, 'dd/MM/yyyy', { locale: ptBR });
+                                })()}
                               </div>
                               <div className="flex items-center gap-1">
                                 <Clock className="h-3 w-3" />
