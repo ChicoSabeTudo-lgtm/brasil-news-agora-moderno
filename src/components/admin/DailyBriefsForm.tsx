@@ -43,26 +43,44 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
 
   // Populate form when editing
   useEffect(() => {
-    console.log('useEffect triggered - brief:', brief);
+    console.log('=== useEffect triggered ===');
+    console.log('brief:', brief);
+    console.log('brief exists:', !!brief);
+    
     if (brief) {
-      console.log('Brief received in form:', brief);
-      setFormData({
+      console.log('Brief data details:');
+      console.log('- title:', brief.title);
+      console.log('- description:', brief.description);
+      console.log('- brief_time:', brief.brief_time);
+      console.log('- status:', brief.status);
+      console.log('- priority:', brief.priority);
+      console.log('- category_id:', brief.category_id);
+      console.log('- brief_date:', brief.brief_date);
+      
+      const newFormData = {
         title: brief.title || '',
         description: brief.description || '',
         brief_time: brief.brief_time || format(new Date(), 'HH:mm'),
         status: brief.status || 'rascunho',
         priority: brief.priority || 'media',
         category_id: brief.category_id || ''
-      });
+      };
+      
+      console.log('Setting form data to:', newFormData);
+      setFormData(newFormData);
       
       // Fix timezone issue by parsing date correctly for São Paulo timezone
-      const dateParts = brief.brief_date.split('-');
-      const year = parseInt(dateParts[0]);
-      const month = parseInt(dateParts[1]) - 1; // Month is 0-indexed
-      const day = parseInt(dateParts[2]);
-      const parsedDate = new Date(year, month, day);
-      setSelectedDate(parsedDate);
+      if (brief.brief_date) {
+        const dateParts = brief.brief_date.split('-');
+        const year = parseInt(dateParts[0]);
+        const month = parseInt(dateParts[1]) - 1; // Month is 0-indexed
+        const day = parseInt(dateParts[2]);
+        const parsedDate = new Date(year, month, day);
+        console.log('Setting date to:', parsedDate);
+        setSelectedDate(parsedDate);
+      }
     } else {
+      console.log('No brief provided, resetting form');
       // Reset form for new brief
       setFormData({
         title: '',
