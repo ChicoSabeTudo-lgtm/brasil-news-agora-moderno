@@ -18,6 +18,7 @@ import { AdvertisingManagement } from '@/components/admin/AdvertisingManagement'
 import { LiveStreamManagement } from '@/components/admin/LiveStreamManagement';
 import { VideoManagement } from '@/components/admin/VideoManagement';
 import { DailyBriefsPanel } from '@/components/admin/DailyBriefsPanel';
+import PostSharingForm from '@/components/admin/PostSharingForm';
 import { useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -68,7 +69,7 @@ export default function Admin() {
           </div>
 
           <Tabs defaultValue="dashboard" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-9 lg:w-auto lg:grid-cols-none lg:inline-flex">
+            <TabsList className="grid w-full grid-cols-10 lg:w-auto lg:grid-cols-none lg:inline-flex">
               <TabsTrigger value="dashboard" className="flex items-center gap-2">
                 <LayoutDashboard className="w-4 h-4" />
                 Dashboard
@@ -76,6 +77,10 @@ export default function Admin() {
               <TabsTrigger value="news" className="flex items-center gap-2">
                 <FileText className="w-4 h-4" />
                 Notícias
+              </TabsTrigger>
+              <TabsTrigger value="post-sharing" className="flex items-center gap-2">
+                <PlusCircle className="w-4 h-4" />
+                Compartilhamento
               </TabsTrigger>
               <TabsTrigger value="live" className="flex items-center gap-2">
                 <Radio className="w-4 h-4" />
@@ -135,6 +140,15 @@ export default function Admin() {
                   <DailyBriefsPanel />
                 </TabsContent>
               </Tabs>
+            </TabsContent>
+
+            <TabsContent value="post-sharing">
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-2xl font-bold">Compartilhamento de Posts</h2>
+                </div>
+                <PostSharingForm />
+              </div>
             </TabsContent>
 
             <TabsContent value="live">

@@ -22,6 +22,7 @@ export default function SiteConfigurations() {
   const [adsTxtContent, setAdsTxtContent] = useState('');
   const [headerCode, setHeaderCode] = useState('');
   const [footerCode, setFooterCode] = useState('');
+  const [webhookUrl, setWebhookUrl] = useState('');
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -33,6 +34,7 @@ export default function SiteConfigurations() {
       setAdsTxtContent(configuration.ads_txt_content || '');
       setHeaderCode(configuration.header_code || '');
       setFooterCode(configuration.footer_code || '');
+      setWebhookUrl(configuration.webhook_url || '');
       setLogoPreview(configuration.logo_url || null);
     }
   }, [configuration, isLoading]);
@@ -90,6 +92,7 @@ export default function SiteConfigurations() {
       ads_txt_content: adsTxtContent,
       header_code: headerCode,
       footer_code: footerCode,
+      webhook_url: webhookUrl,
       logo_url: logoUrl,
     }, {
       onSuccess: () => {
@@ -137,10 +140,14 @@ export default function SiteConfigurations() {
           </div>
 
           <Tabs defaultValue="logo" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="logo" className="flex items-center gap-2">
                 <Image className="w-4 h-4" />
                 Logo
+              </TabsTrigger>
+              <TabsTrigger value="webhook" className="flex items-center gap-2">
+                <Upload className="w-4 h-4" />
+                Webhook
               </TabsTrigger>
               <TabsTrigger value="ads-txt" className="flex items-center gap-2">
                 <FileText className="w-4 h-4" />
@@ -197,6 +204,40 @@ export default function SiteConfigurations() {
                       <li>Altura recomendada: 32-40px</li>
                       <li>Largura máxima: 200px</li>
                       <li>Certifique-se de que tenha bom contraste</li>
+                    </ul>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="webhook">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Webhook para Compartilhamento</CardTitle>
+                  <CardDescription>
+                    Configure a URL do webhook que receberá os dados dos posts criados no sistema de compartilhamento.
+                    Esta URL será chamada quando um post for enviado.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="webhook-url">URL do Webhook</Label>
+                    <Input
+                      id="webhook-url"
+                      type="url"
+                      placeholder="https://api.exemplo.com/webhook/posts"
+                      value={webhookUrl}
+                      onChange={(e) => setWebhookUrl(e.target.value)}
+                      className="font-mono"
+                    />
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    <p className="font-medium mb-2">Como funciona:</p>
+                    <ul className="list-disc ml-4 space-y-1">
+                      <li>O sistema enviará uma requisição POST para esta URL</li>
+                      <li>O corpo da requisição conterá todos os dados do post em JSON</li>
+                      <li>Inclui título, resumo, link, plataformas, imagem e legenda</li>
+                      <li>Certifique-se de que a URL está acessível e aceita requisições POST</li>
                     </ul>
                   </div>
                 </CardContent>

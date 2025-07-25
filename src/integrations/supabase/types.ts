@@ -679,6 +679,7 @@ export type Database = {
           logo_url: string | null
           updated_at: string
           updated_by: string | null
+          webhook_url: string | null
         }
         Insert: {
           ads_txt_content?: string | null
@@ -689,6 +690,7 @@ export type Database = {
           logo_url?: string | null
           updated_at?: string
           updated_by?: string | null
+          webhook_url?: string | null
         }
         Update: {
           ads_txt_content?: string | null
@@ -699,6 +701,7 @@ export type Database = {
           logo_url?: string | null
           updated_at?: string
           updated_by?: string | null
+          webhook_url?: string | null
         }
         Relationships: []
       }
