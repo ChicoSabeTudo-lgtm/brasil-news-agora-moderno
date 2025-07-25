@@ -46,25 +46,22 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
     console.log('useEffect triggered - brief:', brief);
     if (brief) {
       console.log('Brief received in form:', brief);
-      // Use setTimeout to ensure state updates happen after component is fully mounted
-      setTimeout(() => {
-        setFormData({
-          title: brief.title || '',
-          description: brief.description || '',
-          brief_time: brief.brief_time || format(new Date(), 'HH:mm'),
-          status: brief.status || 'rascunho',
-          priority: brief.priority || 'media',
-          category_id: brief.category_id || ''
-        });
-        
-        // Fix timezone issue by parsing date correctly for São Paulo timezone
-        const dateParts = brief.brief_date.split('-');
-        const year = parseInt(dateParts[0]);
-        const month = parseInt(dateParts[1]) - 1; // Month is 0-indexed
-        const day = parseInt(dateParts[2]);
-        const parsedDate = new Date(year, month, day);
-        setSelectedDate(parsedDate);
-      }, 0);
+      setFormData({
+        title: brief.title || '',
+        description: brief.description || '',
+        brief_time: brief.brief_time || format(new Date(), 'HH:mm'),
+        status: brief.status || 'rascunho',
+        priority: brief.priority || 'media',
+        category_id: brief.category_id || ''
+      });
+      
+      // Fix timezone issue by parsing date correctly for São Paulo timezone
+      const dateParts = brief.brief_date.split('-');
+      const year = parseInt(dateParts[0]);
+      const month = parseInt(dateParts[1]) - 1; // Month is 0-indexed
+      const day = parseInt(dateParts[2]);
+      const parsedDate = new Date(year, month, day);
+      setSelectedDate(parsedDate);
     } else {
       // Reset form for new brief
       setFormData({
