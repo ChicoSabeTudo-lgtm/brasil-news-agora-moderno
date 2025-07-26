@@ -32,6 +32,7 @@ interface PostData {
   scheduleInstagram: boolean;
   instagramDate: string;
   instagramTime: string;
+  mockupImage: string | null;
 }
 
 export default function PostSharingForm() {
@@ -59,6 +60,7 @@ export default function PostSharingForm() {
     scheduleInstagram: false,
     instagramDate: '',
     instagramTime: '',
+    mockupImage: null,
   });
 
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
@@ -86,43 +88,114 @@ export default function PostSharingForm() {
     }
   };
 
+  const handleMockupUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setPostData(prev => ({
+          ...prev,
+          mockupImage: event.target?.result as string
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const generateImageCanvas = () => {
     if (!postData.backgroundImage || !postData.title) return null;
 
     const canvas = document.createElement('canvas');
-    canvas.width = 1080;
-    canvas.height = 1440;
     const ctx = canvas.getContext('2d');
     
     if (!ctx) return null;
 
     return new Promise<string>((resolve) => {
-      const img = new Image();
-      img.onload = () => {
-        // Draw background image
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        
-        // Configure text
-        const fontSize = postData.textSize === 'small' ? 48 : postData.textSize === 'medium' ? 72 : 96;
-        ctx.font = `bold ${fontSize * (postData.textZoom / 100)}px Arial, sans-serif`;
-        ctx.fillStyle = '#FFFFFF';
-        ctx.strokeStyle = '#000000';
-        ctx.lineWidth = 3;
-        ctx.textAlign = postData.textAlign as CanvasTextAlign;
-        
-        // Calculate position
-        const x = (postData.textPosition.x / 100) * canvas.width;
-        const y = (postData.textPosition.y / 100) * canvas.height;
-        
-        // Draw text with outline
-        ctx.strokeText(postData.title, x, y);
-        ctx.fillText(postData.title, x, y);
-        
-        const imageUrl = canvas.toDataURL('image/jpeg', 0.9);
-        setGeneratedImageUrl(imageUrl);
-        resolve(imageUrl);
+      const cardImg = new Image();
+      cardImg.onload = () => {
+        // Se há mockup, use suas dimensões, senão use dimensões padrão do card
+        if (postData.mockupImage) {
+          const mockupImg = new Image();
+          mockupImg.onload = () => {
+            // Ajuste o canvas para as dimensões do mockup
+            canvas.width = mockupImg.width;
+            canvas.height = mockupImg.height;
+            
+            // Desenhe o mockup como fundo
+            ctx.drawImage(mockupImg, 0, 0);
+            
+            // Desenhe o card na área designada (centro do mockup, ajuste conforme necessário)
+            // Você pode ajustar essas proporções baseado no seu mockup específico
+            const cardAreaX = canvas.width * 0.15; // 15% da borda esquerda
+            const cardAreaY = canvas.height * 0.25; // 25% do topo
+            const cardAreaWidth = canvas.width * 0.7; // 70% da largura
+            const cardAreaHeight = cardAreaWidth * (1440/1080); // Manter proporção 3:4
+            
+            // Criar canvas temporário para o card
+            const cardCanvas = document.createElement('canvas');
+            cardCanvas.width = 1080;
+            cardCanvas.height = 1440;
+            const cardCtx = cardCanvas.getContext('2d');
+            
+            if (cardCtx) {
+              // Desenhar card no canvas temporário
+              cardCtx.drawImage(cardImg, 0, 0, cardCanvas.width, cardCanvas.height);
+              
+              // Configurar texto
+              const fontSize = postData.textSize === 'small' ? 48 : postData.textSize === 'medium' ? 72 : 96;
+              cardCtx.font = `bold ${fontSize * (postData.textZoom / 100)}px Arial, sans-serif`;
+              cardCtx.fillStyle = '#FFFFFF';
+              cardCtx.strokeStyle = '#000000';
+              cardCtx.lineWidth = 3;
+              cardCtx.textAlign = postData.textAlign as CanvasTextAlign;
+              
+              // Calcular posição do texto
+              const x = (postData.textPosition.x / 100) * cardCanvas.width;
+              const y = (postData.textPosition.y / 100) * cardCanvas.height;
+              
+              // Desenhar texto com contorno
+              cardCtx.strokeText(postData.title, x, y);
+              cardCtx.fillText(postData.title, x, y);
+              
+              // Desenhar o card completo no mockup
+              ctx.drawImage(cardCanvas, cardAreaX, cardAreaY, cardAreaWidth, cardAreaHeight);
+            }
+            
+            const imageUrl = canvas.toDataURL('image/jpeg', 0.9);
+            setGeneratedImageUrl(imageUrl);
+            resolve(imageUrl);
+          };
+          mockupImg.src = postData.mockupImage;
+        } else {
+          // Sem mockup, comportamento original
+          canvas.width = 1080;
+          canvas.height = 1440;
+          
+          // Desenhar imagem de fundo
+          ctx.drawImage(cardImg, 0, 0, canvas.width, canvas.height);
+          
+          // Configurar texto
+          const fontSize = postData.textSize === 'small' ? 48 : postData.textSize === 'medium' ? 72 : 96;
+          ctx.font = `bold ${fontSize * (postData.textZoom / 100)}px Arial, sans-serif`;
+          ctx.fillStyle = '#FFFFFF';
+          ctx.strokeStyle = '#000000';
+          ctx.lineWidth = 3;
+          ctx.textAlign = postData.textAlign as CanvasTextAlign;
+          
+          // Calcular posição
+          const x = (postData.textPosition.x / 100) * canvas.width;
+          const y = (postData.textPosition.y / 100) * canvas.height;
+          
+          // Desenhar texto com contorno
+          ctx.strokeText(postData.title, x, y);
+          ctx.fillText(postData.title, x, y);
+          
+          const imageUrl = canvas.toDataURL('image/jpeg', 0.9);
+          setGeneratedImageUrl(imageUrl);
+          resolve(imageUrl);
+        }
       };
-      img.src = postData.backgroundImage;
+      cardImg.src = postData.backgroundImage;
     });
   };
 
@@ -463,6 +536,44 @@ export default function PostSharingForm() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Controles e Formulário */}
                 <div className="space-y-6">
+                  {/* Configurações do Mockup */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Configurações do Mockup</CardTitle>
+                      <CardDescription>
+                        Faça upload da imagem de mockup do feed do Instagram para usar como base
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="mockup">Imagem de Mockup do Feed</Label>
+                        <Input
+                          id="mockup"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleMockupUpload}
+                          className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium"
+                        />
+                        <p className="text-sm text-muted-foreground">
+                          Carregue uma imagem de celular com Instagram aberto para usar como template
+                        </p>
+                      </div>
+                      
+                      {postData.mockupImage && (
+                        <div className="space-y-2">
+                          <Label>Preview do Mockup:</Label>
+                          <div className="max-w-48 mx-auto">
+                            <img
+                              src={postData.mockupImage}
+                              alt="Mockup preview"
+                              className="w-full h-auto rounded-lg border"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+
                   {/* Card Visual Generator */}
                   <Card>
                     <CardHeader>
@@ -655,35 +766,53 @@ export default function PostSharingForm() {
                 {/* Preview */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Pré-visualização (1080x1440)</CardTitle>
+                    <CardTitle>
+                      {postData.mockupImage ? 'Pré-visualização com Mockup' : 'Pré-visualização (1080x1440)'}
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="aspect-[3/4] bg-muted rounded-lg flex items-center justify-center relative overflow-hidden">
-                      {postData.backgroundImage ? (
-                        <div className="relative w-full h-full">
-                          <img
-                            src={postData.backgroundImage}
-                            alt="Background"
-                            className="w-full h-full object-cover"
-                          />
-                          {postData.title && (
-                            <div
-                              className="absolute text-white font-bold"
-                              style={{
-                                left: `${postData.textPosition.x}%`,
-                                top: `${postData.textPosition.y}%`,
-                                transform: 'translate(-50%, -50%)',
-                                fontSize: `${(postData.textSize === 'small' ? 16 : postData.textSize === 'medium' ? 24 : 32) * (postData.textZoom / 100)}px`,
-                                textAlign: postData.textAlign,
-                                textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-                                maxWidth: '90%',
-                                wordWrap: 'break-word'
-                              }}
-                            >
-                              {postData.title}
-                            </div>
-                          )}
-                        </div>
+                    <div className={`${postData.mockupImage ? 'aspect-[9/16]' : 'aspect-[3/4]'} bg-muted rounded-lg flex items-center justify-center relative overflow-hidden`}>
+                      {generatedImageUrl ? (
+                        // Mostrar a imagem final gerada (com ou sem mockup)
+                        <img
+                          src={generatedImageUrl}
+                          alt="Preview Final"
+                          className="w-full h-full object-contain"
+                        />
+                      ) : postData.backgroundImage ? (
+                        // Preview básico sem mockup
+                        !postData.mockupImage ? (
+                          <div className="relative w-full h-full">
+                            <img
+                              src={postData.backgroundImage}
+                              alt="Background"
+                              className="w-full h-full object-cover"
+                            />
+                            {postData.title && (
+                              <div
+                                className="absolute text-white font-bold"
+                                style={{
+                                  left: `${postData.textPosition.x}%`,
+                                  top: `${postData.textPosition.y}%`,
+                                  transform: 'translate(-50%, -50%)',
+                                  fontSize: `${(postData.textSize === 'small' ? 16 : postData.textSize === 'medium' ? 24 : 32) * (postData.textZoom / 100)}px`,
+                                  textAlign: postData.textAlign,
+                                  textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                                  maxWidth: '90%',
+                                  wordWrap: 'break-word'
+                                }}
+                              >
+                                {postData.title}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          // Instrução para atualizar preview quando há mockup
+                          <div className="text-center text-muted-foreground">
+                            <ImageIcon className="w-12 h-12 mx-auto mb-2" />
+                            <p>Clique em "Atualizar Preview" para ver o resultado com mockup</p>
+                          </div>
+                        )
                       ) : (
                         <div className="text-center text-muted-foreground">
                           <ImageIcon className="w-12 h-12 mx-auto mb-2" />
