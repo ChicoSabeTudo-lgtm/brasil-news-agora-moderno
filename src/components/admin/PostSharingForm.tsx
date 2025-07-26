@@ -286,17 +286,12 @@ export default function PostSharingForm() {
     }
   };
 
-  const isStepValid = (step: string) => {
-    switch (step) {
-      case 'content':
-        return postData.title.trim() !== '';
-      case 'visual':
-        return postData.backgroundImage !== null && postData.title.trim() !== '';
-      case 'instagram':
-        return postData.instagramCaption.trim() !== '';
-      default:
-        return false;
-    }
+  const isContentValid = () => {
+    return postData.title.trim() !== '';
+  };
+
+  const isInstagramValid = () => {
+    return postData.instagramCaption.trim() !== '' && postData.backgroundImage !== null;
   };
 
   return (
