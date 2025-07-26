@@ -136,7 +136,76 @@ export default function PostSharingForm() {
     }
   };
 
-  const sendWebhook = async () => {
+  const sendSocialWebhook = async () => {
+    if (!configuration?.webhook_url) {
+      toast({
+        title: "Erro",
+        description: "URL do webhook não configurada. Configure nas configurações do site.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      const webhookData = {
+        type: 'social_media',
+        timestamp: new Date().toISOString(),
+        user_id: user?.id,
+        content: {
+          title: postData.title,
+          summary: postData.summary,
+          link: postData.link,
+          platforms: postData.platforms,
+          schedule: postData.schedulePost ? {
+            date: postData.scheduleDate,
+            time: postData.scheduleTime
+          } : null
+        }
+      };
+
+      const response = await fetch(configuration.webhook_url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(webhookData)
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Sucesso!",
+          description: "Post das redes sociais enviado com sucesso para o webhook.",
+        });
+        
+        // Reset only social fields
+        setPostData(prev => ({
+          ...prev,
+          title: '',
+          summary: '',
+          link: '',
+          platforms: [],
+          schedulePost: false,
+          scheduleDate: '',
+          scheduleTime: ''
+        }));
+      } else {
+        throw new Error('Erro na resposta do webhook');
+      }
+    } catch (error) {
+      console.error('Erro ao enviar webhook:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao enviar post. Verifique a configuração do webhook.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const sendInstagramWebhook = async () => {
     if (!configuration?.webhook_url) {
       toast({
         title: "Erro",
@@ -152,17 +221,11 @@ export default function PostSharingForm() {
       const imageUrl = await generateImageCanvas();
       
       const webhookData = {
+        type: 'instagram',
         timestamp: new Date().toISOString(),
         user_id: user?.id,
         content: {
-          title: postData.title,
-          summary: postData.summary,
-          link: postData.link,
-          platforms: postData.platforms,
-          schedule: postData.schedulePost ? {
-            date: postData.scheduleDate,
-            time: postData.scheduleTime
-          } : null
+          title: postData.title
         },
         visual: {
           image_url: imageUrl,
@@ -191,18 +254,12 @@ export default function PostSharingForm() {
       if (response.ok) {
         toast({
           title: "Sucesso!",
-          description: "Post enviado com sucesso para o webhook.",
+          description: "Post do Instagram enviado com sucesso para o webhook.",
         });
         
-        // Reset form
-        setPostData({
-          title: '',
-          summary: '',
-          link: '',
-          platforms: [],
-          schedulePost: false,
-          scheduleDate: '',
-          scheduleTime: '',
+        // Reset Instagram fields
+        setPostData(prev => ({
+          ...prev,
           backgroundImage: null,
           textPosition: { x: 50, y: 50 },
           textZoom: 100,
@@ -211,10 +268,9 @@ export default function PostSharingForm() {
           instagramCaption: '',
           scheduleInstagram: false,
           instagramDate: '',
-          instagramTime: '',
-        });
+          instagramTime: ''
+        }));
         setGeneratedImageUrl(null);
-        setCurrentStep('content');
       } else {
         throw new Error('Erro na resposta do webhook');
       }
@@ -222,7 +278,7 @@ export default function PostSharingForm() {
       console.error('Erro ao enviar webhook:', error);
       toast({
         title: "Erro",
-        description: "Erro ao enviar post. Verifique a configuração do webhook.",
+        description: "Erro ao enviar post do Instagram. Verifique a configuração do webhook.",
         variant: "destructive",
       });
     } finally {
@@ -259,30 +315,20 @@ export default function PostSharingForm() {
           </div>
 
           <Tabs value={currentStep} onValueChange={setCurrentStep} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger 
                 value="content" 
                 className="flex items-center gap-2"
-                disabled={false}
               >
                 <Type className="w-4 h-4" />
-                Conteúdo Principal
-              </TabsTrigger>
-              <TabsTrigger 
-                value="visual" 
-                className="flex items-center gap-2"
-                disabled={!isStepValid('content')}
-              >
-                <ImageIcon className="w-4 h-4" />
-                Card Visual
+                Conteúdo Principal - WhatsApp, X, Facebook
               </TabsTrigger>
               <TabsTrigger 
                 value="instagram" 
                 className="flex items-center gap-2"
-                disabled={!isStepValid('visual')}
               >
                 <Instagram className="w-4 h-4" />
-                Finalizar Instagram
+                Instagram
               </TabsTrigger>
             </TabsList>
 
@@ -406,40 +452,43 @@ export default function PostSharingForm() {
 
                   <div className="flex justify-end">
                     <Button
-                      onClick={() => setCurrentStep('visual')}
-                      disabled={!isStepValid('content')}
+                      onClick={sendSocialWebhook}
+                      disabled={!postData.title.trim() || !postData.platforms.length || isSubmitting}
                     >
-                      Próximo: Card Visual
+                      <Send className="w-4 h-4 mr-2" />
+                      {isSubmitting ? 'Enviando...' : 'Enviar para Redes Sociais'}
                     </Button>
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
 
-            <TabsContent value="visual">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Controles */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Gerador de Cards Visuais</CardTitle>
-                    <CardDescription>
-                      Configure a aparência do seu card para Instagram
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="background">Imagem de Fundo</Label>
-                      <Input
-                        id="background"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium"
-                      />
-                    </div>
 
-                    {postData.backgroundImage && (
-                      <>
+            <TabsContent value="instagram">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Controles e Formulário */}
+                <div className="space-y-6">
+                  {/* Card Visual Generator */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Gerador de Cards Visuais</CardTitle>
+                      <CardDescription>
+                        Configure a aparência do seu card para Instagram
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="background">Imagem de Fundo</Label>
+                        <Input
+                          id="background"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium"
+                        />
+                      </div>
+
+                      {postData.backgroundImage && (
                         <div className="space-y-4">
                           <div className="space-y-2">
                             <Label>Posição Horizontal: {postData.textPosition.x}%</Label>
@@ -515,33 +564,98 @@ export default function PostSharingForm() {
                               </SelectContent>
                             </Select>
                           </div>
+
+                          <Button 
+                            onClick={() => generateImageCanvas()}
+                            className="w-full"
+                            variant="outline"
+                          >
+                            Atualizar Preview
+                          </Button>
                         </div>
+                      )}
+                    </CardContent>
+                  </Card>
 
-                        <Button 
-                          onClick={() => generateImageCanvas()}
-                          className="w-full"
+                  {/* Instagram Form */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Finalizar Post do Instagram</CardTitle>
+                      <CardDescription>
+                        Configure a legenda e agendamento para Instagram
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="caption">Legenda</Label>
+                        <Textarea
+                          id="caption"
+                          placeholder="Digite a legenda para o Instagram..."
+                          value={postData.instagramCaption}
+                          onChange={(e) => setPostData(prev => ({ ...prev, instagramCaption: e.target.value }))}
+                          rows={4}
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="schedule-instagram"
+                            checked={postData.scheduleInstagram}
+                            onCheckedChange={(checked) => setPostData(prev => ({ ...prev, scheduleInstagram: checked }))}
+                          />
+                          <Label htmlFor="schedule-instagram" className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4" />
+                            Agendar Post
+                          </Label>
+                        </div>
+                      </div>
+
+                      {postData.scheduleInstagram && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="instagram-date">Data</Label>
+                            <Input
+                              id="instagram-date"
+                              type="date"
+                              value={postData.instagramDate}
+                              onChange={(e) => setPostData(prev => ({ ...prev, instagramDate: e.target.value }))}
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="instagram-time">Hora</Label>
+                            <Input
+                              id="instagram-time"
+                              type="time"
+                              value={postData.instagramTime}
+                              onChange={(e) => setPostData(prev => ({ ...prev, instagramTime: e.target.value }))}
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          onClick={downloadImage}
+                          disabled={!postData.backgroundImage}
+                          className="flex-1"
                         >
-                          Atualizar Preview
+                          <Download className="w-4 h-4 mr-2" />
+                          Download
                         </Button>
-                      </>
-                    )}
-
-                    <div className="flex justify-between">
-                      <Button
-                        variant="outline"
-                        onClick={() => setCurrentStep('content')}
-                      >
-                        Voltar
-                      </Button>
-                      <Button
-                        onClick={() => setCurrentStep('instagram')}
-                        disabled={!isStepValid('visual')}
-                      >
-                        Próximo: Instagram
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                        <Button
+                          onClick={sendInstagramWebhook}
+                          disabled={!postData.instagramCaption.trim() || !postData.backgroundImage || isSubmitting}
+                          className="flex-1"
+                        >
+                          <Send className="w-4 h-4 mr-2" />
+                          {isSubmitting ? 'Enviando...' : 'Enviar Instagram'}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
 
                 {/* Preview */}
                 <Card>
@@ -551,143 +665,6 @@ export default function PostSharingForm() {
                   <CardContent>
                     <div className="aspect-[3/4] bg-muted rounded-lg flex items-center justify-center relative overflow-hidden">
                       {postData.backgroundImage ? (
-                        <div className="relative w-full h-full">
-                          <img
-                            src={postData.backgroundImage}
-                            alt="Background"
-                            className="w-full h-full object-cover"
-                          />
-                          {postData.title && (
-                            <div
-                              className="absolute text-white font-bold text-shadow"
-                              style={{
-                                left: `${postData.textPosition.x}%`,
-                                top: `${postData.textPosition.y}%`,
-                                transform: 'translate(-50%, -50%)',
-                                fontSize: `${(postData.textSize === 'small' ? 16 : postData.textSize === 'medium' ? 24 : 32) * (postData.textZoom / 100)}px`,
-                                textAlign: postData.textAlign,
-                                textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-                                maxWidth: '90%',
-                                wordWrap: 'break-word'
-                              }}
-                            >
-                              {postData.title}
-                            </div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="text-center text-muted-foreground">
-                          <ImageIcon className="w-12 h-12 mx-auto mb-2" />
-                          <p>Selecione uma imagem de fundo</p>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="instagram">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Formulário */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Finalizar Post do Instagram</CardTitle>
-                    <CardDescription>
-                      Configure a legenda e agendamento para Instagram
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className="space-y-2">
-                      <Label htmlFor="caption">Legenda</Label>
-                      <Textarea
-                        id="caption"
-                        placeholder="Digite a legenda para o Instagram..."
-                        value={postData.instagramCaption}
-                        onChange={(e) => setPostData(prev => ({ ...prev, instagramCaption: e.target.value }))}
-                        rows={6}
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <Switch
-                          id="schedule-instagram"
-                          checked={postData.scheduleInstagram}
-                          onCheckedChange={(checked) => setPostData(prev => ({ ...prev, scheduleInstagram: checked }))}
-                        />
-                        <Label htmlFor="schedule-instagram" className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4" />
-                          Agendar Post
-                        </Label>
-                      </div>
-                    </div>
-
-                    {postData.scheduleInstagram && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="instagram-date">Data</Label>
-                          <Input
-                            id="instagram-date"
-                            type="date"
-                            value={postData.instagramDate}
-                            onChange={(e) => setPostData(prev => ({ ...prev, instagramDate: e.target.value }))}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="instagram-time">Hora</Label>
-                          <Input
-                            id="instagram-time"
-                            type="time"
-                            value={postData.instagramTime}
-                            onChange={(e) => setPostData(prev => ({ ...prev, instagramTime: e.target.value }))}
-                          />
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex justify-between">
-                      <Button
-                        variant="outline"
-                        onClick={() => setCurrentStep('visual')}
-                      >
-                        Voltar
-                      </Button>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          onClick={downloadImage}
-                          disabled={!postData.backgroundImage}
-                        >
-                          <Download className="w-4 h-4 mr-2" />
-                          Download
-                        </Button>
-                        <Button
-                          onClick={sendWebhook}
-                          disabled={!isStepValid('instagram') || isSubmitting}
-                        >
-                          <Send className="w-4 h-4 mr-2" />
-                          {isSubmitting ? 'Enviando...' : 'Enviar Agora'}
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Preview */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Card Visual Finalizado</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="aspect-[3/4] bg-muted rounded-lg flex items-center justify-center relative overflow-hidden">
-                      {generatedImageUrl ? (
-                        <img
-                          src={generatedImageUrl}
-                          alt="Card finalizado"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : postData.backgroundImage ? (
                         <div className="relative w-full h-full">
                           <img
                             src={postData.backgroundImage}
@@ -715,7 +692,7 @@ export default function PostSharingForm() {
                       ) : (
                         <div className="text-center text-muted-foreground">
                           <ImageIcon className="w-12 h-12 mx-auto mb-2" />
-                          <p>Card será gerado após configuração</p>
+                          <p>Selecione uma imagem de fundo</p>
                         </div>
                       )}
                     </div>
