@@ -25,6 +25,8 @@ export default function SiteConfigurations() {
   const [webhookUrl, setWebhookUrl] = useState('');
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [mockupFile, setMockupFile] = useState<File | null>(null);
+  const [mockupPreview, setMockupPreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
 
@@ -36,6 +38,7 @@ export default function SiteConfigurations() {
       setFooterCode(configuration.footer_code || '');
       setWebhookUrl(configuration.webhook_url || '');
       setLogoPreview(configuration.logo_url || null);
+      setMockupPreview(configuration.mockup_image_url || null);
     }
   }, [configuration, isLoading]);
 
@@ -45,6 +48,15 @@ export default function SiteConfigurations() {
       setLogoFile(file);
       const preview = URL.createObjectURL(file);
       setLogoPreview(preview);
+    }
+  };
+
+  const handleMockupFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setMockupFile(file);
+      const preview = URL.createObjectURL(file);
+      setMockupPreview(preview);
     }
   };
 
@@ -80,12 +92,50 @@ export default function SiteConfigurations() {
     }
   };
 
+  const uploadMockup = async () => {
+    if (!mockupFile) return null;
+
+    setIsUploading(true);
+    try {
+      const fileExt = mockupFile.name.split('.').pop();
+      const fileName = `instagram-mockup-${Date.now()}.${fileExt}`;
+      
+      const { data, error } = await supabase.storage
+        .from('logos')
+        .upload(fileName, mockupFile);
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('logos')
+        .getPublicUrl(fileName);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Erro ao fazer upload do mockup:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao fazer upload do mockup. Tente novamente.",
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleSave = async () => {
     let logoUrl = configuration?.logo_url;
+    let mockupUrl = configuration?.mockup_image_url;
     
     if (logoFile) {
       logoUrl = await uploadLogo();
       if (!logoUrl) return; // Se falhou o upload, não continua
+    }
+
+    if (mockupFile) {
+      mockupUrl = await uploadMockup();
+      if (!mockupUrl) return; // Se falhou o upload, não continua
     }
 
     updateConfiguration.mutate({
@@ -94,6 +144,7 @@ export default function SiteConfigurations() {
       footer_code: footerCode,
       webhook_url: webhookUrl,
       logo_url: logoUrl,
+      mockup_image_url: mockupUrl,
     }, {
       onSuccess: () => {
         // Força atualização da logo após salvar
@@ -140,10 +191,14 @@ export default function SiteConfigurations() {
           </div>
 
           <Tabs defaultValue="logo" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5">
+            <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="logo" className="flex items-center gap-2">
                 <Image className="w-4 h-4" />
                 Logo
+              </TabsTrigger>
+              <TabsTrigger value="instagram-mockup" className="flex items-center gap-2">
+                <Image className="w-4 h-4" />
+                Instagram
               </TabsTrigger>
               <TabsTrigger value="webhook" className="flex items-center gap-2">
                 <Upload className="w-4 h-4" />
@@ -204,6 +259,53 @@ export default function SiteConfigurations() {
                       <li>Altura recomendada: 32-40px</li>
                       <li>Largura máxima: 200px</li>
                       <li>Certifique-se de que tenha bom contraste</li>
+                    </ul>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="instagram-mockup">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Mockup do Instagram</CardTitle>
+                  <CardDescription>
+                    Faça upload da imagem de mockup que será usada como fundo para a pré-visualização 
+                    dos cards visuais do Instagram. Esta imagem deve ter o espaço do post em branco ou transparente.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="mockup-upload">Imagem de Mockup do Feed</Label>
+                    <Input
+                      id="mockup-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleMockupFileChange}
+                      className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                    />
+                  </div>
+                  
+                  {mockupPreview && (
+                    <div className="space-y-2">
+                      <Label>Preview do Mockup</Label>
+                      <div className="border rounded-lg p-4 bg-muted/50">
+                        <img 
+                          src={mockupPreview} 
+                          alt="Preview do mockup" 
+                          className="max-w-full max-h-96 object-contain mx-auto"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="text-sm text-muted-foreground">
+                    <p className="font-medium mb-2">Dicas para o mockup:</p>
+                    <ul className="list-disc ml-4 space-y-1">
+                      <li>Use uma imagem de um celular com o Instagram aberto</li>
+                      <li>O espaço do post deve estar em branco ou transparente</li>
+                      <li>Formato recomendado: PNG com transparência</li>
+                      <li>Resolução alta para melhor qualidade na sobreposição</li>
                     </ul>
                   </div>
                 </CardContent>

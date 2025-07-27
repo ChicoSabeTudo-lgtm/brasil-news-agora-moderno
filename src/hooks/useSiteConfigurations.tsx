@@ -9,6 +9,7 @@ export interface SiteConfiguration {
   footer_code: string | null;
   webhook_url: string | null;
   logo_url: string | null;
+  mockup_image_url: string | null;
   created_at: string;
   updated_at: string;
   updated_by: string | null;
