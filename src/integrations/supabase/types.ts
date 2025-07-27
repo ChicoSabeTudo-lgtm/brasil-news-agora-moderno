@@ -677,6 +677,7 @@ export type Database = {
           header_code: string | null
           id: string
           logo_url: string | null
+          mockup_image_url: string | null
           updated_at: string
           updated_by: string | null
           webhook_url: string | null
@@ -688,6 +689,7 @@ export type Database = {
           header_code?: string | null
           id?: string
           logo_url?: string | null
+          mockup_image_url?: string | null
           updated_at?: string
           updated_by?: string | null
           webhook_url?: string | null
@@ -699,6 +701,7 @@ export type Database = {
           header_code?: string | null
           id?: string
           logo_url?: string | null
+          mockup_image_url?: string | null
           updated_at?: string
           updated_by?: string | null
           webhook_url?: string | null

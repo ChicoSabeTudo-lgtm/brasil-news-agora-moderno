@@ -32,7 +32,6 @@ interface PostData {
   scheduleInstagram: boolean;
   instagramDate: string;
   instagramTime: string;
-  mockupImage: string | null;
 }
 
 export default function PostSharingForm() {
@@ -60,7 +59,6 @@ export default function PostSharingForm() {
     scheduleInstagram: false,
     instagramDate: '',
     instagramTime: '',
-    mockupImage: null,
   });
 
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
@@ -88,20 +86,6 @@ export default function PostSharingForm() {
     }
   };
 
-  const handleMockupUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setPostData(prev => ({
-          ...prev,
-          mockupImage: event.target?.result as string
-        }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const generateImageCanvas = () => {
     if (!postData.backgroundImage || !postData.title) return null;
 
@@ -114,7 +98,7 @@ export default function PostSharingForm() {
       const cardImg = new Image();
       cardImg.onload = () => {
         // Se há mockup, use suas dimensões, senão use dimensões padrão do card
-        if (postData.mockupImage) {
+        if (configuration?.mockup_image_url) {
           const mockupImg = new Image();
           mockupImg.onload = () => {
             // Ajuste o canvas para as dimensões do mockup
@@ -165,7 +149,7 @@ export default function PostSharingForm() {
             setGeneratedImageUrl(imageUrl);
             resolve(imageUrl);
           };
-          mockupImg.src = postData.mockupImage;
+          mockupImg.src = configuration.mockup_image_url;
         } else {
           // Sem mockup, comportamento original
           canvas.width = 1080;
@@ -536,44 +520,6 @@ export default function PostSharingForm() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Controles e Formulário */}
                 <div className="space-y-6">
-                  {/* Configurações do Mockup */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Configurações do Mockup</CardTitle>
-                      <CardDescription>
-                        Faça upload da imagem de mockup do feed do Instagram para usar como base
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="mockup">Imagem de Mockup do Feed</Label>
-                        <Input
-                          id="mockup"
-                          type="file"
-                          accept="image/*"
-                          onChange={handleMockupUpload}
-                          className="file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium"
-                        />
-                        <p className="text-sm text-muted-foreground">
-                          Carregue uma imagem de celular com Instagram aberto para usar como template
-                        </p>
-                      </div>
-                      
-                      {postData.mockupImage && (
-                        <div className="space-y-2">
-                          <Label>Preview do Mockup:</Label>
-                          <div className="max-w-48 mx-auto">
-                            <img
-                              src={postData.mockupImage}
-                              alt="Mockup preview"
-                              className="w-full h-auto rounded-lg border"
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-
                   {/* Card Visual Generator */}
                   <Card>
                     <CardHeader>
@@ -767,11 +713,11 @@ export default function PostSharingForm() {
                 <Card>
                   <CardHeader>
                     <CardTitle>
-                      {postData.mockupImage ? 'Pré-visualização com Mockup' : 'Pré-visualização (1080x1440)'}
+                      {configuration?.mockup_image_url ? 'Pré-visualização com Mockup' : 'Pré-visualização (1080x1440)'}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className={`${postData.mockupImage ? 'aspect-[9/16]' : 'aspect-[3/4]'} bg-muted rounded-lg flex items-center justify-center relative overflow-hidden`}>
+                    <div className={`${configuration?.mockup_image_url ? 'aspect-[9/16]' : 'aspect-[3/4]'} bg-muted rounded-lg flex items-center justify-center relative overflow-hidden`}>
                       {generatedImageUrl ? (
                         // Mostrar a imagem final gerada (com ou sem mockup)
                         <img
@@ -781,7 +727,7 @@ export default function PostSharingForm() {
                         />
                       ) : postData.backgroundImage ? (
                         // Preview básico sem mockup
-                        !postData.mockupImage ? (
+                        !configuration?.mockup_image_url ? (
                           <div className="relative w-full h-full">
                             <img
                               src={postData.backgroundImage}
