@@ -87,14 +87,20 @@ export default function PostSharingForm() {
   };
 
   const generateImageCanvas = () => {
-    if (!postData.backgroundImage || !postData.title) return null;
+    if (!postData.backgroundImage || !postData.title) {
+      console.error('Dados insuficientes para gerar imagem:', { backgroundImage: !!postData.backgroundImage, title: postData.title });
+      return null;
+    }
 
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     
-    if (!ctx) return null;
+    if (!ctx) {
+      console.error('Não foi possível obter contexto do canvas');
+      return null;
+    }
 
-    return new Promise<string>((resolve) => {
+    return new Promise<string>((resolve, reject) => {
       const cardImg = new Image();
       cardImg.onload = () => {
         // Se há mockup, use suas dimensões, senão use dimensões padrão do card
@@ -178,6 +184,10 @@ export default function PostSharingForm() {
           setGeneratedImageUrl(imageUrl);
           resolve(imageUrl);
         }
+      };
+      cardImg.onerror = (error) => {
+        console.error('Erro ao carregar imagem de fundo:', error);
+        reject(error);
       };
       cardImg.src = postData.backgroundImage;
     });
