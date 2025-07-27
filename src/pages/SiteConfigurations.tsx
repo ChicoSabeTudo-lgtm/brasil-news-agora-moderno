@@ -10,14 +10,16 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
-import { Save, FileText, Code, Code2, Image, Upload } from 'lucide-react';
+import { Save, FileText, Code, Code2, Image, Upload, ArrowLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 export default function SiteConfigurations() {
   const { user } = useAuth();
   const { configuration, isLoading, updateConfiguration } = useSiteConfigurations();
   const { refetchLogo } = useSiteLogo();
+  const navigate = useNavigate();
   
   const [adsTxtContent, setAdsTxtContent] = useState('');
   const [headerCode, setHeaderCode] = useState('');
@@ -171,13 +173,23 @@ export default function SiteConfigurations() {
       <div className="min-h-screen bg-background">        
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                Configurações do Site
-              </h1>
-              <p className="text-muted-foreground mt-2">
-                Gerencie configurações avançadas do site
-              </p>
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/admin')}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Voltar ao Painel
+              </Button>
+              <div>
+                <h1 className="text-3xl font-bold text-foreground">
+                  Configurações do Site
+                </h1>
+                <p className="text-muted-foreground mt-2">
+                  Gerencie configurações avançadas do site
+                </p>
+              </div>
             </div>
             
             <Button 
