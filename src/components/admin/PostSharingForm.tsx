@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useSiteConfigurations } from '@/hooks/useSiteConfigurations';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
@@ -62,20 +62,76 @@ export default function PostSharingForm() {
   });
 
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
 
+  // Cache para imagem do mockup
+  const [cachedMockupImage, setCachedMockupImage] = useState<HTMLImageElement | null>(null);
+
+  // Função para carregar imagem de forma assíncrona
+  const loadImage = useCallback((src: string): Promise<HTMLImageElement> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = (error) => reject(new Error(`Falha ao carregar imagem: ${src}`));
+      img.src = src;
+    });
+  }, []);
+
+  // Função para desenhar o card básico
+  const drawCard = useCallback((canvas: HTMLCanvasElement, cardImg: HTMLImageElement) => {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Contexto do canvas não disponível');
+
+    // Desenhar imagem de fundo
+    ctx.drawImage(cardImg, 0, 0, canvas.width, canvas.height);
+    
+    // Configurar texto
+    const fontSize = postData.textSize === 'small' ? 48 : postData.textSize === 'medium' ? 72 : 96;
+    ctx.font = `bold ${fontSize * (postData.textZoom / 100)}px Arial, sans-serif`;
+    ctx.fillStyle = '#FFFFFF';
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 3;
+    ctx.textAlign = postData.textAlign as CanvasTextAlign;
+    
+    // Calcular posição
+    const x = (postData.textPosition.x / 100) * canvas.width;
+    const y = (postData.textPosition.y / 100) * canvas.height;
+    
+    // Desenhar texto com contorno
+    ctx.strokeText(postData.title, x, y);
+    ctx.fillText(postData.title, x, y);
+  }, [postData.title, postData.textPosition, postData.textZoom, postData.textSize, postData.textAlign]);
+
+  // Cache do mockup quando a URL muda
+  useEffect(() => {
+    if (configuration?.mockup_image_url) {
+      loadImage(configuration.mockup_image_url)
+        .then(setCachedMockupImage)
+        .catch(error => {
+          console.error('Erro ao carregar mockup:', error);
+          setCachedMockupImage(null);
+        });
+    } else {
+      setCachedMockupImage(null);
+    }
+  }, [configuration?.mockup_image_url, loadImage]);
+
+  // Auto-gerar preview quando dados relevantes mudam
   useEffect(() => {
     const generatePreview = async () => {
       if (postData.backgroundImage && postData.title) {
         try {
-          console.log('Gerando preview do card...');
           await generateImageCanvas();
-          console.log('Preview gerado com sucesso!');
         } catch (error) {
-          console.error('Erro ao gerar preview:', error);
+          console.error('Erro ao gerar preview automaticamente:', error);
         }
       }
     };
-    generatePreview();
+    
+    // Debounce para evitar muitas chamadas
+    const timeoutId = setTimeout(generatePreview, 300);
+    return () => clearTimeout(timeoutId);
   }, [postData.backgroundImage, postData.title, postData.textPosition, postData.textZoom, postData.textSize, postData.textAlign]);
 
   const handlePlatformChange = (platform: string, checked: boolean) => {
@@ -101,112 +157,71 @@ export default function PostSharingForm() {
     }
   };
 
-  const generateImageCanvas = () => {
+  const generateImageCanvas = useCallback(async (): Promise<string | null> => {
     if (!postData.backgroundImage || !postData.title) {
-      console.error('Dados insuficientes para gerar imagem:', { backgroundImage: !!postData.backgroundImage, title: postData.title });
+      const error = 'Dados insuficientes: imagem de fundo e título são obrigatórios';
+      setPreviewError(error);
       return null;
     }
 
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    
-    if (!ctx) {
-      console.error('Não foi possível obter contexto do canvas');
-      return null;
-    }
+    setIsGeneratingPreview(true);
+    setPreviewError(null);
 
-    return new Promise<string>((resolve, reject) => {
-      const cardImg = new Image();
-      cardImg.onload = () => {
-        // Se há mockup, use suas dimensões, senão use dimensões padrão do card
-        if (configuration?.mockup_image_url) {
-          const mockupImg = new Image();
-          mockupImg.onload = () => {
-            // Ajuste o canvas para as dimensões do mockup
-            canvas.width = mockupImg.width;
-            canvas.height = mockupImg.height;
-            
-            // Desenhe o mockup como fundo
-            ctx.drawImage(mockupImg, 0, 0);
-            
-            // Desenhe o card na área designada (centro do mockup, ajuste conforme necessário)
-            // Você pode ajustar essas proporções baseado no seu mockup específico
-            const cardAreaX = canvas.width * 0.15; // 15% da borda esquerda
-            const cardAreaY = canvas.height * 0.25; // 25% do topo
-            const cardAreaWidth = canvas.width * 0.7; // 70% da largura
-            const cardAreaHeight = cardAreaWidth * (1440/1080); // Manter proporção 3:4
-            
-            // Criar canvas temporário para o card
-            const cardCanvas = document.createElement('canvas');
-            cardCanvas.width = 1080;
-            cardCanvas.height = 1440;
-            const cardCtx = cardCanvas.getContext('2d');
-            
-            if (cardCtx) {
-              // Desenhar card no canvas temporário
-              cardCtx.drawImage(cardImg, 0, 0, cardCanvas.width, cardCanvas.height);
-              
-              // Configurar texto
-              const fontSize = postData.textSize === 'small' ? 48 : postData.textSize === 'medium' ? 72 : 96;
-              cardCtx.font = `bold ${fontSize * (postData.textZoom / 100)}px Arial, sans-serif`;
-              cardCtx.fillStyle = '#FFFFFF';
-              cardCtx.strokeStyle = '#000000';
-              cardCtx.lineWidth = 3;
-              cardCtx.textAlign = postData.textAlign as CanvasTextAlign;
-              
-              // Calcular posição do texto
-              const x = (postData.textPosition.x / 100) * cardCanvas.width;
-              const y = (postData.textPosition.y / 100) * cardCanvas.height;
-              
-              // Desenhar texto com contorno
-              cardCtx.strokeText(postData.title, x, y);
-              cardCtx.fillText(postData.title, x, y);
-              
-              // Desenhar o card completo no mockup
-              ctx.drawImage(cardCanvas, cardAreaX, cardAreaY, cardAreaWidth, cardAreaHeight);
-            }
-            
-            const imageUrl = canvas.toDataURL('image/jpeg', 0.9);
-            setGeneratedImageUrl(imageUrl);
-            resolve(imageUrl);
-          };
-          mockupImg.src = configuration.mockup_image_url;
-        } else {
-          // Sem mockup, comportamento original
-          canvas.width = 1080;
-          canvas.height = 1440;
-          
-          // Desenhar imagem de fundo
-          ctx.drawImage(cardImg, 0, 0, canvas.width, canvas.height);
-          
-          // Configurar texto
-          const fontSize = postData.textSize === 'small' ? 48 : postData.textSize === 'medium' ? 72 : 96;
-          ctx.font = `bold ${fontSize * (postData.textZoom / 100)}px Arial, sans-serif`;
-          ctx.fillStyle = '#FFFFFF';
-          ctx.strokeStyle = '#000000';
-          ctx.lineWidth = 3;
-          ctx.textAlign = postData.textAlign as CanvasTextAlign;
-          
-          // Calcular posição
-          const x = (postData.textPosition.x / 100) * canvas.width;
-          const y = (postData.textPosition.y / 100) * canvas.height;
-          
-          // Desenhar texto com contorno
-          ctx.strokeText(postData.title, x, y);
-          ctx.fillText(postData.title, x, y);
-          
-          const imageUrl = canvas.toDataURL('image/jpeg', 0.9);
-          setGeneratedImageUrl(imageUrl);
-          resolve(imageUrl);
-        }
-      };
-      cardImg.onerror = (error) => {
-        console.error('Erro ao carregar imagem de fundo:', error);
-        reject(error);
-      };
-      cardImg.src = postData.backgroundImage;
-    });
-  };
+    try {
+      // Carregar imagem de fundo
+      const cardImg = await loadImage(postData.backgroundImage);
+      
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      
+      if (!ctx) {
+        throw new Error('Contexto do canvas não disponível');
+      }
+
+      if (cachedMockupImage) {
+        // Renderizar com mockup
+        canvas.width = cachedMockupImage.width;
+        canvas.height = cachedMockupImage.height;
+        
+        // Desenhar mockup como fundo
+        ctx.drawImage(cachedMockupImage, 0, 0);
+        
+        // Área do card no mockup (ajuste conforme seu mockup)
+        const cardAreaX = canvas.width * 0.15;
+        const cardAreaY = canvas.height * 0.25;
+        const cardAreaWidth = canvas.width * 0.7;
+        const cardAreaHeight = cardAreaWidth * (1440/1080);
+        
+        // Canvas temporário para o card
+        const cardCanvas = document.createElement('canvas');
+        cardCanvas.width = 1080;
+        cardCanvas.height = 1440;
+        
+        drawCard(cardCanvas, cardImg);
+        
+        // Desenhar card no mockup
+        ctx.drawImage(cardCanvas, cardAreaX, cardAreaY, cardAreaWidth, cardAreaHeight);
+      } else {
+        // Renderizar sem mockup
+        canvas.width = 1080;
+        canvas.height = 1440;
+        
+        drawCard(canvas, cardImg);
+      }
+      
+      const imageUrl = canvas.toDataURL('image/jpeg', 0.9);
+      setGeneratedImageUrl(imageUrl);
+      return imageUrl;
+      
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido ao gerar imagem';
+      console.error('Erro ao gerar canvas:', errorMessage);
+      setPreviewError(errorMessage);
+      return null;
+    } finally {
+      setIsGeneratingPreview(false);
+    }
+  }, [postData.backgroundImage, postData.title, cachedMockupImage, loadImage, drawCard]);
 
   const downloadImage = async () => {
     try {
@@ -646,12 +661,13 @@ export default function PostSharingForm() {
                             </Select>
                           </div>
 
-                          <Button 
-                            onClick={() => generateImageCanvas()}
+                           <Button 
+                            onClick={generateImageCanvas}
                             className="w-full"
                             variant="outline"
+                            disabled={isGeneratingPreview || !postData.backgroundImage || !postData.title}
                           >
-                            Atualizar Preview
+                            {isGeneratingPreview ? 'Gerando...' : 'Atualizar Preview'}
                           </Button>
                         </div>
                       )}
@@ -745,57 +761,76 @@ export default function PostSharingForm() {
                       {configuration?.mockup_image_url ? 'Pré-visualização com Mockup' : 'Pré-visualização (1080x1440)'}
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className={`${configuration?.mockup_image_url ? 'aspect-[9/16]' : 'aspect-[3/4]'} bg-muted rounded-lg flex items-center justify-center relative overflow-hidden`}>
-                      {generatedImageUrl ? (
-                        // Mostrar a imagem final gerada (com ou sem mockup)
-                        <img
-                          src={generatedImageUrl}
-                          alt="Preview Final"
-                          className="w-full h-full object-contain"
-                        />
-                      ) : postData.backgroundImage ? (
-                        // Preview básico sem mockup
-                        !configuration?.mockup_image_url ? (
-                          <div className="relative w-full h-full">
-                            <img
-                              src={postData.backgroundImage}
-                              alt="Background"
-                              className="w-full h-full object-cover"
-                            />
-                            {postData.title && (
-                              <div
-                                className="absolute text-white font-bold"
-                                style={{
-                                  left: `${postData.textPosition.x}%`,
-                                  top: `${postData.textPosition.y}%`,
-                                  transform: 'translate(-50%, -50%)',
-                                  fontSize: `${(postData.textSize === 'small' ? 16 : postData.textSize === 'medium' ? 24 : 32) * (postData.textZoom / 100)}px`,
-                                  textAlign: postData.textAlign,
-                                  textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-                                  maxWidth: '90%',
-                                  wordWrap: 'break-word'
-                                }}
-                              >
-                                {postData.title}
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          // Instrução para atualizar preview quando há mockup
-                          <div className="text-center text-muted-foreground">
-                            <ImageIcon className="w-12 h-12 mx-auto mb-2" />
-                            <p>Clique em "Atualizar Preview" para ver o resultado com mockup</p>
-                          </div>
-                        )
-                      ) : (
-                        <div className="text-center text-muted-foreground">
-                          <ImageIcon className="w-12 h-12 mx-auto mb-2" />
-                          <p>Selecione uma imagem de fundo</p>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
+                   <CardContent>
+                     <div className={`${configuration?.mockup_image_url ? 'aspect-[9/16]' : 'aspect-[3/4]'} bg-muted rounded-lg flex items-center justify-center relative overflow-hidden`}>
+                       {isGeneratingPreview ? (
+                         // Estado de carregamento
+                         <div className="text-center text-muted-foreground">
+                           <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2"></div>
+                           <p>Gerando preview...</p>
+                         </div>
+                       ) : previewError ? (
+                         // Estado de erro
+                         <div className="text-center text-destructive">
+                           <ImageIcon className="w-12 h-12 mx-auto mb-2" />
+                           <p className="text-sm">{previewError}</p>
+                           <Button 
+                             onClick={generateImageCanvas}
+                             variant="outline" 
+                             size="sm" 
+                             className="mt-2"
+                           >
+                             Tentar novamente
+                           </Button>
+                         </div>
+                       ) : generatedImageUrl ? (
+                         // Imagem final gerada
+                         <img
+                           src={generatedImageUrl}
+                           alt="Preview Final"
+                           className="w-full h-full object-contain"
+                         />
+                       ) : postData.backgroundImage && postData.title ? (
+                         // Preview básico (quando não há imagem gerada ainda)
+                         !configuration?.mockup_image_url ? (
+                           <div className="relative w-full h-full">
+                             <img
+                               src={postData.backgroundImage}
+                               alt="Background"
+                               className="w-full h-full object-cover"
+                             />
+                             <div
+                               className="absolute text-white font-bold"
+                               style={{
+                                 left: `${postData.textPosition.x}%`,
+                                 top: `${postData.textPosition.y}%`,
+                                 transform: 'translate(-50%, -50%)',
+                                 fontSize: `${(postData.textSize === 'small' ? 16 : postData.textSize === 'medium' ? 24 : 32) * (postData.textZoom / 100)}px`,
+                                 textAlign: postData.textAlign,
+                                 textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                                 maxWidth: '90%',
+                                 wordWrap: 'break-word'
+                               }}
+                             >
+                               {postData.title}
+                             </div>
+                           </div>
+                         ) : (
+                           // Aguardando geração com mockup
+                           <div className="text-center text-muted-foreground">
+                             <ImageIcon className="w-12 h-12 mx-auto mb-2" />
+                             <p>Aguardando geração do preview com mockup...</p>
+                           </div>
+                         )
+                       ) : (
+                         // Estado inicial
+                         <div className="text-center text-muted-foreground">
+                           <ImageIcon className="w-12 h-12 mx-auto mb-2" />
+                           <p>Selecione uma imagem de fundo e adicione um título</p>
+                         </div>
+                       )}
+                     </div>
+                   </CardContent>
                 </Card>
               </div>
             </TabsContent>
