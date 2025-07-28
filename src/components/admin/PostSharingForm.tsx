@@ -145,13 +145,20 @@ export default function PostSharingForm() {
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    console.log('🔥 Upload iniciado:', file ? `${file.name} (${file.size} bytes)` : 'Nenhum arquivo selecionado');
+    
     if (file) {
       const reader = new FileReader();
       reader.onload = (event) => {
+        console.log('📁 Arquivo lido com sucesso, atualizando estado...');
         setPostData(prev => ({
           ...prev,
           backgroundImage: event.target?.result as string
         }));
+        console.log('✅ Estado backgroundImage atualizado');
+      };
+      reader.onerror = (error) => {
+        console.error('❌ Erro ao ler arquivo:', error);
       };
       reader.readAsDataURL(file);
     }
