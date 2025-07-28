@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useSiteConfigurations } from '@/hooks/useSiteConfigurations';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
@@ -62,6 +62,21 @@ export default function PostSharingForm() {
   });
 
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const generatePreview = async () => {
+      if (postData.backgroundImage && postData.title) {
+        try {
+          console.log('Gerando preview do card...');
+          await generateImageCanvas();
+          console.log('Preview gerado com sucesso!');
+        } catch (error) {
+          console.error('Erro ao gerar preview:', error);
+        }
+      }
+    };
+    generatePreview();
+  }, [postData.backgroundImage, postData.title, postData.textPosition, postData.textZoom, postData.textSize, postData.textAlign]);
 
   const handlePlatformChange = (platform: string, checked: boolean) => {
     setPostData(prev => ({
@@ -194,12 +209,16 @@ export default function PostSharingForm() {
   };
 
   const downloadImage = async () => {
-    const imageUrl = await generateImageCanvas();
-    if (imageUrl) {
-      const link = document.createElement('a');
-      link.download = `post-${Date.now()}.jpg`;
-      link.href = imageUrl;
-      link.click();
+    try {
+      const imageUrl = await generateImageCanvas();
+      if (imageUrl) {
+        const link = document.createElement('a');
+        link.download = `post-${Date.now()}.jpg`;
+        link.href = imageUrl;
+        link.click();
+      }
+    } catch (error) {
+      console.error('Erro ao fazer download:', error);
     }
   };
 
