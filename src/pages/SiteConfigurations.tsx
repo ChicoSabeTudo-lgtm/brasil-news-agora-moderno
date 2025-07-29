@@ -356,7 +356,7 @@ export default function SiteConfigurations() {
                     <p className="font-medium mb-2">Como funciona:</p>
                     <ul className="list-disc ml-4 space-y-1">
                       <li>O sistema enviará uma requisição POST para esta URL quando um usuário solicitar login</li>
-                      <li>O payload JSON incluirá: email, whatsapp_phone, otp_code, timestamp</li>
+                      <li>O payload JSON incluirá: email, user_id, whatsapp_phone, otp_code, timestamp</li>
                       <li>Seu n8n deve buscar o número do usuário e enviar o código via WhatsApp</li>
                       <li>Certifique-se de que a URL está acessível e aceita requisições POST</li>
                     </ul>
@@ -366,6 +366,7 @@ export default function SiteConfigurations() {
                       <pre className="text-xs bg-background p-2 rounded border overflow-x-auto">
 {`{
   "email": "usuario@exemplo.com",
+  "user_id": "00000000-0000-0000-0000-000000000000",
   "whatsapp_phone": "+5511999999999",
   "otp_code": "123456",
   "timestamp": "2024-01-15T10:30:00.000Z"
