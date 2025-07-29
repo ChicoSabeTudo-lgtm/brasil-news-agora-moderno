@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      // Primeiro, tenta fazer login normal
+      // Primeiro, APENAS validar as credenciais sem fazer login
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -84,17 +84,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return { error: authError };
       }
 
-      // Se login foi bem-sucedido, gerar OTP e enviar webhook
+      // Se credenciais são válidas, fazer LOGOUT imediatamente (não queremos manter a sessão ainda)
       if (authData.session) {
+        await supabase.auth.signOut();
+        
+        // Agora gerar OTP e enviar webhook
         const { error: otpError } = await requestOTPLogin(email, password);
         
         if (otpError) {
-          // Se houver erro no OTP, fazer logout para não deixar sessão pendente
-          await supabase.auth.signOut();
           return { error: { message: otpError } };
         }
         
-        // OTP enviado com sucesso, manter sessão temporária
+        // OTP enviado com sucesso, usuário deve verificar código
         return { error: null, requiresOTP: true };
       }
       
@@ -267,10 +268,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const verifyOTPLogin = async (email: string, code: string) => {
     try {
-      // Verificar o código OTP manualmente
+      // Verificar o código OTP e buscar a senha armazenada
       const { data: otpData, error: otpError } = await supabase
         .from('otp_codes')
-        .select('*')
+        .select('user_password')
         .eq('user_email', email)
         .eq('code', code)
         .gte('expires_at', new Date().toISOString())
@@ -285,19 +286,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return { error: "Código inválido ou expirado" };
       }
 
-      // Código válido, remover da tabela
+      // Código válido, remover da tabela primeiro
       await supabase
         .from('otp_codes')
         .delete()
         .eq('user_email', email)
         .eq('code', code);
 
+      // AGORA fazer o login efetivo com as credenciais
+      const { error: loginError } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: otpData.user_password
+      });
+
+      if (loginError) {
+        toast({
+          title: "Erro no login",
+          description: "Erro ao autenticar usuário.",
+          variant: "destructive",
+        });
+        return { error: "Erro na autenticação" };
+      }
+
       toast({
         title: "Login realizado com sucesso!",
         description: "Bem-vindo de volta.",
       });
 
-      // Redirecionar para admin - sessão já está ativa
+      // Redirecionar para admin - agora a sessão está ativa
       window.location.href = '/admin';
       return { error: null, success: true };
 
