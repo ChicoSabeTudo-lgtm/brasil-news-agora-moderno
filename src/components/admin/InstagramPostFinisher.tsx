@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useSiteConfigurations } from '@/hooks/useSiteConfigurations';
+import { useInstagramMockup } from '@/hooks/useInstagramMockup';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -29,6 +30,7 @@ interface InstagramPostFinisherProps {
 export default function InstagramPostFinisher({ visualData, onBack, onComplete }: InstagramPostFinisherProps) {
   const { user } = useAuth();
   const { configuration } = useSiteConfigurations();
+  const { mockupUrl } = useInstagramMockup();
   const { toast } = useToast();
   
   const [postData, setPostData] = useState({
@@ -319,6 +321,21 @@ export default function InstagramPostFinisher({ visualData, onBack, onComplete }
                             {visualData.title}
                           </p>
                         </div>
+                      </div>
+                    )}
+
+                    {/* Instagram Mockup Overlay - igual ao editor visual */}
+                    {mockupUrl && visualData.backgroundImage && (
+                      <div className="absolute inset-0 pointer-events-none">
+                        <img
+                          src={mockupUrl}
+                          alt="Instagram Mockup Overlay"
+                          className="w-full h-full object-contain"
+                          style={{ 
+                            imageRendering: 'auto',
+                            zIndex: 10
+                          }}
+                        />
                       </div>
                     )}
                   </div>
