@@ -36,13 +36,13 @@ export default function Auth() {
     }
   }, [user, navigate]);
 
-  const handleOTPLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    const { error, success } = await requestOTPLogin(email, password);
+    const { error, requiresOTP } = await signIn(email, password);
     
-    if (success) {
+    if (requiresOTP) {
       setCurrentEmail(email);
       setShowOtpModal(true);
       setPassword(''); // Clear password for security
@@ -61,7 +61,7 @@ export default function Auth() {
       setShowOtpModal(false);
       setOtp('');
       setCurrentEmail('');
-      // User will be redirected via magic link
+      // Usuário será redirecionado automaticamente
     }
     
     setIsLoading(false);
@@ -152,7 +152,7 @@ export default function Auth() {
                     <h3 className="text-lg font-medium">Login com código WhatsApp</h3>
                   </div>
                   
-                  <form onSubmit={handleOTPLogin} className="space-y-4">
+                  <form onSubmit={handleLogin} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="email">Email</Label>
                       <Input

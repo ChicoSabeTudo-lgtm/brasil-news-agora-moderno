@@ -7,7 +7,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signIn: (email: string, password: string) => Promise<{ error: any; requiresOTP?: boolean }>;
   signUp: (email: string, password: string, fullName: string, whatsappPhone?: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
@@ -69,25 +69,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      // Primeiro, tenta fazer login normal
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       
-      if (error) {
+      if (authError) {
         toast({
           title: "Erro no login",
-          description: error.message,
+          description: authError.message,
           variant: "destructive",
         });
-      } else {
-        toast({
-          title: "Login realizado com sucesso!",
-          description: "Bem-vindo de volta.",
-        });
+        return { error: authError };
+      }
+
+      // Se login foi bem-sucedido, gerar OTP e enviar webhook
+      if (authData.session) {
+        const { error: otpError } = await requestOTPLogin(email, password);
+        
+        if (otpError) {
+          // Se houver erro no OTP, fazer logout para não deixar sessão pendente
+          await supabase.auth.signOut();
+          return { error: { message: otpError } };
+        }
+        
+        // OTP enviado com sucesso, manter sessão temporária
+        return { error: null, requiresOTP: true };
       }
       
-      return { error };
+      return { error: null };
     } catch (error: any) {
       toast({
         title: "Erro no login",
@@ -256,41 +267,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const verifyOTPLogin = async (email: string, code: string) => {
     try {
-      const { data, error } = await supabase.functions.invoke('verify-otp', {
-        body: { email, code }
-      });
+      // Verificar o código OTP manualmente
+      const { data: otpData, error: otpError } = await supabase
+        .from('otp_codes')
+        .select('*')
+        .eq('user_email', email)
+        .eq('code', code)
+        .gte('expires_at', new Date().toISOString())
+        .maybeSingle();
 
-      if (error) {
-        const errorMessage = error.message || 'Erro ao verificar código';
-        toast({
-          title: "Erro na verificação",
-          description: errorMessage,
-          variant: "destructive",
-        });
-        return { error: errorMessage };
-      }
-
-      if (data?.error) {
+      if (otpError || !otpData) {
         toast({
           title: "Código inválido",
-          description: data.error,
+          description: "O código informado é inválido ou expirou.",
           variant: "destructive",
         });
-        return { error: data.error };
+        return { error: "Código inválido ou expirado" };
       }
 
-      if (data?.success && data?.session_url) {
-        toast({
-          title: "Login realizado com sucesso!",
-          description: "Bem-vindo de volta.",
-        });
-        
-        // Redirect to the session URL to authenticate
-        window.location.href = data.session_url;
-        return { error: null, success: true };
-      }
+      // Código válido, remover da tabela
+      await supabase
+        .from('otp_codes')
+        .delete()
+        .eq('user_email', email)
+        .eq('code', code);
 
+      toast({
+        title: "Login realizado com sucesso!",
+        description: "Bem-vindo de volta.",
+      });
+
+      // Redirecionar para admin - sessão já está ativa
+      window.location.href = '/admin';
       return { error: null, success: true };
+
     } catch (error: any) {
       const errorMessage = 'Ocorreu um erro inesperado';
       toast({
