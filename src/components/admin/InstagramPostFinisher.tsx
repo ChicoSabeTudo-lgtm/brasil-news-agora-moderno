@@ -40,11 +40,28 @@ export default function InstagramPostFinisher({ visualData, onBack, onComplete }
   
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const downloadImage = () => {
-    const link = document.createElement('a');
-    link.download = `instagram-post-${Date.now()}.jpg`;
-    link.href = visualData.generatedImageUrl;
-    link.click();
+  const downloadImage = async () => {
+    try {
+      // Converter blob URL para blob para download
+      const response = await fetch(visualData.generatedImageUrl);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.download = `instagram-post-${Date.now()}.jpg`;
+      link.href = url;
+      link.click();
+      
+      // Limpar URL após download
+      setTimeout(() => URL.revokeObjectURL(url), 100);
+    } catch (error) {
+      console.error('Erro ao fazer download:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao fazer download da imagem.",
+        variant: "destructive",
+      });
+    }
   };
 
   const sendInstagramWebhook = async () => {

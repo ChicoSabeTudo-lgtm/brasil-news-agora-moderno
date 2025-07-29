@@ -42,6 +42,7 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
   const loadImage = useCallback((src: string): Promise<HTMLImageElement> => {
     return new Promise((resolve, reject) => {
       const img = new Image();
+      img.crossOrigin = 'anonymous'; // Permite CORS
       img.onload = () => resolve(img);
       img.onerror = (error) => reject(new Error(`Falha ao carregar imagem: ${src}`));
       img.src = src;
@@ -76,7 +77,12 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
   // Cache do mockup quando a URL muda
   useEffect(() => {
     if (configuration?.mockup_image_url) {
-      loadImage(configuration.mockup_image_url)
+      // Para URLs do Supabase, usar proxy para evitar CORS
+      const proxyUrl = configuration.mockup_image_url.includes('supabase.co') 
+        ? configuration.mockup_image_url + '?cache-control=no-cors'
+        : configuration.mockup_image_url;
+      
+      loadImage(proxyUrl)
         .then(setCachedMockupImage)
         .catch(error => {
           console.error('Erro ao carregar mockup:', error);
@@ -117,16 +123,12 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
         return;
       }
 
-      const base64 = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = () => reject(new Error('Erro ao ler arquivo'));
-        reader.readAsDataURL(file);
-      });
+      // Usar createObjectURL em vez de base64 para evitar problemas de CORS
+      const imageUrl = URL.createObjectURL(file);
       
       setVisualData(prev => ({
         ...prev,
-        backgroundImage: base64
+        backgroundImage: imageUrl
       }));
 
       // Gerar preview imediatamente após upload
@@ -155,7 +157,7 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
     setPreviewError(null);
 
     try {
-      // Carregar imagem de fundo
+      // Carregar imagem de fundo - se for blob URL, não precisa de CORS
       const cardImg = await loadImage(visualData.backgroundImage);
       
       const canvas = document.createElement('canvas');
@@ -196,9 +198,19 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
         drawCard(canvas, cardImg);
       }
       
-      const imageUrl = canvas.toDataURL('image/jpeg', 0.9);
-      setGeneratedImageUrl(imageUrl);
-      return imageUrl;
+      // Usar toBlob para evitar problemas de CORS
+      return new Promise((resolve) => {
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const imageUrl = URL.createObjectURL(blob);
+            setGeneratedImageUrl(imageUrl);
+            resolve(imageUrl);
+          } else {
+            setPreviewError('Erro ao gerar imagem final');
+            resolve(null);
+          }
+        }, 'image/jpeg', 0.9);
+      });
       
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido ao gerar imagem';
