@@ -8,7 +8,7 @@ interface ProtectedRouteProps {
 }
 
 export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
-  const { user, loading, userRole } = useAuth();
+  const { user, loading, userRole, isOtpVerified } = useAuth();
 
   if (loading) {
     return (
@@ -21,7 +21,13 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
     );
   }
 
+  // Se não está logado, redireciona para login
   if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  // Se está logado mas OTP não foi verificado, redireciona para login
+  if (!isOtpVerified) {
     return <Navigate to="/auth" replace />;
   }
 

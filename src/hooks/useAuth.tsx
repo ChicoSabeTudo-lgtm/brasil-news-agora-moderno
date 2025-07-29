@@ -7,6 +7,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  isOtpVerified: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any; requiresOTP?: boolean }>;
   signUp: (email: string, password: string, fullName: string, whatsappPhone?: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -23,6 +24,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [isOtpVerified, setIsOtpVerified] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -69,7 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      // Primeiro, APENAS validar as credenciais sem fazer login
+      // Fazer login normalmente para validar credenciais
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -84,18 +86,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return { error: authError };
       }
 
-      // Se credenciais são válidas, fazer LOGOUT imediatamente (não queremos manter a sessão ainda)
+      // Se credenciais são válidas, manter sessão mas marcar como NÃO verificado
       if (authData.session) {
-        await supabase.auth.signOut();
+        setIsOtpVerified(false); // Usuário está "pré-autenticado" mas não pode acessar
         
-        // Agora gerar OTP e enviar webhook
+        // Gerar OTP e enviar webhook
         const { error: otpError } = await requestOTPLogin(email, password);
         
         if (otpError) {
+          // Se erro no OTP, fazer logout
+          await supabase.auth.signOut();
+          setIsOtpVerified(false);
           return { error: { message: otpError } };
         }
         
-        // OTP enviado com sucesso, usuário deve verificar código
+        // OTP enviado com sucesso, aguardar verificação
         return { error: null, requiresOTP: true };
       }
       
@@ -185,6 +190,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (!error) {
+      setIsOtpVerified(false); // Reset flag OTP ao fazer logout
       toast({
         title: "Logout realizado",
         description: "Até logo!",
@@ -268,10 +274,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const verifyOTPLogin = async (email: string, code: string) => {
     try {
-      // Verificar o código OTP e buscar a senha armazenada
+      // Verificar o código OTP
       const { data: otpData, error: otpError } = await supabase
         .from('otp_codes')
-        .select('user_password')
+        .select('*')
         .eq('user_email', email)
         .eq('code', code)
         .gte('expires_at', new Date().toISOString())
@@ -286,34 +292,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return { error: "Código inválido ou expirado" };
       }
 
-      // Código válido, remover da tabela primeiro
+      // Código válido, remover da tabela
       await supabase
         .from('otp_codes')
         .delete()
         .eq('user_email', email)
         .eq('code', code);
 
-      // AGORA fazer o login efetivo com as credenciais
-      const { error: loginError } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: otpData?.user_password || ''
-      });
-
-      if (loginError) {
-        toast({
-          title: "Erro no login",
-          description: "Erro ao autenticar usuário.",
-          variant: "destructive",
-        });
-        return { error: "Erro na autenticação" };
-      }
+      // Marcar como OTP verificado - agora o usuário tem acesso completo
+      setIsOtpVerified(true);
 
       toast({
         title: "Login realizado com sucesso!",
         description: "Bem-vindo de volta.",
       });
 
-      // Redirecionar para admin - agora a sessão está ativa
+      // Redirecionar para admin - sessão já está ativa e OTP verificado
       window.location.href = '/admin';
       return { error: null, success: true };
 
@@ -332,6 +326,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     user,
     session,
     loading,
+    isOtpVerified,
     signIn,
     signUp,
     signOut,
