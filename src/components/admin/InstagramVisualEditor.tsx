@@ -605,17 +605,12 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
                       {/* Fundo preto para letterbox/pillarbox */}
                       <div className="absolute inset-0 bg-black" />
                       
-                      {/* Container da imagem com fit e centralização */}
-                      <div
-                        className="absolute inset-0 flex items-center justify-center"
-                        style={{
-                          overflow: 'hidden'
-                        }}
-                      >
+                      {/* Container da imagem com object-contain para nunca fazer crop */}
+                      <div className="absolute inset-0 flex items-center justify-center">
                          <img
                            src={visualData.backgroundImage}
                            alt="Preview"
-                           className="max-w-none transition-transform duration-200 ease-out"
+                           className="max-w-full max-h-full object-contain transition-transform duration-200 ease-out"
                            style={{
                              transform: `
                                scale(${visualData.imageZoom / 100})
@@ -624,10 +619,7 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
                                  ${((visualData.imagePosition.y - 50) / (visualData.imageZoom / 100)) * 2}%
                                )
                              `,
-                             transformOrigin: 'center center',
-                             width: visualData.fillMode === 'fill' ? '100%' : 'auto',
-                             height: visualData.fillMode === 'fill' ? '100%' : 'auto',
-                             objectFit: visualData.fillMode === 'fill' ? 'cover' : 'contain'
+                             transformOrigin: 'center center'
                            }}
                          />
                       </div>
