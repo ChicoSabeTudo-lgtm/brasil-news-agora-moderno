@@ -8,6 +8,7 @@ export interface SiteConfiguration {
   header_code: string | null;
   footer_code: string | null;
   webhook_url: string | null;
+  otp_webhook_url: string | null;
   logo_url: string | null;
   mockup_image_url: string | null;
   created_at: string;

@@ -147,6 +147,7 @@ export default function SiteConfigurations() {
       header_code: headerCode,
       footer_code: footerCode,
       webhook_url: webhookUrl,
+      otp_webhook_url: otpWebhookUrl,
       logo_url: logoUrl,
       mockup_image_url: mockupUrl,
     }, {
@@ -330,7 +331,7 @@ export default function SiteConfigurations() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="webhook">
+            <TabsContent value="webhook-otp">
               <Card>
                 <CardHeader>
                   <CardTitle>Webhook para Login OTP</CardTitle>
@@ -341,13 +342,13 @@ export default function SiteConfigurations() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <Label htmlFor="webhook-url">URL do Webhook</Label>
+                    <Label htmlFor="otp-webhook-url">URL do Webhook OTP</Label>
                     <Input
-                      id="webhook-url"
+                      id="otp-webhook-url"
                       type="url"
                       placeholder="https://your-n8n-webhook.com/webhook/otp"
-                      value={webhookUrl}
-                      onChange={(e) => setWebhookUrl(e.target.value)}
+                      value={otpWebhookUrl}
+                      onChange={(e) => setOtpWebhookUrl(e.target.value)}
                       className="font-mono"
                     />
                   </div>
@@ -368,6 +369,54 @@ export default function SiteConfigurations() {
   "whatsapp_phone": "+5511999999999",
   "otp_code": "123456",
   "timestamp": "2024-01-15T10:30:00.000Z"
+}`}
+                      </pre>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="webhook-social">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Webhook para Compartilhamento Social</CardTitle>
+                  <CardDescription>
+                    Configure a URL do webhook do n8n que receberá informações sobre notícias 
+                    para compartilhamento automático nas redes sociais.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label htmlFor="social-webhook-url">URL do Webhook Social</Label>
+                    <Input
+                      id="social-webhook-url"
+                      type="url"
+                      placeholder="https://your-n8n-webhook.com/webhook/social"
+                      value={webhookUrl}
+                      onChange={(e) => setWebhookUrl(e.target.value)}
+                      className="font-mono"
+                    />
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    <p className="font-medium mb-2">Como funciona:</p>
+                    <ul className="list-disc ml-4 space-y-1">
+                      <li>O sistema enviará uma requisição POST para esta URL quando uma notícia for publicada</li>
+                      <li>O payload JSON incluirá: título, resumo, URL, imagem, categoria</li>
+                      <li>Seu n8n pode processar essas informações e compartilhar nas redes sociais</li>
+                      <li>Útil para automação de posts no Facebook, Instagram, Twitter, etc.</li>
+                    </ul>
+                    
+                    <div className="mt-4 p-3 bg-muted rounded-lg">
+                      <p className="font-medium mb-2">Exemplo do payload enviado:</p>
+                      <pre className="text-xs bg-background p-2 rounded border overflow-x-auto">
+{`{
+  "title": "Título da Notícia",
+  "summary": "Resumo da notícia...",
+  "url": "https://site.com/noticia/slug",
+  "image_url": "https://site.com/imagem.jpg",
+  "category": "Política",
+  "published_at": "2024-01-15T10:30:00.000Z"
 }`}
                       </pre>
                     </div>
