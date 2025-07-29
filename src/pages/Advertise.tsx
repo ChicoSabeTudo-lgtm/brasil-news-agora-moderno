@@ -93,7 +93,7 @@ const Advertise = () => {
             </Badge>
             <Badge variant="secondary" className="text-sm px-4 py-2">
               <Users className="w-4 h-4 mr-2" />
-              +15K leitores únicos
+              +150K leitores únicos
             </Badge>
             <Badge variant="secondary" className="text-sm px-4 py-2">
               <TrendingUp className="w-4 h-4 mr-2" />
