@@ -1,0 +1,52 @@
+import { useState } from 'react';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
+import InstagramVisualEditor from './InstagramVisualEditor';
+import InstagramPostFinisher from './InstagramPostFinisher';
+
+interface VisualData {
+  title: string;
+  backgroundImage: string | null;
+  textPosition: { x: number; y: number };
+  textZoom: number;
+  textSize: 'small' | 'medium' | 'large';
+  textAlign: 'left' | 'center' | 'right';
+  generatedImageUrl: string;
+}
+
+type FlowStep = 'visual-editor' | 'post-finisher';
+
+export default function NewInstagramFlow() {
+  const [currentStep, setCurrentStep] = useState<FlowStep>('visual-editor');
+  const [visualData, setVisualData] = useState<VisualData | null>(null);
+
+  const handleContinueToFinisher = (data: VisualData) => {
+    setVisualData(data);
+    setCurrentStep('post-finisher');
+  };
+
+  const handleBackToEditor = () => {
+    setCurrentStep('visual-editor');
+  };
+
+  const handleComplete = () => {
+    // Reset the flow
+    setCurrentStep('visual-editor');
+    setVisualData(null);
+  };
+
+  return (
+    <ProtectedRoute requiredRole="redator">
+      {currentStep === 'visual-editor' && (
+        <InstagramVisualEditor onContinue={handleContinueToFinisher} />
+      )}
+      
+      {currentStep === 'post-finisher' && visualData && (
+        <InstagramPostFinisher 
+          visualData={visualData}
+          onBack={handleBackToEditor}
+          onComplete={handleComplete}
+        />
+      )}
+    </ProtectedRoute>
+  );
+}

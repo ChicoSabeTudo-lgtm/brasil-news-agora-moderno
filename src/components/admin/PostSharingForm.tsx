@@ -12,8 +12,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Send, Download, Calendar, Clock, Facebook, Twitter, MessageCircle, Instagram, Image as ImageIcon, Type, Move, ZoomIn } from 'lucide-react';
+import { Send, Download, Calendar, Clock, Facebook, Twitter, MessageCircle, Instagram, Image as ImageIcon, Type, Move, ZoomIn, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import NewInstagramFlow from './NewInstagramFlow';
 
 interface PostData {
   title: string;
@@ -459,7 +460,7 @@ export default function PostSharingForm() {
           </div>
 
           <Tabs value={currentStep} onValueChange={setCurrentStep} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger 
                 value="content" 
                 className="flex items-center gap-2"
@@ -472,7 +473,14 @@ export default function PostSharingForm() {
                 className="flex items-center gap-2"
               >
                 <Instagram className="w-4 h-4" />
-                Instagram
+                Instagram (Legado)
+              </TabsTrigger>
+              <TabsTrigger 
+                value="instagram-new" 
+                className="flex items-center gap-2"
+              >
+                <Sparkles className="w-4 h-4" />
+                Instagram (Novo)
               </TabsTrigger>
             </TabsList>
 
@@ -881,6 +889,10 @@ export default function PostSharingForm() {
                    </CardContent>
                 </Card>
               </div>
+            </TabsContent>
+
+            <TabsContent value="instagram-new">
+              <NewInstagramFlow />
             </TabsContent>
           </Tabs>
         </div>
