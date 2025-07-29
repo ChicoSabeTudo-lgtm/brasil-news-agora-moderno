@@ -80,19 +80,51 @@ Deno.serve(async (req) => {
 
     console.log('OTP verification successful for:', email);
 
-    // Delete the used OTP code
+    // Get the password from the OTP request (we need to store it)
+    const { data: otpRecord } = await supabase
+      .from('otp_codes')
+      .select('user_password')
+      .eq('user_email', email)
+      .eq('code', code)
+      .single();
+
+    // Delete the used OTP code first
     await supabase
       .from('otp_codes')
       .delete()
       .eq('user_email', email)
       .eq('code', code);
 
-    console.log('OTP verification successful for:', email);
+    // Now sign in the user with their password to create a session
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+    );
+
+    const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
+      email: email,
+      password: otpRecord?.user_password || ''
+    });
+
+    if (authError) {
+      console.error('Failed to authenticate user:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to authenticate user' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    console.log('User authenticated successfully:', email);
 
     return new Response(
       JSON.stringify({ 
         success: true,
-        message: 'OTP verified successfully'
+        message: 'OTP verified and user authenticated',
+        access_token: authData.session?.access_token,
+        refresh_token: authData.session?.refresh_token
       }),
       { 
         status: 200, 
