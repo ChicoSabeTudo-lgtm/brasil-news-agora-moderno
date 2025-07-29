@@ -131,6 +131,9 @@ export default function Auth() {
                 src={logoUrl} 
                 alt="Logo do site" 
                 className="h-16 w-auto object-contain"
+                onError={(e) => {
+                  e.currentTarget.src = '/placeholder.svg';
+                }}
               />
             </div>
             <CardDescription>

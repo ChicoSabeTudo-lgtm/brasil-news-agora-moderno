@@ -10,7 +10,8 @@ export const useSiteLogo = () => {
         .from('site_configurations')
         .select('logo_url')
         .order('created_at', { ascending: false })
-        .maybeSingle();
+        .limit(1)
+        .single();
 
       if (error) {
         console.error('Error fetching logo configuration:', error);
