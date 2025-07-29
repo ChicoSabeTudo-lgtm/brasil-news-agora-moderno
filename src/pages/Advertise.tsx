@@ -9,7 +9,6 @@ import { TrendingUp, Users, Eye, Target, DollarSign, Star, Send } from "lucide-r
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Layout } from "@/components/Layout";
-
 const Advertise = () => {
   const [formData, setFormData] = useState({
     company_name: "",
@@ -22,37 +21,36 @@ const Advertise = () => {
     campaign_description: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
+    const {
+      name,
+      value
+    } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
   };
-
   const handleSelectChange = (name: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
     try {
-      const { error } = await supabase
-        .from('advertising_requests')
-        .insert([formData]);
-
+      const {
+        error
+      } = await supabase.from('advertising_requests').insert([formData]);
       if (error) throw error;
-
       toast({
         title: "Solicitação enviada com sucesso!",
-        description: "Nossa equipe comercial entrará em contato em breve.",
+        description: "Nossa equipe comercial entrará em contato em breve."
       });
 
       // Limpar formulário
@@ -66,7 +64,6 @@ const Advertise = () => {
         budget_range: "",
         campaign_description: ""
       });
-
     } catch (error) {
       console.error('Error sending advertising request:', error);
       toast({
@@ -78,9 +75,7 @@ const Advertise = () => {
       setIsSubmitting(false);
     }
   };
-
-  return (
-    <Layout>
+  return <Layout>
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <section className="text-center mb-12">
@@ -162,7 +157,7 @@ const Advertise = () => {
                   <li>• Between articles (728x90)</li>
                 </ul>
                 <div className="mt-4">
-                  <Badge>A partir de R$ 500/mês</Badge>
+                  <Badge>A partir de R$ 400/mês</Badge>
                 </div>
               </CardContent>
             </Card>
@@ -183,7 +178,7 @@ const Advertise = () => {
                   <li>• Branded content</li>
                 </ul>
                 <div className="mt-4">
-                  <Badge>A partir de R$ 800/artigo</Badge>
+                  <Badge>A partir de R$ 200/artigo</Badge>
                 </div>
               </CardContent>
             </Card>
@@ -204,7 +199,7 @@ const Advertise = () => {
                   <li>• Relatórios detalhados</li>
                 </ul>
                 <div className="mt-4">
-                  <Badge>A partir de R$ 2.000/mês</Badge>
+                  <Badge>A combinar</Badge>
                 </div>
               </CardContent>
             </Card>
@@ -228,29 +223,13 @@ const Advertise = () => {
                       <label htmlFor="company_name" className="block text-sm font-medium mb-2">
                         Nome da Empresa *
                       </label>
-                      <Input
-                        id="company_name"
-                        name="company_name"
-                        type="text"
-                        required
-                        value={formData.company_name}
-                        onChange={handleInputChange}
-                        placeholder="Sua empresa"
-                      />
+                      <Input id="company_name" name="company_name" type="text" required value={formData.company_name} onChange={handleInputChange} placeholder="Sua empresa" />
                     </div>
                     <div>
                       <label htmlFor="contact_name" className="block text-sm font-medium mb-2">
                         Nome do Contato *
                       </label>
-                      <Input
-                        id="contact_name"
-                        name="contact_name"
-                        type="text"
-                        required
-                        value={formData.contact_name}
-                        onChange={handleInputChange}
-                        placeholder="Seu nome"
-                      />
+                      <Input id="contact_name" name="contact_name" type="text" required value={formData.contact_name} onChange={handleInputChange} placeholder="Seu nome" />
                     </div>
                   </div>
 
@@ -259,29 +238,13 @@ const Advertise = () => {
                       <label htmlFor="email" className="block text-sm font-medium mb-2">
                         Email *
                       </label>
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        required
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        placeholder="seu@email.com"
-                      />
+                      <Input id="email" name="email" type="email" required value={formData.email} onChange={handleInputChange} placeholder="seu@email.com" />
                     </div>
                     <div>
                       <label htmlFor="phone" className="block text-sm font-medium mb-2">
                         Telefone *
                       </label>
-                      <Input
-                        id="phone"
-                        name="phone"
-                        type="tel"
-                        required
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        placeholder="(11) 99999-9999"
-                      />
+                      <Input id="phone" name="phone" type="tel" required value={formData.phone} onChange={handleInputChange} placeholder="(11) 99999-9999" />
                     </div>
                   </div>
 
@@ -289,14 +252,7 @@ const Advertise = () => {
                     <label htmlFor="website" className="block text-sm font-medium mb-2">
                       Website (opcional)
                     </label>
-                    <Input
-                      id="website"
-                      name="website"
-                      type="url"
-                      value={formData.website}
-                      onChange={handleInputChange}
-                      placeholder="https://suaempresa.com.br"
-                    />
+                    <Input id="website" name="website" type="url" value={formData.website} onChange={handleInputChange} placeholder="https://suaempresa.com.br" />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -304,10 +260,7 @@ const Advertise = () => {
                       <label htmlFor="advertising_type" className="block text-sm font-medium mb-2">
                         Tipo de Anúncio *
                       </label>
-                      <Select 
-                        value={formData.advertising_type} 
-                        onValueChange={(value) => handleSelectChange('advertising_type', value)}
-                      >
+                      <Select value={formData.advertising_type} onValueChange={value => handleSelectChange('advertising_type', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione o tipo" />
                         </SelectTrigger>
@@ -324,10 +277,7 @@ const Advertise = () => {
                       <label htmlFor="budget_range" className="block text-sm font-medium mb-2">
                         Orçamento Mensal *
                       </label>
-                      <Select 
-                        value={formData.budget_range} 
-                        onValueChange={(value) => handleSelectChange('budget_range', value)}
-                      >
+                      <Select value={formData.budget_range} onValueChange={value => handleSelectChange('budget_range', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Faixa de orçamento" />
                         </SelectTrigger>
@@ -346,31 +296,14 @@ const Advertise = () => {
                     <label htmlFor="campaign_description" className="block text-sm font-medium mb-2">
                       Descrição da Campanha *
                     </label>
-                    <Textarea
-                      id="campaign_description"
-                      name="campaign_description"
-                      required
-                      rows={4}
-                      value={formData.campaign_description}
-                      onChange={handleInputChange}
-                      placeholder="Descreva seus objetivos, público-alvo e qualquer informação relevante sobre a campanha..."
-                      className="resize-none"
-                    />
+                    <Textarea id="campaign_description" name="campaign_description" required rows={4} value={formData.campaign_description} onChange={handleInputChange} placeholder="Descreva seus objetivos, público-alvo e qualquer informação relevante sobre a campanha..." className="resize-none" />
                   </div>
 
-                  <Button 
-                    type="submit" 
-                    className="w-full md:w-auto"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      "Enviando..."
-                    ) : (
-                      <>
+                  <Button type="submit" className="w-full md:w-auto" disabled={isSubmitting}>
+                    {isSubmitting ? "Enviando..." : <>
                         <Send className="w-4 h-4 mr-2" />
                         Solicitar Orçamento
-                      </>
-                    )}
+                      </>}
                   </Button>
                 </form>
               </CardContent>
@@ -441,8 +374,6 @@ const Advertise = () => {
           </div>
         </div>
       </main>
-    </Layout>
-  );
+    </Layout>;
 };
-
 export default Advertise;
