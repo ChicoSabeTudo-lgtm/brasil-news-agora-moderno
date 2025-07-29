@@ -27,6 +27,7 @@ import Advertise from "./pages/Advertise";
 import Videos from "./pages/Videos";
 import SiteConfigurations from "./pages/SiteConfigurations";
 import AdsTxt from "./pages/AdsTxt";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/perfil" element={<Profile />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/admin/configuracoes" element={<SiteConfigurations />} />
             {/* Rota dinâmica para todas as categorias */}

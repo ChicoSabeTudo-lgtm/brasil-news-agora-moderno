@@ -88,7 +88,7 @@ export default function Admin() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-11 lg:w-auto lg:grid-cols-none lg:inline-flex">
+            <TabsList className="grid w-full grid-cols-10 lg:w-auto lg:grid-cols-none lg:inline-flex">
               <TabsTrigger value="dashboard" className="flex items-center gap-2">
                 <LayoutDashboard className="w-4 h-4" />
                 Dashboard
@@ -134,10 +134,6 @@ export default function Admin() {
               <TabsTrigger value="analytics" className="flex items-center gap-2">
                 <TrendingUp className="w-4 h-4" />
                 Análises
-              </TabsTrigger>
-              <TabsTrigger value="profile" className="flex items-center gap-2">
-                <UserCircle className="w-4 h-4" />
-                Perfil
               </TabsTrigger>
             </TabsList>
 
@@ -323,10 +319,6 @@ export default function Admin() {
                   </Card>
                 </div>
               </div>
-            </TabsContent>
-
-            <TabsContent value="profile">
-              <ProfileSettings />
             </TabsContent>
           </Tabs>
         </div>
