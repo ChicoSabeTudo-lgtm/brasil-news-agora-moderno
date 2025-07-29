@@ -594,6 +594,30 @@ export type Database = {
         }
         Relationships: []
       }
+      otp_codes: {
+        Row: {
+          code: string
+          created_at: string
+          expires_at: string
+          id: string
+          user_email: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          expires_at: string
+          id?: string
+          user_email: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          user_email?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           access_revoked: boolean | null
@@ -608,6 +632,7 @@ export type Database = {
           revoked_by: string | null
           updated_at: string
           user_id: string
+          whatsapp_phone: string | null
         }
         Insert: {
           access_revoked?: boolean | null
@@ -622,6 +647,7 @@ export type Database = {
           revoked_by?: string | null
           updated_at?: string
           user_id: string
+          whatsapp_phone?: string | null
         }
         Update: {
           access_revoked?: boolean | null
@@ -636,6 +662,7 @@ export type Database = {
           revoked_by?: string | null
           updated_at?: string
           user_id?: string
+          whatsapp_phone?: string | null
         }
         Relationships: []
       }
@@ -793,6 +820,10 @@ export type Database = {
       approve_user_access: {
         Args: { target_user_id: string; reason?: string }
         Returns: boolean
+      }
+      cleanup_expired_otp_codes: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       delete_user_safe: {
         Args: { target_user_id: string; reason?: string }
