@@ -109,14 +109,14 @@ const Advertise = () => {
             <Card className="text-center">
               <CardContent className="pt-6">
                 <Eye className="w-8 h-8 text-primary mx-auto mb-4" />
-                <div className="text-3xl font-bold text-foreground">50K+</div>
+                <div className="text-3xl font-bold text-foreground">500K+</div>
                 <p className="text-muted-foreground">Visualizações mensais</p>
               </CardContent>
             </Card>
             <Card className="text-center">
               <CardContent className="pt-6">
                 <Users className="w-8 h-8 text-primary mx-auto mb-4" />
-                <div className="text-3xl font-bold text-foreground">15K+</div>
+                <div className="text-3xl font-bold text-foreground">150K+</div>
                 <p className="text-muted-foreground">Leitores únicos</p>
               </CardContent>
             </Card>
