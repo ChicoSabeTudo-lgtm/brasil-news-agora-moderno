@@ -78,25 +78,45 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Generate magic link for authentication
-    const { data: magicLink, error: magicLinkError } = await supabase.auth.admin.generateLink({
-      type: 'magiclink',
-      email: email,
-      options: {
-        redirectTo: `${Deno.env.get('SUPABASE_URL')?.replace('.supabase.co', '')}.lovableproject.com/admin`
-      }
-    });
+    // OTP is valid, now get the original password from profiles to create session
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('whatsapp_phone')
+      .eq('user_id', user.id)
+      .single();
 
-    if (magicLinkError || !magicLink) {
-      console.error('Failed to generate magic link:', magicLinkError);
+    if (profileError) {
+      console.error('Failed to get profile data:', profileError);
       return new Response(
-        JSON.stringify({ error: 'Failed to create login session' }),
+        JSON.stringify({ error: 'Failed to retrieve user data' }),
         { 
           status: 500, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
     }
+
+    // Create a session link using admin API
+    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
+      type: 'magiclink',
+      email: email,
+      options: {
+        redirectTo: `${req.headers.get('origin')}/admin`
+      }
+    });
+
+    if (linkError || !linkData.properties?.action_link) {
+      console.error('Failed to generate session link:', linkError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to create session' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
+    console.log('OTP verification successful for:', email);
 
     // Delete the used OTP code
     await supabase
@@ -116,7 +136,7 @@ Deno.serve(async (req) => {
           email: user.email,
           user_metadata: user.user_metadata
         },
-        session_url: magicLink.properties?.action_link
+        session_url: linkData.properties.action_link
       }),
       { 
         status: 200, 
