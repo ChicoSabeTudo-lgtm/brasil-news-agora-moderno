@@ -144,6 +144,7 @@ export default function PostSharingForm() {
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('🎯 handleImageUpload chamado');
     const file = e.target.files?.[0];
     console.log('🔥 Upload iniciado:', file ? `${file.name} (${file.size} bytes)` : 'Nenhum arquivo selecionado');
     
@@ -154,14 +155,16 @@ export default function PostSharingForm() {
       reader.onload = (event) => {
         console.log('📁 Arquivo lido com sucesso, atualizando estado...');
         const result = event.target?.result as string;
-        console.log('📄 Dados do arquivo (primeiros 100 chars):', result.substring(0, 100));
+        console.log('📄 Dados do arquivo (primeiros 100 chars):', result?.substring(0, 100));
         
         setPostData(prev => {
+          console.log('🔄 Dentro do setPostData...');
           const newData = {
             ...prev,
             backgroundImage: result
           };
-          console.log('✅ Estado backgroundImage atualizado, tamanho:', result.length);
+          console.log('✅ Estado backgroundImage atualizado, tamanho:', result?.length);
+          console.log('🗂️ PostData atual:', { ...newData, backgroundImage: newData.backgroundImage?.substring(0, 50) + '...' });
           return newData;
         });
       };
@@ -170,8 +173,17 @@ export default function PostSharingForm() {
         console.error('❌ Erro ao ler arquivo:', error);
       };
       
+      reader.onloadstart = () => {
+        console.log('🏁 FileReader.onloadstart - início da leitura');
+      };
+      
+      reader.onprogress = (e) => {
+        console.log('📊 FileReader.onprogress:', e.loaded, '/', e.total);
+      };
+      
       console.log('🔄 Iniciando leitura do arquivo...');
       reader.readAsDataURL(file);
+      console.log('✋ readAsDataURL executado');
     } else {
       console.log('⚠️ Nenhum arquivo foi selecionado');
     }
