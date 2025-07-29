@@ -340,17 +340,27 @@ export default function InstagramPostFinisher({ visualData, onBack, onComplete }
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
                       <div>
-                        <p className="font-semibold text-sm">seu_perfil</p>
+                        <div className="flex items-center gap-1">
+                          <p className="font-semibold text-sm">portalchicosabetudo</p>
+                          <span className="text-blue-500 text-xs">✓</span>
+                        </div>
                         <p className="text-xs text-muted-foreground">Agora</p>
                       </div>
                     </div>
                     
                     {postData.instagramCaption && (
                       <div className="text-sm space-y-1">
-                        <p>
-                          <span className="font-semibold">seu_perfil</span>{' '}
-                          {postData.instagramCaption}
-                        </p>
+                        <div className="whitespace-pre-wrap">
+                          <span className="font-semibold">portalchicosabetudo</span>{' '}
+                          <span 
+                            dangerouslySetInnerHTML={{
+                              __html: postData.instagramCaption
+                                .replace(/\n/g, '<br>')
+                                .replace(/#(\w+)/g, '<span style="color: #1877F2">#$1</span>')
+                                .replace(/@(\w+)/g, '<span style="color: #1877F2">@$1</span>')
+                            }}
+                          />
+                        </div>
                       </div>
                     )}
                     
