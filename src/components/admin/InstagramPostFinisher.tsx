@@ -270,19 +270,55 @@ export default function InstagramPostFinisher({ visualData, onBack, onComplete }
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {/* Imagem - Proporção 3:4 para Stories 1080x1440 */}
-                  <div className="aspect-[3/4] bg-muted rounded-lg overflow-hidden">
-                    {visualData.generatedImageUrl ? (
-                      <img
-                        src={visualData.generatedImageUrl}
-                        alt="Post Final"
-                        className="w-full h-full object-cover"
-                        onLoad={() => console.log('✅ Imagem carregada na pré-visualização final')}
-                        onError={(e) => console.error('❌ Erro ao carregar imagem na pré-visualização:', e)}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                        <p>Imagem não disponível</p>
+                  {/* Pré-visualização com as mesmas configurações do editor */}
+                  <div className="aspect-[3/4] bg-black rounded-lg overflow-hidden relative">
+                    {/* Imagem de fundo com zoom e posicionamento aplicados */}
+                    {visualData.backgroundImage && (
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <img
+                          src={visualData.backgroundImage}
+                          alt="Background"
+                          className="max-w-full max-h-full object-contain transition-transform duration-200 ease-out"
+                          style={{ 
+                            transform: `
+                              scale(${visualData.imageZoom / 100})
+                              translate(
+                                ${((visualData.imagePosition.x - 50) / (visualData.imageZoom / 100)) * 2}%,
+                                ${((visualData.imagePosition.y - 50) / (visualData.imageZoom / 100)) * 2}%
+                              )
+                            `,
+                            transformOrigin: 'center center'
+                          }}
+                        />
+                      </div>
+                    )}
+                    
+                    {/* Texto sobreposto com as mesmas configurações */}
+                    {visualData.title && (
+                      <div className="absolute inset-0 flex items-end pointer-events-none">
+                        <div
+                          className="w-full pb-4"
+                          style={{
+                            paddingLeft: visualData.textAlign === 'left' ? '30px' : '0',
+                            paddingRight: visualData.textAlign === 'right' ? '30px' : '0'
+                          }}
+                        >
+                          <p
+                            style={{
+                              fontSize: `${visualData.textSize * 0.6}px`, // Ajuste para a proporção da tela
+                              textAlign: visualData.textAlign,
+                              color: 'white',
+                              textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                              fontWeight: '900',
+                              fontFamily: "'Archivo Black', sans-serif",
+                              lineHeight: '1.2',
+                              textTransform: 'uppercase',
+                              WebkitTextStroke: '1px black'
+                            }}
+                          >
+                            {visualData.title}
+                          </p>
+                        </div>
                       </div>
                     )}
                   </div>
