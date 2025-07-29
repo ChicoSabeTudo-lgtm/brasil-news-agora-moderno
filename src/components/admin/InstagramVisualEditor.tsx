@@ -161,9 +161,9 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
               }
               
               // Desenhar contorno do texto
-              ctx.strokeText(visualData.title, textX, textY);
+              ctx.strokeText(visualData.title.toUpperCase(), textX, textY);
               // Desenhar texto preenchido
-              ctx.fillText(visualData.title, textX, textY);
+              ctx.fillText(visualData.title.toUpperCase(), textX, textY);
             }
             
             // Gerar blob e URL
@@ -515,17 +515,18 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
                          paddingBottom: '70px',
                          paddingLeft: '60px',
                          paddingRight: '60px',
-                         fontSize: `${visualData.textSize * 0.8}px`,
-                         textAlign: visualData.textAlign,
-                         color: 'white',
-                         textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-                         fontWeight: 'bold',
-                         fontFamily: 'Arial, sans-serif',
-                         lineHeight: '1.2'
-                       }}
-                     >
-                       {visualData.title}
-                     </div>
+                          fontSize: `${visualData.textSize * 0.8}px`,
+                          textAlign: visualData.textAlign,
+                          color: 'white',
+                          textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                          fontWeight: 'bold',
+                          fontFamily: 'Arial, sans-serif',
+                          lineHeight: '1.2',
+                          textTransform: 'uppercase'
+                        }}
+                      >
+                        {visualData.title}
+                      </div>
                    )}
 
                   {/* Empty state */}
