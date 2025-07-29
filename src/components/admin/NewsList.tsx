@@ -60,7 +60,7 @@ interface Category {
   name: string;
 }
 
-export const NewsList = () => {
+export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData: { title: string; url: string }) => void }) => {
   const [news, setNews] = useState<News[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -279,7 +279,7 @@ export const NewsList = () => {
             ← Voltar para lista
           </Button>
         </div>
-        <NewsEditor editingNews={editingNews} onSave={handleEditorSave} />
+        <NewsEditor editingNews={editingNews} onSave={handleEditorSave} onNavigateToShare={onNavigateToShare} />
       </div>
     );
   }

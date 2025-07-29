@@ -35,7 +35,7 @@ interface PostData {
   instagramTime: string;
 }
 
-export default function PostSharingForm() {
+export default function PostSharingForm({ prefilledData, onDataUsed }: { prefilledData?: { title: string; url: string } | null; onDataUsed?: () => void }) {
   const { user } = useAuth();
   const { configuration } = useSiteConfigurations();
   const { toast } = useToast();
@@ -44,9 +44,9 @@ export default function PostSharingForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const [postData, setPostData] = useState<PostData>({
-    title: '',
-    summary: '',
-    link: '',
+    title: prefilledData?.title || '',
+    summary: prefilledData?.title || '',
+    link: prefilledData?.url || '',
     platforms: [],
     schedulePost: false,
     scheduleDate: '',
@@ -61,6 +61,20 @@ export default function PostSharingForm() {
     instagramDate: '',
     instagramTime: '',
   });
+
+  // Effect to handle prefilled data
+  useEffect(() => {
+    if (prefilledData) {
+      setPostData(prev => ({
+        ...prev,
+        title: prefilledData.title,
+        summary: prefilledData.title,
+        link: prefilledData.url
+      }));
+      // Mark data as used
+      onDataUsed?.();
+    }
+  }, [prefilledData, onDataUsed]);
 
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);

@@ -28,6 +28,7 @@ import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { SafeHtmlRenderer, sanitizeEmbedCode } from '@/utils/contentSanitizer';
 import { validateAndSanitize, newsSchema } from '@/utils/validation';
+import { SocialShareModal } from './SocialShareModal';
 
 interface Category {
   id: string;
@@ -35,7 +36,7 @@ interface Category {
   slug: string;
 }
 
-export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?: () => void }) => {
+export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editingNews?: any, onSave?: () => void, onNavigateToShare?: (newsData: { title: string; url: string }) => void }) => {
   const [article, setArticle] = useState({
     title: '',
     subtitle: '',
@@ -53,6 +54,8 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [publishedNewsData, setPublishedNewsData] = useState<{ title: string; url: string } | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -212,6 +215,13 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
           : "A notícia foi publicada e está disponível no site.",
       });
 
+      // Show share modal for published articles
+      if (status === 'published' && !editingNews) {
+        const newsUrl = `${window.location.origin}/noticia/${savedNewsId}`;
+        setPublishedNewsData({ title: article.title, url: newsUrl });
+        setShareModalOpen(true);
+      }
+
       if ((status === 'published' || status === 'scheduled') && !editingNews) {
         // Reset form after publishing or scheduling new article
         setArticle({
@@ -240,6 +250,12 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleShareNews = () => {
+    if (publishedNewsData && onNavigateToShare) {
+      onNavigateToShare(publishedNewsData);
     }
   };
 
@@ -581,6 +597,13 @@ export const NewsEditor = ({ editingNews, onSave }: { editingNews?: any, onSave?
           </Button>
         </div>
       </CardContent>
+      
+      <SocialShareModal
+        isOpen={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        onShare={handleShareNews}
+        newsTitle={publishedNewsData?.title || ''}
+      />
     </Card>
   );
 };

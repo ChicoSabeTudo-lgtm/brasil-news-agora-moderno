@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,6 +39,13 @@ import {
 export default function Admin() {
   const { user, userRole } = useAuth();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [shareFormData, setShareFormData] = useState<{ title: string; url: string } | null>(null);
+
+  const handleNavigateToShare = (newsData: { title: string; url: string }) => {
+    setShareFormData(newsData);
+    setActiveTab("post-sharing");
+  };
 
   return (
     <ProtectedRoute>
@@ -68,7 +76,7 @@ export default function Admin() {
             </div>
           </div>
 
-          <Tabs defaultValue="dashboard" className="space-y-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="grid w-full grid-cols-10 lg:w-auto lg:grid-cols-none lg:inline-flex">
               <TabsTrigger value="dashboard" className="flex items-center gap-2">
                 <LayoutDashboard className="w-4 h-4" />
@@ -134,7 +142,7 @@ export default function Admin() {
                   <TabsTrigger value="pautas">Pautas do Dia</TabsTrigger>
                 </TabsList>
                 <TabsContent value="list">
-                  <NewsList />
+                  <NewsList onNavigateToShare={handleNavigateToShare} />
                 </TabsContent>
                 <TabsContent value="pautas">
                   <DailyBriefsPanel />
@@ -147,7 +155,10 @@ export default function Admin() {
                 <div className="flex items-center justify-between">
                   <h2 className="text-2xl font-bold">Compartilhamento de Posts</h2>
                 </div>
-                <PostSharingForm />
+                <PostSharingForm 
+                  prefilledData={shareFormData}
+                  onDataUsed={() => setShareFormData(null)}
+                />
               </div>
             </TabsContent>
 
