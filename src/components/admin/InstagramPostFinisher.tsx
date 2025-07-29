@@ -274,7 +274,7 @@ export default function InstagramPostFinisher({ visualData, onBack, onComplete }
                 <div className="space-y-4">
                   {/* Pré-visualização com as mesmas configurações do editor */}
                   <div className="aspect-[3/4] bg-black rounded-lg overflow-hidden relative">
-                    {/* Imagem de fundo com zoom e posicionamento aplicados */}
+                    {/* Imagem de fundo com zoom e posicionamento aplicados - EXATAMENTE como no editor */}
                     {visualData.backgroundImage && (
                       <div className="absolute inset-0 flex items-center justify-center">
                         <img
@@ -282,6 +282,7 @@ export default function InstagramPostFinisher({ visualData, onBack, onComplete }
                           alt="Background"
                           className="max-w-full max-h-full object-contain transition-transform duration-200 ease-out"
                           style={{ 
+                            imageRendering: 'auto',
                             transform: `
                               scale(${visualData.imageZoom / 100})
                               translate(
