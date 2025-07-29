@@ -143,49 +143,52 @@ export default function PostSharingForm() {
     }));
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log('🎯 handleImageUpload chamado');
     const file = e.target.files?.[0];
-    console.log('🔥 Upload iniciado:', file ? `${file.name} (${file.size} bytes)` : 'Nenhum arquivo selecionado');
     
-    if (file) {
-      console.log('📂 Criando FileReader...');
-      const reader = new FileReader();
-      
-      reader.onload = (event) => {
-        console.log('📁 Arquivo lido com sucesso, atualizando estado...');
-        const result = event.target?.result as string;
-        console.log('📄 Dados do arquivo (primeiros 100 chars):', result?.substring(0, 100));
-        
-        setPostData(prev => {
-          console.log('🔄 Dentro do setPostData...');
-          const newData = {
-            ...prev,
-            backgroundImage: result
-          };
-          console.log('✅ Estado backgroundImage atualizado, tamanho:', result?.length);
-          console.log('🗂️ PostData atual:', { ...newData, backgroundImage: newData.backgroundImage?.substring(0, 50) + '...' });
-          return newData;
-        });
-      };
-      
-      reader.onerror = (error) => {
-        console.error('❌ Erro ao ler arquivo:', error);
-      };
-      
-      reader.onloadstart = () => {
-        console.log('🏁 FileReader.onloadstart - início da leitura');
-      };
-      
-      reader.onprogress = (e) => {
-        console.log('📊 FileReader.onprogress:', e.loaded, '/', e.total);
-      };
-      
-      console.log('🔄 Iniciando leitura do arquivo...');
-      reader.readAsDataURL(file);
-      console.log('✋ readAsDataURL executado');
-    } else {
+    if (!file) {
       console.log('⚠️ Nenhum arquivo foi selecionado');
+      return;
+    }
+
+    console.log('🔥 Upload iniciado:', `${file.name} (${file.size} bytes)`);
+    
+    try {
+      // Validar tipo de arquivo
+      if (!file.type.startsWith('image/')) {
+        console.error('❌ Arquivo não é uma imagem');
+        return;
+      }
+
+      // Converter para base64 de forma síncrona
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          console.log('📁 Arquivo lido com sucesso');
+          resolve(reader.result as string);
+        };
+        reader.onerror = () => {
+          console.error('❌ Erro ao ler arquivo');
+          reject(new Error('Erro ao ler arquivo'));
+        };
+        reader.readAsDataURL(file);
+      });
+
+      console.log('✅ Base64 gerado, tamanho:', base64.length);
+      
+      // Atualizar estado
+      setPostData(prev => {
+        const newData = {
+          ...prev,
+          backgroundImage: base64
+        };
+        console.log('🗂️ PostData atualizado com nova imagem');
+        return newData;
+      });
+
+    } catch (error) {
+      console.error('❌ Erro no upload:', error);
     }
   };
 
