@@ -80,6 +80,23 @@ Deno.serve(async (req) => {
 
     console.log('OTP verification successful for:', email);
 
+    // Create an auth session for the user
+    const { data: sessionData, error: sessionError } = await supabase.auth.admin.generateLink({
+      type: 'magiclink',
+      email: email,
+    });
+
+    if (sessionError) {
+      console.error('Failed to generate session:', sessionError);
+      return new Response(
+        JSON.stringify({ error: 'Failed to create session' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
     // Delete the used OTP code
     await supabase
       .from('otp_codes')
@@ -93,6 +110,7 @@ Deno.serve(async (req) => {
       JSON.stringify({ 
         success: true,
         message: 'OTP verified successfully',
+        session_url: sessionData.properties?.action_link,
         user: {
           id: user.id,
           email: user.email,
