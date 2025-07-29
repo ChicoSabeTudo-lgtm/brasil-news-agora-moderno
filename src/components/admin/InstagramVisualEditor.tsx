@@ -144,8 +144,8 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
               ctx.lineWidth = 3;
               ctx.textAlign = visualData.textAlign;
               
-              // Calcular posição do texto (parte inferior com padding de 100px)
-              const textY = canvas.height - 100;
+              // Calcular posição do texto (parte inferior com padding de 70px)
+              const textY = canvas.height - 70;
               let textX;
               
               switch (visualData.textAlign) {
@@ -509,7 +509,7 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
                      <div 
                        className="absolute bottom-0 left-0 right-0 pointer-events-none"
                        style={{
-                         paddingBottom: '100px',
+                         paddingBottom: '70px',
                          paddingLeft: '60px',
                          paddingRight: '60px',
                          fontSize: `${(visualData.textSize / 1080) * 100}%`,
