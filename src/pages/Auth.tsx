@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useSiteLogo } from '@/hooks/useSiteLogo';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +25,7 @@ export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
   
   const { signIn, signUp, resetPassword, requestOTPLogin, verifyOTPLogin, user } = useAuth();
+  const { logoUrl } = useSiteLogo();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isReset = searchParams.get('reset') === 'true';
@@ -124,9 +126,13 @@ export default function Auth() {
       <div className="container mx-auto px-4 py-12 flex items-center justify-center min-h-[calc(100vh-120px)]">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold text-primary">
-              NEWS<span className="text-foreground">BRASIL</span>
-            </CardTitle>
+            <div className="flex justify-center mb-4">
+              <img 
+                src={logoUrl} 
+                alt="Logo do site" 
+                className="h-16 w-auto object-contain"
+              />
+            </div>
             <CardDescription>
               Acesse sua conta ou crie uma nova
             </CardDescription>
