@@ -285,8 +285,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           description: "Bem-vindo de volta.",
         });
         
-        // Redirect directly to admin dashboard
-        window.location.href = '/admin';
+        // Force page reload to clear any URL fragments and redirect
+        window.location.replace('/admin');
         return { error: null, success: true };
       }
 
