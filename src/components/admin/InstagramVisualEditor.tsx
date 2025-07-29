@@ -138,7 +138,7 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
             if (visualData.title.trim()) {
               // Configurar texto
               const fontSize = visualData.textSize;
-              ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+              ctx.font = `${fontSize}px 'Archivo Black', sans-serif`;
               ctx.fillStyle = '#FFFFFF';
               ctx.strokeStyle = '#000000';
               ctx.lineWidth = 3;
@@ -519,8 +519,8 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
                           textAlign: visualData.textAlign,
                           color: 'white',
                           textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-                          fontWeight: 'bold',
-                          fontFamily: 'Arial, sans-serif',
+                          fontWeight: '900',
+                          fontFamily: "'Archivo Black', sans-serif",
                           lineHeight: '1.2',
                           textTransform: 'uppercase'
                         }}

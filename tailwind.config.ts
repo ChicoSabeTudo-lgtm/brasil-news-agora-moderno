@@ -125,6 +125,9 @@ export default {
 			boxShadow: {
 				'news': 'var(--shadow-news)',
 				'card': 'var(--shadow-card)'
+			},
+			fontFamily: {
+				'archivo-black': ['Archivo Black', 'sans-serif']
 			}
 		}
 	},
