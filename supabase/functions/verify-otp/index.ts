@@ -80,34 +80,24 @@ Deno.serve(async (req) => {
 
     console.log('OTP verification successful for:', email);
 
-    // Get the password from the OTP request (we need to store it)
-    const { data: otpRecord } = await supabase
-      .from('otp_codes')
-      .select('user_password')
-      .eq('user_email', email)
-      .eq('code', code)
-      .single();
-
-    // Delete the used OTP code first
+    // Delete the used OTP code
     await supabase
       .from('otp_codes')
       .delete()
       .eq('user_email', email)
       .eq('code', code);
 
-    // Now sign in the user with their password to create a session
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
-    );
-
-    const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
+    // Generate access tokens for the user using admin API
+    const { data: tokenData, error: tokenError } = await supabase.auth.admin.generateLink({
+      type: 'magiclink',
       email: email,
-      password: otpRecord?.user_password || ''
+      options: {
+        redirectTo: `${Deno.env.get('SUPABASE_URL')?.replace('supabase.co', 'supabase.co')}/auth/v1/callback`
+      }
     });
 
-    if (authError) {
-      console.error('Failed to authenticate user:', authError);
+    if (tokenError || !tokenData) {
+      console.error('Failed to generate tokens:', tokenError);
       return new Response(
         JSON.stringify({ error: 'Failed to authenticate user' }),
         { 
@@ -123,8 +113,7 @@ Deno.serve(async (req) => {
       JSON.stringify({ 
         success: true,
         message: 'OTP verified and user authenticated',
-        access_token: authData.session?.access_token,
-        refresh_token: authData.session?.refresh_token
+        session_url: tokenData.properties?.action_link
       }),
       { 
         status: 200, 

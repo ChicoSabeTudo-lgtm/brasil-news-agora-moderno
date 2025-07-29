@@ -279,22 +279,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return { error: data.error };
       }
 
-      if (data?.success) {
-        // Set the session from the tokens
-        if (data.access_token && data.refresh_token) {
-          await supabase.auth.setSession({
-            access_token: data.access_token,
-            refresh_token: data.refresh_token
-          });
-        }
-        
+      if (data?.success && data?.session_url) {
         toast({
           title: "Login realizado com sucesso!",
           description: "Bem-vindo de volta.",
         });
         
-        // Redirect to admin
-        window.location.href = '/admin';
+        // Redirect to the session URL to authenticate
+        window.location.href = data.session_url;
         return { error: null, success: true };
       }
 
