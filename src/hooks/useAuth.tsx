@@ -8,7 +8,7 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName: string, whatsappPhone?: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
   requestOTPLogin: (email: string, password: string) => Promise<{ error: string | null; success?: boolean }>;
@@ -98,11 +98,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = async (email: string, password: string, fullName: string, whatsappPhone?: string) => {
     try {
       const redirectUrl = `${window.location.origin}/`;
       
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -119,12 +119,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           description: error.message,
           variant: "destructive",
         });
-      } else {
-        toast({
-          title: "Cadastro realizado!",
-          description: "Verifique seu email para confirmar a conta.",
-        });
+        return { error };
       }
+
+      // If user was created and we have a WhatsApp phone, update profile
+      if (data.user && whatsappPhone) {
+        const formattedPhone = formatPhoneNumber(whatsappPhone);
+        
+        // Wait a bit for the profile to be created by the trigger
+        setTimeout(async () => {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .update({ whatsapp_phone: formattedPhone })
+            .eq('user_id', data.user.id);
+          
+          if (profileError) {
+            console.error('Error updating WhatsApp phone:', profileError);
+          }
+        }, 1000);
+      }
+      
+      toast({
+        title: "Cadastro realizado!",
+        description: "Verifique seu email para confirmar a conta.",
+      });
       
       return { error };
     } catch (error: any) {
@@ -135,6 +153,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       return { error };
     }
+  };
+
+  // Helper function to format phone number
+  const formatPhoneNumber = (phone: string) => {
+    // Remove all non-numeric characters
+    const cleaned = phone.replace(/\D/g, '');
+    
+    // Add +55 prefix if not present
+    if (cleaned.length === 11 && !cleaned.startsWith('55')) {
+      return `+55${cleaned}`;
+    } else if (cleaned.length === 13 && cleaned.startsWith('55')) {
+      return `+${cleaned}`;
+    }
+    
+    return phone;
   };
 
   const signOut = async () => {

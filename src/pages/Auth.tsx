@@ -15,6 +15,7 @@ export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [whatsappPhone, setWhatsappPhone] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [resetEmail, setResetEmail] = useState('');
   const [otp, setOtp] = useState('');
@@ -79,11 +80,12 @@ export default function Auth() {
     
     setIsLoading(true);
     
-    const { error } = await signUp(email, password, fullName);
+    const { error } = await signUp(email, password, fullName, whatsappPhone);
     if (!error) {
       setEmail('');
       setPassword('');
       setFullName('');
+      setWhatsappPhone('');
       setConfirmPassword('');
     }
     
@@ -230,6 +232,21 @@ export default function Auth() {
                       onChange={(e) => setEmail(e.target.value)}
                       required
                     />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="whatsapp-phone">WhatsApp</Label>
+                    <Input
+                      id="whatsapp-phone"
+                      type="tel"
+                      placeholder="(11) 99999-9999"
+                      value={whatsappPhone}
+                      onChange={(e) => setWhatsappPhone(e.target.value)}
+                      required
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Digite seu número com DDD (será usado para o login via código)
+                    </p>
                   </div>
                   
                   <div className="space-y-2">
