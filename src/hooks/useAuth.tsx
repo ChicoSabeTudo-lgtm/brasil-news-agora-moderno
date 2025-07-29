@@ -279,15 +279,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return { error: data.error };
       }
 
-      if (data?.session_url) {
-        // Use the magic link to sign in
-        window.location.href = data.session_url;
+      if (data?.success) {
+        toast({
+          title: "Login realizado com sucesso!",
+          description: "Bem-vindo de volta.",
+        });
+        
+        // Redirect directly to admin dashboard
+        window.location.href = '/admin';
+        return { error: null, success: true };
       }
-
-      toast({
-        title: "Login realizado com sucesso!",
-        description: "Bem-vindo de volta.",
-      });
 
       return { error: null, success: true };
     } catch (error: any) {
