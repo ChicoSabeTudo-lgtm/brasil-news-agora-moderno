@@ -150,7 +150,7 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
               
               switch (visualData.textAlign) {
                 case 'left':
-                  textX = 80;
+                  textX = 50;
                   break;
                 case 'right':
                   textX = canvas.width - 60;
@@ -513,7 +513,7 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
                        className="absolute bottom-0 left-0 right-0 pointer-events-none"
                        style={{
                          paddingBottom: '70px',
-                         paddingLeft: visualData.textAlign === 'left' ? '80px' : '60px',
+                         paddingLeft: visualData.textAlign === 'left' ? '50px' : '60px',
                          paddingRight: '60px',
                           fontSize: `${visualData.textSize * 0.8}px`,
                           textAlign: visualData.textAlign,
