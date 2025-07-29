@@ -545,7 +545,7 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="w-full max-w-sm mx-auto">
+              <div className="w-full max-w-lg mx-auto">
                 <div 
                   className="relative bg-gray-100 rounded-lg shadow-inner"
                   style={{
@@ -593,7 +593,7 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
                       <img
                         src={generatedImageUrl}
                         alt="Preview Final"
-                        className="w-full h-full object-contain"
+                        className={`w-full h-full ${visualData.fillMode === 'fill' ? 'object-cover' : 'object-contain'}`}
                         style={{ imageRendering: 'auto' }}
                       />
                     </div>
