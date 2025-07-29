@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { ArrowRight, Image as ImageIcon, Download, ZoomIn, Move } from 'lucide-react';
+import { useInstagramMockup } from '@/hooks/useInstagramMockup';
 
 interface VisualData {
   title: string;
@@ -18,6 +19,7 @@ interface InstagramVisualEditorProps {
 }
 
 export default function InstagramVisualEditor({ onContinue }: InstagramVisualEditorProps) {
+  const { mockupUrl } = useInstagramMockup();
   const [visualData, setVisualData] = useState<VisualData>({
     title: '',
     backgroundImage: null,
@@ -368,6 +370,21 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
                             )
                           `,
                           transformOrigin: 'center center'
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {/* Instagram Mockup Overlay */}
+                  {mockupUrl && visualData.backgroundImage && !isGeneratingPreview && !previewError && (
+                    <div className="absolute inset-0 pointer-events-none">
+                      <img
+                        src={mockupUrl}
+                        alt="Instagram Mockup Overlay"
+                        className="w-full h-full object-contain"
+                        style={{ 
+                          imageRendering: 'auto',
+                          zIndex: 10
                         }}
                       />
                     </div>
