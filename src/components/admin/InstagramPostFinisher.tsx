@@ -17,6 +17,8 @@ interface VisualData {
   textZoom: number;
   textSize: 'small' | 'medium' | 'large';
   textAlign: 'left' | 'center' | 'right';
+  imageZoom: number;
+  imagePosition: { x: number; y: number };
   generatedImageUrl: string;
 }
 
@@ -89,7 +91,9 @@ export default function InstagramPostFinisher({ visualData, onBack, onComplete }
           text_position: visualData.textPosition,
           text_zoom: visualData.textZoom,
           text_size: visualData.textSize,
-          text_align: visualData.textAlign
+          text_align: visualData.textAlign,
+          image_zoom: visualData.imageZoom,
+          image_position: visualData.imagePosition
         },
         instagram: {
           caption: postData.instagramCaption,
@@ -270,8 +274,8 @@ export default function InstagramPostFinisher({ visualData, onBack, onComplete }
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {/* Imagem */}
-                  <div className="aspect-square bg-muted rounded-lg overflow-hidden">
+                  {/* Imagem - Proporção 4:3 para Stories 1440x1080 */}
+                  <div className="aspect-[4/3] bg-muted rounded-lg overflow-hidden">
                     <img
                       src={visualData.generatedImageUrl}
                       alt="Post Final"

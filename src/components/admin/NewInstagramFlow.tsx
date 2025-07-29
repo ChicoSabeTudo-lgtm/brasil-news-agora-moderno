@@ -10,6 +10,8 @@ interface VisualData {
   textZoom: number;
   textSize: 'small' | 'medium' | 'large';
   textAlign: 'left' | 'center' | 'right';
+  imageZoom: number;
+  imagePosition: { x: number; y: number };
   generatedImageUrl: string;
 }
 

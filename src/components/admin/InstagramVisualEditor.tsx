@@ -15,6 +15,8 @@ interface VisualData {
   textZoom: number;
   textSize: 'small' | 'medium' | 'large';
   textAlign: 'left' | 'center' | 'right';
+  imageZoom: number;
+  imagePosition: { x: number; y: number };
 }
 
 interface InstagramVisualEditorProps {
@@ -31,6 +33,8 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
     textZoom: 100,
     textSize: 'medium',
     textAlign: 'center',
+    imageZoom: 100,
+    imagePosition: { x: 50, y: 50 },
   });
 
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
@@ -54,8 +58,21 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Contexto do canvas não disponível');
 
-    // Desenhar imagem de fundo
-    ctx.drawImage(cardImg, 0, 0, canvas.width, canvas.height);
+    // Configurar canvas para 1440x1080 (Stories)
+    canvas.width = 1440;
+    canvas.height = 1080;
+
+    // Calcular dimensões da imagem com zoom
+    const imageZoomFactor = visualData.imageZoom / 100;
+    const imageWidth = canvas.width * imageZoomFactor;
+    const imageHeight = (cardImg.height / cardImg.width) * imageWidth;
+
+    // Calcular posição da imagem
+    const imageX = (visualData.imagePosition.x / 100) * canvas.width - imageWidth / 2;
+    const imageY = (visualData.imagePosition.y / 100) * canvas.height - imageHeight / 2;
+
+    // Desenhar imagem de fundo com zoom e posicionamento
+    ctx.drawImage(cardImg, imageX, imageY, imageWidth, imageHeight);
     
     // Configurar texto
     const fontSize = visualData.textSize === 'small' ? 48 : visualData.textSize === 'medium' ? 72 : 96;
@@ -65,14 +82,14 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
     ctx.lineWidth = 3;
     ctx.textAlign = visualData.textAlign as CanvasTextAlign;
     
-    // Calcular posição
-    const x = (visualData.textPosition.x / 100) * canvas.width;
-    const y = (visualData.textPosition.y / 100) * canvas.height;
+    // Calcular posição do texto
+    const textX = (visualData.textPosition.x / 100) * canvas.width;
+    const textY = (visualData.textPosition.y / 100) * canvas.height;
     
     // Desenhar texto com contorno
-    ctx.strokeText(visualData.title, x, y);
-    ctx.fillText(visualData.title, x, y);
-  }, [visualData.title, visualData.textPosition, visualData.textZoom, visualData.textSize, visualData.textAlign]);
+    ctx.strokeText(visualData.title, textX, textY);
+    ctx.fillText(visualData.title, textX, textY);
+  }, [visualData.title, visualData.textPosition, visualData.textZoom, visualData.textSize, visualData.textAlign, visualData.imageZoom, visualData.imagePosition]);
 
   // Cache do mockup quando a URL muda
   useEffect(() => {
@@ -108,7 +125,7 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
     // Debounce para evitar muitas chamadas
     const timeoutId = setTimeout(generatePreview, 300);
     return () => clearTimeout(timeoutId);
-  }, [visualData.backgroundImage, visualData.title, visualData.textPosition, visualData.textZoom, visualData.textSize, visualData.textAlign]);
+  }, [visualData.backgroundImage, visualData.title, visualData.textPosition, visualData.textZoom, visualData.textSize, visualData.textAlign, visualData.imageZoom, visualData.imagePosition]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -168,32 +185,40 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
       }
 
       if (cachedMockupImage) {
-        // Renderizar com mockup
-        canvas.width = cachedMockupImage.width;
-        canvas.height = cachedMockupImage.height;
+        // Renderizar com mockup mantendo proporção Stories
+        const mockupAspectRatio = cachedMockupImage.width / cachedMockupImage.height;
+        const storiesAspectRatio = 1440 / 1080;
+        
+        if (mockupAspectRatio > storiesAspectRatio) {
+          canvas.width = 1440;
+          canvas.height = 1440 / mockupAspectRatio;
+        } else {
+          canvas.height = 1080;
+          canvas.width = 1080 * mockupAspectRatio;
+        }
         
         // Desenhar mockup como fundo
-        ctx.drawImage(cachedMockupImage, 0, 0);
+        ctx.drawImage(cachedMockupImage, 0, 0, canvas.width, canvas.height);
         
-        // Área do card no mockup (ajuste conforme seu mockup)
+        // Área do card no mockup para Stories (1440x1080)
         const cardAreaX = canvas.width * 0.15;
-        const cardAreaY = canvas.height * 0.25;
+        const cardAreaY = canvas.height * 0.15;
         const cardAreaWidth = canvas.width * 0.7;
-        const cardAreaHeight = cardAreaWidth * (1440/1080);
+        const cardAreaHeight = cardAreaWidth * (1080/1440); // Proporção Stories
         
         // Canvas temporário para o card
         const cardCanvas = document.createElement('canvas');
-        cardCanvas.width = 1080;
-        cardCanvas.height = 1440;
+        cardCanvas.width = 1440;
+        cardCanvas.height = 1080;
         
         drawCard(cardCanvas, cardImg);
         
         // Desenhar card no mockup
         ctx.drawImage(cardCanvas, cardAreaX, cardAreaY, cardAreaWidth, cardAreaHeight);
       } else {
-        // Renderizar sem mockup
-        canvas.width = 1080;
-        canvas.height = 1440;
+        // Renderizar sem mockup - formato Stories
+        canvas.width = 1440;
+        canvas.height = 1080;
         
         drawCard(canvas, cardImg);
       }
@@ -291,8 +316,60 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
+                    <ImageIcon className="w-5 h-5" />
+                    Controles da Imagem
+                  </CardTitle>
+                  <CardDescription>
+                    Ajuste o zoom e posicionamento da imagem de fundo
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Zoom da Imagem: {visualData.imageZoom}%</Label>
+                    <Slider
+                      value={[visualData.imageZoom]}
+                      onValueChange={(value) => setVisualData(prev => ({ ...prev, imageZoom: value[0] }))}
+                      min={50}
+                      max={200}
+                      step={5}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Posição Horizontal da Imagem: {visualData.imagePosition.x}%</Label>
+                    <Slider
+                      value={[visualData.imagePosition.x]}
+                      onValueChange={(value) => setVisualData(prev => ({
+                        ...prev,
+                        imagePosition: { ...prev.imagePosition, x: value[0] }
+                      }))}
+                      max={100}
+                      step={1}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Posição Vertical da Imagem: {visualData.imagePosition.y}%</Label>
+                    <Slider
+                      value={[visualData.imagePosition.y]}
+                      onValueChange={(value) => setVisualData(prev => ({
+                        ...prev,
+                        imagePosition: { ...prev.imagePosition, y: value[0] }
+                      }))}
+                      max={100}
+                      step={1}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {visualData.backgroundImage && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
                     <Move className="w-5 h-5" />
-                    Controles de Posicionamento
+                    Controles do Texto
                   </CardTitle>
                   <CardDescription>
                     Ajuste a posição e tamanho do texto sobre a imagem
@@ -300,7 +377,7 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Posição Horizontal: {visualData.textPosition.x}%</Label>
+                    <Label>Posição Horizontal do Texto: {visualData.textPosition.x}%</Label>
                     <Slider
                       value={[visualData.textPosition.x]}
                       onValueChange={(value) => setVisualData(prev => ({
@@ -313,7 +390,7 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Posição Vertical: {visualData.textPosition.y}%</Label>
+                    <Label>Posição Vertical do Texto: {visualData.textPosition.y}%</Label>
                     <Slider
                       value={[visualData.textPosition.y]}
                       onValueChange={(value) => setVisualData(prev => ({
@@ -404,7 +481,10 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className={`${configuration?.mockup_image_url ? 'aspect-[9/16]' : 'aspect-[3/4]'} bg-muted rounded-lg flex items-center justify-center relative overflow-hidden`}>
+              <div className="aspect-[4/3] bg-muted rounded-lg flex items-center justify-center relative overflow-hidden">
+                <div className="text-xs text-muted-foreground absolute top-2 left-2 bg-background/80 px-2 py-1 rounded">
+                  1440x1080px
+                </div>
                 {isGeneratingPreview ? (
                   <div className="text-center text-muted-foreground">
                     <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2"></div>
@@ -430,34 +510,31 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
                     className="w-full h-full object-contain"
                   />
                 ) : visualData.backgroundImage && visualData.title ? (
-                  !configuration?.mockup_image_url ? (
-                    <div className="relative w-full h-full">
-                      <img
-                        src={visualData.backgroundImage}
-                        alt="Background"
-                        className="w-full h-full object-cover"
-                      />
-                      <div
-                        className="absolute text-white font-bold"
-                        style={{
-                          left: `${visualData.textPosition.x}%`,
-                          top: `${visualData.textPosition.y}%`,
-                          transform: 'translate(-50%, -50%)',
-                          fontSize: `${(visualData.textSize === 'small' ? 16 : visualData.textSize === 'medium' ? 24 : 32) * (visualData.textZoom / 100)}px`,
-                          textAlign: visualData.textAlign,
-                          textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-                          maxWidth: '90%',
-                          wordWrap: 'break-word'
-                        }}
-                      >
-                        {visualData.title}
-                      </div>
+                  <div className="relative w-full h-full">
+                    <div
+                      className="absolute inset-0 bg-cover bg-center"
+                      style={{
+                        backgroundImage: `url(${visualData.backgroundImage})`,
+                        backgroundSize: `${visualData.imageZoom}%`,
+                        backgroundPosition: `${visualData.imagePosition.x}% ${visualData.imagePosition.y}%`,
+                      }}
+                    />
+                    <div
+                      className="absolute text-white font-bold"
+                      style={{
+                        left: `${visualData.textPosition.x}%`,
+                        top: `${visualData.textPosition.y}%`,
+                        transform: 'translate(-50%, -50%)',
+                        fontSize: `${(visualData.textSize === 'small' ? 16 : visualData.textSize === 'medium' ? 24 : 32) * (visualData.textZoom / 100)}px`,
+                        textAlign: visualData.textAlign,
+                        textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                        maxWidth: '90%',
+                        wordWrap: 'break-word'
+                      }}
+                    >
+                      {visualData.title}
                     </div>
-                  ) : (
-                    <div className="text-center text-muted-foreground">
-                      <p>Preview será gerado automaticamente...</p>
-                    </div>
-                  )
+                  </div>
                 ) : (
                   <div className="text-center text-muted-foreground">
                     <ImageIcon className="w-12 h-12 mx-auto mb-2" />
