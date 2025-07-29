@@ -196,9 +196,16 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
   }, [visualData.backgroundImage, visualData.title, visualData.textSize, visualData.textAlign]);
 
   const handleContinue = async () => {
+    console.log('🔄 Iniciando generateFinalImage...', visualData);
     const imageUrl = await generateFinalImage();
+    console.log('📸 Resultado da generateFinalImage:', imageUrl);
+    
     if (imageUrl) {
+      console.log('✅ Chamando onContinue com dados:', { ...visualData, generatedImageUrl: imageUrl });
       onContinue({ ...visualData, generatedImageUrl: imageUrl });
+    } else {
+      console.error('❌ Falha ao gerar imagem - não foi possível continuar');
+      // Podemos adicionar um toast de erro aqui
     }
   };
 
