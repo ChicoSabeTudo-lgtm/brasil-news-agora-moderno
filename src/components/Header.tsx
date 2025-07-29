@@ -1,4 +1,4 @@
-import { Search, Menu, Play, User, LogOut, X } from "lucide-react";
+import { Search, Menu, Play, User, LogOut, X, Settings, PlusCircle } from "lucide-react";
 import { useSiteLogo } from "@/hooks/useSiteLogo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -123,7 +123,7 @@ export const Header = () => {
               />
             </form>
             
-            {user ? (
+            {user && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="text-news-header-foreground">
@@ -132,7 +132,16 @@ export const Header = () => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem disabled>
-                    {userRole === 'admin' ? 'Administrador' : 'Redator'}
+                    {user.user_metadata?.full_name || user.email}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/admin')}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Acessar Painel
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/admin?tab=news-editor')}>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Adicionar Notícia
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={signOut}>
@@ -141,12 +150,6 @@ export const Header = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            ) : (
-              <Link to="/auth">
-                <Button variant="ghost" size="icon" className="text-news-header-foreground">
-                  <User className="h-5 w-5" />
-                </Button>
-              </Link>
             )}
           </div>
         </div>
