@@ -295,32 +295,25 @@ export default function InstagramPostFinisher({ visualData, onBack, onComplete }
                       </div>
                     )}
                     
-                    {/* Texto sobreposto com as mesmas configurações */}
-                    {visualData.title && (
-                      <div className="absolute inset-0 flex items-end pointer-events-none">
-                        <div
-                          className="w-full pb-4"
-                          style={{
-                            paddingLeft: visualData.textAlign === 'left' ? '30px' : '0',
-                            paddingRight: visualData.textAlign === 'right' ? '30px' : '0'
-                          }}
-                        >
-                          <p
-                            style={{
-                              fontSize: `${visualData.textSize * 0.6}px`, // Ajuste para a proporção da tela
-                              textAlign: visualData.textAlign,
-                              color: 'white',
-                              textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-                              fontWeight: '900',
-                              fontFamily: "'Archivo Black', sans-serif",
-                              lineHeight: '1.2',
-                              textTransform: 'uppercase',
-                              WebkitTextStroke: '1px black'
-                            }}
-                          >
-                            {visualData.title}
-                          </p>
-                        </div>
+                    {/* Texto sobreposto - EXATAMENTE como no editor visual */}
+                    {visualData.title && visualData.backgroundImage && (
+                      <div 
+                        className="absolute bottom-0 left-0 right-0 pointer-events-none"
+                        style={{
+                          paddingBottom: '70px',
+                          paddingLeft: visualData.textAlign === 'left' ? '30px' : '60px',
+                          paddingRight: '60px',
+                          fontSize: `${visualData.textSize * 0.8}px`,
+                          textAlign: visualData.textAlign,
+                          color: 'white',
+                          textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                          fontWeight: '900',
+                          fontFamily: "'Archivo Black', sans-serif",
+                          lineHeight: '1.2',
+                          textTransform: 'uppercase'
+                        }}
+                      >
+                        {visualData.title}
                       </div>
                     )}
 
