@@ -144,8 +144,8 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
               ctx.lineWidth = 3;
               ctx.textAlign = visualData.textAlign;
               
-              // Calcular posição do texto (parte inferior)
-              const textY = canvas.height - 80;
+              // Calcular posição do texto (parte inferior com padding de 50px)
+              const textY = canvas.height - 50;
               let textX;
               
               switch (visualData.textAlign) {
@@ -504,23 +504,26 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
                     </div>
                   )}
 
-                  {/* Texto sobreposto */}
-                  {visualData.title && visualData.backgroundImage && !isGeneratingPreview && !previewError && (
-                    <div 
-                      className="absolute bottom-0 left-0 right-0 p-4 pointer-events-none"
-                      style={{
-                        fontSize: `${(visualData.textSize / 1080) * 100}%`,
-                        textAlign: visualData.textAlign,
-                        color: 'white',
-                        textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-                        fontWeight: 'bold',
-                        fontFamily: 'Arial, sans-serif',
-                        lineHeight: '1.2'
-                      }}
-                    >
-                      {visualData.title}
-                    </div>
-                  )}
+                   {/* Texto sobreposto */}
+                   {visualData.title && visualData.backgroundImage && !isGeneratingPreview && !previewError && (
+                     <div 
+                       className="absolute bottom-0 left-0 right-0 pointer-events-none"
+                       style={{
+                         paddingBottom: '50px',
+                         paddingLeft: '60px',
+                         paddingRight: '60px',
+                         fontSize: `${(visualData.textSize / 1080) * 100}%`,
+                         textAlign: visualData.textAlign,
+                         color: 'white',
+                         textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                         fontWeight: 'bold',
+                         fontFamily: 'Arial, sans-serif',
+                         lineHeight: '1.2'
+                       }}
+                     >
+                       {visualData.title}
+                     </div>
+                   )}
 
                   {/* Empty state */}
                   {!visualData.backgroundImage && !isGeneratingPreview && (
