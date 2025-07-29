@@ -434,7 +434,7 @@ const Advertise = () => {
                 <div className="space-y-2 text-sm">
                   <p><strong>Email:</strong> comercial@chicosabetudo.com.br</p>
                   <p><strong>Telefone:</strong> (75) 99914-1984</p>
-                  <p><strong>WhatsApp:</strong> (11) 99999-9999</p>
+                  <p><strong>WhatsApp:</strong> +55 75 99914-1984</p>
                 </div>
               </CardContent>
             </Card>
