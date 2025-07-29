@@ -18,17 +18,18 @@ interface VisualData {
 
 interface InstagramVisualEditorProps {
   onContinue: (data: VisualData & { generatedImageUrl: string }) => void;
+  initialData?: Partial<VisualData> | null;
 }
 
-export default function InstagramVisualEditor({ onContinue }: InstagramVisualEditorProps) {
+export default function InstagramVisualEditor({ onContinue, initialData }: InstagramVisualEditorProps) {
   const { mockupUrl } = useInstagramMockup();
   const [visualData, setVisualData] = useState<VisualData>({
-    title: '',
-    backgroundImage: null,
-    imageZoom: 100,
-    imagePosition: { x: 50, y: 50 },
-    textSize: 48,
-    textAlign: 'center',
+    title: initialData?.title || '',
+    backgroundImage: initialData?.backgroundImage || null,
+    imageZoom: initialData?.imageZoom || 100,
+    imagePosition: initialData?.imagePosition || { x: 50, y: 50 },
+    textSize: initialData?.textSize || 48,
+    textAlign: initialData?.textAlign || 'center',
   });
 
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);

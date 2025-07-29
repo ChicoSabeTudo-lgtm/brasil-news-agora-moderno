@@ -25,6 +25,7 @@ export default function NewInstagramFlow() {
   };
 
   const handleBackToEditor = () => {
+    // Manter os dados visuais quando voltar ao editor
     setCurrentStep('visual-editor');
   };
 
@@ -37,7 +38,10 @@ export default function NewInstagramFlow() {
   return (
     <ProtectedRoute requiredRole="redator">
       {currentStep === 'visual-editor' && (
-        <InstagramVisualEditor onContinue={handleContinueToFinisher} />
+        <InstagramVisualEditor 
+          onContinue={handleContinueToFinisher} 
+          initialData={visualData} 
+        />
       )}
       
       {currentStep === 'post-finisher' && visualData && (
