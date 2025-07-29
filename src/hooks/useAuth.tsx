@@ -11,6 +11,9 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
+  signInWithWhatsApp: (phone: string) => Promise<{ error: any }>;
+  verifyWhatsAppOTP: (phone: string, token: string) => Promise<{ error: any }>;
+  signUpWithWhatsApp: (phone: string, fullName: string) => Promise<{ error: any }>;
   userRole: string | null;
 }
 
@@ -177,6 +180,107 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const signInWithWhatsApp = async (phone: string) => {
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        phone,
+        options: {
+          channel: 'whatsapp',
+        }
+      });
+      
+      if (error) {
+        toast({
+          title: "Erro ao enviar código",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Código enviado!",
+          description: "Verifique seu WhatsApp para o código de verificação.",
+        });
+      }
+      
+      return { error };
+    } catch (error: any) {
+      toast({
+        title: "Erro ao enviar código",
+        description: "Ocorreu um erro inesperado.",
+        variant: "destructive",
+      });
+      return { error };
+    }
+  };
+
+  const verifyWhatsAppOTP = async (phone: string, token: string) => {
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        phone,
+        token,
+        type: 'sms'
+      });
+      
+      if (error) {
+        toast({
+          title: "Código inválido",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Login realizado com sucesso!",
+          description: "Bem-vindo de volta.",
+        });
+      }
+      
+      return { error };
+    } catch (error: any) {
+      toast({
+        title: "Erro na verificação",
+        description: "Ocorreu um erro inesperado.",
+        variant: "destructive",
+      });
+      return { error };
+    }
+  };
+
+  const signUpWithWhatsApp = async (phone: string, fullName: string) => {
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        phone,
+        options: {
+          channel: 'whatsapp',
+          data: {
+            full_name: fullName,
+          }
+        }
+      });
+      
+      if (error) {
+        toast({
+          title: "Erro no cadastro",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Código enviado!",
+          description: "Verifique seu WhatsApp para confirmar o cadastro.",
+        });
+      }
+      
+      return { error };
+    } catch (error: any) {
+      toast({
+        title: "Erro no cadastro",
+        description: "Ocorreu um erro inesperado.",
+        variant: "destructive",
+      });
+      return { error };
+    }
+  };
+
   const value = {
     user,
     session,
@@ -185,6 +289,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     signUp,
     signOut,
     resetPassword,
+    signInWithWhatsApp,
+    verifyWhatsAppOTP,
+    signUpWithWhatsApp,
     userRole,
   };
 
