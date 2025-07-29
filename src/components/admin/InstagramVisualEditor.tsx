@@ -510,17 +510,20 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
                     className="w-full h-full object-contain"
                   />
                 ) : visualData.backgroundImage && visualData.title ? (
-                  <div className="relative w-full h-full">
+                  <div className="relative w-full h-full overflow-hidden">
                     <div
-                      className="absolute inset-0 bg-cover bg-center"
+                      className="absolute bg-cover bg-no-repeat transition-all duration-200"
                       style={{
                         backgroundImage: `url(${visualData.backgroundImage})`,
                         backgroundSize: `${visualData.imageZoom}%`,
                         backgroundPosition: `${visualData.imagePosition.x}% ${visualData.imagePosition.y}%`,
+                        width: '100%',
+                        height: '100%',
+                        transform: 'scale(1)', // Mantém a escala normal do container
                       }}
                     />
                     <div
-                      className="absolute text-white font-bold"
+                      className="absolute text-white font-bold pointer-events-none z-10"
                       style={{
                         left: `${visualData.textPosition.x}%`,
                         top: `${visualData.textPosition.y}%`,
