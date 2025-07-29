@@ -705,6 +705,7 @@ export type Database = {
           id: string
           logo_url: string | null
           mockup_image_url: string | null
+          otp_webhook_url: string | null
           updated_at: string
           updated_by: string | null
           webhook_url: string | null
@@ -717,6 +718,7 @@ export type Database = {
           id?: string
           logo_url?: string | null
           mockup_image_url?: string | null
+          otp_webhook_url?: string | null
           updated_at?: string
           updated_by?: string | null
           webhook_url?: string | null
@@ -729,6 +731,7 @@ export type Database = {
           id?: string
           logo_url?: string | null
           mockup_image_url?: string | null
+          otp_webhook_url?: string | null
           updated_at?: string
           updated_by?: string | null
           webhook_url?: string | null
