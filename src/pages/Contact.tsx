@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,6 +19,14 @@ const Contact = () => {
   const {
     toast
   } = useToast();
+  
+  useEffect(() => {
+    const element = document.getElementById('contato-section');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, []);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const {
       name,
@@ -64,7 +72,7 @@ const Contact = () => {
   return <Layout>
       <main className="container mx-auto px-4 py-8">
         {/* Page Header */}
-        <section className="text-center mb-12">
+        <section id="contato-section" className="text-center mb-12">
           <h1 className="text-4xl font-bold text-foreground mb-4">
             Entre em Contato
           </h1>
