@@ -16,15 +16,15 @@ export const SocialShareModal = ({ isOpen, onClose, onShare, newsTitle }: Social
     onClose();
   };
 
+  if (!isOpen) return null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Share2 className="w-5 h-5" />
-            Compartilhar nas Redes Sociais
-          </DialogTitle>
-        </DialogHeader>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50">
+      <div className="bg-background border rounded-lg shadow-lg max-w-md w-full mx-4 p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Share2 className="w-5 h-5" />
+          <h2 className="text-lg font-semibold">Compartilhar nas Redes Sociais</h2>
+        </div>
         <div className="space-y-4">
           <p className="text-muted-foreground">
             A notícia <strong>"{newsTitle}"</strong> foi publicada com sucesso!
@@ -43,7 +43,7 @@ export const SocialShareModal = ({ isOpen, onClose, onShare, newsTitle }: Social
             </Button>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 };
