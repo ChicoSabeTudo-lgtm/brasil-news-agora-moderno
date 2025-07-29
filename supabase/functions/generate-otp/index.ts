@@ -109,6 +109,7 @@ Deno.serve(async (req) => {
       // Send webhook to n8n
       const webhookPayload = {
         email,
+        user_id: authData.user.id,
         whatsapp_phone: profile.whatsapp_phone,
         otp_code: otpCode,
         timestamp: new Date().toISOString(),
