@@ -148,19 +148,32 @@ export default function PostSharingForm() {
     console.log('🔥 Upload iniciado:', file ? `${file.name} (${file.size} bytes)` : 'Nenhum arquivo selecionado');
     
     if (file) {
+      console.log('📂 Criando FileReader...');
       const reader = new FileReader();
+      
       reader.onload = (event) => {
         console.log('📁 Arquivo lido com sucesso, atualizando estado...');
-        setPostData(prev => ({
-          ...prev,
-          backgroundImage: event.target?.result as string
-        }));
-        console.log('✅ Estado backgroundImage atualizado');
+        const result = event.target?.result as string;
+        console.log('📄 Dados do arquivo (primeiros 100 chars):', result.substring(0, 100));
+        
+        setPostData(prev => {
+          const newData = {
+            ...prev,
+            backgroundImage: result
+          };
+          console.log('✅ Estado backgroundImage atualizado, tamanho:', result.length);
+          return newData;
+        });
       };
+      
       reader.onerror = (error) => {
         console.error('❌ Erro ao ler arquivo:', error);
       };
+      
+      console.log('🔄 Iniciando leitura do arquivo...');
       reader.readAsDataURL(file);
+    } else {
+      console.log('⚠️ Nenhum arquivo foi selecionado');
     }
   };
 
