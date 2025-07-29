@@ -24,28 +24,34 @@ export default function Auth() {
   const [currentEmail, setCurrentEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
-  const { signIn, signUp, resetPassword, requestOTPLogin, verifyOTPLogin, user } = useAuth();
+  const { signIn, signUp, resetPassword, requestOTPLogin, verifyOTPLogin, user, isOtpVerified } = useAuth();
   const { logoUrl } = useSiteLogo();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isReset = searchParams.get('reset') === 'true';
 
   useEffect(() => {
-    if (user) {
+    // Só redireciona se usuário estiver logado E OTP verificado
+    if (user && isOtpVerified) {
       navigate('/admin');
     }
-  }, [user, navigate]);
+  }, [user, isOtpVerified, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
+    console.log('Fazendo login...');
     const { error, requiresOTP } = await signIn(email, password);
+    console.log('Resultado do login:', { error, requiresOTP });
     
     if (requiresOTP) {
+      console.log('OTP requerido, abrindo modal...');
       setCurrentEmail(email);
       setShowOtpModal(true);
       setPassword(''); // Clear password for security
+    } else if (error) {
+      console.log('Erro no login:', error);
     }
     
     setIsLoading(false);
