@@ -329,8 +329,8 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
                     <Slider
                       value={[visualData.imageZoom]}
                       onValueChange={(value) => setVisualData(prev => ({ ...prev, imageZoom: value[0] }))}
-                      min={50}
-                      max={200}
+                      min={10}
+                      max={500}
                       step={5}
                     />
                   </div>
