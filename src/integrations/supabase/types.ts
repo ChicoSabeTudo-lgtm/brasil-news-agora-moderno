@@ -601,6 +601,7 @@ export type Database = {
           expires_at: string
           id: string
           user_email: string
+          user_password: string | null
         }
         Insert: {
           code: string
@@ -608,6 +609,7 @@ export type Database = {
           expires_at: string
           id?: string
           user_email: string
+          user_password?: string | null
         }
         Update: {
           code?: string
@@ -615,6 +617,7 @@ export type Database = {
           expires_at?: string
           id?: string
           user_email?: string
+          user_password?: string | null
         }
         Relationships: []
       }

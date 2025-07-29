@@ -296,7 +296,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // AGORA fazer o login efetivo com as credenciais
       const { error: loginError } = await supabase.auth.signInWithPassword({
         email: email,
-        password: otpData.user_password
+        password: otpData?.user_password || ''
       });
 
       if (loginError) {
