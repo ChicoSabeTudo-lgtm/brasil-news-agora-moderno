@@ -58,9 +58,9 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Contexto do canvas não disponível');
 
-    // Configurar canvas para 1440x1080 (Stories)
-    canvas.width = 1440;
-    canvas.height = 1080;
+    // Configurar canvas para 1080x1440 (Stories Portrait)
+    canvas.width = 1080;
+    canvas.height = 1440;
 
     // Calcular dimensões da imagem com zoom
     const imageZoomFactor = visualData.imageZoom / 100;
@@ -185,40 +185,40 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
       }
 
       if (cachedMockupImage) {
-        // Renderizar com mockup mantendo proporção Stories
+        // Renderizar com mockup mantendo proporção Stories Portrait
         const mockupAspectRatio = cachedMockupImage.width / cachedMockupImage.height;
-        const storiesAspectRatio = 1440 / 1080;
+        const storiesAspectRatio = 1080 / 1440;
         
         if (mockupAspectRatio > storiesAspectRatio) {
-          canvas.width = 1440;
-          canvas.height = 1440 / mockupAspectRatio;
+          canvas.width = 1080;
+          canvas.height = 1080 / mockupAspectRatio;
         } else {
-          canvas.height = 1080;
-          canvas.width = 1080 * mockupAspectRatio;
+          canvas.height = 1440;
+          canvas.width = 1440 * mockupAspectRatio;
         }
         
         // Desenhar mockup como fundo
         ctx.drawImage(cachedMockupImage, 0, 0, canvas.width, canvas.height);
         
-        // Área do card no mockup para Stories (1440x1080)
+        // Área do card no mockup para Stories Portrait (1080x1440)
         const cardAreaX = canvas.width * 0.15;
         const cardAreaY = canvas.height * 0.15;
         const cardAreaWidth = canvas.width * 0.7;
-        const cardAreaHeight = cardAreaWidth * (1080/1440); // Proporção Stories
+        const cardAreaHeight = cardAreaWidth * (1440/1080); // Proporção Stories Portrait
         
         // Canvas temporário para o card
         const cardCanvas = document.createElement('canvas');
-        cardCanvas.width = 1440;
-        cardCanvas.height = 1080;
+        cardCanvas.width = 1080;
+        cardCanvas.height = 1440;
         
         drawCard(cardCanvas, cardImg);
         
         // Desenhar card no mockup
         ctx.drawImage(cardCanvas, cardAreaX, cardAreaY, cardAreaWidth, cardAreaHeight);
       } else {
-        // Renderizar sem mockup - formato Stories
-        canvas.width = 1440;
-        canvas.height = 1080;
+        // Renderizar sem mockup - formato Stories Portrait
+        canvas.width = 1080;
+        canvas.height = 1440;
         
         drawCard(canvas, cardImg);
       }
@@ -481,9 +481,9 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="aspect-[4/3] bg-muted rounded-lg flex items-center justify-center relative overflow-hidden">
+              <div className="aspect-[3/4] bg-muted rounded-lg flex items-center justify-center relative overflow-hidden">
                 <div className="text-xs text-muted-foreground absolute top-2 left-2 bg-background/80 px-2 py-1 rounded">
-                  1440x1080px
+                  1080x1440px
                 </div>
                 {isGeneratingPreview ? (
                   <div className="text-center text-muted-foreground">

@@ -274,8 +274,8 @@ export default function InstagramPostFinisher({ visualData, onBack, onComplete }
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {/* Imagem - Proporção 4:3 para Stories 1440x1080 */}
-                  <div className="aspect-[4/3] bg-muted rounded-lg overflow-hidden">
+                  {/* Imagem - Proporção 3:4 para Stories 1080x1440 */}
+                  <div className="aspect-[3/4] bg-muted rounded-lg overflow-hidden">
                     <img
                       src={visualData.generatedImageUrl}
                       alt="Post Final"
