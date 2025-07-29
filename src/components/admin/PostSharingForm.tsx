@@ -153,11 +153,13 @@ export default function PostSharingForm() {
     }
 
     console.log('🔥 Upload iniciado:', `${file.name} (${file.size} bytes)`);
+    setIsGeneratingPreview(true);
     
     try {
       // Validar tipo de arquivo
       if (!file.type.startsWith('image/')) {
         console.error('❌ Arquivo não é uma imagem');
+        setIsGeneratingPreview(false);
         return;
       }
 
@@ -187,8 +189,19 @@ export default function PostSharingForm() {
         return newData;
       });
 
+      // Gerar preview imediatamente após upload
+      if (postData.title) {
+        console.log('🎨 Gerando preview após upload da imagem...');
+        setTimeout(() => {
+          generateImageCanvas();
+        }, 200);
+      }
+
     } catch (error) {
       console.error('❌ Erro no upload:', error);
+      setPreviewError('Erro ao fazer upload da imagem');
+    } finally {
+      setIsGeneratingPreview(false);
     }
   };
 
