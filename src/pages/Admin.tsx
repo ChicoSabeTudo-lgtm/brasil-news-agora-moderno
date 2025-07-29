@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,7 +20,7 @@ import { LiveStreamManagement } from '@/components/admin/LiveStreamManagement';
 import { VideoManagement } from '@/components/admin/VideoManagement';
 import { DailyBriefsPanel } from '@/components/admin/DailyBriefsPanel';
 import PostSharingForm from '@/components/admin/PostSharingForm';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
@@ -39,8 +39,17 @@ import {
 export default function Admin() {
   const { user, userRole } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [shareFormData, setShareFormData] = useState<{ title: string; url: string } | null>(null);
+
+  // Set initial tab based on URL parameters
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam) {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
 
   const handleNavigateToShare = (newsData: { title: string; url: string }) => {
     setShareFormData(newsData);
