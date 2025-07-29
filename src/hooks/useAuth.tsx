@@ -280,17 +280,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       if (data?.success) {
-        if (data.session_url) {
-          // Use the session URL to authenticate
-          window.location.href = data.session_url;
-        } else {
-          // Fallback: redirect to admin
-          toast({
-            title: "Login realizado com sucesso!",
-            description: "Bem-vindo de volta.",
-          });
-          window.location.replace('/admin');
-        }
+        toast({
+          title: "Login realizado com sucesso!",
+          description: "Bem-vindo de volta.",
+        });
+        
+        // Simply redirect to admin - user should already be authenticated
+        window.location.href = '/admin';
         return { error: null, success: true };
       }
 
