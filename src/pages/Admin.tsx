@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { supabase } from '@/integrations/supabase/client';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -44,6 +45,7 @@ export default function Admin() {
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [shareFormData, setShareFormData] = useState<{ title: string; url: string } | null>(null);
+  const [userName, setUserName] = useState<string>('');
 
   // Set initial tab based on URL parameters
   useEffect(() => {
@@ -52,6 +54,27 @@ export default function Admin() {
       setActiveTab(tabParam);
     }
   }, [searchParams]);
+
+  // Load user profile data
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      if (!user?.id) return;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profile?.full_name) {
+        setUserName(profile.full_name);
+      } else {
+        setUserName(user?.email || '');
+      }
+    };
+
+    loadUserProfile();
+  }, [user]);
 
   const handleNavigateToShare = (newsData: { title: string; url: string }) => {
     setShareFormData(newsData);
@@ -68,7 +91,7 @@ export default function Admin() {
                 Painel Administrativo
               </h1>
               <p className="text-muted-foreground mt-2">
-                Bem-vindo, {user?.email} 
+                Bem-vindo, {userName || user?.email} 
                 <Badge variant="secondary" className="ml-2">
                   {userRole === 'admin' ? 'Administrador' : 'Redator'}
                 </Badge>
