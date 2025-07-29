@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowRight, Image as ImageIcon, ZoomIn, Move } from 'lucide-react';
+import { ArrowRight, Image as ImageIcon, ZoomIn, Move, Type } from 'lucide-react';
 
 interface VisualData {
   title: string;
@@ -481,67 +481,134 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="aspect-[3/4] bg-muted rounded-lg flex items-center justify-center relative overflow-hidden">
-                <div className="text-xs text-muted-foreground absolute top-2 left-2 bg-background/80 px-2 py-1 rounded">
-                  1080x1440px
-                </div>
-                {isGeneratingPreview ? (
-                  <div className="text-center text-muted-foreground">
-                    <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2"></div>
-                    <p>Gerando preview...</p>
+              <div className="w-full max-w-sm mx-auto">
+                <div 
+                  className="relative bg-gray-100 rounded-lg shadow-inner"
+                  style={{
+                    width: '100%',
+                    aspectRatio: '3/4', // 1080x1440 proporção
+                    overflow: 'hidden'
+                  }}
+                >
+                  {/* Indicador de dimensões */}
+                  <div className="absolute top-2 left-2 z-20 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                    1080x1440px
                   </div>
-                ) : previewError ? (
-                  <div className="text-center text-destructive">
-                    <ImageIcon className="w-12 h-12 mx-auto mb-2" />
-                    <p className="text-sm">{previewError}</p>
-                    <Button 
-                      onClick={generateImageCanvas}
-                      variant="outline" 
-                      size="sm" 
-                      className="mt-2"
-                    >
-                      Tentar novamente
-                    </Button>
-                  </div>
-                ) : generatedImageUrl ? (
-                  <img
-                    src={generatedImageUrl}
-                    alt="Preview Final"
-                    className="w-full h-full object-contain"
-                  />
-                ) : visualData.backgroundImage && visualData.title ? (
-                  <div className="relative w-full h-full overflow-hidden">
-                    <img
-                      src={visualData.backgroundImage}
-                      alt="Background"
-                      className="absolute object-cover w-full h-full transition-transform duration-200"
-                      style={{
-                        transform: `scale(${visualData.imageZoom / 100}) translate(${(visualData.imagePosition.x - 50) * 2}%, ${(visualData.imagePosition.y - 50) * 2}%)`,
-                        transformOrigin: 'center center',
-                      }}
-                    />
-                    <div
-                      className="absolute text-white font-bold pointer-events-none z-10"
-                      style={{
-                        left: `${visualData.textPosition.x}%`,
-                        top: `${visualData.textPosition.y}%`,
-                        transform: 'translate(-50%, -50%)',
-                        fontSize: `${(visualData.textSize === 'small' ? 16 : visualData.textSize === 'medium' ? 24 : 32) * (visualData.textZoom / 100)}px`,
-                        textAlign: visualData.textAlign,
-                        textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-                        maxWidth: '90%',
-                        wordWrap: 'break-word'
-                      }}
-                    >
-                      {visualData.title}
+
+                  {/* Loading state */}
+                  {isGeneratingPreview && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-200 z-10">
+                      <div className="text-center text-gray-600">
+                        <div className="animate-spin w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+                        <p className="text-sm">Gerando preview...</p>
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="text-center text-muted-foreground">
-                    <ImageIcon className="w-12 h-12 mx-auto mb-2" />
-                    <p>Adicione uma imagem e título para ver o preview</p>
-                  </div>
-                )}
+                  )}
+
+                  {/* Error state */}
+                  {previewError && !isGeneratingPreview && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-red-50">
+                      <div className="text-center text-red-600">
+                        <ImageIcon className="w-12 h-12 mx-auto mb-2" />
+                        <p className="text-sm px-4">{previewError}</p>
+                        <Button 
+                          onClick={generateImageCanvas}
+                          variant="outline" 
+                          size="sm" 
+                          className="mt-2"
+                        >
+                          Tentar novamente
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Generated image */}
+                  {generatedImageUrl && !isGeneratingPreview && !previewError && (
+                    <div className="absolute inset-0">
+                      <img
+                        src={generatedImageUrl}
+                        alt="Preview Final"
+                        className="w-full h-full object-contain"
+                        style={{ imageRendering: 'auto' }}
+                      />
+                    </div>
+                  )}
+
+                  {/* Live preview (quando não há imagem gerada) */}
+                  {!generatedImageUrl && visualData.backgroundImage && visualData.title && !isGeneratingPreview && !previewError && (
+                    <div className="absolute inset-0">
+                      {/* Container da imagem com viewport definido */}
+                      <div 
+                        className="absolute inset-0"
+                        style={{
+                          clipPath: 'inset(0)', // Cria um viewport limitado
+                        }}
+                      >
+                        {/* Imagem de fundo */}
+                        <div
+                          className="absolute w-full h-full"
+                          style={{
+                            backgroundImage: `url(${visualData.backgroundImage})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat',
+                            transform: `
+                              scale(${visualData.imageZoom / 100})
+                              translate(
+                                ${(visualData.imagePosition.x - 50) * (200 / visualData.imageZoom)}%,
+                                ${(visualData.imagePosition.y - 50) * (200 / visualData.imageZoom)}%
+                              )
+                            `,
+                            transformOrigin: 'center center',
+                            transition: 'transform 0.2s ease-out'
+                          }}
+                        />
+                      </div>
+
+                      {/* Texto sobreposto */}
+                      <div
+                        className="absolute text-white font-bold z-10 select-none"
+                        style={{
+                          left: `${visualData.textPosition.x}%`,
+                          top: `${visualData.textPosition.y}%`,
+                          transform: 'translate(-50%, -50%)',
+                          fontSize: `${Math.max(8, (visualData.textSize === 'small' ? 12 : visualData.textSize === 'medium' ? 16 : 20) * (visualData.textZoom / 100))}px`,
+                          textAlign: visualData.textAlign,
+                          textShadow: '1px 1px 2px rgba(0,0,0,0.8), 0 0 4px rgba(0,0,0,0.5)',
+                          maxWidth: '90%',
+                          wordWrap: 'break-word',
+                          lineHeight: '1.2',
+                          fontWeight: '700'
+                        }}
+                      >
+                        {visualData.title}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Empty state */}
+                  {!visualData.backgroundImage && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                      <div className="text-center text-gray-500">
+                        <ImageIcon className="w-12 h-12 mx-auto mb-2" />
+                        <p className="text-sm">Adicione uma imagem e título</p>
+                        <p className="text-xs text-gray-400">para ver o preview</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Missing title state */}
+                  {visualData.backgroundImage && !visualData.title && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                      <div className="text-center text-gray-500">
+                        <Type className="w-12 h-12 mx-auto mb-2" />
+                        <p className="text-sm">Adicione um título</p>
+                        <p className="text-xs text-gray-400">para ver o preview</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
