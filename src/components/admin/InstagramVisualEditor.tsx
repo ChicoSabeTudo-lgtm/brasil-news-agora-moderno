@@ -515,7 +515,7 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
                          paddingBottom: '70px',
                          paddingLeft: '60px',
                          paddingRight: '60px',
-                         fontSize: `${(visualData.textSize / 1080) * 100}%`,
+                         fontSize: `${visualData.textSize * 0.8}px`,
                          textAlign: visualData.textAlign,
                          color: 'white',
                          textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
