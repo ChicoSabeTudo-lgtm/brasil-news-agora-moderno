@@ -89,7 +89,7 @@ const Advertise = () => {
           <div className="flex justify-center gap-4 flex-wrap">
             <Badge variant="secondary" className="text-sm px-4 py-2">
               <Eye className="w-4 h-4 mr-2" />
-              +50K visualizações/mês
+              +500K visualizações/mês
             </Badge>
             <Badge variant="secondary" className="text-sm px-4 py-2">
               <Users className="w-4 h-4 mr-2" />
