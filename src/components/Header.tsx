@@ -139,7 +139,7 @@ export const Header = () => {
                     <Settings className="mr-2 h-4 w-4" />
                     Acessar Painel
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/admin?tab=news-editor')}>
+                  <DropdownMenuItem onClick={() => navigate('/admin?tab=news')}>
                     <PlusCircle className="mr-2 h-4 w-4" />
                     Adicionar Notícia
                   </DropdownMenuItem>
