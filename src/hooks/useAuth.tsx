@@ -24,8 +24,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<string | null>(null);
-  const [isOtpVerified, setIsOtpVerified] = useState(false);
+  const [isOtpVerified, setIsOtpVerified] = useState(() => {
+    // Inicializar do localStorage
+    return localStorage.getItem('isOtpVerified') === 'true';
+  });
   const { toast } = useToast();
+
+  // Helper para atualizar isOtpVerified no state e localStorage
+  const updateOtpVerified = (verified: boolean) => {
+    setIsOtpVerified(verified);
+    localStorage.setItem('isOtpVerified', verified.toString());
+  };
 
   useEffect(() => {
     // Set up auth state listener
@@ -53,6 +62,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }, 0);
         } else {
           setUserRole(null);
+          // Se não há sessão ativa, limpar OTP verificado
+          updateOtpVerified(false);
         }
         
         setLoading(false);
@@ -88,7 +99,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       // Se credenciais são válidas, manter sessão mas marcar como NÃO verificado
       if (authData.session) {
-        setIsOtpVerified(false); // Usuário está "pré-autenticado" mas não pode acessar
+        updateOtpVerified(false); // Usuário está "pré-autenticado" mas não pode acessar
         
         // Gerar OTP e enviar webhook
         const { error: otpError } = await requestOTPLogin(email, password);
@@ -96,7 +107,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (otpError) {
           // Se erro no OTP, fazer logout
           await supabase.auth.signOut();
-          setIsOtpVerified(false);
+          updateOtpVerified(false);
           return { error: { message: otpError } };
         }
         
@@ -190,7 +201,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (!error) {
-      setIsOtpVerified(false); // Reset flag OTP ao fazer logout
+      updateOtpVerified(false); // Reset flag OTP ao fazer logout
       toast({
         title: "Logout realizado",
         description: "Até logo!",
@@ -300,7 +311,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .eq('code', code);
 
       // Marcar como OTP verificado - agora o usuário tem acesso completo
-      setIsOtpVerified(true);
+      updateOtpVerified(true);
 
       toast({
         title: "Login realizado com sucesso!",

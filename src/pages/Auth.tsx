@@ -31,27 +31,20 @@ export default function Auth() {
   const isReset = searchParams.get('reset') === 'true';
 
   useEffect(() => {
-    // Só redireciona se usuário estiver logado E OTP verificado
-    if (user && isOtpVerified) {
-      navigate('/admin');
-    }
-  }, [user, isOtpVerified, navigate]);
+    // Não redireciona automaticamente após login
+    // O redirecionamento só acontece após verificação OTP no verifyOTPLogin
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    console.log('Fazendo login...');
     const { error, requiresOTP } = await signIn(email, password);
-    console.log('Resultado do login:', { error, requiresOTP });
     
     if (requiresOTP) {
-      console.log('OTP requerido, abrindo modal...');
       setCurrentEmail(email);
       setShowOtpModal(true);
       setPassword(''); // Clear password for security
-    } else if (error) {
-      console.log('Erro no login:', error);
     }
     
     setIsLoading(false);
