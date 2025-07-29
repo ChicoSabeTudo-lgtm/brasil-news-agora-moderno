@@ -262,6 +262,7 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
   };
 
   return (
+    <>
     <Card>
       <CardHeader>
         <CardTitle>{editingNews ? 'Editar Notícia' : 'Editor de Notícias'}</CardTitle>
@@ -599,13 +600,14 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
           </Button>
         </div>
       </CardContent>
-      
-      <SocialShareModal
-        isOpen={shareModalOpen}
-        onClose={() => setShareModalOpen(false)}
-        onShare={handleShareNews}
-        newsTitle={publishedNewsData?.title || ''}
-      />
     </Card>
+    
+    <SocialShareModal
+      isOpen={shareModalOpen}
+      onClose={() => setShareModalOpen(false)}
+      onShare={handleShareNews}
+      newsTitle={publishedNewsData?.title || ''}
+    />
+    </>
   );
 };
