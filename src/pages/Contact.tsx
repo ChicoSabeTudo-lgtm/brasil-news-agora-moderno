@@ -7,7 +7,6 @@ import { Mail, Phone, MapPin, Clock, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Layout } from "@/components/Layout";
-
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -17,30 +16,30 @@ const Contact = () => {
     message: ""
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
+    const {
+      name,
+      value
+    } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
     try {
-      const { error } = await supabase
-        .from('contact_messages')
-        .insert([formData]);
-
+      const {
+        error
+      } = await supabase.from('contact_messages').insert([formData]);
       if (error) throw error;
-
       toast({
         title: "Mensagem enviada com sucesso!",
-        description: "Recebemos sua mensagem e entraremos em contato em breve.",
+        description: "Recebemos sua mensagem e entraremos em contato em breve."
       });
 
       // Limpar formulário
@@ -51,7 +50,6 @@ const Contact = () => {
         subject: "",
         message: ""
       });
-
     } catch (error) {
       console.error('Error sending message:', error);
       toast({
@@ -63,9 +61,7 @@ const Contact = () => {
       setIsSubmitting(false);
     }
   };
-
-  return (
-    <Layout>
+  return <Layout>
       <main className="container mx-auto px-4 py-8">
         {/* Page Header */}
         <section className="text-center mb-12">
@@ -96,8 +92,8 @@ const Contact = () => {
                   <Mail className="w-5 h-5 text-primary mt-1" />
                   <div>
                     <h4 className="font-semibold">Email</h4>
-                    <p className="text-muted-foreground">contato@chicosabetudo.com.br</p>
-                    <p className="text-muted-foreground">redacao@chicosabetudo.com.br</p>
+                    
+                    <p className="text-muted-foreground">faleconosco@chicosabetudo.com.br</p>
                   </div>
                 </div>
 
@@ -105,7 +101,7 @@ const Contact = () => {
                   <Phone className="w-5 h-5 text-primary mt-1" />
                   <div>
                     <h4 className="font-semibold">Telefone</h4>
-                    <p className="text-muted-foreground">(11) 9999-9999</p>
+                    <p className="text-muted-foreground">(75) 98819-4371</p>
                     <p className="text-sm text-muted-foreground">Segunda a Sexta, 8h às 18h</p>
                   </div>
                 </div>
@@ -167,29 +163,13 @@ const Contact = () => {
                       <label htmlFor="name" className="block text-sm font-medium mb-2">
                         Nome Completo *
                       </label>
-                      <Input
-                        id="name"
-                        name="name"
-                        type="text"
-                        required
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        placeholder="Seu nome completo"
-                      />
+                      <Input id="name" name="name" type="text" required value={formData.name} onChange={handleInputChange} placeholder="Seu nome completo" />
                     </div>
                     <div>
                       <label htmlFor="email" className="block text-sm font-medium mb-2">
                         Email *
                       </label>
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        required
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        placeholder="seu@email.com"
-                      />
+                      <Input id="email" name="email" type="email" required value={formData.email} onChange={handleInputChange} placeholder="seu@email.com" />
                     </div>
                   </div>
 
@@ -198,28 +178,13 @@ const Contact = () => {
                       <label htmlFor="phone" className="block text-sm font-medium mb-2">
                         Telefone (opcional)
                       </label>
-                      <Input
-                        id="phone"
-                        name="phone"
-                        type="tel"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        placeholder="(11) 99999-9999"
-                      />
+                      <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleInputChange} placeholder="(11) 99999-9999" />
                     </div>
                     <div>
                       <label htmlFor="subject" className="block text-sm font-medium mb-2">
                         Assunto *
                       </label>
-                      <Input
-                        id="subject"
-                        name="subject"
-                        type="text"
-                        required
-                        value={formData.subject}
-                        onChange={handleInputChange}
-                        placeholder="Assunto da sua mensagem"
-                      />
+                      <Input id="subject" name="subject" type="text" required value={formData.subject} onChange={handleInputChange} placeholder="Assunto da sua mensagem" />
                     </div>
                   </div>
 
@@ -227,31 +192,14 @@ const Contact = () => {
                     <label htmlFor="message" className="block text-sm font-medium mb-2">
                       Mensagem *
                     </label>
-                    <Textarea
-                      id="message"
-                      name="message"
-                      required
-                      rows={6}
-                      value={formData.message}
-                      onChange={handleInputChange}
-                      placeholder="Escreva sua mensagem aqui..."
-                      className="resize-none"
-                    />
+                    <Textarea id="message" name="message" required rows={6} value={formData.message} onChange={handleInputChange} placeholder="Escreva sua mensagem aqui..." className="resize-none" />
                   </div>
 
-                  <Button 
-                    type="submit" 
-                    className="w-full md:w-auto"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? (
-                      "Enviando..."
-                    ) : (
-                      <>
+                  <Button type="submit" className="w-full md:w-auto" disabled={isSubmitting}>
+                    {isSubmitting ? "Enviando..." : <>
                         <Send className="w-4 h-4 mr-2" />
                         Enviar Mensagem
-                      </>
-                    )}
+                      </>}
                   </Button>
                 </form>
               </CardContent>
@@ -313,8 +261,6 @@ const Contact = () => {
           </div>
       </section>
       </main>
-    </Layout>
-  );
+    </Layout>;
 };
-
 export default Contact;
