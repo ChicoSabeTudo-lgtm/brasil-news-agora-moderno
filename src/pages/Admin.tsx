@@ -36,11 +36,12 @@ import {
   Building,
   Radio,
   Video,
-  UserCircle
+  UserCircle,
+  LogOut
 } from 'lucide-react';
 
 export default function Admin() {
-  const { user, userRole } = useAuth();
+  const { user, userRole, signOut } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -81,6 +82,11 @@ export default function Admin() {
     setActiveTab("post-sharing");
   };
 
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/auth');
+  };
+
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-background">        
@@ -106,6 +112,15 @@ export default function Admin() {
               >
                 <Settings className="w-4 h-4 mr-2" />
                 Configurações
+              </Button>
+              
+              <Button 
+                variant="destructive" 
+                size="sm"
+                onClick={handleLogout}
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Sair
               </Button>
             </div>
           </div>
