@@ -25,6 +25,7 @@ export default function SiteConfigurations() {
   const [headerCode, setHeaderCode] = useState('');
   const [footerCode, setFooterCode] = useState('');
   const [webhookUrl, setWebhookUrl] = useState('');
+  const [otpWebhookUrl, setOtpWebhookUrl] = useState('');
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [mockupFile, setMockupFile] = useState<File | null>(null);
@@ -39,6 +40,7 @@ export default function SiteConfigurations() {
       setHeaderCode(configuration.header_code || '');
       setFooterCode(configuration.footer_code || '');
       setWebhookUrl(configuration.webhook_url || '');
+      setOtpWebhookUrl(configuration.otp_webhook_url || '');
       setLogoPreview(configuration.logo_url || null);
       setMockupPreview(configuration.mockup_image_url || null);
     }
@@ -203,7 +205,7 @@ export default function SiteConfigurations() {
           </div>
 
           <Tabs defaultValue="logo" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-7">
               <TabsTrigger value="logo" className="flex items-center gap-2">
                 <Image className="w-4 h-4" />
                 Logo
@@ -212,9 +214,13 @@ export default function SiteConfigurations() {
                 <Image className="w-4 h-4" />
                 Instagram
               </TabsTrigger>
-              <TabsTrigger value="webhook" className="flex items-center gap-2">
+              <TabsTrigger value="webhook-otp" className="flex items-center gap-2">
                 <Upload className="w-4 h-4" />
-                Webhook
+                OTP
+              </TabsTrigger>
+              <TabsTrigger value="webhook-social" className="flex items-center gap-2">
+                <Upload className="w-4 h-4" />
+                Social
               </TabsTrigger>
               <TabsTrigger value="ads-txt" className="flex items-center gap-2">
                 <FileText className="w-4 h-4" />
