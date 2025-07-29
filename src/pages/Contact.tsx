@@ -111,7 +111,7 @@ const Contact = () => {
                   <div>
                     <h4 className="font-semibold">Endereço</h4>
                     <p className="text-muted-foreground">
-                      São Paulo, SP<br />
+                      Paulo Afonso, BA<br />
                       Brasil
                     </p>
                   </div>
