@@ -101,11 +101,11 @@ Deno.serve(async (req) => {
     // Get webhook URL from site configurations
     const { data: config } = await supabase
       .from('site_configurations')
-      .select('webhook_url')
+      .select('otp_webhook_url')
       .limit(1)
       .single();
 
-    if (config?.webhook_url) {
+    if (config?.otp_webhook_url) {
       // Send webhook to n8n
       const webhookPayload = {
         email,
@@ -115,10 +115,10 @@ Deno.serve(async (req) => {
         timestamp: new Date().toISOString(),
       };
 
-      console.log('Sending webhook to n8n:', config.webhook_url);
+      console.log('Sending webhook to n8n:', config.otp_webhook_url);
       
       try {
-        const webhookResponse = await fetch(config.webhook_url, {
+        const webhookResponse = await fetch(config.otp_webhook_url, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
