@@ -217,9 +217,11 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
 
       // Show share modal for published articles
       if (status === 'published' && !editingNews) {
+        console.log('Modal should show - conditions met:', { status, editingNews, onNavigateToShare: !!onNavigateToShare });
         const newsUrl = `${window.location.origin}/noticia/${savedNewsId}`;
         setPublishedNewsData({ title: article.title, url: newsUrl });
         setShareModalOpen(true);
+        console.log('Share modal opened:', { shareModalOpen: true, publishedNewsData: { title: article.title, url: newsUrl } });
       }
 
       if ((status === 'published' || status === 'scheduled') && !editingNews) {
