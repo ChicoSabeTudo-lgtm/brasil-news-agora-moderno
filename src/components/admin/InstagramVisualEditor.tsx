@@ -17,6 +17,7 @@ interface VisualData {
   textAlign: 'left' | 'center' | 'right';
   imageZoom: number;
   imagePosition: { x: number; y: number };
+  fillMode: 'fit' | 'fill';
 }
 
 interface InstagramVisualEditorProps {
@@ -35,6 +36,7 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
     textAlign: 'center',
     imageZoom: 100,
     imagePosition: { x: 50, y: 50 },
+    fillMode: 'fill',
   });
 
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
@@ -66,22 +68,34 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Calcular escala para fit (manter aspect ratio sem crop)
+    // Calcular escala baseada no modo de preenchimento
     const canvasAspectRatio = canvas.width / canvas.height;
     const imageAspectRatio = cardImg.width / cardImg.height;
     
-    let fitScale;
-    if (imageAspectRatio > canvasAspectRatio) {
-      // Imagem é mais larga - ajustar pela largura
-      fitScale = canvas.width / cardImg.width;
+    let baseScale;
+    if (visualData.fillMode === 'fill') {
+      // Modo FILL: preencher completamente a área (com crop se necessário)
+      if (imageAspectRatio > canvasAspectRatio) {
+        // Imagem é mais larga - ajustar pela altura para preencher
+        baseScale = canvas.height / cardImg.height;
+      } else {
+        // Imagem é mais alta - ajustar pela largura para preencher
+        baseScale = canvas.width / cardImg.width;
+      }
     } else {
-      // Imagem é mais alta - ajustar pela altura
-      fitScale = canvas.height / cardImg.height;
+      // Modo FIT: manter aspect ratio sem crop
+      if (imageAspectRatio > canvasAspectRatio) {
+        // Imagem é mais larga - ajustar pela largura
+        baseScale = canvas.width / cardImg.width;
+      } else {
+        // Imagem é mais alta - ajustar pela altura
+        baseScale = canvas.height / cardImg.height;
+      }
     }
 
-    // Aplicar zoom sobre a escala de fit
+    // Aplicar zoom sobre a escala base
     const imageZoomFactor = visualData.imageZoom / 100;
-    const finalScale = fitScale * imageZoomFactor;
+    const finalScale = baseScale * imageZoomFactor;
     
     // Calcular dimensões finais da imagem
     const imageWidth = cardImg.width * finalScale;
@@ -117,7 +131,7 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
     // Desenhar texto com contorno
     ctx.strokeText(visualData.title, textX, textY);
     ctx.fillText(visualData.title, textX, textY);
-  }, [visualData.title, visualData.textPosition, visualData.textZoom, visualData.textSize, visualData.textAlign, visualData.imageZoom, visualData.imagePosition]);
+  }, [visualData.title, visualData.textPosition, visualData.textZoom, visualData.textSize, visualData.textAlign, visualData.imageZoom, visualData.imagePosition, visualData.fillMode]);
 
   // Cache do mockup quando a URL muda
   useEffect(() => {
@@ -153,7 +167,7 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
     // Debounce para evitar muitas chamadas
     const timeoutId = setTimeout(generatePreview, 300);
     return () => clearTimeout(timeoutId);
-  }, [visualData.backgroundImage, visualData.title, visualData.textPosition, visualData.textZoom, visualData.textSize, visualData.textAlign, visualData.imageZoom, visualData.imagePosition]);
+  }, [visualData.backgroundImage, visualData.title, visualData.textPosition, visualData.textZoom, visualData.textSize, visualData.textAlign, visualData.imageZoom, visualData.imagePosition, visualData.fillMode]);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -176,7 +190,8 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
         ...prev,
         backgroundImage: imageUrl,
         imageZoom: 100,
-        imagePosition: { x: 50, y: 50 }
+        imagePosition: { x: 50, y: 50 },
+        fillMode: 'fill'
       }));
 
       // Gerar preview imediatamente após upload
@@ -354,17 +369,35 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
                     Ajuste o zoom e posicionamento da imagem de fundo
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Zoom da Imagem: {visualData.imageZoom}%</Label>
-                    <Slider
-                      value={[visualData.imageZoom]}
-                      onValueChange={(value) => setVisualData(prev => ({ ...prev, imageZoom: value[0] }))}
-                      min={10}
-                      max={500}
-                      step={5}
-                    />
-                  </div>
+                 <CardContent className="space-y-4">
+                   <div className="space-y-2">
+                     <Label>Modo de Preenchimento</Label>
+                     <Select
+                       value={visualData.fillMode}
+                       onValueChange={(value: 'fit' | 'fill') => 
+                         setVisualData(prev => ({ ...prev, fillMode: value }))
+                       }
+                     >
+                       <SelectTrigger>
+                         <SelectValue />
+                       </SelectTrigger>
+                       <SelectContent>
+                         <SelectItem value="fit">Ajustar (sem crop)</SelectItem>
+                         <SelectItem value="fill">Preencher (com crop)</SelectItem>
+                       </SelectContent>
+                     </Select>
+                   </div>
+
+                   <div className="space-y-2">
+                     <Label>Zoom da Imagem: {visualData.imageZoom}%</Label>
+                     <Slider
+                       value={[visualData.imageZoom]}
+                       onValueChange={(value) => setVisualData(prev => ({ ...prev, imageZoom: value[0] }))}
+                       min={10}
+                       max={500}
+                       step={5}
+                     />
+                   </div>
 
                   <div className="space-y-2">
                     <Label>Posição Horizontal da Imagem: {visualData.imagePosition.x}%</Label>
@@ -579,28 +612,24 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
                           overflow: 'hidden'
                         }}
                       >
-                        <img
-                          src={visualData.backgroundImage}
-                          alt="Preview"
-                          className="max-w-none transition-transform duration-200 ease-out"
-                          style={{
-                            transform: `
-                              scale(${visualData.imageZoom / 100})
-                              translate(
-                                ${((visualData.imagePosition.x - 50) / (visualData.imageZoom / 100)) * 2}%,
-                                ${((visualData.imagePosition.y - 50) / (visualData.imageZoom / 100)) * 2}%
-                              )
-                            `,
-                            transformOrigin: 'center center',
-                            width: 'auto',
-                            height: 'auto',
-                            maxWidth: visualData.imageZoom >= 100 ? 'none' : '100%',
-                            maxHeight: visualData.imageZoom >= 100 ? 'none' : '100%',
-                            minWidth: visualData.imageZoom < 100 ? '100%' : 'auto',
-                            minHeight: visualData.imageZoom < 100 ? '100%' : 'auto',
-                            objectFit: 'contain'
-                          }}
-                        />
+                         <img
+                           src={visualData.backgroundImage}
+                           alt="Preview"
+                           className="max-w-none transition-transform duration-200 ease-out"
+                           style={{
+                             transform: `
+                               scale(${visualData.imageZoom / 100})
+                               translate(
+                                 ${((visualData.imagePosition.x - 50) / (visualData.imageZoom / 100)) * 2}%,
+                                 ${((visualData.imagePosition.y - 50) / (visualData.imageZoom / 100)) * 2}%
+                               )
+                             `,
+                             transformOrigin: 'center center',
+                             width: visualData.fillMode === 'fill' ? '100%' : 'auto',
+                             height: visualData.fillMode === 'fill' ? '100%' : 'auto',
+                             objectFit: visualData.fillMode === 'fill' ? 'cover' : 'contain'
+                           }}
+                         />
                       </div>
 
                       {/* Texto sobreposto */}
