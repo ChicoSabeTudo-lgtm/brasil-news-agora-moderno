@@ -343,7 +343,10 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
                     <Label>Tamanho da Fonte: {visualData.textSize}px</Label>
                     <Slider
                       value={[visualData.textSize]}
-                      onValueChange={(value) => setVisualData(prev => ({ ...prev, textSize: value[0] }))}
+                      onValueChange={(value) => {
+                        console.log('Mudando tamanho da fonte para:', value[0]);
+                        setVisualData(prev => ({ ...prev, textSize: value[0] }));
+                      }}
                       min={20}
                       max={80}
                       step={2}
