@@ -327,10 +327,10 @@ export default function SiteConfigurations() {
             <TabsContent value="webhook">
               <Card>
                 <CardHeader>
-                  <CardTitle>Webhook para Compartilhamento</CardTitle>
+                  <CardTitle>Webhook para Login OTP</CardTitle>
                   <CardDescription>
-                    Configure a URL do webhook que receberá os dados dos posts criados no sistema de compartilhamento.
-                    Esta URL será chamada quando um post for enviado.
+                    Configure a URL do webhook do n8n que receberá os códigos OTP para envio via WhatsApp.
+                    Esta URL será chamada quando um usuário solicitar login com código de verificação.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -339,7 +339,7 @@ export default function SiteConfigurations() {
                     <Input
                       id="webhook-url"
                       type="url"
-                      placeholder="https://api.exemplo.com/webhook/posts"
+                      placeholder="https://your-n8n-webhook.com/webhook/otp"
                       value={webhookUrl}
                       onChange={(e) => setWebhookUrl(e.target.value)}
                       className="font-mono"
@@ -348,11 +348,23 @@ export default function SiteConfigurations() {
                   <div className="text-sm text-muted-foreground">
                     <p className="font-medium mb-2">Como funciona:</p>
                     <ul className="list-disc ml-4 space-y-1">
-                      <li>O sistema enviará uma requisição POST para esta URL</li>
-                      <li>O corpo da requisição conterá todos os dados do post em JSON</li>
-                      <li>Inclui título, resumo, link, plataformas, imagem e legenda</li>
+                      <li>O sistema enviará uma requisição POST para esta URL quando um usuário solicitar login</li>
+                      <li>O payload JSON incluirá: email, whatsapp_phone, otp_code, timestamp</li>
+                      <li>Seu n8n deve buscar o número do usuário e enviar o código via WhatsApp</li>
                       <li>Certifique-se de que a URL está acessível e aceita requisições POST</li>
                     </ul>
+                    
+                    <div className="mt-4 p-3 bg-muted rounded-lg">
+                      <p className="font-medium mb-2">Exemplo do payload enviado:</p>
+                      <pre className="text-xs bg-background p-2 rounded border overflow-x-auto">
+{`{
+  "email": "usuario@exemplo.com",
+  "whatsapp_phone": "+5511999999999",
+  "otp_code": "123456",
+  "timestamp": "2024-01-15T10:30:00.000Z"
+}`}
+                      </pre>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
