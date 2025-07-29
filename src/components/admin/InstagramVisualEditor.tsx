@@ -62,16 +62,28 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
     canvas.width = 1080;
     canvas.height = 1440;
 
-    // Calcular dimensões da imagem com zoom
+    // Calcular dimensões da imagem para preencher completamente o canvas
     const imageZoomFactor = visualData.imageZoom / 100;
-    const imageWidth = canvas.width * imageZoomFactor;
-    const imageHeight = (cardImg.height / cardImg.width) * imageWidth;
+    
+    // Fazer a imagem preencher o canvas inteiro (sem manter proporção se necessário)
+    let imageWidth = canvas.width * imageZoomFactor;
+    let imageHeight = canvas.height * imageZoomFactor;
+    
+    // Se o zoom for menor que 100%, garantir que cubra pelo menos o canvas inteiro
+    if (imageZoomFactor < 1) {
+      const scaleToFit = Math.max(
+        canvas.width / cardImg.width,
+        canvas.height / cardImg.height
+      );
+      imageWidth = cardImg.width * scaleToFit * imageZoomFactor;
+      imageHeight = cardImg.height * scaleToFit * imageZoomFactor;
+    }
 
     // Calcular posição da imagem
     const imageX = (visualData.imagePosition.x / 100) * canvas.width - imageWidth / 2;
     const imageY = (visualData.imagePosition.y / 100) * canvas.height - imageHeight / 2;
 
-    // Desenhar imagem de fundo com zoom e posicionamento
+    // Desenhar imagem de fundo preenchendo o espaço
     ctx.drawImage(cardImg, imageX, imageY, imageWidth, imageHeight);
     
     // Configurar texto
@@ -538,33 +550,19 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
                   {/* Live preview (quando não há imagem gerada) */}
                   {!generatedImageUrl && visualData.backgroundImage && visualData.title && !isGeneratingPreview && !previewError && (
                     <div className="absolute inset-0">
-                      {/* Container da imagem com viewport definido */}
-                      <div 
+                      {/* Imagem de fundo preenchendo todo o espaço */}
+                      <div
                         className="absolute inset-0"
                         style={{
-                          clipPath: 'inset(0)', // Cria um viewport limitado
+                          backgroundImage: `url(${visualData.backgroundImage})`,
+                          backgroundSize: `${visualData.imageZoom}% ${visualData.imageZoom}%`,
+                          backgroundPosition: `${visualData.imagePosition.x}% ${visualData.imagePosition.y}%`,
+                          backgroundRepeat: 'no-repeat',
+                          transition: 'all 0.2s ease-out',
+                          width: '100%',
+                          height: '100%'
                         }}
-                      >
-                        {/* Imagem de fundo */}
-                        <div
-                          className="absolute w-full h-full"
-                          style={{
-                            backgroundImage: `url(${visualData.backgroundImage})`,
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center',
-                            backgroundRepeat: 'no-repeat',
-                            transform: `
-                              scale(${visualData.imageZoom / 100})
-                              translate(
-                                ${(visualData.imagePosition.x - 50) * (200 / visualData.imageZoom)}%,
-                                ${(visualData.imagePosition.y - 50) * (200 / visualData.imageZoom)}%
-                              )
-                            `,
-                            transformOrigin: 'center center',
-                            transition: 'transform 0.2s ease-out'
-                          }}
-                        />
-                      </div>
+                      />
 
                       {/* Texto sobreposto */}
                       <div
