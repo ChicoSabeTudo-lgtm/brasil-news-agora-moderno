@@ -3,11 +3,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowRight, Image as ImageIcon, Download } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
+import { ArrowRight, Image as ImageIcon, Download, ZoomIn, Move } from 'lucide-react';
 
 interface VisualData {
   title: string;
   backgroundImage: string | null;
+  imageZoom: number;
+  imagePosition: { x: number; y: number };
 }
 
 interface InstagramVisualEditorProps {
@@ -18,6 +21,8 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
   const [visualData, setVisualData] = useState<VisualData>({
     title: '',
     backgroundImage: null,
+    imageZoom: 100,
+    imagePosition: { x: 50, y: 50 },
   });
 
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
@@ -40,9 +45,12 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
       // Usar createObjectURL para preview
       const imageUrl = URL.createObjectURL(file);
       
+      // Resetar zoom e posição quando nova imagem é carregada
       setVisualData(prev => ({
         ...prev,
-        backgroundImage: imageUrl
+        backgroundImage: imageUrl,
+        imageZoom: 100,
+        imagePosition: { x: 50, y: 50 }
       }));
 
     } catch (error) {
@@ -85,27 +93,39 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
             ctx.fillStyle = '#000000';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Calcular dimensões para object-fit: contain
+            // Calcular dimensões para object-fit: contain com zoom aplicado
             const canvasAspectRatio = canvas.width / canvas.height;
             const imageAspectRatio = img.width / img.height;
             
-            let drawWidth, drawHeight, drawX, drawY;
+            let baseDrawWidth, baseDrawHeight, baseDrawX, baseDrawY;
             
             if (imageAspectRatio > canvasAspectRatio) {
               // Imagem é mais larga - ajustar pela largura
-              drawWidth = canvas.width;
-              drawHeight = canvas.width / imageAspectRatio;
-              drawX = 0;
-              drawY = (canvas.height - drawHeight) / 2;
+              baseDrawWidth = canvas.width;
+              baseDrawHeight = canvas.width / imageAspectRatio;
+              baseDrawX = 0;
+              baseDrawY = (canvas.height - baseDrawHeight) / 2;
             } else {
               // Imagem é mais alta - ajustar pela altura
-              drawHeight = canvas.height;
-              drawWidth = canvas.height * imageAspectRatio;
-              drawX = (canvas.width - drawWidth) / 2;
-              drawY = 0;
+              baseDrawHeight = canvas.height;
+              baseDrawWidth = canvas.height * imageAspectRatio;
+              baseDrawX = (canvas.width - baseDrawWidth) / 2;
+              baseDrawY = 0;
             }
 
-            // Desenhar imagem centralizada
+            // Aplicar zoom
+            const zoomFactor = visualData.imageZoom / 100;
+            const drawWidth = baseDrawWidth * zoomFactor;
+            const drawHeight = baseDrawHeight * zoomFactor;
+
+            // Aplicar posicionamento
+            const offsetX = ((visualData.imagePosition.x - 50) / 100) * canvas.width;
+            const offsetY = ((visualData.imagePosition.y - 50) / 100) * canvas.height;
+            
+            const drawX = baseDrawX + offsetX - (drawWidth - baseDrawWidth) / 2;
+            const drawY = baseDrawY + offsetY - (drawHeight - baseDrawHeight) / 2;
+
+            // Desenhar imagem com zoom e posicionamento aplicados
             ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
             
             // Gerar blob e URL
@@ -209,6 +229,58 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
               </CardContent>
             </Card>
 
+            {visualData.backgroundImage && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ZoomIn className="w-5 h-5" />
+                    Controles da Imagem
+                  </CardTitle>
+                  <CardDescription>
+                    Ajuste o zoom e posicionamento da imagem
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Zoom da Imagem: {visualData.imageZoom}%</Label>
+                    <Slider
+                      value={[visualData.imageZoom]}
+                      onValueChange={(value) => setVisualData(prev => ({ ...prev, imageZoom: value[0] }))}
+                      min={10}
+                      max={300}
+                      step={5}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Posição Horizontal: {visualData.imagePosition.x}%</Label>
+                    <Slider
+                      value={[visualData.imagePosition.x]}
+                      onValueChange={(value) => setVisualData(prev => ({
+                        ...prev,
+                        imagePosition: { ...prev.imagePosition, x: value[0] }
+                      }))}
+                      max={100}
+                      step={1}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Posição Vertical: {visualData.imagePosition.y}%</Label>
+                    <Slider
+                      value={[visualData.imagePosition.y]}
+                      onValueChange={(value) => setVisualData(prev => ({
+                        ...prev,
+                        imagePosition: { ...prev.imagePosition, y: value[0] }
+                      }))}
+                      max={100}
+                      step={1}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {isValid && (
               <div className="flex gap-3">
                 <Button
@@ -285,8 +357,18 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
                       <img
                         src={visualData.backgroundImage}
                         alt="Preview"
-                        className="max-w-full max-h-full object-contain"
-                        style={{ imageRendering: 'auto' }}
+                        className="max-w-full max-h-full object-contain transition-transform duration-200 ease-out"
+                        style={{ 
+                          imageRendering: 'auto',
+                          transform: `
+                            scale(${visualData.imageZoom / 100})
+                            translate(
+                              ${((visualData.imagePosition.x - 50) / (visualData.imageZoom / 100)) * 2}%,
+                              ${((visualData.imagePosition.y - 50) / (visualData.imageZoom / 100)) * 2}%
+                            )
+                          `,
+                          transformOrigin: 'center center'
+                        }}
                       />
                     </div>
                   )}
