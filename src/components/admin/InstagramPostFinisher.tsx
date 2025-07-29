@@ -272,11 +272,19 @@ export default function InstagramPostFinisher({ visualData, onBack, onComplete }
                 <div className="space-y-4">
                   {/* Imagem - Proporção 3:4 para Stories 1080x1440 */}
                   <div className="aspect-[3/4] bg-muted rounded-lg overflow-hidden">
-                    <img
-                      src={visualData.generatedImageUrl}
-                      alt="Post Final"
-                      className="w-full h-full object-contain"
-                    />
+                    {visualData.generatedImageUrl ? (
+                      <img
+                        src={visualData.generatedImageUrl}
+                        alt="Post Final"
+                        className="w-full h-full object-cover"
+                        onLoad={() => console.log('✅ Imagem carregada na pré-visualização final')}
+                        onError={(e) => console.error('❌ Erro ao carregar imagem na pré-visualização:', e)}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                        <p>Imagem não disponível</p>
+                      </div>
+                    )}
                   </div>
                   
                   {/* Simulação da Interface do Instagram */}
