@@ -13,12 +13,10 @@ import { useToast } from '@/hooks/use-toast';
 interface VisualData {
   title: string;
   backgroundImage: string | null;
-  textPosition: { x: number; y: number };
-  textZoom: number;
-  textSize: 'small' | 'medium' | 'large';
-  textAlign: 'left' | 'center' | 'right';
   imageZoom: number;
   imagePosition: { x: number; y: number };
+  textSize: number;
+  textAlign: 'left' | 'center' | 'right';
   generatedImageUrl: string;
 }
 
@@ -88,8 +86,6 @@ export default function InstagramPostFinisher({ visualData, onBack, onComplete }
         },
         visual: {
           image_url: visualData.generatedImageUrl,
-          text_position: visualData.textPosition,
-          text_zoom: visualData.textZoom,
           text_size: visualData.textSize,
           text_align: visualData.textAlign,
           image_zoom: visualData.imageZoom,

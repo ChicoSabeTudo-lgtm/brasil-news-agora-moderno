@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-import { ArrowRight, Image as ImageIcon, Download, ZoomIn, Move } from 'lucide-react';
+import { ArrowRight, Image as ImageIcon, Download, ZoomIn, Move, Type, AlignLeft, AlignCenter, AlignRight, RotateCcw } from 'lucide-react';
 import { useInstagramMockup } from '@/hooks/useInstagramMockup';
 
 interface VisualData {
@@ -12,6 +12,8 @@ interface VisualData {
   backgroundImage: string | null;
   imageZoom: number;
   imagePosition: { x: number; y: number };
+  textSize: number;
+  textAlign: 'left' | 'center' | 'right';
 }
 
 interface InstagramVisualEditorProps {
@@ -25,6 +27,8 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
     backgroundImage: null,
     imageZoom: 100,
     imagePosition: { x: 50, y: 50 },
+    textSize: 48,
+    textAlign: 'center',
   });
 
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
@@ -130,6 +134,38 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
             // Desenhar imagem com zoom e posicionamento aplicados
             ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
             
+            // Desenhar texto se houver título
+            if (visualData.title.trim()) {
+              // Configurar texto
+              const fontSize = visualData.textSize;
+              ctx.font = `bold ${fontSize}px Arial, sans-serif`;
+              ctx.fillStyle = '#FFFFFF';
+              ctx.strokeStyle = '#000000';
+              ctx.lineWidth = 3;
+              ctx.textAlign = visualData.textAlign;
+              
+              // Calcular posição do texto (parte inferior)
+              const textY = canvas.height - 80;
+              let textX;
+              
+              switch (visualData.textAlign) {
+                case 'left':
+                  textX = 60;
+                  break;
+                case 'right':
+                  textX = canvas.width - 60;
+                  break;
+                default: // center
+                  textX = canvas.width / 2;
+                  break;
+              }
+              
+              // Desenhar contorno do texto
+              ctx.strokeText(visualData.title, textX, textY);
+              // Desenhar texto preenchido
+              ctx.fillText(visualData.title, textX, textY);
+            }
+            
             // Gerar blob e URL
             canvas.toBlob((blob) => {
               if (blob) {
@@ -157,7 +193,7 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
     } finally {
       setIsGeneratingPreview(false);
     }
-  }, [visualData.backgroundImage]);
+  }, [visualData.backgroundImage, visualData.title, visualData.textSize, visualData.textAlign]);
 
   const handleContinue = async () => {
     const imageUrl = await generateFinalImage();
@@ -176,6 +212,14 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
       link.click();
       document.body.removeChild(link);
     }
+  };
+
+  const resetTextSettings = () => {
+    setVisualData(prev => ({
+      ...prev,
+      textSize: 48,
+      textAlign: 'center'
+    }));
   };
 
   const isValid = visualData.backgroundImage !== null;
@@ -209,10 +253,10 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="title">Título (opcional)</Label>
+                  <Label htmlFor="title">Título</Label>
                   <Input
                     id="title"
-                    placeholder="Digite um título para identificar a imagem"
+                    placeholder="Digite o título que aparecerá na imagem"
                     value={visualData.title}
                     onChange={(e) => setVisualData(prev => ({ ...prev, title: e.target.value }))}
                   />
@@ -279,6 +323,76 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
                       step={1}
                     />
                   </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {visualData.title && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Type className="w-5 h-5" />
+                    Controles de Texto
+                  </CardTitle>
+                  <CardDescription>
+                    Ajuste o tamanho e alinhamento do texto
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Tamanho da Fonte: {visualData.textSize}px</Label>
+                    <Slider
+                      value={[visualData.textSize]}
+                      onValueChange={(value) => setVisualData(prev => ({ ...prev, textSize: value[0] }))}
+                      min={20}
+                      max={80}
+                      step={2}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Alinhamento do Texto</Label>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant={visualData.textAlign === 'left' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setVisualData(prev => ({ ...prev, textAlign: 'left' }))}
+                        className="flex items-center gap-2"
+                      >
+                        <AlignLeft className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={visualData.textAlign === 'center' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setVisualData(prev => ({ ...prev, textAlign: 'center' }))}
+                        className="flex items-center gap-2"
+                      >
+                        <AlignCenter className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={visualData.textAlign === 'right' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setVisualData(prev => ({ ...prev, textAlign: 'right' }))}
+                        className="flex items-center gap-2"
+                      >
+                        <AlignRight className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={resetTextSettings}
+                    className="flex items-center gap-2"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    Reset Fonte
+                  </Button>
                 </CardContent>
               </Card>
             )}
@@ -387,6 +501,24 @@ export default function InstagramVisualEditor({ onContinue }: InstagramVisualEdi
                           zIndex: 10
                         }}
                       />
+                    </div>
+                  )}
+
+                  {/* Texto sobreposto */}
+                  {visualData.title && visualData.backgroundImage && !isGeneratingPreview && !previewError && (
+                    <div 
+                      className="absolute bottom-0 left-0 right-0 p-4 pointer-events-none"
+                      style={{
+                        fontSize: `${(visualData.textSize / 1080) * 100}%`,
+                        textAlign: visualData.textAlign,
+                        color: 'white',
+                        textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                        fontWeight: 'bold',
+                        fontFamily: 'Arial, sans-serif',
+                        lineHeight: '1.2'
+                      }}
+                    >
+                      {visualData.title}
                     </div>
                   )}
 

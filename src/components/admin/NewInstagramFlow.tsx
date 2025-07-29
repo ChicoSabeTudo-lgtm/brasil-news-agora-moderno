@@ -6,12 +6,10 @@ import InstagramPostFinisher from './InstagramPostFinisher';
 interface VisualData {
   title: string;
   backgroundImage: string | null;
-  textPosition: { x: number; y: number };
-  textZoom: number;
-  textSize: 'small' | 'medium' | 'large';
-  textAlign: 'left' | 'center' | 'right';
   imageZoom: number;
   imagePosition: { x: number; y: number };
+  textSize: number;
+  textAlign: 'left' | 'center' | 'right';
   generatedImageUrl: string;
 }
 
