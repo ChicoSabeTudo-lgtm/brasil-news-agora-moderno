@@ -295,7 +295,7 @@ export default function InstagramPostFinisher({ visualData, onBack, onComplete }
                       </div>
                     )}
                     
-                    {/* Texto sobreposto - EXATAMENTE como no editor visual */}
+                    {/* Texto sobreposto - EXATAMENTE como no editor visual - POR CIMA DO OVERLAY */}
                     {visualData.title && visualData.backgroundImage && (
                       <div 
                         className="absolute bottom-0 left-0 right-0 pointer-events-none"
@@ -310,7 +310,8 @@ export default function InstagramPostFinisher({ visualData, onBack, onComplete }
                           fontWeight: '900',
                           fontFamily: "'Archivo Black', sans-serif",
                           lineHeight: '1.2',
-                          textTransform: 'uppercase'
+                          textTransform: 'uppercase',
+                          zIndex: 20 // Maior que o overlay (z-index: 10)
                         }}
                       >
                         {visualData.title}
