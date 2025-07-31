@@ -169,37 +169,14 @@ All colors MUST be HSL.
 
 /* Article Content Styles */
 .prose {
-  /* Lists */
+  /* Lists - unified bullet style */
   ul {
     @apply list-none space-y-3 my-6;
   }
   
   ul li {
     @apply relative pl-6 text-foreground leading-relaxed;
-}
-
-/* Backlinks automáticos */
-.internal-backlink {
-  @apply text-primary underline font-medium;
-  transition: all 0.2s ease;
-}
-
-.internal-backlink:hover {
-  @apply text-primary/80 no-underline;
-  text-shadow: 0 1px 2px rgba(0, 102, 204, 0.1);
-}
-
-/* Destaque especial para backlinks em artigos */
-.prose .internal-backlink {
-  @apply border-b border-primary/30;
-  text-decoration: none;
-}
-
-.prose .internal-backlink:hover {
-  @apply border-primary bg-primary/5;
-  border-radius: 2px;
-  padding: 1px 2px;
-}
+  }
   
   ul li::before {
     content: "";
@@ -235,6 +212,29 @@ All colors MUST be HSL.
     content: """;
     @apply absolute -bottom-8 -right-2 text-6xl text-primary/30 font-serif;
   }
+}
+
+/* Backlinks automáticos */
+.internal-backlink {
+  @apply text-primary underline font-medium;
+  transition: all 0.2s ease;
+}
+
+.internal-backlink:hover {
+  @apply text-primary/80 no-underline;
+  text-shadow: 0 1px 2px rgba(0, 102, 204, 0.1);
+}
+
+/* Destaque especial para backlinks em artigos */
+.prose .internal-backlink {
+  @apply border-b border-primary/30;
+  text-decoration: none;
+}
+
+.prose .internal-backlink:hover {
+  @apply border-primary bg-primary/5;
+  border-radius: 2px;
+  padding: 1px 2px;
 }
 
 /* Image Gallery Styles */
@@ -532,7 +532,7 @@ All colors MUST be HSL.
 
 .prose .rich-text-content ul:not([class]),
 .prose ul:not([class]) {
-  @apply ml-6 mb-4 space-y-2;
+  @apply ml-0 mb-4 space-y-2;
   list-style: none;
   padding-left: 0;
 }
@@ -544,18 +544,15 @@ All colors MUST be HSL.
 
 .prose .rich-text-content li:not([class]),
 .prose li:not([class]) {
-  @apply mb-2 leading-relaxed relative;
+  @apply mb-2 leading-relaxed relative pl-6;
   list-style: none;
 }
 
+/* Use only one bullet style - the custom one from above */
 .prose .rich-text-content ul:not([class]) li:not([class])::before,
 .prose ul:not([class]) li:not([class])::before {
-  content: "•";
-  color: hsl(var(--destructive));
-  position: absolute;
-  left: -1rem;
-  font-weight: bold;
-  font-size: 1.2em;
+  content: "";
+  @apply absolute left-0 top-2 w-2 h-2 bg-primary rounded-full;
 }
 
 .prose .rich-text-content a:not([class]),

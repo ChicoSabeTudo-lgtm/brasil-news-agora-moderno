@@ -109,6 +109,11 @@ const NewsArticle = () => {
 
         setNews(newsWithProfile);
 
+        // Debug: Log do conteúdo bruto para verificar bullets
+        if (process.env.NODE_ENV === 'development' && newsWithProfile.content.includes('<li>')) {
+          console.log('Conteúdo bruto do banco:', newsWithProfile.content.substring(0, 1000));
+        }
+
         // Configurar SEO e meta tags para social sharing
         configureSEO(newsWithProfile);
 

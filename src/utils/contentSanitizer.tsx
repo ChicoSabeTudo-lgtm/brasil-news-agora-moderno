@@ -58,8 +58,18 @@ const removeManualBullets = (html: string): string => {
 export const sanitizeHtml = (html: string): string => {
   if (!html) return '';
   
+  // Debug: Log original HTML if it contains lists
+  if (process.env.NODE_ENV === 'development' && html.includes('<li>')) {
+    console.log('HTML original com listas:', html.substring(0, 500));
+  }
+  
   // Remove manual bullets first
   let processedHtml = removeManualBullets(html);
+  
+  // Debug: Log processed HTML if it was changed
+  if (process.env.NODE_ENV === 'development' && processedHtml !== html && html.includes('<li>')) {
+    console.log('HTML após remoção de bullets:', processedHtml.substring(0, 500));
+  }
   
   // Create a sanitized version
   const sanitized = DOMPurify.sanitize(processedHtml, purifyConfig);
