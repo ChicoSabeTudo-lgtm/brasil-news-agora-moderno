@@ -57,17 +57,19 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
       console.log('- category_id:', brief.category_id);
       console.log('- brief_date:', brief.brief_date);
       
-      const newFormData = {
-        title: brief.title || '',
-        description: brief.description || '',
-        brief_time: brief.brief_time || format(new Date(), 'HH:mm'),
-        status: brief.status || 'rascunho',
-        priority: brief.priority || 'media',
-        category_id: brief.category_id || ''
-      };
-      
-      console.log('Setting form data to:', newFormData);
-      setFormData(newFormData);
+      // Usar setFormData de forma funcional para garantir que o estado seja atualizado
+      setFormData(prev => {
+        const newData = {
+          title: brief.title || '',
+          description: brief.description || '',
+          brief_time: brief.brief_time || format(new Date(), 'HH:mm'),
+          status: brief.status || 'rascunho',
+          priority: brief.priority || 'media',
+          category_id: brief.category_id || ''
+        };
+        console.log('Setting form data to:', newData);
+        return newData;
+      });
       
       // Fix timezone issue by parsing date correctly for São Paulo timezone
       if (brief.brief_date) {
@@ -94,6 +96,11 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
       setSelectedFile(null);
     }
   }, [brief]);
+
+  // Debug useEffect para acompanhar mudanças no formData
+  useEffect(() => {
+    console.log('🔄 FormData mudou:', formData);
+  }, [formData]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
