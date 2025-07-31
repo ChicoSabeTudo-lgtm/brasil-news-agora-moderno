@@ -73,8 +73,10 @@ export const DailyBriefsPanel = () => {
   };
 
   const handleEditBrief = (brief) => {
+    console.log('🎯 handleEditBrief chamado com:', brief);
     setEditingBrief(brief);
     setShowForm(true);
+    console.log('🎯 Modal abrindo para edição...');
   };
 
   const handleDeleteBrief = async (briefId: string) => {
@@ -102,7 +104,10 @@ export const DailyBriefsPanel = () => {
 
   const handleFormClose = () => {
     setShowForm(false);
-    setEditingBrief(null);
+    // Delay resetting editingBrief to prevent form reset before modal closes
+    setTimeout(() => {
+      setEditingBrief(null);
+    }, 200);
   };
 
   const handleFormSuccess = () => {
