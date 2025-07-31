@@ -26,6 +26,19 @@ const purifyConfig = {
 };
 
 /**
+ * Removes manual bullet points from HTML content that conflict with <li> elements
+ * @param html - The HTML content to clean
+ * @returns HTML with manual bullets removed
+ */
+const removeManualBullets = (html: string): string => {
+  if (!html) return '';
+  
+  // Remove manual bullet characters (•, ◦, ▪, ▫) at the beginning of list items
+  // This regex finds <li> tags that start with bullet characters and removes them
+  return html.replace(/<li[^>]*>\s*[•◦▪▫]\s*/gi, '<li>');
+};
+
+/**
  * Sanitizes HTML content to prevent XSS attacks
  * @param html - The HTML content to sanitize
  * @returns Sanitized HTML string
@@ -33,8 +46,11 @@ const purifyConfig = {
 export const sanitizeHtml = (html: string): string => {
   if (!html) return '';
   
+  // Remove manual bullets first
+  let processedHtml = removeManualBullets(html);
+  
   // Create a sanitized version
-  const sanitized = DOMPurify.sanitize(html, purifyConfig);
+  const sanitized = DOMPurify.sanitize(processedHtml, purifyConfig);
   
   // Log potential security issues in development
   if (process.env.NODE_ENV === 'development' && sanitized !== html) {
