@@ -33,9 +33,17 @@ const purifyConfig = {
 const removeManualBullets = (html: string): string => {
   if (!html) return '';
   
-  // Remove manual bullet characters (•, ◦, ▪, ▫) at the beginning of list items
+  // Remove manual bullet characters (•, ◦, ▪, ▫, ·) at the beginning of list items
   // This regex finds <li> tags that start with bullet characters and removes them
-  return html.replace(/<li[^>]*>\s*[•◦▪▫]\s*/gi, '<li>');
+  let cleaned = html.replace(/<li[^>]*>\s*[•◦▪▫·]\s*/gi, '<li>');
+  
+  // Also remove bullets that might be inside the text content of li elements
+  cleaned = cleaned.replace(/(<li[^>]*>[^<]*?)\s*[•◦▪▫·]\s*/gi, '$1');
+  
+  // Remove standalone bullets followed by text in list items
+  cleaned = cleaned.replace(/(<li[^>]*>)\s*[•◦▪▫·]\s*([^<]+)/gi, '$1$2');
+  
+  return cleaned;
 };
 
 /**
