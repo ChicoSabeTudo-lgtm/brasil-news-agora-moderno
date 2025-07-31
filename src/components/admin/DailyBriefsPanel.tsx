@@ -352,6 +352,7 @@ export const DailyBriefsPanel = () => {
 
       {showForm && (
         <DailyBriefsForm
+          key={editingBrief ? `edit-${editingBrief.id}` : 'new-brief'}
           open={showForm}
           onClose={handleFormClose}
           onSuccess={handleFormSuccess}
