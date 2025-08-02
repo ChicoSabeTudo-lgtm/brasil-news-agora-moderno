@@ -293,11 +293,12 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
             {/* Categoria */}
             <div className="md:col-span-2">
               <Label>Categoria</Label>
-              <Select value={categoryId} onValueChange={setCategoryId}>
+              <Select value={categoryId || ''} onValueChange={setCategoryId}>
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="Selecione uma categoria" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="">Nenhuma categoria</SelectItem>
                   {categories.map(category => (
                     <SelectItem key={category.id} value={category.id}>
                       <div className="flex items-center gap-2">
