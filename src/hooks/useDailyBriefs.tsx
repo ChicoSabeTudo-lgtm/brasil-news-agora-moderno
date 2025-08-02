@@ -86,7 +86,13 @@ export const useDailyBriefs = () => {
         .from('daily_briefs')
         .update(briefData)
         .eq('id', id)
-        .select()
+        .select(`
+          *,
+          categories:category_id (
+            name,
+            color
+          )
+        `)
         .single();
 
       if (error) throw error;
