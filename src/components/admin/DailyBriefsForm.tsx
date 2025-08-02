@@ -70,7 +70,7 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
 
   // Reset and populate form when modal opens/closes or brief changes
   useEffect(() => {
-    console.log('🔄 useEffect triggered:', { open, brief });
+    console.log('🔄 useEffect triggered:', { open, brief, categoriesLoaded: categories.length > 0 });
     
     if (!open) {
       // Reset form when closing
@@ -79,10 +79,11 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
       return;
     }
 
-    if (brief) {
-      // Editing mode - populate with brief data
+    if (brief && categories.length > 0) {
+      // Editing mode - populate with brief data (only when categories are loaded)
       console.log('📝 Populando formulário com dados da pauta:', brief);
       console.log('📝 Category ID recebido:', brief.category_id);
+      console.log('📝 Categorias disponíveis:', categories.map(c => ({ id: c.id, name: c.name })));
       
       const briefDate = brief.brief_date 
         ? new Date(brief.brief_date + 'T00:00:00')
@@ -102,13 +103,13 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
       
       console.log('📝 Dados do formulário sendo definidos:', newFormData);
       setFormData(newFormData);
-    } else {
+    } else if (!brief) {
       // New brief mode - reset to defaults
       setFormData(DEFAULT_FORM_DATA);
     }
     
     setErrors({});
-  }, [open, brief]);
+  }, [open, brief, categories]);
 
   const updateFormData = (field: keyof FormData, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
