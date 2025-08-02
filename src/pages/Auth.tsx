@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import authLogo from '@/assets/chicosabetudo-auth-logo.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -126,7 +125,7 @@ export default function Auth() {
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <img 
-                src={authLogo} 
+                src="/lovable-uploads/a56010cf-7947-4eea-a4b4-c6783bcdfd59.png" 
                 alt="ChicoSabeTudo" 
                 className="h-16 w-auto object-contain"
               />
