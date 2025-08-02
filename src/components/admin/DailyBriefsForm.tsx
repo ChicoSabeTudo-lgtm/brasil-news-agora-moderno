@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -8,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon, Upload, X } from 'lucide-react';
+import { CalendarIcon, Upload, X, Save } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -30,80 +29,50 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
   const { toast } = useToast();
   
   const [loading, setLoading] = useState(false);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [briefTime, setBriefTime] = useState(format(new Date(), 'HH:mm'));
+  const [status, setStatus] = useState<'rascunho' | 'em_andamento' | 'finalizada'>('rascunho');
+  const [priority, setPriority] = useState<'baixa' | 'media' | 'alta'>('media');
+  const [categoryId, setCategoryId] = useState('');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    brief_time: format(new Date(), 'HH:mm'),
-    status: 'rascunho' as 'rascunho' | 'em_andamento' | 'finalizada',
-    priority: 'media' as 'baixa' | 'media' | 'alta',
-    category_id: ''
-  });
 
-  // Populate form when editing
+  // Reset form when modal opens/closes or brief changes
   useEffect(() => {
-    console.log('=== useEffect triggered ===');
-    console.log('brief:', brief);
-    console.log('brief exists:', !!brief);
-    
-    if (brief) {
-      console.log('Brief data details:');
-      console.log('- title:', brief.title);
-      console.log('- description:', brief.description);
-      console.log('- brief_time:', brief.brief_time);
-      console.log('- status:', brief.status);
-      console.log('- priority:', brief.priority);
-      console.log('- category_id:', brief.category_id);
-      console.log('- brief_date:', brief.brief_date);
+    if (open && brief) {
+      // Editing mode - populate with brief data
+      setTitle(brief.title || '');
+      setDescription(brief.description || '');
+      setBriefTime(brief.brief_time || format(new Date(), 'HH:mm'));
+      setStatus(brief.status || 'rascunho');
+      setPriority(brief.priority || 'media');
+      setCategoryId(brief.category_id || '');
       
-      // Set form data directly with brief data
-      const newFormData = {
-        title: brief.title || '',
-        description: brief.description || '',
-        brief_time: brief.brief_time || format(new Date(), 'HH:mm'),
-        status: brief.status || 'rascunho',
-        priority: brief.priority || 'media',
-        category_id: brief.category_id || ''
-      };
-      console.log('Setting form data to:', newFormData);
-      setFormData(newFormData);
-      
-      // Fix timezone issue by parsing date correctly for São Paulo timezone
+      // Parse date correctly
       if (brief.brief_date) {
         const dateParts = brief.brief_date.split('-');
         const year = parseInt(dateParts[0]);
-        const month = parseInt(dateParts[1]) - 1; // Month is 0-indexed
+        const month = parseInt(dateParts[1]) - 1;
         const day = parseInt(dateParts[2]);
-        const parsedDate = new Date(year, month, day);
-        console.log('Setting date to:', parsedDate);
-        setSelectedDate(parsedDate);
+        setSelectedDate(new Date(year, month, day));
       }
-    } else {
-      console.log('No brief provided, resetting form');
-      // Reset form for new brief
-      setFormData({
-        title: '',
-        description: '',
-        brief_time: format(new Date(), 'HH:mm'),
-        status: 'rascunho',
-        priority: 'media',
-        category_id: ''
-      });
+    } else if (open && !brief) {
+      // New brief mode - reset to defaults
+      setTitle('');
+      setDescription('');
+      setBriefTime(format(new Date(), 'HH:mm'));
+      setStatus('rascunho');
+      setPriority('media');
+      setCategoryId('');
       setSelectedDate(new Date());
       setSelectedFile(null);
     }
-  }, [brief, open]); // Add 'open' to dependencies to reset when modal opens
-
-  // Debug useEffect para acompanhar mudanças no formData
-  useEffect(() => {
-    console.log('🔄 FormData mudou:', formData);
-  }, [formData]);
+  }, [open, brief]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Verificar tamanho (2MB)
       if (file.size > 2 * 1024 * 1024) {
         toast({
           title: "Erro",
@@ -113,7 +82,6 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
         return;
       }
       
-      // Verificar tipo
       const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/svg+xml'];
       if (!allowedTypes.includes(file.type)) {
         toast({
@@ -154,7 +122,7 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.title.trim()) {
+    if (!title.trim()) {
       toast({
         title: "Erro",
         description: "O título é obrigatório.",
@@ -172,13 +140,13 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
       }
 
       const briefData = {
-        title: formData.title,
-        description: formData.description || null,
+        title: title.trim(),
+        description: description.trim() || null,
         brief_date: format(selectedDate, 'yyyy-MM-dd'),
-        brief_time: formData.brief_time,
-        status: formData.status,
-        priority: formData.priority,
-        category_id: formData.category_id || null,
+        brief_time: briefTime,
+        status,
+        priority,
+        category_id: categoryId || null,
         image_url: imageUrl
       };
 
@@ -197,6 +165,7 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
       }
 
       onSuccess();
+      onClose();
     } catch (error: any) {
       console.error('Erro ao salvar pauta:', error);
       toast({
@@ -209,47 +178,45 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
     }
   };
 
-  const handleClose = () => {
-    if (!loading) {
-      onClose();
-    }
-  };
-
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto" aria-describedby="dialog-description">
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{brief ? 'Editar Pauta' : 'Nova Pauta'}</DialogTitle>
-          <p id="dialog-description" className="text-sm text-muted-foreground">
-            {brief ? 'Edite os campos abaixo para atualizar a pauta.' : 'Preencha os campos abaixo para criar uma nova pauta jornalística.'}
-          </p>
+          <DialogTitle className="flex items-center gap-2">
+            <Save className="w-5 h-5" />
+            {brief ? 'Editar Pauta' : 'Nova Pauta'}
+          </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Título */}
             <div className="md:col-span-2">
               <Label htmlFor="title">Título *</Label>
               <Input
                 id="title"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 placeholder="Digite o título da pauta"
                 required
+                className="mt-1"
               />
             </div>
 
+            {/* Descrição */}
             <div className="md:col-span-2">
               <Label htmlFor="description">Descrição</Label>
               <Textarea
                 id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 placeholder="Descreva os detalhes da pauta"
                 rows={4}
+                className="mt-1"
               />
             </div>
 
+            {/* Data */}
             <div>
               <Label>Data</Label>
               <Popover>
@@ -257,7 +224,7 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
                   <Button
                     variant="outline"
                     className={cn(
-                      "w-full justify-start text-left font-normal",
+                      "w-full justify-start text-left font-normal mt-1",
                       !selectedDate && "text-muted-foreground"
                     )}
                   >
@@ -275,31 +242,29 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
                     selected={selectedDate}
                     onSelect={(date) => date && setSelectedDate(date)}
                     initialFocus
-                    className="pointer-events-auto"
+                    className="p-3 pointer-events-auto"
                   />
                 </PopoverContent>
               </Popover>
             </div>
 
+            {/* Hora */}
             <div>
               <Label htmlFor="time">Hora</Label>
               <Input
                 id="time"
                 type="time"
-                value={formData.brief_time}
-                onChange={(e) => setFormData({ ...formData, brief_time: e.target.value })}
+                value={briefTime}
+                onChange={(e) => setBriefTime(e.target.value)}
+                className="mt-1"
               />
             </div>
 
+            {/* Status */}
             <div>
               <Label>Status</Label>
-              <Select 
-                value={formData.status} 
-                onValueChange={(value: 'rascunho' | 'em_andamento' | 'finalizada') => 
-                  setFormData({ ...formData, status: value })
-                }
-              >
-                <SelectTrigger>
+              <Select value={status} onValueChange={(value: any) => setStatus(value)}>
+                <SelectTrigger className="mt-1">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -310,15 +275,11 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
               </Select>
             </div>
 
+            {/* Prioridade */}
             <div>
               <Label>Prioridade</Label>
-              <Select 
-                value={formData.priority} 
-                onValueChange={(value: 'baixa' | 'media' | 'alta') => 
-                  setFormData({ ...formData, priority: value })
-                }
-              >
-                <SelectTrigger>
+              <Select value={priority} onValueChange={(value: any) => setPriority(value)}>
+                <SelectTrigger className="mt-1">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -329,13 +290,11 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
               </Select>
             </div>
 
+            {/* Categoria */}
             <div className="md:col-span-2">
               <Label>Categoria</Label>
-              <Select 
-                value={formData.category_id} 
-                onValueChange={(value) => setFormData({ ...formData, category_id: value })}
-              >
-                <SelectTrigger>
+              <Select value={categoryId} onValueChange={setCategoryId}>
+                <SelectTrigger className="mt-1">
                   <SelectValue placeholder="Selecione uma categoria" />
                 </SelectTrigger>
                 <SelectContent>
@@ -358,7 +317,7 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
             <div className="md:col-span-2">
               <Label>Imagem (opcional)</Label>
               <div className="mt-2">
-                {brief?.image_url && !selectedFile ? (
+                {brief?.image_url && !selectedFile && (
                   <div className="flex items-center gap-2 p-3 border rounded-lg mb-2">
                     <img 
                       src={brief.image_url}
@@ -369,7 +328,7 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
                       <p className="text-sm font-medium">Imagem atual</p>
                     </div>
                   </div>
-                ) : null}
+                )}
                 
                 {selectedFile ? (
                   <div className="flex items-center gap-2 p-3 border rounded-lg">
@@ -421,12 +380,22 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={handleClose} disabled={loading}>
+          <div className="flex justify-end gap-3 pt-4 border-t">
+            <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? (brief ? 'Atualizando...' : 'Criando...') : (brief ? 'Atualizar Pauta' : 'Criar Pauta')}
+            <Button type="submit" disabled={loading} className="min-w-[120px]">
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  {brief ? 'Atualizando...' : 'Criando...'}
+                </div>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" />
+                  {brief ? 'Atualizar' : 'Criar Pauta'}
+                </>
+              )}
             </Button>
           </div>
         </form>
