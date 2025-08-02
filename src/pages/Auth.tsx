@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useSiteLogo } from '@/hooks/useSiteLogo';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import authLogo from '@/assets/chicosabetudo-auth-logo.png';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,7 +25,6 @@ export default function Auth() {
   const [isLoading, setIsLoading] = useState(false);
   
   const { signIn, signUp, resetPassword, requestOTPLogin, verifyOTPLogin, user, isOtpVerified } = useAuth();
-  const { logoUrl } = useSiteLogo();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isReset = searchParams.get('reset') === 'true';
@@ -127,12 +126,9 @@ export default function Auth() {
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
               <img 
-                src={logoUrl} 
-                alt="Logo do site" 
+                src={authLogo} 
+                alt="ChicoSabeTudo" 
                 className="h-16 w-auto object-contain"
-                onError={(e) => {
-                  e.currentTarget.src = '/placeholder.svg';
-                }}
               />
             </div>
             <CardDescription>
