@@ -302,10 +302,10 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
   };
 
   const sendSocialWebhook = async () => {
-    if (!configuration?.webhook_url) {
+    if (!configuration?.social_webhook_url) {
       toast({
         title: "Erro",
-        description: "URL do webhook não configurada. Configure nas configurações do site.",
+        description: "URL do webhook social não configurada. Configure nas configurações do site.",
         variant: "destructive",
       });
       return;
@@ -318,11 +318,11 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
         type: 'social_media',
         timestamp: new Date().toISOString(),
         user_id: user?.id,
+        platforms: postData.platforms,
         content: {
           title: postData.title,
           summary: postData.summary,
           link: postData.link,
-          platforms: postData.platforms,
           schedule: postData.schedulePost ? {
             date: postData.scheduleDate,
             time: postData.scheduleTime
@@ -330,7 +330,7 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
         }
       };
 
-      const response = await fetch(configuration.webhook_url, {
+      const response = await fetch(configuration.social_webhook_url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -371,10 +371,10 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
   };
 
   const sendInstagramWebhook = async () => {
-    if (!configuration?.webhook_url) {
+    if (!configuration?.social_webhook_url) {
       toast({
         title: "Erro",
-        description: "URL do webhook não configurada. Configure nas configurações do site.",
+        description: "URL do webhook social não configurada. Configure nas configurações do site.",
         variant: "destructive",
       });
       return;
@@ -408,7 +408,7 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
         }
       };
 
-      const response = await fetch(configuration.webhook_url, {
+      const response = await fetch(configuration.social_webhook_url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

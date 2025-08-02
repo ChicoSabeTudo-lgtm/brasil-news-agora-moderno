@@ -67,10 +67,10 @@ export default function InstagramPostFinisher({ visualData, onBack, onComplete }
   };
 
   const sendInstagramWebhook = async () => {
-    if (!configuration?.webhook_url) {
+    if (!configuration?.social_webhook_url) {
       toast({
         title: "Erro",
-        description: "URL do webhook não configurada. Configure nas configurações do site.",
+        description: "URL do webhook social não configurada. Configure nas configurações do site.",
         variant: "destructive",
       });
       return;
@@ -103,7 +103,7 @@ export default function InstagramPostFinisher({ visualData, onBack, onComplete }
         }
       };
 
-      const response = await fetch(configuration.webhook_url, {
+      const response = await fetch(configuration.social_webhook_url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

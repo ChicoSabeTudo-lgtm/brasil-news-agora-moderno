@@ -25,6 +25,7 @@ export default function SiteConfigurations() {
   const [headerCode, setHeaderCode] = useState('');
   const [footerCode, setFooterCode] = useState('');
   const [webhookUrl, setWebhookUrl] = useState('');
+  const [socialWebhookUrl, setSocialWebhookUrl] = useState('');
   const [otpWebhookUrl, setOtpWebhookUrl] = useState('');
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
@@ -41,6 +42,7 @@ export default function SiteConfigurations() {
       setFooterCode(configuration.footer_code || '');
       setWebhookUrl(configuration.webhook_url || '');
       setOtpWebhookUrl(configuration.otp_webhook_url || '');
+      setSocialWebhookUrl(configuration.social_webhook_url || '');
       setLogoPreview(configuration.logo_url || null);
       setMockupPreview(configuration.mockup_image_url || null);
     }
@@ -148,6 +150,7 @@ export default function SiteConfigurations() {
       footer_code: footerCode,
       webhook_url: webhookUrl,
       otp_webhook_url: otpWebhookUrl,
+      social_webhook_url: socialWebhookUrl,
       logo_url: logoUrl,
       mockup_image_url: mockupUrl,
     }, {
@@ -394,30 +397,66 @@ export default function SiteConfigurations() {
                       id="social-webhook-url"
                       type="url"
                       placeholder="https://your-n8n-webhook.com/webhook/social"
-                      value={webhookUrl}
-                      onChange={(e) => setWebhookUrl(e.target.value)}
+                      value={socialWebhookUrl}
+                      onChange={(e) => setSocialWebhookUrl(e.target.value)}
                       className="font-mono"
                     />
                   </div>
                   <div className="text-sm text-muted-foreground">
                     <p className="font-medium mb-2">Como funciona:</p>
                     <ul className="list-disc ml-4 space-y-1">
-                      <li>O sistema enviará uma requisição POST para esta URL quando uma notícia for publicada</li>
-                      <li>O payload JSON incluirá: título, resumo, URL, imagem, categoria</li>
-                      <li>Seu n8n pode processar essas informações e compartilhar nas redes sociais</li>
-                      <li>Útil para automação de posts no Facebook, Instagram, Twitter, etc.</li>
+                      <li>O sistema enviará uma requisição POST para esta URL quando compartilhamentos forem enviados</li>
+                      <li>O payload JSON incluirá: tipo de conteúdo, plataformas selecionadas, dados do conteúdo</li>
+                      <li>Seu n8n pode processar essas informações e realizar os compartilhamentos automaticamente</li>
+                      <li>Útil para automação de posts no Facebook, Instagram, Twitter, WhatsApp, etc.</li>
                     </ul>
                     
                     <div className="mt-4 p-3 bg-muted rounded-lg">
-                      <p className="font-medium mb-2">Exemplo do payload enviado:</p>
+                      <p className="font-medium mb-2">Exemplos dos payloads enviados:</p>
+                      
+                      <p className="font-medium text-sm mb-1">Compartilhamento de Conteúdo Principal:</p>
+                      <pre className="text-xs bg-background p-2 rounded border overflow-x-auto mb-3">
+{`{
+  "type": "social_media",
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "user_id": "uuid-do-usuario",
+  "platforms": ["facebook", "twitter", "whatsapp"],
+  "content": {
+    "title": "Título do Post",
+    "summary": "Resumo do conteúdo...",
+    "link": "https://site.com/link-completo",
+    "schedule": {
+      "date": "2024-01-16",
+      "time": "14:30"
+    }
+  }
+}`}
+                      </pre>
+                      
+                      <p className="font-medium text-sm mb-1">Compartilhamento do Instagram:</p>
                       <pre className="text-xs bg-background p-2 rounded border overflow-x-auto">
 {`{
-  "title": "Título da Notícia",
-  "summary": "Resumo da notícia...",
-  "url": "https://site.com/noticia/slug",
-  "image_url": "https://site.com/imagem.jpg",
-  "category": "Política",
-  "published_at": "2024-01-15T10:30:00.000Z"
+  "type": "instagram",
+  "timestamp": "2024-01-15T10:30:00.000Z",
+  "user_id": "uuid-do-usuario",
+  "platforms": ["instagram"],
+  "content": {
+    "title": "Título da Imagem"
+  },
+  "visual": {
+    "image_url": "blob:url-da-imagem",
+    "text_size": 48,
+    "text_align": "left",
+    "image_zoom": 100,
+    "image_position": {"x": 50, "y": 50}
+  },
+  "instagram": {
+    "caption": "Legenda do post no Instagram...",
+    "schedule": {
+      "date": "2024-01-16",
+      "time": "16:00"
+    }
+  }
 }`}
                       </pre>
                     </div>
