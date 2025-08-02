@@ -293,7 +293,7 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
             {/* Categoria */}
             <div className="md:col-span-2">
               <Label>Categoria</Label>
-              <Select value={categoryId || 'none'} onValueChange={(value) => setCategoryId(value === 'none' ? '' : value)}>
+              <Select value={categoryId ? categoryId : 'none'} onValueChange={(value) => setCategoryId(value === 'none' ? '' : value)}>
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="Selecione uma categoria" />
                 </SelectTrigger>
