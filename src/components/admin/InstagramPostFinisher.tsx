@@ -86,6 +86,7 @@ export default function InstagramPostFinisher({ visualData, onBack, onComplete }
         content: {
           title: visualData.title
         },
+        platforms: ['instagram'], // Adiciona a plataforma Instagram
         visual: {
           image_url: visualData.generatedImageUrl,
           text_size: visualData.textSize,
