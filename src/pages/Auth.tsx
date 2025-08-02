@@ -127,7 +127,7 @@ export default function Auth() {
               <img 
                 src="/lovable-uploads/a56010cf-7947-4eea-a4b4-c6783bcdfd59.png" 
                 alt="ChicoSabeTudo" 
-                className="h-16 w-auto object-contain"
+                className="h-48 w-auto object-contain"
               />
             </div>
             <CardDescription>
