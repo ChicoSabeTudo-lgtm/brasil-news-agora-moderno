@@ -70,6 +70,8 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
 
   // Reset and populate form when modal opens/closes or brief changes
   useEffect(() => {
+    console.log('🔄 useEffect triggered:', { open, brief });
+    
     if (!open) {
       // Reset form when closing
       setFormData(DEFAULT_FORM_DATA);
@@ -79,11 +81,14 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
 
     if (brief) {
       // Editing mode - populate with brief data
+      console.log('📝 Populando formulário com dados da pauta:', brief);
+      console.log('📝 Category ID recebido:', brief.category_id);
+      
       const briefDate = brief.brief_date 
         ? new Date(brief.brief_date + 'T00:00:00')
         : new Date();
 
-      setFormData({
+      const newFormData = {
         title: brief.title || '',
         description: brief.description || '',
         briefTime: brief.brief_time || format(new Date(), 'HH:mm'),
@@ -93,7 +98,10 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
         categoryId: brief.category_id || '',
         imageFile: null,
         existingImageUrl: brief.image_url || null,
-      });
+      };
+      
+      console.log('📝 Dados do formulário sendo definidos:', newFormData);
+      setFormData(newFormData);
     } else {
       // New brief mode - reset to defaults
       setFormData(DEFAULT_FORM_DATA);
@@ -405,7 +413,10 @@ export const DailyBriefsForm = ({ open, onClose, onSuccess, brief }: DailyBriefs
             <Label className="text-sm font-medium">Categoria</Label>
             <Select 
               value={formData.categoryId || 'none'} 
-              onValueChange={(value) => updateFormData('categoryId', value === 'none' ? '' : value)}
+              onValueChange={(value) => {
+                console.log('🔄 Categoria selecionada:', value);
+                updateFormData('categoryId', value === 'none' ? '' : value);
+              }}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione uma categoria" />
