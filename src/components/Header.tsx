@@ -71,6 +71,15 @@ export const Header = () => {
                 alt="CHICOSABETUDO" 
                 className="h-12 w-auto object-contain"
                 style={{ imageRendering: 'crisp-edges' }}
+                onError={(e) => {
+                  // Fallback para logo padrão se houver erro
+                  const target = e.target as HTMLImageElement;
+                  if (!target.src.includes('chicosabetudo-logo.png')) {
+                    import('@/assets/chicosabetudo-logo.png').then(logo => {
+                      target.src = logo.default;
+                    });
+                  }
+                }}
               />
             </Link>
             <div className="flex-1 flex justify-end items-center space-x-4">
@@ -108,6 +117,15 @@ export const Header = () => {
                 alt="CHICOSABETUDO" 
                 className="h-12 w-auto object-contain"
                 style={{ imageRendering: 'crisp-edges' }}
+                onError={(e) => {
+                  // Fallback para logo padrão se houver erro
+                  const target = e.target as HTMLImageElement;
+                  if (!target.src.includes('chicosabetudo-logo.png')) {
+                    import('@/assets/chicosabetudo-logo.png').then(logo => {
+                      target.src = logo.default;
+                    });
+                  }
+                }}
               />
             </Link>
           </div>

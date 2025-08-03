@@ -10,15 +10,20 @@ export const useSiteLogo = () => {
         .from('site_configurations')
         .select('logo_url')
         .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
+        .limit(1);
 
+      // Se não há registros, retorna null em vez de erro
       if (error) {
         console.error('Error fetching logo configuration:', error);
         return null;
       }
 
-      return data;
+      // Se não há dados ou array vazio, retorna null
+      if (!data || data.length === 0) {
+        return null;
+      }
+
+      return data[0];
     },
     staleTime: 0,
     gcTime: 0, // Não manter cache após ser unused
