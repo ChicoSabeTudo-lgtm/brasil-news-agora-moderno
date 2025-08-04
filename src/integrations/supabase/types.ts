@@ -665,6 +665,7 @@ export type Database = {
           id: string
           option_id: string
           poll_id: string
+          voted_at_date: string | null
           voter_ip: unknown | null
           voter_session_id: string | null
         }
@@ -673,6 +674,7 @@ export type Database = {
           id?: string
           option_id: string
           poll_id: string
+          voted_at_date?: string | null
           voter_ip?: unknown | null
           voter_session_id?: string | null
         }
@@ -681,6 +683,7 @@ export type Database = {
           id?: string
           option_id?: string
           poll_id?: string
+          voted_at_date?: string | null
           voter_ip?: unknown | null
           voter_session_id?: string | null
         }
@@ -713,6 +716,8 @@ export type Database = {
           is_published: boolean
           title: string
           updated_at: string
+          vote_limit_type: string | null
+          vote_reset_time: string | null
         }
         Insert: {
           allow_multiple_votes?: boolean
@@ -725,6 +730,8 @@ export type Database = {
           is_published?: boolean
           title: string
           updated_at?: string
+          vote_limit_type?: string | null
+          vote_reset_time?: string | null
         }
         Update: {
           allow_multiple_votes?: boolean
@@ -737,6 +744,8 @@ export type Database = {
           is_published?: boolean
           title?: string
           updated_at?: string
+          vote_limit_type?: string | null
+          vote_reset_time?: string | null
         }
         Relationships: []
       }
@@ -953,6 +962,14 @@ export type Database = {
     Functions: {
       approve_user_access: {
         Args: { target_user_id: string; reason?: string }
+        Returns: boolean
+      }
+      can_user_vote: {
+        Args: {
+          poll_id_param: string
+          voter_ip_param?: unknown
+          voter_session_id_param?: string
+        }
         Returns: boolean
       }
       cleanup_expired_otp_codes: {
