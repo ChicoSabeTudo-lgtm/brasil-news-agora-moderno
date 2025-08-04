@@ -28,6 +28,7 @@ import Videos from "./pages/Videos";
 import SiteConfigurations from "./pages/SiteConfigurations";
 import AdsTxt from "./pages/AdsTxt";
 import Profile from "./pages/Profile";
+import Sitemap from "./pages/Sitemap";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,7 @@ const App = () => (
             <Route path="/contato" element={<Contact />} />
             <Route path="/anuncie" element={<Advertise />} />
             <Route path="/ads.txt" element={<AdsTxt />} />
+            <Route path="/sitemap.xml" element={<Sitemap />} />
             <Route path="/noticia/:id" element={<NewsArticle />} />
             <Route path="/:categorySlug/:slug" element={<NewsArticle />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
