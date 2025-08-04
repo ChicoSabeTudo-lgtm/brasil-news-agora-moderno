@@ -33,7 +33,7 @@ export const useSiteLogo = () => {
 
   // Retorna a logo do banco de dados ou a logo padrão
   const logoUrl = configuration?.logo_url 
-    ? `${configuration.logo_url}?t=${Date.now()}`  // Cache busting
+    ? configuration.logo_url  // Remove cache busting desnecessário
     : chicosabetudoLogo;
     
   return {
