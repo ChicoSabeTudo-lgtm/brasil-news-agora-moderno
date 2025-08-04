@@ -1,11 +1,10 @@
 import { Link } from "react-router-dom";
 import { useSiteLogo } from "@/hooks/useSiteLogo";
-
 export const Footer = () => {
-  const { logoUrl } = useSiteLogo();
-  
-  return (
-    <footer className="bg-news-header text-news-header-foreground py-8 mt-16">
+  const {
+    logoUrl
+  } = useSiteLogo();
+  return <footer className="bg-news-header text-news-header-foreground py-8 mt-16">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
@@ -45,9 +44,8 @@ export const Footer = () => {
           </div>
         </div>
         <div className="border-t border-gray-700 mt-8 pt-6 text-center text-sm text-gray-400">
-          <p>&copy; 2024 CHICOSABETUDO. Todos os direitos reservados.</p>
+          <p>© 2025 CHICOSABETUDO. Todos os direitos reservados.</p>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
