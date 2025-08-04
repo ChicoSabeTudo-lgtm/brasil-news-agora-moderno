@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 const Sitemap = () => {
   useEffect(() => {
-    // Redirect to the Supabase edge function
+    // Redirect to the Supabase edge function with custom domain
     window.location.href = 'https://spgusjrjrhfychhdwixn.supabase.co/functions/v1/sitemap';
   }, []);
 

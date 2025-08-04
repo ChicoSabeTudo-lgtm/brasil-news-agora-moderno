@@ -41,14 +41,7 @@ serve(async (req) => {
       .select('slug, updated_at')
       .eq('is_active', true)
 
-    // Get base URL from request headers, prioritizing custom domain
-    const forwardedHost = req.headers.get('x-forwarded-host')
-    const host = req.headers.get('host')
-    const protocol = req.headers.get('x-forwarded-proto') || 'https'
-    
-    // Use forwarded host if available (from custom domain), otherwise fallback to host
-    const actualHost = forwardedHost || host
-    const baseUrl = actualHost ? `${protocol}://${actualHost}` : 'https://chicosabetudo.sigametech.com.br'
+    const baseUrl = 'https://chicosabetudo.sigametech.com.br'
     const currentDate = new Date().toISOString()
 
     let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
