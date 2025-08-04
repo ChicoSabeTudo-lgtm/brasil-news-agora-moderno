@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Layout } from "@/components/Layout";
 import { NewsCard } from "@/components/NewsCard";
-import { LiveVideo } from "@/components/LiveVideo";
+import { DynamicContentBlock } from "@/components/DynamicContentBlock";
 import { Advertisement } from "@/components/Advertisement";
 import { VideoModal } from "@/components/VideoModal";
 import { Link } from "react-router-dom";
@@ -275,9 +275,9 @@ const Index = () => {
                 <NewsCard {...mainNews} />
               </div>
               
-              {/* Live Video Sidebar */}
+              {/* Dynamic Content Block Sidebar */}
               <div className="lg:col-span-1">
-                <LiveVideo />
+                <DynamicContentBlock />
               </div>
             </div>
           </section>

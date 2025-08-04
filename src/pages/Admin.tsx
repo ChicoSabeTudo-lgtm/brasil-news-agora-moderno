@@ -20,6 +20,8 @@ import { AdvertisingManagement } from '@/components/admin/AdvertisingManagement'
 import { LiveStreamManagement } from '@/components/admin/LiveStreamManagement';
 import { VideoManagement } from '@/components/admin/VideoManagement';
 import { DailyBriefsPanel } from '@/components/admin/DailyBriefsPanel';
+import { PollManagement } from '@/components/admin/PollManagement';
+import { BlocksConfigManagement } from '@/components/admin/BlocksConfigManagement';
 import PostSharingForm from '@/components/admin/PostSharingForm';
 import { ProfileSettings } from '@/components/admin/ProfileSettings';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -37,7 +39,9 @@ import {
   Radio,
   Video,
   UserCircle,
-  LogOut
+  LogOut,
+  Vote,
+  Monitor
 } from 'lucide-react';
 
 export default function Admin() {
@@ -126,7 +130,7 @@ export default function Admin() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-10 lg:w-auto lg:grid-cols-none lg:inline-flex">
+            <TabsList className="grid w-full grid-cols-12 lg:w-auto lg:grid-cols-none lg:inline-flex">
               <TabsTrigger value="dashboard" className="flex items-center gap-2">
                 <LayoutDashboard className="w-4 h-4" />
                 Dashboard
@@ -142,6 +146,14 @@ export default function Admin() {
               <TabsTrigger value="live" className="flex items-center gap-2">
                 <Radio className="w-4 h-4" />
                 Ao Vivo
+              </TabsTrigger>
+              <TabsTrigger value="polls" className="flex items-center gap-2">
+                <Vote className="w-4 h-4" />
+                Enquetes
+              </TabsTrigger>
+              <TabsTrigger value="blocks-config" className="flex items-center gap-2">
+                <Monitor className="w-4 h-4" />
+                Blocos
               </TabsTrigger>
               <TabsTrigger value="categories" className="flex items-center gap-2">
                 <Tag className="w-4 h-4" />
@@ -238,6 +250,14 @@ export default function Admin() {
                   </TabsContent>
                 </Tabs>
               </div>
+            </TabsContent>
+
+            <TabsContent value="polls">
+              <PollManagement />
+            </TabsContent>
+
+            <TabsContent value="blocks-config">
+              <BlocksConfigManagement />
             </TabsContent>
 
             <TabsContent value="categories">

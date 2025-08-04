@@ -621,6 +621,125 @@ export type Database = {
         }
         Relationships: []
       }
+      poll_options: {
+        Row: {
+          created_at: string
+          id: string
+          option_text: string
+          poll_id: string
+          sort_order: number
+          updated_at: string
+          vote_count: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          option_text: string
+          poll_id: string
+          sort_order?: number
+          updated_at?: string
+          vote_count?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          option_text?: string
+          poll_id?: string
+          sort_order?: number
+          updated_at?: string
+          vote_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_options_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      poll_votes: {
+        Row: {
+          created_at: string
+          id: string
+          option_id: string
+          poll_id: string
+          voter_ip: unknown | null
+          voter_session_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          option_id: string
+          poll_id: string
+          voter_ip?: unknown | null
+          voter_session_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          option_id?: string
+          poll_id?: string
+          voter_ip?: unknown | null
+          voter_session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_votes_option_id_fkey"
+            columns: ["option_id"]
+            isOneToOne: false
+            referencedRelation: "poll_options"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "poll_votes_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      polls: {
+        Row: {
+          allow_multiple_votes: boolean
+          created_at: string
+          created_by: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          is_active: boolean
+          is_published: boolean
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          allow_multiple_votes?: boolean
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          is_published?: boolean
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          allow_multiple_votes?: boolean
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          is_published?: boolean
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           access_revoked: boolean | null
@@ -706,9 +825,11 @@ export type Database = {
           footer_code: string | null
           header_code: string | null
           id: string
+          live_stream_block_enabled: boolean | null
           logo_url: string | null
           mockup_image_url: string | null
           otp_webhook_url: string | null
+          poll_block_enabled: boolean | null
           social_webhook_url: string | null
           updated_at: string
           updated_by: string | null
@@ -720,9 +841,11 @@ export type Database = {
           footer_code?: string | null
           header_code?: string | null
           id?: string
+          live_stream_block_enabled?: boolean | null
           logo_url?: string | null
           mockup_image_url?: string | null
           otp_webhook_url?: string | null
+          poll_block_enabled?: boolean | null
           social_webhook_url?: string | null
           updated_at?: string
           updated_by?: string | null
@@ -734,9 +857,11 @@ export type Database = {
           footer_code?: string | null
           header_code?: string | null
           id?: string
+          live_stream_block_enabled?: boolean | null
           logo_url?: string | null
           mockup_image_url?: string | null
           otp_webhook_url?: string | null
+          poll_block_enabled?: boolean | null
           social_webhook_url?: string | null
           updated_at?: string
           updated_by?: string | null
