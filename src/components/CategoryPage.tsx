@@ -199,12 +199,16 @@ export const CategoryPage = ({ category, categoryColor = "#0066cc", description 
   return (
     <>
       <SeoMeta 
-        title={`${category} - ChicoSabeTudo | Portal de Notícias da Bahia`}
-        description={description || `Últimas notícias sobre ${category} na Bahia. Cobertura completa e atualizada no ChicoSabeTudo.`}
+        title={`Últimas notícias em ${category} | ChicoSabeTudo`}
+        description={description || `Cobertura completa de ${category.toLowerCase()} na Bahia. Acompanhe tudo no ChicoSabeTudo!`}
         keywords={`${category.toLowerCase()}, notícias ${category.toLowerCase()}, bahia, chicosabetudo, portal de notícias`}
         canonical={`https://chicosabetudo.sigametech.com.br/${categorySlug}`}
-        ogImage={imageMap[category] || breakingImage}
+        ogImage={`https://chicosabetudo.sigametech.com.br/images/${categorySlug}-og.jpg`}
         ogUrl={`https://chicosabetudo.sigametech.com.br/${categorySlug}`}
+        ogSiteName="ChicoSabeTudo"
+        ogLocale="pt_BR"
+        twitterCard="summary_large_image"
+        twitterSite="@chicosabetudo"
         structuredData={categoryStructuredData}
       />
     <Layout>
