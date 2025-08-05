@@ -7,11 +7,13 @@ const Sitemap = () => {
   useEffect(() => {
     const fetchSitemap = async () => {
       try {
-        // Redirect to the Supabase function directly for XML response
-        window.location.href = 'https://spgusjrjrhfychhdwixn.supabase.co/functions/v1/sitemap';
+        const response = await fetch('https://spgusjrjrhfychhdwixn.supabase.co/functions/v1/sitemap');
+        const content = await response.text();
+        setSitemapContent(content);
       } catch (error) {
         console.error('Error fetching sitemap:', error);
         setSitemapContent('<?xml version="1.0" encoding="UTF-8"?><error>Unable to load sitemap</error>');
+      } finally {
         setLoading(false);
       }
     };
