@@ -101,7 +101,8 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
             canvas.width = 1080;
             canvas.height = 1440;
 
-            // Preencher fundo preto
+            // Limpar canvas e preencher com fundo preto
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.fillStyle = '#000000';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
