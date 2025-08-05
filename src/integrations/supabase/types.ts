@@ -1006,14 +1006,6 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
-      debug_rls_auth: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          current_user_id: string
-          session_exists: boolean
-          test_user_id: string
-        }[]
-      }
       delete_user_safe: {
         Args: { target_user_id: string; reason?: string }
         Returns: boolean
