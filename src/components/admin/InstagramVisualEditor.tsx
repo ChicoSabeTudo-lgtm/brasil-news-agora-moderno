@@ -231,7 +231,8 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
         .from('news-images')
         .getPublicUrl(uploadData.path);
 
-      const publicUrl = urlData.publicUrl;
+      // Adicionar timestamp para evitar cache
+      const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
 
       // Salvar metadados na tabela instagram_images
       const { error: dbError } = await supabase
