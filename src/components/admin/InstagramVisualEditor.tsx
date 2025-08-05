@@ -131,12 +131,22 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
             const drawWidth = baseDrawWidth * zoomFactor;
             const drawHeight = baseDrawHeight * zoomFactor;
 
-            // Aplicar posicionamento
-            const offsetX = ((visualData.imagePosition.x - 50) / 100) * canvas.width;
-            const offsetY = ((visualData.imagePosition.y - 50) / 100) * canvas.height;
+            // Aplicar posicionamento (convertendo percentual para pixels)
+            // x: 0-100% -> posição horizontal (0 = esquerda, 50 = centro, 100 = direita)
+            // y: 0-100% -> posição vertical (0 = topo, 50 = centro, 100 = baixo)
+            const positionFactorX = (visualData.imagePosition.x - 50) / 50; // -1 a 1
+            const positionFactorY = (visualData.imagePosition.y - 50) / 50; // -1 a 1
             
-            const drawX = baseDrawX + offsetX - (drawWidth - baseDrawWidth) / 2;
-            const drawY = baseDrawY + offsetY - (drawHeight - baseDrawHeight) / 2;
+            // Calcular offset máximo baseado na diferença entre tamanho com zoom e sem zoom
+            const maxOffsetX = (drawWidth - baseDrawWidth) / 2;
+            const maxOffsetY = (drawHeight - baseDrawHeight) / 2;
+            
+            // Aplicar posicionamento proporcional
+            const offsetX = positionFactorX * maxOffsetX;
+            const offsetY = positionFactorY * maxOffsetY;
+            
+            const drawX = baseDrawX - maxOffsetX + offsetX;
+            const drawY = baseDrawY - maxOffsetY + offsetY;
 
             // Desenhar imagem com zoom e posicionamento aplicados
             ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
