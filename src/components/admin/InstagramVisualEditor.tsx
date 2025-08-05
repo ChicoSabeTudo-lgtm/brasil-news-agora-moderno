@@ -150,16 +150,17 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
               ctx.lineWidth = 3;
               ctx.textAlign = visualData.textAlign;
               
-              // Calcular posição do texto (parte inferior com padding de 70px)
-              const textY = canvas.height - 70;
+              // Calcular posição do texto (parte inferior com padding proporcional)
+              const paddingBottom = canvas.height * 0.05; // 5% da altura (equivale a ~72px em 1440px)
+              const textY = canvas.height - paddingBottom;
               let textX;
               
               switch (visualData.textAlign) {
                 case 'left':
-                  textX = 30;
+                  textX = canvas.width * 0.03; // 3% da largura (~32px em 1080px)
                   break;
                 case 'right':
-                  textX = canvas.width - 60;
+                  textX = canvas.width * 0.95; // 95% da largura
                   break;
                 default: // center
                   textX = canvas.width / 2;
@@ -608,23 +609,22 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
                    {/* Texto sobreposto */}
                    {visualData.title && visualData.backgroundImage && !isGeneratingPreview && !previewError && (
                      <div 
-                       className="absolute bottom-0 left-0 right-0 pointer-events-none"
+                       className="absolute bottom-0 left-0 right-0 pointer-events-none text-white"
                        style={{
-                         paddingBottom: '70px',
-                         paddingLeft: visualData.textAlign === 'left' ? '30px' : '60px',
-                         paddingRight: '60px',
-                          fontSize: `${visualData.textSize}px`, // Tamanho exato configurado
-                          textAlign: visualData.textAlign,
-                          color: 'white',
-                          textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-                          fontWeight: '900',
-                          fontFamily: "'Archivo Black', sans-serif",
-                          lineHeight: '1.2',
-                          textTransform: 'uppercase'
-                        }}
-                      >
-                        {visualData.title}
-                      </div>
+                         paddingBottom: '5%', // Proporcional ao container (equivale a ~70px em 1440px)
+                         paddingLeft: visualData.textAlign === 'left' ? '3%' : '5%', // Proporcional 
+                         paddingRight: '5%',
+                         fontSize: `clamp(12px, ${(visualData.textSize / 20)}vw, ${visualData.textSize}px)`, // Responsivo com limites
+                         textAlign: visualData.textAlign,
+                         textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                         fontWeight: '900',
+                         fontFamily: "'Archivo Black', sans-serif",
+                         lineHeight: '1.2',
+                         textTransform: 'uppercase'
+                       }}
+                     >
+                       {visualData.title}
+                     </div>
                    )}
 
                   {/* Empty state */}
