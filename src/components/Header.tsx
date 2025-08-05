@@ -112,21 +112,22 @@ export const Header = () => {
           {/* Desktop Layout */}
           <div className="hidden md:flex items-center space-x-6">
             <Link to="/" className="flex items-center">
-              <img 
-                src={logoUrl} 
-                alt="CHICOSABETUDO" 
-                className="h-12 w-auto object-contain"
-                style={{ imageRendering: 'crisp-edges' }}
-                onError={(e) => {
-                  // Fallback para logo padrão apenas se não for do Supabase
-                  const target = e.target as HTMLImageElement;
-                  if (target.src.includes('supabase.co')) {
-                    import('@/assets/chicosabetudo-logo.png').then(logo => {
-                      target.src = logo.default;
-                    });
-                  }
-                }}
-              />
+              import defaultLogo from '@/assets/chicosabetudo-logo.png';
+
+<img
+  src={logoUrl}
+  alt="CHICOSABETUDO"
+  className="h-12 w-auto object-contain"
+  style={{ imageRendering: 'crisp-edges' }}
+  onError={e => {
+    const target = e.target;
+    // Evita loop: só troca se for diferente do fallback
+    if (target.src !== defaultLogo) {
+      target.src = defaultLogo;
+    }
+  }}
+/>
+
             </Link>
           </div>
           
