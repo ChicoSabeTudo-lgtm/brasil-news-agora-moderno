@@ -315,8 +315,8 @@ const Index = () => {
       />
       <Layout>
       <main className="container mx-auto px-4 py-8">
-        {/* SEO H1 Header */}
-        <header className="mb-8">
+        {/* SEO H1 Header - Hidden */}
+        <header className="mb-8 sr-only">
           <h1 className="text-4xl font-bold text-foreground mb-2">
             Portal ChicoSabeTudo - Notícias da Bahia
           </h1>
