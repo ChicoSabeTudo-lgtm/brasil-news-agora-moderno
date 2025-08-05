@@ -214,9 +214,20 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
 
   const uploadImageToSupabase = async (blob: Blob): Promise<string | null> => {
     if (!user?.id) {
+      console.error('❌ Usuário não autenticado:', { user });
       toast.error('Usuário não autenticado');
       return null;
     }
+
+    console.log('✅ Usuário autenticado:', { userId: user.id, userEmail: user.email });
+
+    // Verificar se a sessão do Supabase está válida
+    const { data: { session } } = await supabase.auth.getSession();
+    console.log('🔐 Sessão do Supabase:', { 
+      sessionExists: !!session, 
+      sessionUserId: session?.user?.id,
+      accessToken: session?.access_token ? 'exists' : 'missing' 
+    });
 
     try {
       setIsUploading(true);
@@ -247,6 +258,18 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
       const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
 
       // Salvar metadados na tabela instagram_images
+      console.log('📝 Tentando inserir dados na tabela instagram_images:', {
+        user_id: user.id,
+        image_url: publicUrl,
+        title: visualData.title || null,
+        visual_data: {
+          imageZoom: visualData.imageZoom,
+          imagePosition: visualData.imagePosition,
+          textSize: visualData.textSize,
+          textAlign: visualData.textAlign
+        }
+      });
+
       const { error: dbError } = await supabase
         .from('instagram_images')
         .insert({
@@ -262,7 +285,7 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
         });
 
       if (dbError) {
-        console.error('Erro ao salvar metadados:', dbError);
+        console.error('❌ Erro ao salvar metadados:', dbError);
         toast.error('Erro ao salvar metadados da imagem');
         return null;
       }
