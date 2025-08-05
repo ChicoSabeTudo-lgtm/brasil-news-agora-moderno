@@ -221,6 +221,20 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
 
     console.log('✅ Usuário autenticado:', { userId: user.id, userEmail: user.email });
 
+    // Verificar e estabelecer sessão válida do Supabase
+    const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError || !currentSession) {
+      console.error('❌ Sessão do Supabase inválida:', { sessionError, currentSession });
+      toast.error('Sessão expirada. Faça login novamente.');
+      return null;
+    }
+
+    console.log('✅ Sessão do Supabase válida:', { 
+      userId: currentSession.user.id, 
+      accessToken: currentSession.access_token ? 'presente' : 'ausente' 
+    });
+
     try {
       setIsUploading(true);
       
@@ -236,10 +250,12 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
         });
 
       if (uploadError) {
-        console.error('Erro no upload:', uploadError);
+        console.error('❌ Erro no upload:', uploadError);
         toast.error('Erro ao fazer upload da imagem');
         return null;
       }
+
+      console.log('✅ Upload realizado no storage:', uploadData);
 
       // Obter URL pública
       const { data: urlData } = supabase.storage
@@ -251,7 +267,7 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
 
       // Salvar metadados na tabela instagram_images
       console.log('📝 Tentando inserir dados na tabela instagram_images:', {
-        user_id: user.id,
+        user_id: currentSession.user.id, // Usar ID da sessão válida
         image_url: publicUrl,
         title: visualData.title || null,
         visual_data: {
@@ -265,7 +281,7 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
       const { error: dbError } = await supabase
         .from('instagram_images')
         .insert({
-          user_id: user.id,
+          user_id: currentSession.user.id, // Usar ID da sessão válida
           image_url: publicUrl,
           title: visualData.title || null,
           visual_data: {
@@ -282,6 +298,7 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
         return null;
       }
 
+      console.log('✅ Metadados salvos com sucesso!');
       toast.success('Imagem salva com sucesso!');
       return publicUrl;
 
