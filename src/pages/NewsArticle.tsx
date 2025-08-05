@@ -201,7 +201,7 @@ const NewsArticle = () => {
     const currentUrl = window.location.href;
     const featuredImage = newsData.news_images?.find(img => img.is_featured) || newsData.news_images?.[0];
     const imageUrl = featuredImage ? getImageUrl(featuredImage) : null;
-    const siteName = "News Brasil";
+    const siteName = "ChicoSabeTudo";
     const excerpt = newsData.subtitle || newsData.meta_description;
     
     // Limpar meta tags existentes
