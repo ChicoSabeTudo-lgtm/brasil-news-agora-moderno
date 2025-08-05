@@ -73,7 +73,7 @@ export const Header = () => {
                 style={{ imageRendering: 'crisp-edges' }}
                 onError={(e) => {
                   // Fallback para logo padrão apenas se não for do Supabase
-                  const target = e.target as HTMLImageElement;
+                  const target = e.currentTarget as HTMLImageElement;
                   if (target.src.includes('supabase.co')) {
                     import('@/assets/chicosabetudo-logo.png').then(logo => {
                       target.src = logo.default;
@@ -119,7 +119,7 @@ export const Header = () => {
                 style={{ imageRendering: 'crisp-edges' }}
                 onError={(e) => {
                   // Fallback para logo padrão apenas se não for do Supabase
-                  const target = e.target as HTMLImageElement;
+                  const target = e.currentTarget as HTMLImageElement;
                   if (target.src.includes('supabase.co')) {
                     import('@/assets/chicosabetudo-logo.png').then(logo => {
                       target.src = logo.default;
