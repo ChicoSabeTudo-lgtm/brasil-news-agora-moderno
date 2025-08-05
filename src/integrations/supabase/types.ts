@@ -253,6 +253,36 @@ export type Database = {
           },
         ]
       }
+      instagram_images: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string
+          title: string | null
+          updated_at: string
+          user_id: string
+          visual_data: Json | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url: string
+          title?: string | null
+          updated_at?: string
+          user_id: string
+          visual_data?: Json | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+          visual_data?: Json | null
+        }
+        Relationships: []
+      }
       live_programs: {
         Row: {
           created_at: string

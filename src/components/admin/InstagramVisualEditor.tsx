@@ -6,6 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { ArrowRight, Image as ImageIcon, Download, ZoomIn, Move, Type, AlignLeft, AlignCenter, AlignRight, RotateCcw } from 'lucide-react';
 import { useInstagramMockup } from '@/hooks/useInstagramMockup';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
+import { toast } from 'sonner';
 
 interface VisualData {
   title: string;
@@ -23,6 +26,7 @@ interface InstagramVisualEditorProps {
 
 export default function InstagramVisualEditor({ onContinue, initialData }: InstagramVisualEditorProps) {
   const { mockupUrl } = useInstagramMockup();
+  const { user } = useAuth();
   const [visualData, setVisualData] = useState<VisualData>({
     title: initialData?.title || '',
     backgroundImage: initialData?.backgroundImage || null,
@@ -34,6 +38,7 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
 
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
   const [previewError, setPreviewError] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -68,7 +73,7 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
     }
   };
 
-  const generateFinalImage = useCallback(async (): Promise<string | null> => {
+  const generateFinalImageBlob = useCallback(async (): Promise<Blob | null> => {
     if (!visualData.backgroundImage) {
       setPreviewError('Imagem é obrigatória');
       return null;
@@ -167,11 +172,10 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
               ctx.fillText(visualData.title.toUpperCase(), textX, textY);
             }
             
-            // Gerar blob e URL
+            // Gerar blob
             canvas.toBlob((blob) => {
               if (blob) {
-                const imageUrl = URL.createObjectURL(blob);
-                resolve(imageUrl);
+                resolve(blob);
               } else {
                 reject(new Error('Erro ao gerar imagem final'));
               }
@@ -196,18 +200,103 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
     }
   }, [visualData.backgroundImage, visualData.title, visualData.textSize, visualData.textAlign]);
 
-  const handleContinue = async () => {
-    console.log('🔄 Iniciando generateFinalImage...', visualData);
-    const imageUrl = await generateFinalImage();
-    console.log('📸 Resultado da generateFinalImage:', imageUrl);
-    
-    if (imageUrl) {
-      console.log('✅ Chamando onContinue com dados:', { ...visualData, generatedImageUrl: imageUrl });
-      onContinue({ ...visualData, generatedImageUrl: imageUrl });
-    } else {
-      console.error('❌ Falha ao gerar imagem - não foi possível continuar');
-      // Podemos adicionar um toast de erro aqui
+  const uploadImageToSupabase = async (blob: Blob): Promise<string | null> => {
+    if (!user?.id) {
+      toast.error('Usuário não autenticado');
+      return null;
     }
+
+    try {
+      setIsUploading(true);
+      
+      // Gerar nome único para o arquivo
+      const fileName = `instagram-${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
+      
+      // Upload para o Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('news-images')
+        .upload(fileName, blob, {
+          contentType: 'image/jpeg',
+          cacheControl: '3600'
+        });
+
+      if (uploadError) {
+        console.error('Erro no upload:', uploadError);
+        toast.error('Erro ao fazer upload da imagem');
+        return null;
+      }
+
+      // Obter URL pública
+      const { data: urlData } = supabase.storage
+        .from('news-images')
+        .getPublicUrl(uploadData.path);
+
+      const publicUrl = urlData.publicUrl;
+
+      // Salvar metadados na tabela instagram_images
+      const { error: dbError } = await supabase
+        .from('instagram_images')
+        .insert({
+          user_id: user.id,
+          image_url: publicUrl,
+          title: visualData.title || null,
+          visual_data: {
+            imageZoom: visualData.imageZoom,
+            imagePosition: visualData.imagePosition,
+            textSize: visualData.textSize,
+            textAlign: visualData.textAlign
+          }
+        });
+
+      if (dbError) {
+        console.error('Erro ao salvar metadados:', dbError);
+        toast.error('Erro ao salvar metadados da imagem');
+        return null;
+      }
+
+      toast.success('Imagem salva com sucesso!');
+      return publicUrl;
+
+    } catch (error) {
+      console.error('Erro no upload:', error);
+      toast.error('Erro inesperado ao fazer upload');
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const generateFinalImage = useCallback(async (): Promise<string | null> => {
+    const blob = await generateFinalImageBlob();
+    if (blob) {
+      return URL.createObjectURL(blob);
+    }
+    return null;
+  }, [generateFinalImageBlob]);
+
+  const handleContinue = async () => {
+    console.log('🔄 Iniciando processo de upload...', visualData);
+    
+    // Gerar blob da imagem
+    const blob = await generateFinalImageBlob();
+    if (!blob) {
+      console.error('❌ Falha ao gerar blob da imagem');
+      toast.error('Erro ao gerar imagem');
+      return;
+    }
+
+    // Upload para Supabase Storage
+    const publicUrl = await uploadImageToSupabase(blob);
+    if (!publicUrl) {
+      console.error('❌ Falha ao fazer upload da imagem');
+      return;
+    }
+
+    console.log('✅ Upload realizado com sucesso. URL:', publicUrl);
+    console.log('✅ Chamando onContinue com dados:', { ...visualData, generatedImageUrl: publicUrl });
+    
+    // Passar a URL pública permanente para o próximo step
+    onContinue({ ...visualData, generatedImageUrl: publicUrl });
   };
 
   const handleDownload = async () => {
@@ -422,11 +511,11 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
                 
                 <Button
                   onClick={handleContinue}
-                  disabled={!isValid || isGeneratingPreview}
+                  disabled={!isValid || isGeneratingPreview || isUploading}
                   size="lg"
                   className="flex items-center gap-2 flex-1"
                 >
-                  Continuar Post
+                  {isUploading ? 'Salvando...' : 'Continuar Post'}
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               </div>
