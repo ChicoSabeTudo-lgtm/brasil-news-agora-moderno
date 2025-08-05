@@ -29,6 +29,7 @@ import SiteConfigurations from "./pages/SiteConfigurations";
 import AdsTxt from "./pages/AdsTxt";
 import Profile from "./pages/Profile";
 import Sitemap from "./pages/Sitemap";
+import RobotsTxt from "./pages/RobotsTxt";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ const App = () => (
             <Route path="/contato" element={<Contact />} />
             <Route path="/anuncie" element={<Advertise />} />
             <Route path="/ads.txt" element={<AdsTxt />} />
+            <Route path="/robots.txt" element={<RobotsTxt />} />
             <Route path="/sitemap.xml" element={<Sitemap />} />
             <Route path="/noticia/:id" element={<NewsArticle />} />
             <Route path="/:categorySlug/:slug" element={<NewsArticle />} />
