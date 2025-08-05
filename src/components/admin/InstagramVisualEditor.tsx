@@ -221,14 +221,6 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
 
     console.log('✅ Usuário autenticado:', { userId: user.id, userEmail: user.email });
 
-    // Verificar se a sessão do Supabase está válida
-    const { data: { session } } = await supabase.auth.getSession();
-    console.log('🔐 Sessão do Supabase:', { 
-      sessionExists: !!session, 
-      sessionUserId: session?.user?.id,
-      accessToken: session?.access_token ? 'exists' : 'missing' 
-    });
-
     try {
       setIsUploading(true);
       
