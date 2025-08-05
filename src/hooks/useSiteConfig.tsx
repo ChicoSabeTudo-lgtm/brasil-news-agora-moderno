@@ -13,9 +13,9 @@ export const useSiteConfig = () => {
       const { data, error } = await supabase
         .from('site_configurations')
         .select('header_code, footer_code')
-        .order('created_at', { ascending: false })
+        .order('updated_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error('Error fetching site config:', error);

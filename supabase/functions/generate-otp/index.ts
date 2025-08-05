@@ -102,8 +102,9 @@ Deno.serve(async (req) => {
     const { data: config } = await supabase
       .from('site_configurations')
       .select('otp_webhook_url')
+      .order('updated_at', { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
 
     if (config?.otp_webhook_url) {
       // Send webhook to n8n
