@@ -67,8 +67,8 @@ export const useSiteConfigurations = () => {
     onSuccess: () => {
       // Força invalidação e refetch imediato
       queryClient.invalidateQueries({ queryKey: ['site-configurations'] });
-      queryClient.invalidateQueries({ queryKey: ['site-logo'] });
-      queryClient.refetchQueries({ queryKey: ['site-logo'] });
+      queryClient.invalidateQueries({ queryKey: ['site-logo-single'] });
+      queryClient.refetchQueries({ queryKey: ['site-logo-single'] });
       toast({
         title: 'Sucesso',
         description: 'Configurações atualizadas com sucesso.',

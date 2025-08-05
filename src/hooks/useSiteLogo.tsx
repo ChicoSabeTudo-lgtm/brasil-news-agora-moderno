@@ -3,37 +3,40 @@ import { supabase } from '@/integrations/supabase/client';
 import chicosabetudoLogo from "@/assets/chicosabetudo-logo.png";
 
 export const useSiteLogo = () => {
-  const { data: configuration, refetch } = useQuery({
-    queryKey: ['site-logo'],
+  const { data: configuration, refetch, isLoading } = useQuery({
+    queryKey: ['site-logo-single'],
     queryFn: async () => {
+      console.log('🔍 Fetching logo configuration...');
+      
       const { data, error } = await supabase
         .from('site_configurations')
         .select('logo_url')
         .order('updated_at', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
 
-      // Se há erro, retorna null
       if (error) {
-        console.error('Error fetching logo configuration:', error);
+        console.error('❌ Error fetching logo configuration:', error);
         return null;
       }
 
+      console.log('✅ Logo configuration fetched:', data);
       return data;
     },
     staleTime: 0,
-    gcTime: 0, // Não manter cache após ser unused
+    gcTime: 0,
     refetchOnWindowFocus: true,
     refetchOnMount: true,
   });
 
   // Retorna a logo do banco de dados ou a logo padrão
-  const logoUrl = configuration?.logo_url 
-    ? configuration.logo_url  // Remove cache busting desnecessário
-    : chicosabetudoLogo;
+  const logoUrl = configuration?.logo_url || chicosabetudoLogo;
+  
+  console.log('🖼️ Current logoUrl:', logoUrl, 'isLoading:', isLoading);
     
   return {
     logoUrl,
-    refetchLogo: refetch
+    refetchLogo: refetch,
+    isLoading
   };
 };
