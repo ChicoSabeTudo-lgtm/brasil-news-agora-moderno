@@ -9,21 +9,17 @@ export const useSiteLogo = () => {
       const { data, error } = await supabase
         .from('site_configurations')
         .select('logo_url')
-        .order('created_at', { ascending: false })
-        .limit(1);
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .single();
 
-      // Se não há registros, retorna null em vez de erro
+      // Se há erro, retorna null
       if (error) {
         console.error('Error fetching logo configuration:', error);
         return null;
       }
 
-      // Se não há dados ou array vazio, retorna null
-      if (!data || data.length === 0) {
-        return null;
-      }
-
-      return data[0];
+      return data;
     },
     staleTime: 0,
     gcTime: 0, // Não manter cache após ser unused
