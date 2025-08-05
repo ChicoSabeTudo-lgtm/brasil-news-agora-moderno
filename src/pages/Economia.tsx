@@ -4,7 +4,7 @@ const Economia = () => {
   return (
     <CategoryPage 
       category="Economia" 
-      description="Fique por dentro das principais notícias econômicas do Brasil e do mundo, indicadores financeiros, decisões do Banco Central e análises de mercado."
+      description="Economia da Bahia e do Brasil: mercado financeiro, empresas baianas, PIB estadual, agronegócios e análises econômicas. Acompanhe no ChicoSabeTudo!"
     />
   );
 };

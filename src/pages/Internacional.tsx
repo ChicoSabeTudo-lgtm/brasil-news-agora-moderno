@@ -4,7 +4,7 @@ const Internacional = () => {
   return (
     <CategoryPage 
       category="Internacional" 
-      description="Notícias internacionais, política global, relações diplomáticas, economia mundial e eventos que impactam o cenário internacional."
+      description="Notícias internacionais que impactam a Bahia: economia global, política externa, relações diplomáticas e eventos mundiais. Cobertura completa no ChicoSabeTudo!"
     />
   );
 };

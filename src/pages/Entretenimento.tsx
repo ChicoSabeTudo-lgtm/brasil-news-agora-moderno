@@ -4,7 +4,7 @@ const Entretenimento = () => {
   return (
     <CategoryPage 
       category="Entretenimento" 
-      description="O melhor do entretenimento brasileiro e internacional, cinema, música, televisão, celebridades e cultura pop."
+      description="Entretenimento e cultura da Bahia: música, televisão, celebridades baianas, carnaval e eventos culturais. Tudo no ChicoSabeTudo!"
     />
   );
 };

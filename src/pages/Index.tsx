@@ -4,6 +4,7 @@ import { NewsCard } from "@/components/NewsCard";
 import { DynamicContentBlock } from "@/components/DynamicContentBlock";
 import { Advertisement } from "@/components/Advertisement";
 import { VideoModal } from "@/components/VideoModal";
+import { SeoMeta } from "@/components/SeoMeta";
 import { Link } from "react-router-dom";
 import { useNews } from "@/hooks/useNews";
 import { useCategories } from "@/hooks/useCategories";
@@ -128,6 +129,44 @@ const Index = () => {
 
   // IDs das notícias em destaque para excluir das seções
   const featuredNewsIds = featuredNews.map(item => item.id);
+
+  // Schema.org data for homepage
+  const homepageStructuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "NewsMediaOrganization",
+        "@id": "https://chicosabetudo.sigametech.com.br/#organization",
+        "name": "ChicoSabeTudo",
+        "alternateName": "Portal ChicoSabeTudo",
+        "url": "https://chicosabetudo.sigametech.com.br",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://chicosabetudo.sigametech.com.br/lovable-uploads/aac6981c-a63e-4b99-a9d1-5be26ea5ad4a.png"
+        },
+        "sameAs": [
+          "https://facebook.com/chicosabetudo",
+          "https://instagram.com/chicosabetudo"
+        ],
+        "description": "Portal de notícias da Bahia com cobertura completa de política, economia, esportes e entretenimento"
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://chicosabetudo.sigametech.com.br/#website",
+        "url": "https://chicosabetudo.sigametech.com.br",
+        "name": "ChicoSabeTudo",
+        "publisher": {
+          "@id": "https://chicosabetudo.sigametech.com.br/#organization"
+        },
+        "inLanguage": "pt-BR",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://chicosabetudo.sigametech.com.br/search?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    ]
+  };
 
   // Função para renderizar template 'standard' - Grid padrão
   const renderStandardTemplate = (category: any, newsItems: any[]) => (
@@ -264,7 +303,17 @@ const Index = () => {
   );
 
   return (
-    <Layout>
+    <>
+      <SeoMeta 
+        title="Portal ChicoSabeTudo - Notícias da Bahia"
+        description="Portal de notícias da Bahia com cobertura completa de política, economia, esportes e entretenimento. Informação confiável e atualizada 24h."
+        keywords="notícias bahia, portal de notícias, bahia notícias, política bahia, esportes bahia"
+        canonical="https://chicosabetudo.sigametech.com.br"
+        ogImage="https://chicosabetudo.sigametech.com.br/lovable-uploads/aac6981c-a63e-4b99-a9d1-5be26ea5ad4a.png"
+        ogUrl="https://chicosabetudo.sigametech.com.br"
+        structuredData={homepageStructuredData}
+      />
+      <Layout>
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section with Main News */}
         {mainNews && (
@@ -498,6 +547,7 @@ const Index = () => {
         video={selectedVideo} 
       />
     </Layout>
+    </>
   );
 };
 

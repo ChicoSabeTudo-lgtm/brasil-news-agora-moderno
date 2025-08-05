@@ -7,7 +7,14 @@ interface SeoMetaProps {
   canonical?: string;
   ogImage?: string;
   ogType?: string;
+  ogUrl?: string;
+  ogSiteName?: string;
+  ogLocale?: string;
+  twitterCard?: string;
+  twitterSite?: string;
+  twitterCreator?: string;
   noindex?: boolean;
+  structuredData?: any;
 }
 
 export const SeoMeta = ({ 
@@ -17,7 +24,14 @@ export const SeoMeta = ({
   canonical, 
   ogImage, 
   ogType = 'website',
-  noindex = false 
+  ogUrl,
+  ogSiteName = 'ChicoSabeTudo',
+  ogLocale = 'pt_BR',
+  twitterCard = 'summary_large_image',
+  twitterSite = '@chicosabetudo',
+  twitterCreator = '@chicosabetudo',
+  noindex = false,
+  structuredData
 }: SeoMetaProps) => {
   useEffect(() => {
     // Update title
@@ -54,11 +68,15 @@ export const SeoMeta = ({
     if (ogImage) {
       metaTags.push({ property: 'og:image', content: ogImage });
       metaTags.push({ name: 'twitter:image', content: ogImage });
-      metaTags.push({ name: 'twitter:card', content: 'summary_large_image' });
     }
 
     metaTags.push({ property: 'og:type', content: ogType });
-    metaTags.push({ property: 'og:url', content: window.location.href });
+    metaTags.push({ property: 'og:url', content: ogUrl || window.location.href });
+    metaTags.push({ property: 'og:site_name', content: ogSiteName });
+    metaTags.push({ property: 'og:locale', content: ogLocale });
+    metaTags.push({ name: 'twitter:card', content: twitterCard });
+    metaTags.push({ name: 'twitter:site', content: twitterSite });
+    metaTags.push({ name: 'twitter:creator', content: twitterCreator });
     metaTags.push({ name: 'robots', content: noindex ? 'noindex, nofollow' : 'index, follow' });
 
     // Create and append meta tags
@@ -85,6 +103,18 @@ export const SeoMeta = ({
       document.head.appendChild(canonicalLink);
     }
 
+    // Add structured data
+    if (structuredData) {
+      const existingJsonLd = document.querySelector('script[data-structured-data]');
+      if (existingJsonLd) existingJsonLd.remove();
+
+      const script = document.createElement('script');
+      script.type = 'application/ld+json';
+      script.setAttribute('data-structured-data', 'true');
+      script.textContent = JSON.stringify(structuredData);
+      document.head.appendChild(script);
+    }
+
     // Cleanup function
     return () => {
       const seoTags = document.querySelectorAll('meta[data-seo-meta]');
@@ -92,8 +122,11 @@ export const SeoMeta = ({
       
       const canonicalLink = document.querySelector('link[rel="canonical"]');
       if (canonicalLink) canonicalLink.remove();
+
+      const jsonLdScript = document.querySelector('script[data-structured-data]');
+      if (jsonLdScript) jsonLdScript.remove();
     };
-  }, [title, description, keywords, canonical, ogImage, ogType, noindex]);
+  }, [title, description, keywords, canonical, ogImage, ogType, ogUrl, ogSiteName, ogLocale, twitterCard, twitterSite, twitterCreator, noindex, structuredData]);
 
   return null;
 };

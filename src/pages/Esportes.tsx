@@ -4,7 +4,7 @@ const Esportes = () => {
   return (
     <CategoryPage 
       category="Esportes" 
-      description="Cobertura completa do mundo esportivo brasileiro e internacional, futebol, olimpíadas, competições nacionais e internacionais."
+      description="Cobertura esportiva completa da Bahia: futebol local, Bahia, Vitória e esportes regionais. Acompanhe tudo no ChicoSabeTudo!"
     />
   );
 };

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { NewsCard } from "@/components/NewsCard";
+import { SeoMeta } from "@/components/SeoMeta";
 import { useNews } from "@/hooks/useNews";
 import { useCategories } from "@/hooks/useCategories";
 import { format } from "date-fns";
@@ -158,7 +159,53 @@ export const CategoryPage = ({ category, categoryColor = "#0066cc", description 
   const secondaryNews = categoryNews.slice(1, 7).map(news => transformNewsItem(news, "medium"));
   const otherNews = categoryNews.slice(7).map(news => transformNewsItem(news, "small"));
 
+  // Schema.org data for category page
+  const categoryStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": `${category} - ChicoSabeTudo`,
+    "description": description || `Notícias sobre ${category} no ChicoSabeTudo`,
+    "url": `https://chicosabetudo.sigametech.com.br/${categorySlug}`,
+    "mainEntity": {
+      "@type": "ItemList",
+      "numberOfItems": categoryNews.length,
+      "itemListElement": categoryNews.slice(0, 10).map((news, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "item": {
+          "@type": "NewsArticle",
+          "headline": news.title,
+          "description": news.meta_description,
+          "url": `https://chicosabetudo.sigametech.com.br/${news.categories?.slug}/${news.slug}`,
+          "datePublished": news.published_at,
+          "author": {
+            "@type": "Person",
+            "name": news.profiles?.full_name || "Redação ChicoSabeTudo"
+          },
+          "publisher": {
+            "@type": "NewsMediaOrganization",
+            "name": "ChicoSabeTudo",
+            "logo": {
+              "@type": "ImageObject",
+              "url": "https://chicosabetudo.sigametech.com.br/lovable-uploads/aac6981c-a63e-4b99-a9d1-5be26ea5ad4a.png"
+            }
+          }
+        }
+      }))
+    }
+  };
+
   return (
+    <>
+      <SeoMeta 
+        title={`${category} - ChicoSabeTudo | Portal de Notícias da Bahia`}
+        description={description || `Últimas notícias sobre ${category} na Bahia. Cobertura completa e atualizada no ChicoSabeTudo.`}
+        keywords={`${category.toLowerCase()}, notícias ${category.toLowerCase()}, bahia, chicosabetudo, portal de notícias`}
+        canonical={`https://chicosabetudo.sigametech.com.br/${categorySlug}`}
+        ogImage={imageMap[category] || breakingImage}
+        ogUrl={`https://chicosabetudo.sigametech.com.br/${categorySlug}`}
+        structuredData={categoryStructuredData}
+      />
     <Layout>
       <main className="container mx-auto px-4 py-8">
         {/* Category Header */}
@@ -266,5 +313,6 @@ export const CategoryPage = ({ category, categoryColor = "#0066cc", description 
         </section>
       </main>
     </Layout>
+    </>
   );
 };
