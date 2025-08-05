@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { NewsCard } from "@/components/NewsCard";
 import { SeoMeta } from "@/components/SeoMeta";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { useNews } from "@/hooks/useNews";
 import { useCategories } from "@/hooks/useCategories";
 import { format } from "date-fns";
@@ -208,6 +209,12 @@ export const CategoryPage = ({ category, categoryColor = "#0066cc", description 
       />
     <Layout>
       <main className="container mx-auto px-4 py-8">
+        <Breadcrumbs 
+          items={[
+            { label: category }
+          ]}
+        />
+        
         {/* Category Header */}
         <section className="mb-8">
           <div className="flex items-center gap-4 mb-4">
