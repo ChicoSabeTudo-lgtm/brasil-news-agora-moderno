@@ -186,9 +186,12 @@ const NewsArticle = () => {
   const getImageUrl = (imageItem: any) => {
     if (!imageItem?.image_url) return null;
     
+    // Garantir URL absoluta para Open Graph (necessário para link previews)
     if (imageItem.image_url.startsWith('http')) {
       return imageItem.image_url;
     }
+    
+    // Construir URL absoluta do Supabase Storage
     return `https://spgusjrjrhfychhdwixn.supabase.co/storage/v1/object/public/${imageItem.image_url}`;
   };
 
@@ -266,7 +269,7 @@ const NewsArticle = () => {
     createOrUpdateMetaTag('meta[name="twitter:title"]', newsData.title, { name: 'twitter:title' });
     createOrUpdateMetaTag('meta[name="twitter:description"]', excerpt, { name: 'twitter:description' });
     createOrUpdateMetaTag('meta[name="twitter:url"]', currentUrl, { name: 'twitter:url' });
-    createOrUpdateMetaTag('meta[name="twitter:site"]', '@newsbrasil', { name: 'twitter:site' });
+    createOrUpdateMetaTag('meta[name="twitter:site"]', '@chicosabetudo', { name: 'twitter:site' });
     
     if (imageUrl) {
       createOrUpdateMetaTag('meta[name="twitter:image"]', imageUrl, { name: 'twitter:image' });
@@ -330,7 +333,7 @@ const NewsArticle = () => {
       dynamicMetas.forEach(meta => meta.remove());
       
       // Restaurar título padrão
-      document.title = "Portal de Notícias";
+      document.title = "Portal ChicoSabeTudo";
     };
   }, []);
 
