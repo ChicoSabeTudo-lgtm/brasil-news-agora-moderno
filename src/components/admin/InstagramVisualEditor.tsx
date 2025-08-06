@@ -82,9 +82,9 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
         return;
       }
 
-      // Definir dimensões padrão do Instagram Stories
+      // Definir dimensões padrão do Instagram Post
       canvas.width = 1080;
-      canvas.height = 1920;
+      canvas.height = 1440;
       
       console.log('🎨 Iniciando geração da imagem final...');
 
