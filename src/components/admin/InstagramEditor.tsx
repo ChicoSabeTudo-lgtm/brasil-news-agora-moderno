@@ -77,19 +77,19 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
         
         ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
         
-        // Draw text overlay
-        drawTextOverlay(ctx);
-        
-        // Draw Instagram mockup on top if available
+        // Draw Instagram mockup first (behind text)
         drawMockupOverlay(ctx);
+        
+        // Draw text overlay on top
+        drawTextOverlay(ctx);
       };
       img.src = imageState.url;
     } else {
-      // Draw text overlay even without image
-      drawTextOverlay(ctx);
-      
-      // Draw Instagram mockup on top if available
+      // Draw Instagram mockup first
       drawMockupOverlay(ctx);
+      
+      // Draw text overlay on top
+      drawTextOverlay(ctx);
     }
   }, [imageState, textState, mockupUrl]);
 
@@ -126,8 +126,8 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
     const maxY = CANVAS_HEIGHT - BOTTOM_PADDING;
     const textY = Math.min((CANVAS_HEIGHT * verticalPosition / 100), maxY);
 
-    // Word wrap
-    const words = textState.title.split(' ');
+    // Word wrap (convert to uppercase)
+    const words = textState.title.toUpperCase().split(' ');
     const lines: string[] = [];
     let currentLine = '';
     const maxWidth = CANVAS_WIDTH - 80; // 40px padding on each side
