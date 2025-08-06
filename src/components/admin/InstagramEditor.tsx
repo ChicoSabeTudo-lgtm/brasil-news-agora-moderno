@@ -105,8 +105,8 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
     ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
     ctx.fillRect(0, Math.max(0, overlayY), CANVAS_WIDTH, overlayHeight);
 
-    // Text setup
-    ctx.font = `bold ${fontSize}px ${fontFamily}`;
+    // Text setup - ensure bold weight
+    ctx.font = `900 ${fontSize}px ${fontFamily}`;
     ctx.fillStyle = color;
     ctx.textBaseline = 'middle';
 
