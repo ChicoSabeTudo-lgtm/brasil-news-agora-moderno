@@ -18,6 +18,7 @@ interface VisualData {
   imagePosition: { x: number; y: number };
   textSize: number;
   textAlign: 'left' | 'center' | 'right';
+  textPosition: { y: number };
   generatedImageUrl: string;
 }
 
@@ -273,65 +274,58 @@ export default function InstagramPostFinisher({ visualData, onBack, onComplete }
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {/* Pré-visualização com as mesmas configurações do editor */}
-                  <div className="aspect-[3/4] bg-black rounded-lg overflow-hidden relative">
-                    {/* Imagem de fundo com zoom e posicionamento aplicados - EXATAMENTE como no editor */}
+                  {/* Pré-visualização EXATAMENTE igual ao preview do editor */}
+                  <div 
+                    className="relative bg-gray-900 rounded-3xl overflow-hidden shadow-2xl mx-auto"
+                    style={{ 
+                      aspectRatio: '3/4', // Mesmo aspect ratio 1080x1440
+                      height: 'clamp(400px, 60vh, 600px)' // Mesma altura
+                    }}
+                  >
                     {visualData.backgroundImage && (
-                      <div className="absolute inset-0 flex items-center justify-center">
+                      <>
                         <img
                           src={visualData.backgroundImage}
                           alt="Background"
-                          className="max-w-full max-h-full object-contain transition-transform duration-200 ease-out"
-                          style={{ 
-                            imageRendering: 'auto',
-                            transform: `
-                              scale(${visualData.imageZoom / 100})
-                              translate(
-                                ${((visualData.imagePosition.x - 50) / (visualData.imageZoom / 100)) * 2}%,
-                                ${((visualData.imagePosition.y - 50) / (visualData.imageZoom / 100)) * 2}%
-                              )
-                            `,
+                          className="absolute inset-0 w-full h-full object-cover"
+                          style={{
+                            transform: `scale(${visualData.imageZoom / 100}) translate(${visualData.imagePosition.x}%, ${visualData.imagePosition.y}%)`,
                             transformOrigin: 'center center'
                           }}
                         />
-                      </div>
+                        
+                        {mockupUrl && (
+                          <img
+                            src={mockupUrl}
+                            alt="Instagram Mockup"
+                            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                          />
+                        )}
+                        
+                        {visualData.title && (
+                          <div 
+                            className="absolute left-0 right-0 pointer-events-none text-white px-4"
+                            style={{
+                              top: `${visualData.textPosition.y}%`,
+                              transform: 'translateY(-50%)',
+                              fontSize: `${Math.max(12, visualData.textSize * 0.3)}px`,
+                              textAlign: visualData.textAlign,
+                              textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                              fontWeight: '900',
+                              fontFamily: "'Archivo Black', sans-serif",
+                              lineHeight: '1.2',
+                              textTransform: 'uppercase'
+                            }}
+                          >
+                            {visualData.title}
+                          </div>
+                        )}
+                      </>
                     )}
                     
-                    {/* Texto sobreposto - EXATAMENTE como no editor visual - POR CIMA DO OVERLAY */}
-                    {visualData.title && visualData.backgroundImage && (
-                      <div 
-                        className="absolute bottom-0 left-0 right-0 pointer-events-none"
-                        style={{
-                          paddingBottom: '70px',
-                          paddingLeft: visualData.textAlign === 'left' ? '30px' : '60px',
-                          paddingRight: '60px',
-                          fontSize: `${visualData.textSize}px`, // Tamanho exato configurado
-                          textAlign: visualData.textAlign,
-                          color: 'white',
-                          textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-                          fontWeight: '900',
-                          fontFamily: "'Archivo Black', sans-serif",
-                          lineHeight: '1.2',
-                          textTransform: 'uppercase',
-                          zIndex: 20 // Maior que o overlay (z-index: 10)
-                        }}
-                      >
-                        {visualData.title}
-                      </div>
-                    )}
-
-                    {/* Instagram Mockup Overlay - igual ao editor visual */}
-                    {mockupUrl && visualData.backgroundImage && (
-                      <div className="absolute inset-0 pointer-events-none">
-                        <img
-                          src={mockupUrl}
-                          alt="Instagram Mockup Overlay"
-                          className="w-full h-full object-contain"
-                          style={{ 
-                            imageRendering: 'auto',
-                            zIndex: 10
-                          }}
-                        />
+                    {!visualData.backgroundImage && (
+                      <div className="absolute inset-0 flex items-center justify-center text-white/60 text-sm">
+                        Nenhuma imagem configurada
                       </div>
                     )}
                   </div>
