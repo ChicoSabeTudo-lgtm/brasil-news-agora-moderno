@@ -266,6 +266,19 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
       console.log('✅ URL pública obtida:', imageUrl);
 
       // Salvar metadados na tabela
+      console.log('📝 Dados para inserir na tabela:', {
+        user_id: user.id,
+        image_url: imageUrl,
+        title: visualData.title,
+        visual_data: {
+          textSize: visualData.textSize,
+          textAlign: visualData.textAlign,
+          textPosition: visualData.textPosition,
+          imageZoom: visualData.imageZoom,
+          imagePosition: visualData.imagePosition
+        }
+      });
+
       const { error: dbError } = await supabase
         .from('instagram_images')
         .insert({
