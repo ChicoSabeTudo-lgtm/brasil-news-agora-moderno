@@ -13,6 +13,8 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Admin user management function called');
+    
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -20,7 +22,10 @@ serve(async (req) => {
 
     // Get the user from the Authorization header
     const authHeader = req.headers.get('authorization');
+    console.log('Auth header present:', !!authHeader);
+    
     if (!authHeader) {
+      console.log('No authorization header provided');
       return new Response(JSON.stringify({ error: 'No authorization header' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -29,7 +34,10 @@ serve(async (req) => {
 
     // Verify the user's token
     const { data: user, error: authError } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
+    console.log('User verification result:', { userId: user?.user?.id, hasError: !!authError });
+    
     if (authError || !user) {
+      console.log('Auth error:', authError);
       return new Response(JSON.stringify({ error: 'Invalid token' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -37,18 +45,24 @@ serve(async (req) => {
     }
 
     // Check if user has admin role
+    console.log('Checking admin role for user:', user.user.id);
     const { data: roleData, error: roleError } = await supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', user.user.id)
       .single();
 
+    console.log('Role check result:', { roleData, roleError });
+
     if (roleError || roleData?.role !== 'admin') {
-      return new Response(JSON.stringify({ error: 'Insufficient permissions' }), {
+      console.log('Permission denied - not admin:', { role: roleData?.role, error: roleError });
+      return new Response(JSON.stringify({ error: 'Insufficient permissions', details: { currentRole: roleData?.role, userId: user.user.id } }), {
         status: 403,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    console.log('Admin access verified');
 
     const { action, ...body } = await req.json();
 
