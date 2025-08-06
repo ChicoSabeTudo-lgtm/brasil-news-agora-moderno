@@ -626,7 +626,7 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
                   <div 
                     className="relative bg-gray-900 rounded-3xl overflow-hidden shadow-2xl"
                     style={{ 
-                      aspectRatio: '9/16',
+                      aspectRatio: '3/4', // 1080x1440 ratio correto para Instagram Feed
                       height: 'clamp(400px, 60vh, 600px)'
                     }}
                   >
