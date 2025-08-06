@@ -658,12 +658,11 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
                         
                         {visualData.title && (
                           <div 
-                            className="absolute bottom-0 left-0 right-0 pointer-events-none text-white"
+                            className="absolute left-0 right-0 pointer-events-none text-white px-4"
                             style={{
-                              paddingBottom: '65px',
-                              paddingLeft: visualData.textAlign === 'left' ? '3%' : '5%',
-                              paddingRight: '5%',
-                              fontSize: `${visualData.textSize}px`,
+                              top: `${visualData.textPosition.y}%`,
+                              transform: 'translateY(-50%)',
+                              fontSize: `${Math.max(12, visualData.textSize * 0.3)}px`,
                               textAlign: visualData.textAlign,
                               textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
                               fontWeight: '900',
