@@ -184,12 +184,20 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
               lines.push(currentLine);
             }
             
-            // Desenhar linhas de texto
+            // Desenhar linhas de texto com padding FIXO
             const lineHeight = fontSize * 1.2;
-            const totalHeight = (lines.length - 1) * lineHeight;
+            
+            // Calcular a altura total de todas as linhas
+            const totalLinesHeight = (lines.length - 1) * lineHeight;
+            
+            // Posicionar a primeira linha na posição Y configurada
+            // Para múltiplas linhas, a posição Y se refere ao centro do bloco de texto
+            const firstLineY = lines.length === 1 
+              ? textY  // Para linha única, usar a posição exata
+              : textY - (totalLinesHeight / 2); // Para múltiplas linhas, centralizar
             
             lines.forEach((line, index) => {
-              const lineY = textY - totalHeight + (index * lineHeight);
+              const lineY = firstLineY + (index * lineHeight);
               
               console.log(`📝 Desenhando linha ${index + 1}: "${line}" em Y=${lineY}`);
               
@@ -491,7 +499,7 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
                         setVisualData(prev => ({ ...prev, textSize: value[0] }));
                       }}
                       min={16}
-                      max={72}
+                      max={90}
                       step={2}
                       className="w-full"
                     />
