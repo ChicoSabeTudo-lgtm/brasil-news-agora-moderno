@@ -374,7 +374,7 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
               Editor Visual Instagram
             </h1>
             <p className="text-muted-foreground mt-2">
-              Configure sua imagem no formato Instagram Stories
+              Configure sua imagem no formato Instagram Feed
             </p>
           </div>
         </div>
@@ -389,7 +389,7 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
                   Upload da Imagem
                 </CardTitle>
                 <CardDescription>
-                  Faça upload da sua imagem para visualizar no formato Stories
+                  Faça upload da sua imagem para visualizar no formato Feed
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -616,7 +616,7 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
           <div className="lg:sticky lg:top-8">
             <Card>
               <CardHeader>
-                <CardTitle>Preview Instagram Stories</CardTitle>
+                <CardTitle>Preview Instagram Feed</CardTitle>
                 <CardDescription>
                   Visualização em tempo real da sua imagem
                 </CardDescription>
