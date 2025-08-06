@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Upload, ZoomIn, Move, Type, ArrowRight } from 'lucide-react';
 import { PostData, ImageState, TextState } from './InstagramPostGenerator';
+import { useInstagramMockup } from '@/hooks/useInstagramMockup';
 
 interface InstagramEditorProps {
   onContinue: (data: PostData) => void;
@@ -19,6 +20,7 @@ const CANVAS_HEIGHT = 1440;
 const BOTTOM_PADDING = 65;
 
 export default function InstagramEditor({ onContinue, initialData }: InstagramEditorProps) {
+  const { mockupUrl } = useInstagramMockup();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -77,13 +79,19 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
         
         // Draw text overlay
         drawTextOverlay(ctx);
+        
+        // Draw Instagram mockup on top if available
+        drawMockupOverlay(ctx);
       };
       img.src = imageState.url;
     } else {
       // Draw text overlay even without image
       drawTextOverlay(ctx);
+      
+      // Draw Instagram mockup on top if available
+      drawMockupOverlay(ctx);
     }
-  }, [imageState, textState]);
+  }, [imageState, textState, mockupUrl]);
 
   const drawTextOverlay = (ctx: CanvasRenderingContext2D) => {
     if (!textState.title.trim()) return;
@@ -145,6 +153,18 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
       const y = Math.min(startY + index * lineHeight, maxY);
       ctx.fillText(line, textX, y);
     });
+  };
+
+  const drawMockupOverlay = (ctx: CanvasRenderingContext2D) => {
+    if (!mockupUrl) return;
+
+    const mockupImg = new Image();
+    mockupImg.onload = () => {
+      // Draw the mockup scaled to cover the full canvas (1080x1440)
+      ctx.drawImage(mockupImg, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    };
+    mockupImg.crossOrigin = 'anonymous';
+    mockupImg.src = mockupUrl;
   };
 
   useEffect(() => {
