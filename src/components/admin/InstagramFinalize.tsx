@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 import { PostData } from './InstagramPostGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { useSiteConfigurations } from '@/hooks/useSiteConfigurations';
+import { supabase } from '@/integrations/supabase/client';
 
 interface InstagramFinalizeProps {
   postData: PostData;
@@ -62,8 +63,28 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
     setIsSubmitting(true);
 
     try {
-      // Convert canvas data URL to blob URL (simulated)
-      const imageUrl = postData.canvasDataUrl;
+      // Convert canvas data URL to blob
+      const response = await fetch(postData.canvasDataUrl);
+      const blob = await response.blob();
+
+      // Upload to Supabase storage
+      const fileName = `instagram-post-${Date.now()}.jpg`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('news-media')
+        .upload(fileName, blob, {
+          contentType: 'image/jpeg',
+        });
+
+      if (uploadError) {
+        throw new Error(`Erro no upload: ${uploadError.message}`);
+      }
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('news-media')
+        .getPublicUrl(uploadData.path);
+
+      const imageUrl = urlData.publicUrl;
 
       // Prepare timestamp
       let timestamp = new Date().toISOString();
@@ -102,7 +123,7 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
         }
       };
 
-      const response = await fetch(socialWebhookUrl, {
+      const webhookResponse = await fetch(socialWebhookUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -110,8 +131,8 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
         body: JSON.stringify(payload),
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (!webhookResponse.ok) {
+        throw new Error(`HTTP error! status: ${webhookResponse.status}`);
       }
 
       const action = isScheduled ? 'agendado' : 'enviado';
