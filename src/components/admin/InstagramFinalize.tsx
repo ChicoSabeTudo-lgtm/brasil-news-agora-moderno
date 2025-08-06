@@ -137,11 +137,11 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
           className="mb-4"
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Editor
+          Voltar ao Editor
         </Button>
         
-        <h1 className="text-3xl font-bold">Finalize Instagram Post</h1>
-        <p className="text-muted-foreground">Step 2: Add caption and publish</p>
+        <h1 className="text-3xl font-bold">Finalizar Post do Instagram</h1>
+        <p className="text-muted-foreground">Passo 2: Adicionar legenda e publicar</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -149,27 +149,27 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Instagram Caption</CardTitle>
+              <CardTitle>Legenda do Instagram</CardTitle>
             </CardHeader>
             <CardContent>
-              <Label htmlFor="caption">Caption/Description</Label>
+              <Label htmlFor="caption">Legenda/Descrição</Label>
               <Textarea
                 id="caption"
                 value={caption}
                 onChange={(e) => setCaption(e.target.value)}
-                placeholder="Write your Instagram caption..."
+                placeholder="Escreva a legenda do seu Instagram..."
                 className="min-h-[120px] mt-2"
                 maxLength={2200}
               />
               <p className="text-sm text-muted-foreground mt-1">
-                {caption.length}/2200 characters
+                {caption.length}/2200 caracteres
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Scheduling Options</CardTitle>
+              <CardTitle>Opções de Agendamento</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center space-x-2">
@@ -178,13 +178,13 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
                   checked={isScheduled}
                   onCheckedChange={setIsScheduled}
                 />
-                <Label htmlFor="schedule">Schedule Post</Label>
+                <Label htmlFor="schedule">Agendar Post</Label>
               </div>
 
               {isScheduled && (
                 <div className="space-y-4">
                   <div>
-                    <Label>Date</Label>
+                    <Label>Data</Label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
@@ -192,7 +192,7 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
                           className="w-full justify-start text-left font-normal mt-2"
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {selectedDate ? format(selectedDate, 'PPP', { locale: ptBR }) : 'Select date'}
+                          {selectedDate ? format(selectedDate, 'PPP', { locale: ptBR }) : 'Selecionar data'}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0">
@@ -208,7 +208,7 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
                   </div>
 
                   <div>
-                    <Label htmlFor="time">Time</Label>
+                    <Label htmlFor="time">Horário</Label>
                     <div className="flex items-center space-x-2 mt-2">
                       <Clock className="h-4 w-4" />
                       <Input
@@ -233,7 +233,7 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
               size="lg"
             >
               <Download className="mr-2 h-4 w-4" />
-              Download Image
+              Baixar Imagem
             </Button>
 
             <Button 
@@ -243,7 +243,7 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
               size="lg"
             >
               <Send className="mr-2 h-4 w-4" />
-              {isSubmitting ? 'Sending...' : isScheduled ? 'Schedule Post' : 'Send Now'}
+              {isSubmitting ? 'Enviando...' : isScheduled ? 'Agendar Post' : 'Enviar Agora'}
             </Button>
           </div>
         </div>
@@ -252,7 +252,7 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
         <div className="flex justify-center">
           <Card className="w-fit">
             <CardHeader>
-              <CardTitle>Final Preview</CardTitle>
+              <CardTitle>Visualização Final</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="border rounded-lg overflow-hidden bg-gradient-to-b from-purple-500 via-pink-500 to-orange-500 p-4">
@@ -293,7 +293,7 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
                     
                     {isScheduled && selectedDate && (
                       <p className="text-xs text-gray-500 mt-2">
-                        📅 Scheduled for {format(selectedDate, 'MMM d')} at {selectedTime}
+                        📅 Agendado para {format(selectedDate, 'MMM d')} às {selectedTime}
                       </p>
                     )}
                   </div>

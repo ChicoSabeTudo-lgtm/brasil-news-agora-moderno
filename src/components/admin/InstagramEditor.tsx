@@ -203,8 +203,8 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
   return (
     <div className="container mx-auto p-6">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">Instagram Post Editor</h1>
-        <p className="text-muted-foreground">Step 1: Create your visual design</p>
+        <h1 className="text-3xl font-bold">Editor de Posts do Instagram</h1>
+        <p className="text-muted-foreground">Passo 1: Crie seu design visual</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -215,12 +215,12 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Upload className="h-5 w-5" />
-                Image Upload
+                Upload de Imagem
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="image-upload">Upload Image (JPG/PNG)</Label>
+                <Label htmlFor="image-upload">Enviar Imagem (JPG/PNG)</Label>
                 <Input
                   id="image-upload"
                   ref={fileInputRef}
@@ -239,7 +239,7 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <ZoomIn className="h-5 w-5" />
-                  Image Controls
+                  Controles da Imagem
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -256,7 +256,7 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
                 </div>
                 
                 <div>
-                  <Label>Horizontal Position: {imageState.positionX}%</Label>
+                  <Label>Posição Horizontal: {imageState.positionX}%</Label>
                   <Slider
                     value={[imageState.positionX]}
                     onValueChange={([value]) => setImageState(prev => ({ ...prev, positionX: value }))}
@@ -268,7 +268,7 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
                 </div>
                 
                 <div>
-                  <Label>Vertical Position: {imageState.positionY}%</Label>
+                  <Label>Posição Vertical: {imageState.positionY}%</Label>
                   <Slider
                     value={[imageState.positionY]}
                     onValueChange={([value]) => setImageState(prev => ({ ...prev, positionY: value }))}
@@ -287,22 +287,22 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Type className="h-5 w-5" />
-                Text Controls
+                Controles de Texto
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="title">Title/Text</Label>
+                <Label htmlFor="title">Título/Texto</Label>
                 <Input
                   id="title"
                   value={textState.title}
                   onChange={(e) => setTextState(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="Enter your post title..."
+                  placeholder="Digite o título do seu post..."
                 />
               </div>
 
               <div>
-                <Label>Font Size: {textState.fontSize}px</Label>
+                <Label>Tamanho da Fonte: {textState.fontSize}px</Label>
                 <Slider
                   value={[textState.fontSize]}
                   onValueChange={([value]) => setTextState(prev => ({ ...prev, fontSize: value }))}
@@ -314,7 +314,7 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
               </div>
 
               <div>
-                <Label>Vertical Position: {textState.verticalPosition}%</Label>
+                <Label>Posição Vertical: {textState.verticalPosition}%</Label>
                 <Slider
                   value={[textState.verticalPosition]}
                   onValueChange={([value]) => setTextState(prev => ({ ...prev, verticalPosition: value }))}
@@ -326,7 +326,7 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
               </div>
 
               <div>
-                <Label>Text Alignment</Label>
+                <Label>Alinhamento do Texto</Label>
                 <RadioGroup
                   value={textState.alignment}
                   onValueChange={(value: 'left' | 'center' | 'right') => 
@@ -336,21 +336,21 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
                 >
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="left" id="left" />
-                    <Label htmlFor="left">Left</Label>
+                    <Label htmlFor="left">Esquerda</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="center" id="center" />
-                    <Label htmlFor="center">Center</Label>
+                    <Label htmlFor="center">Centro</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="right" id="right" />
-                    <Label htmlFor="right">Right</Label>
+                    <Label htmlFor="right">Direita</Label>
                   </div>
                 </RadioGroup>
               </div>
 
               <div>
-                <Label htmlFor="font-family">Font Family</Label>
+                <Label htmlFor="font-family">Família da Fonte</Label>
                 <Select 
                   value={textState.fontFamily} 
                   onValueChange={(value) => setTextState(prev => ({ ...prev, fontFamily: value }))}
@@ -369,7 +369,7 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
               </div>
 
               <div>
-                <Label htmlFor="font-color">Font Color</Label>
+                <Label htmlFor="font-color">Cor da Fonte</Label>
                 <Input
                   id="font-color"
                   type="color"
@@ -387,7 +387,7 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
             className="w-full"
             size="lg"
           >
-            Continue to Finalize
+            Continuar para Finalizar
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
@@ -396,7 +396,7 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
         <div className="flex justify-center">
           <Card className="w-fit">
             <CardHeader>
-              <CardTitle>Live Preview</CardTitle>
+              <CardTitle>Visualização ao Vivo</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="border rounded-lg overflow-hidden" style={{ width: '324px', height: '432px' }}>
@@ -412,7 +412,7 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
                 />
               </div>
               <p className="text-sm text-muted-foreground mt-2 text-center">
-                Final size: 1080x1440px
+                Tamanho final: 1080x1440px
               </p>
             </CardContent>
           </Card>
