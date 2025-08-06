@@ -208,14 +208,18 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
               const paddingBottom = 65; // Sempre 65px como especificado
               const paddingHorizontal = canvas.width * 0.05; // 5% padding lateral
               
-              // Posicionamento baseado EXATAMENTE no alinhamento configurado
+              // Posicionamento horizontal baseado EXATAMENTE no alinhamento configurado
+              // Usar o mesmo padding do preview para sincronização perfeita
+              const leftPadding = visualData.textAlign === 'left' ? canvas.width * 0.03 : paddingHorizontal;
+              const rightPadding = paddingHorizontal;
+              
               let textX;
               switch (visualData.textAlign) {
                 case 'left':
-                  textX = paddingHorizontal;
+                  textX = leftPadding;
                   break;
                 case 'right':
-                  textX = canvas.width - paddingHorizontal;
+                  textX = canvas.width - rightPadding;
                   break;
                 default: // center
                   textX = canvas.width / 2;
@@ -223,7 +227,7 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
               }
               
               // Verificar se o texto precisa ser quebrado em linhas
-              const maxWidth = canvas.width - (paddingHorizontal * 2);
+              const maxWidth = canvas.width - leftPadding - rightPadding;
               const words = visualData.title.toUpperCase().split(' ');
               const lines: string[] = [];
               let currentLine = '';
@@ -244,14 +248,28 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
                 lines.push(currentLine);
               }
               
-              // Calcular posição Y para múltiplas linhas
-              const lineHeight = fontSize * 1.2;
-              const totalTextHeight = lines.length * lineHeight;
-              const baseY = canvas.height - paddingBottom;
+              // Calcular posição Y CORRIGIDA para múltiplas linhas
+              const lineHeight = fontSize * 1.2; // Mesmo line-height do preview
+              const totalTextHeight = (lines.length - 1) * lineHeight; // Altura total das linhas extras
               
-              // Desenhar cada linha de texto COM POSICIONAMENTO CORRETO
+              // Posição Y corrigida: última linha fica exatamente no paddingBottom
+              const lastLineY = canvas.height - paddingBottom;
+              
+              console.log('🔧 Cálculos de posicionamento:', {
+                paddingBottom,
+                lineHeight,
+                totalLines: lines.length,
+                totalTextHeight,
+                lastLineY,
+                firstLineY: lastLineY - totalTextHeight
+              });
+              
+              // Desenhar cada linha de texto COM POSICIONAMENTO EXATO
               lines.forEach((line, index) => {
-                const lineY = baseY - totalTextHeight + ((index + 1) * lineHeight);
+                // Calcular Y de cada linha: última linha na posição base, outras acima
+                const lineY = lastLineY - (totalTextHeight - (index * lineHeight));
+                
+                console.log(`📝 Linha ${index + 1}: "${line}" em Y=${lineY}`);
                 
                 // Desenhar contorno do texto (para destaque)
                 ctx.strokeText(line, textX, lineY);
@@ -266,7 +284,7 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
                 paddingBottom: paddingBottom,
                 linhas: lines.length,
                 posX: textX,
-                textY: baseY - totalTextHeight
+                textY: lastLineY
               });
             }
             
