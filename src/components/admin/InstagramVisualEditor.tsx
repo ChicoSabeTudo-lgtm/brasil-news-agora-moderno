@@ -204,8 +204,8 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
               ctx.lineWidth = 3;
               ctx.textAlign = visualData.textAlign;
               
-              // Usar EXATAMENTE o padding inferior configurado (65px)
-              const paddingBottom = 65;
+              // Usar EXATAMENTE o padding inferior configurado
+              const paddingBottom = 65; // Sempre 65px como especificado
               const paddingHorizontal = canvas.width * 0.05; // 5% padding lateral
               
               // Posicionamento baseado EXATAMENTE no alinhamento configurado
@@ -259,12 +259,14 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
                 ctx.fillText(line, textX, lineY);
               });
               
-              console.log('✅ Texto aplicado com configurações:', {
-                tamanho: fontSize,
+              console.log('✅ Texto aplicado com configurações EXATAS:', {
+                tamanhoConfigurado: visualData.textSize,
+                tamanhoAplicado: fontSize,
                 alinhamento: visualData.textAlign,
                 paddingBottom: paddingBottom,
                 linhas: lines.length,
-                posX: textX
+                posX: textX,
+                textY: baseY - totalTextHeight
               });
             }
             
@@ -745,18 +747,18 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
                    {visualData.title && visualData.backgroundImage && !isGeneratingPreview && !previewError && (
                      <div 
                        className="absolute bottom-0 left-0 right-0 pointer-events-none text-white"
-                       style={{
-                         paddingBottom: '65px', // Padding fixo de 65px
-                         paddingLeft: visualData.textAlign === 'left' ? '3%' : '5%', // Proporcional 
-                         paddingRight: '5%',
-                         fontSize: `clamp(12px, ${(visualData.textSize / 20)}vw, ${visualData.textSize}px)`, // Responsivo com limites
-                         textAlign: visualData.textAlign,
-                         textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-                         fontWeight: '900',
-                         fontFamily: "'Archivo Black', sans-serif",
-                         lineHeight: '1.2',
-                         textTransform: 'uppercase'
-                       }}
+                        style={{
+                          paddingBottom: '65px', // Padding fixo de 65px (mesmo do salvamento)
+                          paddingLeft: visualData.textAlign === 'left' ? '3%' : '5%',
+                          paddingRight: '5%',
+                          fontSize: `${visualData.textSize}px`, // Tamanho EXATO configurado
+                          textAlign: visualData.textAlign,
+                          textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                          fontWeight: '900',
+                          fontFamily: "'Archivo Black', sans-serif",
+                          lineHeight: '1.2',
+                          textTransform: 'uppercase'
+                        }}
                      >
                        {visualData.title}
                      </div>
