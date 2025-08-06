@@ -162,6 +162,9 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
     mockupImg.onload = () => {
       // Draw the mockup scaled to cover the full canvas (1080x1440)
       ctx.drawImage(mockupImg, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      
+      // Redraw text on top of mockup
+      drawTextOverlay(ctx);
     };
     mockupImg.crossOrigin = 'anonymous';
     mockupImg.src = mockupUrl;
