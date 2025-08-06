@@ -15,6 +15,7 @@ import { PostData } from './InstagramPostGenerator';
 import { useAuth } from '@/hooks/useAuth';
 import { useSiteConfigurations } from '@/hooks/useSiteConfigurations';
 import { supabase } from '@/integrations/supabase/client';
+import InstagramPreview from './InstagramPreview';
 
 interface InstagramFinalizeProps {
   postData: PostData;
@@ -276,50 +277,13 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
               <CardTitle>Visualização Final</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="border rounded-lg overflow-hidden bg-gradient-to-b from-purple-500 via-pink-500 to-orange-500 p-4">
-                <div className="bg-white rounded-lg overflow-hidden">
-                  {/* Instagram Header Mockup */}
-                  <div className="flex items-center p-3 border-b">
-                    <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
-                    <span className="ml-3 font-semibold text-sm">your_account</span>
-                  </div>
-                  
-                  {/* Image */}
-                  <div className="aspect-square">
-                    {postData.canvasDataUrl && (
-                      <img 
-                        src={postData.canvasDataUrl} 
-                        alt="Instagram post"
-                        className="w-full h-full object-cover"
-                      />
-                    )}
-                  </div>
-                  
-                  {/* Caption Preview */}
-                  <div className="p-3">
-                    <div className="flex items-center space-x-4 mb-2">
-                      <div className="flex space-x-3">
-                        <div className="w-6 h-6 border-2 border-black rounded-full"></div>
-                        <div className="w-6 h-6 border-2 border-black rounded-full"></div>
-                        <div className="w-6 h-6 border-2 border-black rounded-full"></div>
-                      </div>
-                    </div>
-                    
-                    {caption && (
-                      <p className="text-sm">
-                        <span className="font-semibold">your_account</span>{' '}
-                        {caption.length > 100 ? caption.substring(0, 100) + '...' : caption}
-                      </p>
-                    )}
-                    
-                    {isScheduled && selectedDate && (
-                      <p className="text-xs text-gray-500 mt-2">
-                        📅 Agendado para {format(selectedDate, 'MMM d')} às {selectedTime}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
+              <InstagramPreview
+                canvasDataUrl={postData.canvasDataUrl}
+                caption={caption}
+                isScheduled={isScheduled}
+                selectedDate={selectedDate}
+                selectedTime={selectedTime}
+              />
             </CardContent>
           </Card>
         </div>
