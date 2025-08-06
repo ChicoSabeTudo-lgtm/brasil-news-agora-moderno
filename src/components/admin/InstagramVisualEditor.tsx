@@ -17,346 +17,232 @@ interface VisualData {
   imagePosition: { x: number; y: number };
   textSize: number;
   textAlign: 'left' | 'center' | 'right';
+  textPosition: { y: number };
+  generatedImageUrl: string;
 }
 
 interface InstagramVisualEditorProps {
-  onContinue: (data: VisualData & { generatedImageUrl: string }) => void;
-  initialData?: Partial<VisualData> | null;
+  onContinue: (data: VisualData) => void;
+  initialData?: VisualData | null;
 }
 
 export default function InstagramVisualEditor({ onContinue, initialData }: InstagramVisualEditorProps) {
-  const { mockupUrl } = useInstagramMockup();
   const { user } = useAuth();
+  const { mockupUrl } = useInstagramMockup();
+  
   const [visualData, setVisualData] = useState<VisualData>({
     title: initialData?.title || '',
     backgroundImage: initialData?.backgroundImage || null,
     imageZoom: initialData?.imageZoom || 100,
-    imagePosition: initialData?.imagePosition || { x: 50, y: 50 },
-    textSize: initialData?.textSize || 48,
+    imagePosition: initialData?.imagePosition || { x: 0, y: 0 },
+    textSize: initialData?.textSize || 36,
     textAlign: initialData?.textAlign || 'center',
+    textPosition: initialData?.textPosition || { y: 85 },
+    generatedImageUrl: initialData?.generatedImageUrl || ''
   });
 
   const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
   const [previewError, setPreviewError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    
-    if (!file) return;
-
-    setIsGeneratingPreview(true);
-    setPreviewError(null);
-    
-    try {
-      if (!file.type.startsWith('image/')) {
-        setPreviewError('Arquivo não é uma imagem');
-        return;
-      }
-
-      // Usar createObjectURL para preview
-      const imageUrl = URL.createObjectURL(file);
-      
-      // Resetar zoom e posição quando nova imagem é carregada
-      setVisualData(prev => ({
-        ...prev,
-        backgroundImage: imageUrl,
-        imageZoom: 100,
-        imagePosition: { x: 50, y: 50 }
-      }));
-
-    } catch (error) {
-      console.error('Erro no upload:', error);
-      setPreviewError('Erro ao fazer upload da imagem');
-    } finally {
-      setIsGeneratingPreview(false);
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      console.log('📁 Novo arquivo selecionado:', file.name);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const imageUrl = e.target?.result as string;
+        setVisualData(prev => ({ 
+          ...prev, 
+          backgroundImage: imageUrl,
+          imageZoom: 100,
+          imagePosition: { x: 0, y: 0 }
+        }));
+        setPreviewError(null);
+        console.log('✅ Imagem carregada no estado');
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   const generateFinalImageBlob = useCallback(async (): Promise<Blob | null> => {
-    if (!visualData.backgroundImage) {
-      setPreviewError('Imagem é obrigatória');
-      return null;
-    }
-
-    setIsGeneratingPreview(true);
-    setPreviewError(null);
-
-    try {
-      // Carregar imagem de fundo
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      
-      // Carregar mockup se disponível
-      let mockupImg: HTMLImageElement | null = null;
-      if (mockupUrl) {
-        try {
-          mockupImg = new Image();
-          mockupImg.crossOrigin = 'anonymous';
-          await new Promise((resolve, reject) => {
-            mockupImg!.onload = resolve;
-            mockupImg!.onerror = reject;
-            mockupImg!.src = mockupUrl;
-          });
-          console.log('✅ Mockup carregado:', mockupUrl);
-        } catch (error) {
-          console.warn('⚠️ Erro ao carregar mockup, continuando sem ele:', error);
-          mockupImg = null;
-        }
+    return new Promise((resolve) => {
+      if (!visualData.backgroundImage) {
+        console.error('❌ Nenhuma imagem de fundo disponível');
+        resolve(null);
+        return;
       }
+
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
       
-      return new Promise((resolve, reject) => {
-        img.onload = () => {
-          try {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            if (!ctx) {
-              throw new Error('Contexto do canvas não disponível');
-            }
+      if (!ctx) {
+        console.error('❌ Não foi possível obter contexto do canvas');
+        resolve(null);
+        return;
+      }
 
-            // Configurar canvas para 1080x1440 (Stories Portrait)
-            canvas.width = 1080;
-            canvas.height = 1440;
+      // Definir dimensões do Instagram Stories
+      canvas.width = 1080;
+      canvas.height = 1920;
+      
+      console.log('🎨 Iniciando geração da imagem final...');
 
-            // Limpar canvas e preencher com fundo preto
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#000000';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Calcular dimensões para object-fit: contain com zoom aplicado
-            const canvasAspectRatio = canvas.width / canvas.height;
-            const imageAspectRatio = img.width / img.height;
-            
-            let baseDrawWidth, baseDrawHeight, baseDrawX, baseDrawY;
-            
-            if (imageAspectRatio > canvasAspectRatio) {
-              // Imagem é mais larga - ajustar pela largura
-              baseDrawWidth = canvas.width;
-              baseDrawHeight = canvas.width / imageAspectRatio;
-              baseDrawX = 0;
-              baseDrawY = (canvas.height - baseDrawHeight) / 2;
-            } else {
-              // Imagem é mais alta - ajustar pela altura
-              baseDrawHeight = canvas.height;
-              baseDrawWidth = canvas.height * imageAspectRatio;
-              baseDrawX = (canvas.width - baseDrawWidth) / 2;
-              baseDrawY = 0;
-            }
-
-            // Aplicar zoom
-            const zoomFactor = visualData.imageZoom / 100;
-            const drawWidth = baseDrawWidth * zoomFactor;
-            const drawHeight = baseDrawHeight * zoomFactor;
-
-            // Aplicar posicionamento (convertendo percentual para pixels)
-            const positionFactorX = (visualData.imagePosition.x - 50) / 50; // -1 a 1
-            const positionFactorY = (visualData.imagePosition.y - 50) / 50; // -1 a 1
-            
-            // Calcular offset máximo baseado na diferença entre tamanho com zoom e sem zoom
-            const maxOffsetX = (drawWidth - baseDrawWidth) / 2;
-            const maxOffsetY = (drawHeight - baseDrawHeight) / 2;
-            
-            // Aplicar posicionamento proporcional
-            const offsetX = positionFactorX * maxOffsetX;
-            const offsetY = positionFactorY * maxOffsetY;
-            
-            const drawX = baseDrawX - maxOffsetX + offsetX;
-            const drawY = baseDrawY - maxOffsetY + offsetY;
-
-            // Desenhar imagem com zoom e posicionamento aplicados
-            ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
-            
-            // Aplicar mockup ANTES do texto (para que o texto fique por cima)
-            if (mockupImg) {
-              // Ajustar mockup para cobrir todo o canvas mantendo aspecto
-              const mockupAspectRatio = mockupImg.width / mockupImg.height;
-              const canvasAspectRatio = canvas.width / canvas.height;
-              
-              let mockupDrawWidth, mockupDrawHeight, mockupDrawX, mockupDrawY;
-              
-              if (mockupAspectRatio > canvasAspectRatio) {
-                // Mockup é mais largo - ajustar pela altura
-                mockupDrawHeight = canvas.height;
-                mockupDrawWidth = canvas.height * mockupAspectRatio;
-                mockupDrawX = (canvas.width - mockupDrawWidth) / 2;
-                mockupDrawY = 0;
-              } else {
-                // Mockup é mais alto - ajustar pela largura
-                mockupDrawWidth = canvas.width;
-                mockupDrawHeight = canvas.width / mockupAspectRatio;
-                mockupDrawX = 0;
-                mockupDrawY = (canvas.height - mockupDrawHeight) / 2;
-              }
-              
-              // Desenhar mockup sobre a imagem, mas antes do texto
-              ctx.drawImage(mockupImg, mockupDrawX, mockupDrawY, mockupDrawWidth, mockupDrawHeight);
-              console.log('✅ Mockup aplicado antes do texto');
-            }
-            
-            // Desenhar texto POR CIMA do mockup
-            if (visualData.title.trim()) {
-              // Configurar texto com base nos controles EXATOS
-              const fontSize = visualData.textSize; // Usar exatamente o tamanho configurado
-              ctx.font = `900 ${fontSize}px 'Archivo Black', sans-serif`;
-              ctx.fillStyle = '#FFFFFF';
-              ctx.strokeStyle = '#000000';
-              ctx.lineWidth = 3;
-              ctx.textAlign = visualData.textAlign;
-              
-              // Usar EXATAMENTE o padding inferior configurado
-              const paddingBottom = 65; // Sempre 65px como especificado
-              const paddingHorizontal = canvas.width * 0.05; // 5% padding lateral
-              
-              // Posicionamento horizontal baseado EXATAMENTE no alinhamento configurado
-              // Usar o mesmo padding do preview para sincronização perfeita
-              const leftPadding = visualData.textAlign === 'left' ? canvas.width * 0.03 : paddingHorizontal;
-              const rightPadding = paddingHorizontal;
-              
-              let textX;
-              switch (visualData.textAlign) {
-                case 'left':
-                  textX = leftPadding;
-                  break;
-                case 'right':
-                  textX = canvas.width - rightPadding;
-                  break;
-                default: // center
-                  textX = canvas.width / 2;
-                  break;
-              }
-              
-              // Verificar se o texto precisa ser quebrado em linhas
-              const maxWidth = canvas.width - leftPadding - rightPadding;
-              const words = visualData.title.toUpperCase().split(' ');
-              const lines: string[] = [];
-              let currentLine = '';
-              
-              for (const word of words) {
-                const testLine = currentLine ? `${currentLine} ${word}` : word;
-                const metrics = ctx.measureText(testLine);
-                
-                if (metrics.width > maxWidth && currentLine) {
-                  lines.push(currentLine);
-                  currentLine = word;
-                } else {
-                  currentLine = testLine;
-                }
-              }
-              
-              if (currentLine) {
-                lines.push(currentLine);
-              }
-              
-              // Calcular posição Y CORRIGIDA para múltiplas linhas
-              const lineHeight = fontSize * 1.2; // Mesmo line-height do preview
-              const totalTextHeight = (lines.length - 1) * lineHeight; // Altura total das linhas extras
-              
-              // Posição Y corrigida: última linha fica exatamente no paddingBottom
-              const lastLineY = canvas.height - paddingBottom;
-              
-              console.log('🔧 Cálculos de posicionamento:', {
-                paddingBottom,
-                lineHeight,
-                totalLines: lines.length,
-                totalTextHeight,
-                lastLineY,
-                firstLineY: lastLineY - totalTextHeight
-              });
-              
-              // Desenhar cada linha de texto COM POSICIONAMENTO EXATO
-              lines.forEach((line, index) => {
-                // Calcular Y de cada linha: última linha na posição base, outras acima
-                const lineY = lastLineY - (totalTextHeight - (index * lineHeight));
-                
-                console.log(`📝 Linha ${index + 1}: "${line}" em Y=${lineY}`);
-                
-                // Desenhar contorno do texto (para destaque)
-                ctx.strokeText(line, textX, lineY);
-                // Desenhar texto preenchido
-                ctx.fillText(line, textX, lineY);
-              });
-              
-              console.log('✅ Texto aplicado com configurações EXATAS:', {
-                tamanhoConfigurado: visualData.textSize,
-                tamanhoAplicado: fontSize,
-                alinhamento: visualData.textAlign,
-                paddingBottom: paddingBottom,
-                linhas: lines.length,
-                posX: textX,
-                textY: lastLineY
-              });
-            }
-            
-            // Gerar blob da imagem final
-            canvas.toBlob((blob) => {
-              if (blob) {
-                console.log('✅ Imagem final gerada com sucesso:', {
-                  mockupAplicado: !!mockupImg,
-                  textoAplicado: !!visualData.title.trim(),
-                  tamanhoTexto: visualData.textSize,
-                  alinhamentoTexto: visualData.textAlign,
-                  zoomImagem: visualData.imageZoom,
-                  posicaoImagem: visualData.imagePosition
-                });
-                resolve(blob);
-              } else {
-                reject(new Error('Erro ao gerar imagem final'));
-              }
-            }, 'image/jpeg', 0.9);
-            
-          } catch (error) {
-            reject(error);
-          }
-        };
+      const backgroundImg = new Image();
+      backgroundImg.crossOrigin = 'anonymous';
+      
+      backgroundImg.onload = () => {
+        // Calcular dimensões da imagem com zoom
+        const scale = visualData.imageZoom / 100;
+        const scaledWidth = backgroundImg.width * scale;
+        const scaledHeight = backgroundImg.height * scale;
         
-        img.onerror = () => reject(new Error('Erro ao carregar imagem'));
-        img.src = visualData.backgroundImage!;
-      });
-      
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido ao gerar imagem';
-      console.error('Erro ao gerar imagem:', errorMessage);
-      setPreviewError(errorMessage);
-      return null;
-    } finally {
-      setIsGeneratingPreview(false);
-    }
-  }, [visualData.backgroundImage, visualData.title, visualData.textSize, visualData.textAlign, visualData.imageZoom, visualData.imagePosition, mockupUrl]);
+        // Calcular posição da imagem
+        const imageX = (canvas.width - scaledWidth) / 2 + (visualData.imagePosition.x * canvas.width / 100);
+        const imageY = (canvas.height - scaledHeight) / 2 + (visualData.imagePosition.y * canvas.height / 100);
+        
+        // Desenhar imagem de fundo
+        ctx.drawImage(backgroundImg, imageX, imageY, scaledWidth, scaledHeight);
+        
+        console.log('✅ Imagem de fundo desenhada');
 
-  const uploadImageToSupabase = async (blob: Blob): Promise<string | null> => {
-    if (!user?.id) {
-      console.error('❌ Usuário não autenticado:', { user });
+        // Carregar e aplicar mockup se disponível
+        if (mockupUrl) {
+          const mockupImg = new Image();
+          mockupImg.crossOrigin = 'anonymous';
+          
+          mockupImg.onload = () => {
+            ctx.drawImage(mockupImg, 0, 0, canvas.width, canvas.height);
+            console.log('✅ Mockup aplicado');
+            
+            // Aplicar texto após mockup
+            applyTextToCanvas();
+          };
+          
+          mockupImg.onerror = () => {
+            console.warn('⚠️ Erro ao carregar mockup, continuando sem ele');
+            applyTextToCanvas();
+          };
+          
+          mockupImg.src = mockupUrl;
+        } else {
+          console.log('ℹ️ Nenhum mockup disponível, aplicando apenas texto');
+          applyTextToCanvas();
+        }
+
+        function applyTextToCanvas() {
+          if (visualData.title.trim()) {
+            console.log('🔤 Aplicando texto à imagem...');
+            
+            // Configurar fonte exatamente como configurado
+            const fontSize = visualData.textSize;
+            ctx.font = `900 ${fontSize}px 'Archivo Black', sans-serif`;
+            ctx.fillStyle = '#FFFFFF';
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 3;
+            ctx.textAlign = visualData.textAlign;
+            
+            // Calcular posição Y baseada na configuração
+            const textYPercent = visualData.textPosition.y;
+            const textY = (canvas.height * textYPercent) / 100;
+            
+            // Configurar posição X baseada no alinhamento
+            const paddingHorizontal = canvas.width * 0.05; // 5% padding lateral
+            let textX;
+            
+            switch (visualData.textAlign) {
+              case 'left':
+                textX = paddingHorizontal;
+                break;
+              case 'right':
+                textX = canvas.width - paddingHorizontal;
+                break;
+              default: // center
+                textX = canvas.width / 2;
+                break;
+            }
+            
+            // Quebrar texto em linhas se necessário
+            const maxWidth = canvas.width - (paddingHorizontal * 2);
+            const words = visualData.title.toUpperCase().split(' ');
+            const lines: string[] = [];
+            let currentLine = '';
+            
+            for (const word of words) {
+              const testLine = currentLine ? `${currentLine} ${word}` : word;
+              const metrics = ctx.measureText(testLine);
+              
+              if (metrics.width > maxWidth && currentLine) {
+                lines.push(currentLine);
+                currentLine = word;
+              } else {
+                currentLine = testLine;
+              }
+            }
+            
+            if (currentLine) {
+              lines.push(currentLine);
+            }
+            
+            // Desenhar linhas de texto
+            const lineHeight = fontSize * 1.2;
+            const totalHeight = (lines.length - 1) * lineHeight;
+            
+            lines.forEach((line, index) => {
+              const lineY = textY - totalHeight + (index * lineHeight);
+              
+              console.log(`📝 Desenhando linha ${index + 1}: "${line}" em Y=${lineY}`);
+              
+              // Contorno do texto
+              ctx.strokeText(line, textX, lineY);
+              // Texto preenchido
+              ctx.fillText(line, textX, lineY);
+            });
+            
+            console.log('✅ Texto aplicado com sucesso:', {
+              tamanho: fontSize,
+              posicao: { x: textX, y: textY },
+              alinhamento: visualData.textAlign,
+              linhas: lines.length
+            });
+          }
+          
+          // Gerar blob final
+          canvas.toBlob((blob) => {
+            if (blob) {
+              console.log('✅ Imagem final gerada com sucesso');
+              resolve(blob);
+            } else {
+              console.error('❌ Erro ao gerar blob da imagem');
+              resolve(null);
+            }
+          }, 'image/jpeg', 0.9);
+        }
+      };
+      
+      backgroundImg.onerror = () => {
+        console.error('❌ Erro ao carregar imagem de fundo');
+        resolve(null);
+      };
+      
+      backgroundImg.src = visualData.backgroundImage;
+    });
+  }, [visualData, mockupUrl]);
+
+  const uploadImageToSupabase = async (imageBlob: Blob): Promise<string | null> => {
+    if (!user) {
       toast.error('Usuário não autenticado');
       return null;
     }
 
-    console.log('✅ Usuário autenticado:', { userId: user.id, userEmail: user.email });
-
-    // Verificar e estabelecer sessão válida do Supabase
-    const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
-    
-    if (sessionError || !currentSession) {
-      console.error('❌ Sessão do Supabase inválida:', { sessionError, currentSession });
-      toast.error('Sessão expirada. Faça login novamente.');
-      return null;
-    }
-
-    console.log('✅ Sessão do Supabase válida:', { 
-      userId: currentSession.user.id, 
-      accessToken: currentSession.access_token ? 'presente' : 'ausente' 
-    });
-
     try {
-      setIsUploading(true);
+      const fileName = `instagram-${Date.now()}.jpg`;
       
-      // Gerar nome único para o arquivo
-      const fileName = `instagram-${Date.now()}-${Math.random().toString(36).substring(7)}.jpg`;
+      console.log('📤 Iniciando upload para Supabase...');
       
-      // Upload para o Supabase Storage
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('news-images')
-        .upload(fileName, blob, {
+        .upload(fileName, imageBlob, {
           contentType: 'image/jpeg',
           cacheControl: '3600'
         });
@@ -367,116 +253,117 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
         return null;
       }
 
-      console.log('✅ Upload realizado no storage:', uploadData);
+      console.log('✅ Upload realizado:', uploadData.path);
 
-      // Obter URL pública
       const { data: urlData } = supabase.storage
         .from('news-images')
         .getPublicUrl(uploadData.path);
 
-      // Adicionar timestamp para evitar cache
-      const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+      const imageUrl = urlData.publicUrl;
+      console.log('✅ URL pública obtida:', imageUrl);
 
-      // Salvar metadados na tabela instagram_images
-      console.log('📝 Tentando inserir dados na tabela instagram_images:', {
-        user_id: currentSession.user.id, // Usar ID da sessão válida
-        image_url: publicUrl,
-        title: visualData.title || null,
-        visual_data: {
-          imageZoom: visualData.imageZoom,
-          imagePosition: visualData.imagePosition,
-          textSize: visualData.textSize,
-          textAlign: visualData.textAlign
-        }
-      });
-
+      // Salvar metadados na tabela
       const { error: dbError } = await supabase
         .from('instagram_images')
         .insert({
-          user_id: currentSession.user.id, // Usar ID da sessão válida
-          image_url: publicUrl,
-          title: visualData.title || null,
-          visual_data: {
-            imageZoom: visualData.imageZoom,
-            imagePosition: visualData.imagePosition,
-            textSize: visualData.textSize,
-            textAlign: visualData.textAlign
-          }
+          user_id: user.id,
+          image_url: imageUrl,
+          title: visualData.title,
+          text_size: visualData.textSize,
+          text_align: visualData.textAlign,
+          text_position_y: visualData.textPosition.y,
+          image_zoom: visualData.imageZoom,
+          image_position_x: visualData.imagePosition.x,
+          image_position_y: visualData.imagePosition.y
         });
 
       if (dbError) {
         console.error('❌ Erro ao salvar metadados:', dbError);
-        toast.error('Erro ao salvar metadados da imagem');
+        toast.error('Erro ao salvar informações da imagem');
         return null;
       }
 
-      console.log('✅ Metadados salvos com sucesso!');
-      toast.success('Imagem salva com sucesso!');
-      return publicUrl;
+      console.log('✅ Metadados salvos com sucesso');
+      toast.success('Imagem gerada e salva com sucesso!');
+      
+      return imageUrl;
 
     } catch (error) {
-      console.error('Erro no upload:', error);
-      toast.error('Erro inesperado ao fazer upload');
+      console.error('❌ Erro inesperado no upload:', error);
+      toast.error('Erro inesperado ao processar imagem');
       return null;
+    }
+  };
+
+  const generateFinalImage = async () => {
+    const blob = await generateFinalImageBlob();
+    if (blob) {
+      const url = URL.createObjectURL(blob);
+      return url;
+    }
+    return null;
+  };
+
+  const handleContinue = async () => {
+    if (!visualData.backgroundImage || !visualData.title.trim()) {
+      toast.error('Por favor, adicione uma imagem e um título');
+      return;
+    }
+
+    setIsUploading(true);
+    
+    try {
+      console.log('🚀 Iniciando processo de finalização...');
+      
+      // Gerar imagem final
+      const imageBlob = await generateFinalImageBlob();
+      
+      if (!imageBlob) {
+        toast.error('Erro ao gerar imagem final');
+        return;
+      }
+
+      // Upload para Supabase
+      const uploadedUrl = await uploadImageToSupabase(imageBlob);
+      
+      if (!uploadedUrl) {
+        return; // Erro já mostrado na função de upload
+      }
+
+      // Continuar para próxima etapa
+      onContinue({
+        ...visualData,
+        generatedImageUrl: uploadedUrl
+      });
+
+    } catch (error) {
+      console.error('❌ Erro no processo de finalização:', error);
+      toast.error('Erro ao processar imagem');
     } finally {
       setIsUploading(false);
     }
   };
 
-  const generateFinalImage = useCallback(async (): Promise<string | null> => {
-    const blob = await generateFinalImageBlob();
-    if (blob) {
-      return URL.createObjectURL(blob);
-    }
-    return null;
-  }, [generateFinalImageBlob]);
-
-  const handleContinue = async () => {
-    console.log('🔄 Iniciando processo de upload...', visualData);
-    
-    // Gerar blob da imagem
-    const blob = await generateFinalImageBlob();
-    if (!blob) {
-      console.error('❌ Falha ao gerar blob da imagem');
-      toast.error('Erro ao gerar imagem');
-      return;
-    }
-
-    // Upload para Supabase Storage
-    const publicUrl = await uploadImageToSupabase(blob);
-    if (!publicUrl) {
-      console.error('❌ Falha ao fazer upload da imagem');
-      return;
-    }
-
-    console.log('✅ Upload realizado com sucesso. URL:', publicUrl);
-    console.log('✅ Chamando onContinue com dados:', { ...visualData, generatedImageUrl: publicUrl });
-    
-    // Passar a URL pública permanente para o próximo step
-    onContinue({ ...visualData, generatedImageUrl: publicUrl });
-  };
-
   const handleDownload = async () => {
+    if (!visualData.backgroundImage || !visualData.title.trim()) {
+      toast.error('Por favor, adicione uma imagem e um título');
+      return;
+    }
+
     const imageUrl = await generateFinalImage();
     if (imageUrl) {
       const link = document.createElement('a');
       link.href = imageUrl;
-      link.download = `instagram-story-${Date.now()}.jpg`;
+      link.download = `instagram-${Date.now()}.jpg`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(imageUrl);
+      toast.success('Download iniciado!');
     }
   };
 
-  const resetTextSettings = () => {
-    setVisualData(prev => ({
-      ...prev,
-      textSize: 48,
-      textAlign: 'center'
-    }));
-  };
-
-  const isValid = visualData.backgroundImage !== null;
+  const isValid = visualData.backgroundImage && visualData.title.trim();
 
   return (
     <div className="min-h-screen bg-background">
@@ -487,7 +374,7 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
               Editor Visual Instagram
             </h1>
             <p className="text-muted-foreground mt-2">
-              Visualização simples da sua imagem no formato Instagram Stories
+              Configure sua imagem no formato Instagram Stories
             </p>
           </div>
         </div>
@@ -560,6 +447,7 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
                         ...prev,
                         imagePosition: { ...prev.imagePosition, x: value[0] }
                       }))}
+                      min={-100}
                       max={100}
                       step={1}
                     />
@@ -573,6 +461,7 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
                         ...prev,
                         imagePosition: { ...prev.imagePosition, y: value[0] }
                       }))}
+                      min={-100}
                       max={100}
                       step={1}
                     />
@@ -586,56 +475,93 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Type className="w-5 h-5" />
-                    Controles de Texto
+                    Configuração de Texto
                   </CardTitle>
                   <CardDescription>
-                    Ajuste o tamanho e alinhamento do texto
+                    Configure o tamanho, posição e alinhamento do texto
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
+                <CardContent className="space-y-6">
+                  <div className="space-y-3">
                     <Label>Tamanho da Fonte: {visualData.textSize}px</Label>
                     <Slider
                       value={[visualData.textSize]}
                       onValueChange={(value) => {
-                        console.log('Mudando tamanho da fonte para:', value[0]);
+                        console.log('🎯 Alterando tamanho da fonte:', value[0]);
                         setVisualData(prev => ({ ...prev, textSize: value[0] }));
                       }}
-                      min={20}
-                      max={80}
+                      min={16}
+                      max={72}
                       step={2}
+                      className="w-full"
                     />
+                    <div className="text-xs text-muted-foreground">
+                      Controla o tamanho real da fonte na imagem final
+                    </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label>Alinhamento do Texto</Label>
+                  <div className="space-y-3">
+                    <Label>Posição Vertical</Label>
+                    <Slider
+                      value={[visualData.textPosition.y]}
+                      onValueChange={(value) => {
+                        console.log('📍 Alterando posição Y:', value[0]);
+                        setVisualData(prev => ({ 
+                          ...prev, 
+                          textPosition: { y: value[0] } 
+                        }));
+                      }}
+                      min={10}
+                      max={90}
+                      step={1}
+                      className="w-full"
+                    />
+                    <div className="text-xs text-muted-foreground">
+                      {visualData.textPosition.y}% da altura da imagem (de cima para baixo)
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label>Alinhamento Horizontal</Label>
                     <div className="flex gap-2">
                       <Button
                         type="button"
                         variant={visualData.textAlign === 'left' ? 'default' : 'outline'}
                         size="sm"
-                        onClick={() => setVisualData(prev => ({ ...prev, textAlign: 'left' }))}
-                        className="flex items-center gap-2"
+                        onClick={() => {
+                          console.log('🔄 Alterando alinhamento para: esquerda');
+                          setVisualData(prev => ({ ...prev, textAlign: 'left' }));
+                        }}
+                        className="flex items-center gap-2 flex-1"
                       >
                         <AlignLeft className="w-4 h-4" />
+                        Esquerda
                       </Button>
                       <Button
                         type="button"
                         variant={visualData.textAlign === 'center' ? 'default' : 'outline'}
                         size="sm"
-                        onClick={() => setVisualData(prev => ({ ...prev, textAlign: 'center' }))}
-                        className="flex items-center gap-2"
+                        onClick={() => {
+                          console.log('🔄 Alterando alinhamento para: centro');
+                          setVisualData(prev => ({ ...prev, textAlign: 'center' }));
+                        }}
+                        className="flex items-center gap-2 flex-1"
                       >
                         <AlignCenter className="w-4 h-4" />
+                        Centro
                       </Button>
                       <Button
                         type="button"
                         variant={visualData.textAlign === 'right' ? 'default' : 'outline'}
                         size="sm"
-                        onClick={() => setVisualData(prev => ({ ...prev, textAlign: 'right' }))}
-                        className="flex items-center gap-2"
+                        onClick={() => {
+                          console.log('🔄 Alterando alinhamento para: direita');
+                          setVisualData(prev => ({ ...prev, textAlign: 'right' }));
+                        }}
+                        className="flex items-center gap-2 flex-1"
                       >
                         <AlignRight className="w-4 h-4" />
+                        Direita
                       </Button>
                     </div>
                   </div>
@@ -644,11 +570,19 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={resetTextSettings}
-                    className="flex items-center gap-2"
+                    onClick={() => {
+                      console.log('🔄 Resetando configurações de texto');
+                      setVisualData(prev => ({ 
+                        ...prev, 
+                        textSize: 36,
+                        textAlign: 'center',
+                        textPosition: { y: 85 }
+                      }));
+                    }}
+                    className="flex items-center gap-2 w-full"
                   >
                     <RotateCcw className="w-4 h-4" />
-                    Reset Fonte
+                    Resetar Configurações
                   </Button>
                 </CardContent>
               </Card>
@@ -658,9 +592,9 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
               <div className="flex gap-3">
                 <Button
                   onClick={handleDownload}
-                  disabled={isGeneratingPreview}
                   variant="outline"
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2 flex-1"
+                  disabled={isUploading}
                 >
                   <Download className="w-4 h-4" />
                   Download
@@ -668,134 +602,85 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
                 
                 <Button
                   onClick={handleContinue}
-                  disabled={!isValid || isGeneratingPreview || isUploading}
-                  size="lg"
                   className="flex items-center gap-2 flex-1"
+                  disabled={isUploading}
                 >
-                  {isUploading ? 'Salvando...' : 'Continuar Post'}
                   <ArrowRight className="w-4 h-4" />
+                  {isUploading ? 'Processando...' : 'Continuar'}
                 </Button>
               </div>
             )}
           </div>
 
           {/* Preview */}
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                Preview Instagram Stories
-              </CardTitle>
-              <CardDescription>
-                Visualização no formato 1080x1440 com fundo preto
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="w-full max-w-lg mx-auto">
-                <div 
-                  className="relative bg-black rounded-lg shadow-inner"
-                  style={{
-                    width: '100%',
-                    aspectRatio: '3/4', // 1080x1440 proporção
-                    overflow: 'hidden'
-                  }}
-                >
-                  {/* Indicador de dimensões */}
-                  <div className="absolute top-2 left-2 z-20 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                    1080x1440px
+          <div className="lg:sticky lg:top-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>Preview Instagram Stories</CardTitle>
+                <CardDescription>
+                  Visualização em tempo real da sua imagem
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="relative w-full max-w-[300px] mx-auto">
+                  <div 
+                    className="relative bg-gray-900 rounded-3xl overflow-hidden shadow-2xl"
+                    style={{ 
+                      aspectRatio: '9/16',
+                      height: 'clamp(400px, 60vh, 600px)'
+                    }}
+                  >
+                    {!visualData.backgroundImage && (
+                      <div className="absolute inset-0 flex items-center justify-center text-white/60 text-sm">
+                        Adicione uma imagem para ver o preview
+                      </div>
+                    )}
+                    
+                    {visualData.backgroundImage && (
+                      <>
+                        <img
+                          src={visualData.backgroundImage}
+                          alt="Background"
+                          className="absolute inset-0 w-full h-full object-cover"
+                          style={{
+                            transform: `scale(${visualData.imageZoom / 100}) translate(${visualData.imagePosition.x}%, ${visualData.imagePosition.y}%)`,
+                            transformOrigin: 'center center'
+                          }}
+                        />
+                        
+                        {mockupUrl && (
+                          <img
+                            src={mockupUrl}
+                            alt="Instagram Mockup"
+                            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                          />
+                        )}
+                        
+                        {visualData.title && (
+                          <div 
+                            className="absolute left-0 right-0 pointer-events-none text-white px-4"
+                            style={{
+                              top: `${visualData.textPosition.y}%`,
+                              fontSize: `${Math.max(12, visualData.textSize * 0.3)}px`,
+                              textAlign: visualData.textAlign,
+                              textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+                              fontWeight: '900',
+                              fontFamily: "'Archivo Black', sans-serif",
+                              lineHeight: '1.2',
+                              textTransform: 'uppercase',
+                              transform: 'translateY(-50%)'
+                            }}
+                          >
+                            {visualData.title}
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
-
-                  {/* Loading state */}
-                  {isGeneratingPreview && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-10">
-                      <div className="text-center text-white">
-                        <div className="animate-spin w-8 h-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-2"></div>
-                        <p className="text-sm">Processando...</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Error state */}
-                  {previewError && !isGeneratingPreview && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black">
-                      <div className="text-center text-red-400">
-                        <ImageIcon className="w-12 h-12 mx-auto mb-2" />
-                        <p className="text-sm px-4">{previewError}</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Image preview */}
-                  {visualData.backgroundImage && !isGeneratingPreview && !previewError && (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <img
-                        src={visualData.backgroundImage}
-                        alt="Preview"
-                        className="max-w-full max-h-full object-contain transition-transform duration-200 ease-out"
-                        style={{ 
-                          imageRendering: 'auto',
-                          transform: `
-                            scale(${visualData.imageZoom / 100})
-                            translate(
-                              ${((visualData.imagePosition.x - 50) / (visualData.imageZoom / 100)) * 2}%,
-                              ${((visualData.imagePosition.y - 50) / (visualData.imageZoom / 100)) * 2}%
-                            )
-                          `,
-                          transformOrigin: 'center center'
-                        }}
-                      />
-                    </div>
-                  )}
-
-                  {/* Instagram Mockup Overlay */}
-                  {mockupUrl && visualData.backgroundImage && !isGeneratingPreview && !previewError && (
-                    <div className="absolute inset-0 pointer-events-none">
-                      <img
-                        src={mockupUrl}
-                        alt="Instagram Mockup Overlay"
-                        className="w-full h-full object-contain"
-                        style={{ 
-                          imageRendering: 'auto',
-                          zIndex: 10
-                        }}
-                      />
-                    </div>
-                  )}
-
-                   {/* Texto sobreposto */}
-                   {visualData.title && visualData.backgroundImage && !isGeneratingPreview && !previewError && (
-                     <div 
-                       className="absolute bottom-0 left-0 right-0 pointer-events-none text-white"
-                        style={{
-                          paddingBottom: '65px', // Padding fixo de 65px (mesmo do salvamento)
-                          paddingLeft: visualData.textAlign === 'left' ? '3%' : '5%',
-                          paddingRight: '5%',
-                          fontSize: `${visualData.textSize}px`, // Tamanho EXATO configurado
-                          textAlign: visualData.textAlign,
-                          textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
-                          fontWeight: '900',
-                          fontFamily: "'Archivo Black', sans-serif",
-                          lineHeight: '1.2',
-                          textTransform: 'uppercase'
-                        }}
-                     >
-                       {visualData.title}
-                     </div>
-                   )}
-
-                  {/* Empty state */}
-                  {!visualData.backgroundImage && !isGeneratingPreview && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black">
-                      <div className="text-center text-gray-400">
-                        <ImageIcon className="w-12 h-12 mx-auto mb-2" />
-                        <p className="text-sm">Faça upload de uma imagem</p>
-                        <p className="text-xs text-gray-500">para ver o preview</p>
-                      </div>
-                    </div>
-                  )}
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

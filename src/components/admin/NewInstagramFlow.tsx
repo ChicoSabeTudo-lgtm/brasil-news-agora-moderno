@@ -10,6 +10,7 @@ interface VisualData {
   imagePosition: { x: number; y: number };
   textSize: number;
   textAlign: 'left' | 'center' | 'right';
+  textPosition: { y: number };
   generatedImageUrl: string;
 }
 
