@@ -44,19 +44,28 @@ serve(async (req) => {
       });
     }
 
-    // Check if user has admin role
+    // Check if user has admin role - use direct query instead of has_role function
     console.log('Checking admin role for user:', user.user.id);
     const { data: roleData, error: roleError } = await supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', user.user.id)
+      .eq('role', 'admin')
       .single();
 
     console.log('Role check result:', { roleData, roleError });
 
-    if (roleError || roleData?.role !== 'admin') {
-      console.log('Permission denied - not admin:', { role: roleData?.role, error: roleError });
-      return new Response(JSON.stringify({ error: 'Insufficient permissions', details: { currentRole: roleData?.role, userId: user.user.id } }), {
+    if (roleError && roleError.code !== 'PGRST116') {
+      console.log('Database error checking role:', roleError);
+      return new Response(JSON.stringify({ error: 'Database error checking permissions' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    if (!roleData) {
+      console.log('Permission denied - not admin:', { userId: user.user.id });
+      return new Response(JSON.stringify({ error: 'Insufficient permissions', details: { userId: user.user.id, hasRole: false } }), {
         status: 403,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
