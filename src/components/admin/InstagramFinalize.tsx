@@ -302,12 +302,12 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
               </div>
               
               {/* Image */}
-              <div className="aspect-square bg-muted">
+              <div className="aspect-square bg-muted flex items-center justify-center">
                 {postData.canvasDataUrl && (
                   <img 
                     src={postData.canvasDataUrl} 
                     alt="Instagram post"
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                   />
                 )}
               </div>
