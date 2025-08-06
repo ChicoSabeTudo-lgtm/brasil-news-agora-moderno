@@ -271,57 +271,98 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
 
         {/* Preview */}
         <div className="flex justify-center">
-          <Card className="w-fit">
-            <CardHeader>
-              <CardTitle>Visualização Final</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="border rounded-lg overflow-hidden bg-gradient-to-b from-purple-500 via-pink-500 to-orange-500 p-4">
-                <div className="bg-white rounded-lg overflow-hidden">
-                  {/* Instagram Header Mockup */}
-                  <div className="flex items-center p-3 border-b">
-                    <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full"></div>
-                    <span className="ml-3 font-semibold text-sm">your_account</span>
-                  </div>
-                  
-                  {/* Image */}
-                  <div className="aspect-square">
-                    {postData.canvasDataUrl && (
-                      <img 
-                        src={postData.canvasDataUrl} 
-                        alt="Instagram post"
-                        className="w-full h-full object-cover"
-                      />
-                    )}
-                  </div>
-                  
-                  {/* Caption Preview */}
-                  <div className="p-3">
-                    <div className="flex items-center space-x-4 mb-2">
-                      <div className="flex space-x-3">
-                        <div className="w-6 h-6 border-2 border-black rounded-full"></div>
-                        <div className="w-6 h-6 border-2 border-black rounded-full"></div>
-                        <div className="w-6 h-6 border-2 border-black rounded-full"></div>
-                      </div>
+          <div className="w-full max-w-md">
+            <div className="mb-4">
+              <h3 className="text-lg font-semibold text-center">Visualização Final</h3>
+              <p className="text-sm text-muted-foreground text-center">Como ficará no Instagram</p>
+            </div>
+            
+            {/* Modern Instagram Post Preview */}
+            <div className="bg-background border border-border rounded-2xl overflow-hidden shadow-xl">
+              {/* Instagram Header */}
+              <div className="flex items-center justify-between p-4 bg-background">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 p-0.5">
+                    <div className="w-full h-full bg-background rounded-full flex items-center justify-center">
+                      <span className="text-xs font-bold text-primary">PC</span>
                     </div>
-                    
-                    {caption && (
-                      <p className="text-sm">
-                        <span className="font-semibold">your_account</span>{' '}
-                        {caption.length > 100 ? caption.substring(0, 100) + '...' : caption}
-                      </p>
-                    )}
-                    
-                    {isScheduled && selectedDate && (
-                      <p className="text-xs text-gray-500 mt-2">
-                        📅 Agendado para {format(selectedDate, 'MMM d')} às {selectedTime}
-                      </p>
-                    )}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm text-foreground">portalchicosabetudo</p>
+                    <p className="text-xs text-muted-foreground">Patrocinado</p>
                   </div>
                 </div>
+                <div className="text-foreground">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="12" cy="5" r="2"/>
+                    <circle cx="12" cy="12" r="2"/>
+                    <circle cx="12" cy="19" r="2"/>
+                  </svg>
+                </div>
               </div>
-            </CardContent>
-          </Card>
+              
+              {/* Image */}
+              <div className="aspect-square bg-muted">
+                {postData.canvasDataUrl && (
+                  <img 
+                    src={postData.canvasDataUrl} 
+                    alt="Instagram post"
+                    className="w-full h-full object-cover"
+                  />
+                )}
+              </div>
+              
+              {/* Instagram Actions */}
+              <div className="p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-foreground">
+                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                    </svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-foreground">
+                      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                    </svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-foreground">
+                      <circle cx="18" cy="5" r="3"/>
+                      <circle cx="6" cy="12" r="3"/>
+                      <circle cx="18" cy="19" r="3"/>
+                      <path d="M8.59 13.51l6.83 3.98"/>
+                      <path d="M15.41 6.51l-6.82 3.98"/>
+                    </svg>
+                  </div>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-foreground">
+                    <polygon points="5 3 19 12 5 21 5 3"/>
+                  </svg>
+                </div>
+                
+                <p className="text-sm font-semibold text-foreground">1.234 curtidas</p>
+                
+                {/* Caption */}
+                {caption && (
+                  <div className="space-y-2">
+                    <p className="text-sm text-foreground leading-relaxed">
+                      <span className="font-semibold">portalchicosabetudo</span>{' '}
+                      {caption}
+                    </p>
+                  </div>
+                )}
+                
+                {caption && (
+                  <p className="text-xs text-muted-foreground">Ver todos os comentários</p>
+                )}
+                
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Há 2 minutos</p>
+                
+                {isScheduled && selectedDate && (
+                  <div className="mt-3 p-2 bg-muted rounded-lg">
+                    <p className="text-xs text-muted-foreground">
+                      📅 Agendado para {format(selectedDate, 'dd/MM/yyyy')} às {selectedTime}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
