@@ -14,7 +14,7 @@ import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Send, Download, Calendar, Clock, Facebook, Twitter, MessageCircle, Instagram, Image as ImageIcon, Type, Move, ZoomIn, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import NewInstagramFlow from './NewInstagramFlow';
+import InstagramPostGenerator from './InstagramPostGenerator';
 
 interface PostData {
   title: string;
@@ -625,7 +625,7 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
 
 
             <TabsContent value="instagram-new">
-              <NewInstagramFlow />
+              <InstagramPostGenerator />
             </TabsContent>
           </Tabs>
         </div>
