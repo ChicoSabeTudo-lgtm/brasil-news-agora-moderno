@@ -167,23 +167,49 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
             // Desenhar imagem com zoom e posicionamento aplicados
             ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
             
-            // Desenhar texto se houver título
+            // Aplicar mockup ANTES do texto (para que o texto fique por cima)
+            if (mockupImg) {
+              // Ajustar mockup para cobrir todo o canvas mantendo aspecto
+              const mockupAspectRatio = mockupImg.width / mockupImg.height;
+              const canvasAspectRatio = canvas.width / canvas.height;
+              
+              let mockupDrawWidth, mockupDrawHeight, mockupDrawX, mockupDrawY;
+              
+              if (mockupAspectRatio > canvasAspectRatio) {
+                // Mockup é mais largo - ajustar pela altura
+                mockupDrawHeight = canvas.height;
+                mockupDrawWidth = canvas.height * mockupAspectRatio;
+                mockupDrawX = (canvas.width - mockupDrawWidth) / 2;
+                mockupDrawY = 0;
+              } else {
+                // Mockup é mais alto - ajustar pela largura
+                mockupDrawWidth = canvas.width;
+                mockupDrawHeight = canvas.width / mockupAspectRatio;
+                mockupDrawX = 0;
+                mockupDrawY = (canvas.height - mockupDrawHeight) / 2;
+              }
+              
+              // Desenhar mockup sobre a imagem, mas antes do texto
+              ctx.drawImage(mockupImg, mockupDrawX, mockupDrawY, mockupDrawWidth, mockupDrawHeight);
+              console.log('✅ Mockup aplicado antes do texto');
+            }
+            
+            // Desenhar texto POR CIMA do mockup
             if (visualData.title.trim()) {
-              // Configurar texto com base nos controles
-              const fontSize = visualData.textSize;
-              ctx.font = `${fontSize}px 'Archivo Black', sans-serif`;
+              // Configurar texto com base nos controles EXATOS
+              const fontSize = visualData.textSize; // Usar exatamente o tamanho configurado
+              ctx.font = `900 ${fontSize}px 'Archivo Black', sans-serif`;
               ctx.fillStyle = '#FFFFFF';
               ctx.strokeStyle = '#000000';
               ctx.lineWidth = 3;
               ctx.textAlign = visualData.textAlign;
               
-              // Calcular posição do texto (parte inferior com padding de 65px)
+              // Usar EXATAMENTE o padding inferior configurado (65px)
               const paddingBottom = 65;
               const paddingHorizontal = canvas.width * 0.05; // 5% padding lateral
-              const textY = canvas.height - paddingBottom;
-              let textX;
               
-              // Posicionamento baseado no alinhamento configurado
+              // Posicionamento baseado EXATAMENTE no alinhamento configurado
+              let textX;
               switch (visualData.textAlign) {
                 case 'left':
                   textX = paddingHorizontal;
@@ -218,46 +244,28 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
                 lines.push(currentLine);
               }
               
-              // Desenhar cada linha de texto
+              // Calcular posição Y para múltiplas linhas
               const lineHeight = fontSize * 1.2;
               const totalTextHeight = lines.length * lineHeight;
-              const startY = textY - totalTextHeight + lineHeight;
+              const baseY = canvas.height - paddingBottom;
               
+              // Desenhar cada linha de texto COM POSICIONAMENTO CORRETO
               lines.forEach((line, index) => {
-                const lineY = startY + (index * lineHeight);
+                const lineY = baseY - totalTextHeight + ((index + 1) * lineHeight);
                 
-                // Desenhar contorno do texto
+                // Desenhar contorno do texto (para destaque)
                 ctx.strokeText(line, textX, lineY);
                 // Desenhar texto preenchido
                 ctx.fillText(line, textX, lineY);
               });
-            }
-            
-            // Aplicar mockup se disponível (sobrepor sobre a imagem final)
-            if (mockupImg) {
-              // Ajustar mockup para cobrir todo o canvas mantendo aspecto
-              const mockupAspectRatio = mockupImg.width / mockupImg.height;
-              const canvasAspectRatio = canvas.width / canvas.height;
               
-              let mockupDrawWidth, mockupDrawHeight, mockupDrawX, mockupDrawY;
-              
-              if (mockupAspectRatio > canvasAspectRatio) {
-                // Mockup é mais largo - ajustar pela altura
-                mockupDrawHeight = canvas.height;
-                mockupDrawWidth = canvas.height * mockupAspectRatio;
-                mockupDrawX = (canvas.width - mockupDrawWidth) / 2;
-                mockupDrawY = 0;
-              } else {
-                // Mockup é mais alto - ajustar pela largura
-                mockupDrawWidth = canvas.width;
-                mockupDrawHeight = canvas.width / mockupAspectRatio;
-                mockupDrawX = 0;
-                mockupDrawY = (canvas.height - mockupDrawHeight) / 2;
-              }
-              
-              // Desenhar mockup por cima de tudo
-              ctx.drawImage(mockupImg, mockupDrawX, mockupDrawY, mockupDrawWidth, mockupDrawHeight);
-              console.log('✅ Mockup aplicado à imagem final');
+              console.log('✅ Texto aplicado com configurações:', {
+                tamanho: fontSize,
+                alinhamento: visualData.textAlign,
+                paddingBottom: paddingBottom,
+                linhas: lines.length,
+                posX: textX
+              });
             }
             
             // Gerar blob da imagem final
