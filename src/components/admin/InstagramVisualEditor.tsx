@@ -83,9 +83,27 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
     setPreviewError(null);
 
     try {
-      // Carregar imagem
+      // Carregar imagem de fundo
       const img = new Image();
       img.crossOrigin = 'anonymous';
+      
+      // Carregar mockup se disponível
+      let mockupImg: HTMLImageElement | null = null;
+      if (mockupUrl) {
+        try {
+          mockupImg = new Image();
+          mockupImg.crossOrigin = 'anonymous';
+          await new Promise((resolve, reject) => {
+            mockupImg!.onload = resolve;
+            mockupImg!.onerror = reject;
+            mockupImg!.src = mockupUrl;
+          });
+          console.log('✅ Mockup carregado:', mockupUrl);
+        } catch (error) {
+          console.warn('⚠️ Erro ao carregar mockup, continuando sem ele:', error);
+          mockupImg = null;
+        }
+      }
       
       return new Promise((resolve, reject) => {
         img.onload = () => {
@@ -132,8 +150,6 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
             const drawHeight = baseDrawHeight * zoomFactor;
 
             // Aplicar posicionamento (convertendo percentual para pixels)
-            // x: 0-100% -> posição horizontal (0 = esquerda, 50 = centro, 100 = direita)
-            // y: 0-100% -> posição vertical (0 = topo, 50 = centro, 100 = baixo)
             const positionFactorX = (visualData.imagePosition.x - 50) / 50; // -1 a 1
             const positionFactorY = (visualData.imagePosition.y - 50) / 50; // -1 a 1
             
@@ -153,7 +169,7 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
             
             // Desenhar texto se houver título
             if (visualData.title.trim()) {
-              // Configurar texto
+              // Configurar texto com base nos controles
               const fontSize = visualData.textSize;
               ctx.font = `${fontSize}px 'Archivo Black', sans-serif`;
               ctx.fillStyle = '#FFFFFF';
@@ -163,30 +179,98 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
               
               // Calcular posição do texto (parte inferior com padding de 65px)
               const paddingBottom = 65;
+              const paddingHorizontal = canvas.width * 0.05; // 5% padding lateral
               const textY = canvas.height - paddingBottom;
               let textX;
               
+              // Posicionamento baseado no alinhamento configurado
               switch (visualData.textAlign) {
                 case 'left':
-                  textX = canvas.width * 0.03; // 3% da largura (~32px em 1080px)
+                  textX = paddingHorizontal;
                   break;
                 case 'right':
-                  textX = canvas.width * 0.95; // 95% da largura
+                  textX = canvas.width - paddingHorizontal;
                   break;
                 default: // center
                   textX = canvas.width / 2;
                   break;
               }
               
-              // Desenhar contorno do texto
-              ctx.strokeText(visualData.title.toUpperCase(), textX, textY);
-              // Desenhar texto preenchido
-              ctx.fillText(visualData.title.toUpperCase(), textX, textY);
+              // Verificar se o texto precisa ser quebrado em linhas
+              const maxWidth = canvas.width - (paddingHorizontal * 2);
+              const words = visualData.title.toUpperCase().split(' ');
+              const lines: string[] = [];
+              let currentLine = '';
+              
+              for (const word of words) {
+                const testLine = currentLine ? `${currentLine} ${word}` : word;
+                const metrics = ctx.measureText(testLine);
+                
+                if (metrics.width > maxWidth && currentLine) {
+                  lines.push(currentLine);
+                  currentLine = word;
+                } else {
+                  currentLine = testLine;
+                }
+              }
+              
+              if (currentLine) {
+                lines.push(currentLine);
+              }
+              
+              // Desenhar cada linha de texto
+              const lineHeight = fontSize * 1.2;
+              const totalTextHeight = lines.length * lineHeight;
+              const startY = textY - totalTextHeight + lineHeight;
+              
+              lines.forEach((line, index) => {
+                const lineY = startY + (index * lineHeight);
+                
+                // Desenhar contorno do texto
+                ctx.strokeText(line, textX, lineY);
+                // Desenhar texto preenchido
+                ctx.fillText(line, textX, lineY);
+              });
             }
             
-            // Gerar blob
+            // Aplicar mockup se disponível (sobrepor sobre a imagem final)
+            if (mockupImg) {
+              // Ajustar mockup para cobrir todo o canvas mantendo aspecto
+              const mockupAspectRatio = mockupImg.width / mockupImg.height;
+              const canvasAspectRatio = canvas.width / canvas.height;
+              
+              let mockupDrawWidth, mockupDrawHeight, mockupDrawX, mockupDrawY;
+              
+              if (mockupAspectRatio > canvasAspectRatio) {
+                // Mockup é mais largo - ajustar pela altura
+                mockupDrawHeight = canvas.height;
+                mockupDrawWidth = canvas.height * mockupAspectRatio;
+                mockupDrawX = (canvas.width - mockupDrawWidth) / 2;
+                mockupDrawY = 0;
+              } else {
+                // Mockup é mais alto - ajustar pela largura
+                mockupDrawWidth = canvas.width;
+                mockupDrawHeight = canvas.width / mockupAspectRatio;
+                mockupDrawX = 0;
+                mockupDrawY = (canvas.height - mockupDrawHeight) / 2;
+              }
+              
+              // Desenhar mockup por cima de tudo
+              ctx.drawImage(mockupImg, mockupDrawX, mockupDrawY, mockupDrawWidth, mockupDrawHeight);
+              console.log('✅ Mockup aplicado à imagem final');
+            }
+            
+            // Gerar blob da imagem final
             canvas.toBlob((blob) => {
               if (blob) {
+                console.log('✅ Imagem final gerada com sucesso:', {
+                  mockupAplicado: !!mockupImg,
+                  textoAplicado: !!visualData.title.trim(),
+                  tamanhoTexto: visualData.textSize,
+                  alinhamentoTexto: visualData.textAlign,
+                  zoomImagem: visualData.imageZoom,
+                  posicaoImagem: visualData.imagePosition
+                });
                 resolve(blob);
               } else {
                 reject(new Error('Erro ao gerar imagem final'));
@@ -210,7 +294,7 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
     } finally {
       setIsGeneratingPreview(false);
     }
-  }, [visualData.backgroundImage, visualData.title, visualData.textSize, visualData.textAlign]);
+  }, [visualData.backgroundImage, visualData.title, visualData.textSize, visualData.textAlign, visualData.imageZoom, visualData.imagePosition, mockupUrl]);
 
   const uploadImageToSupabase = async (blob: Blob): Promise<string | null> => {
     if (!user?.id) {
