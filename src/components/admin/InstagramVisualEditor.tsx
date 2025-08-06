@@ -82,7 +82,7 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
         return;
       }
 
-      // Definir dimensões do Instagram Stories
+      // Definir dimensões padrão do Instagram Stories
       canvas.width = 1080;
       canvas.height = 1920;
       
