@@ -132,22 +132,20 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
 
         function applyTextToCanvas() {
           if (visualData.title.trim()) {
-            console.log('🔤 Aplicando texto à imagem...');
-            
-            // Configurar fonte exatamente como configurado
-            const fontSize = visualData.textSize;
+            // Configurar fonte exatamente como no preview
+            const fontSize = Math.max(12, visualData.textSize * 0.3); // Mesmo cálculo do preview
             ctx.font = `900 ${fontSize}px 'Archivo Black', sans-serif`;
             ctx.fillStyle = '#FFFFFF';
             ctx.strokeStyle = '#000000';
             ctx.lineWidth = 3;
             ctx.textAlign = visualData.textAlign;
             
-            // Calcular posição Y baseada na configuração
+            // Calcular posição Y exatamente como no preview (% da altura)
             const textYPercent = visualData.textPosition.y;
             const textY = (canvas.height * textYPercent) / 100;
             
-            // Configurar posição X baseada no alinhamento
-            const paddingHorizontal = canvas.width * 0.05; // 5% padding lateral
+            // Configurar posição X exatamente como no preview
+            const paddingHorizontal = canvas.width * 0.037; // Equivalente aos 4% do preview (16px em 400px)
             let textX;
             
             switch (visualData.textAlign) {
@@ -162,7 +160,7 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
                 break;
             }
             
-            // Quebrar texto em linhas se necessário
+            // Quebrar texto em linhas se necessário (mesmo algoritmo do preview)
             const maxWidth = canvas.width - (paddingHorizontal * 2);
             const words = visualData.title.toUpperCase().split(' ');
             const lines: string[] = [];
@@ -184,22 +182,17 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
               lines.push(currentLine);
             }
             
-            // Desenhar linhas de texto com padding FIXO
+            // Desenhar linhas de texto exatamente como no preview
             const lineHeight = fontSize * 1.2;
             
-            // Calcular a altura total de todas as linhas
+            // Para múltiplas linhas, centralizar verticalmente ao redor da posição Y
             const totalLinesHeight = (lines.length - 1) * lineHeight;
-            
-            // Posicionar a primeira linha na posição Y configurada
-            // Para múltiplas linhas, a posição Y se refere ao centro do bloco de texto
-            const firstLineY = lines.length === 1 
-              ? textY  // Para linha única, usar a posição exata
-              : textY - (totalLinesHeight / 2); // Para múltiplas linhas, centralizar
+            const startY = lines.length === 1 ? textY : textY - (totalLinesHeight / 2);
             
             lines.forEach((line, index) => {
-              const lineY = firstLineY + (index * lineHeight);
+              const lineY = startY + (index * lineHeight);
               
-              console.log(`📝 Desenhando linha ${index + 1}: "${line}" em Y=${lineY}`);
+              console.log(`📝 Desenhando linha ${index + 1}: "${line}" em Y=${lineY} (fontSize=${fontSize})`);
               
               // Contorno do texto
               ctx.strokeText(line, textX, lineY);
@@ -207,11 +200,13 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
               ctx.fillText(line, textX, lineY);
             });
             
-            console.log('✅ Texto aplicado com sucesso:', {
+            console.log('✅ Texto aplicado com configurações do preview:', {
               tamanho: fontSize,
-              posicao: { x: textX, y: textY },
+              posicaoY: textY,
+              posicaoYPercent: textYPercent,
               alinhamento: visualData.textAlign,
-              linhas: lines.length
+              linhas: lines.length,
+              dimensoesCanvas: `${canvas.width}x${canvas.height}`
             });
           }
           
