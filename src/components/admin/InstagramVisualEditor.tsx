@@ -277,12 +277,13 @@ export default function InstagramVisualEditor({ onContinue, initialData }: Insta
           user_id: user.id,
           image_url: imageUrl,
           title: visualData.title,
-          text_size: visualData.textSize,
-          text_align: visualData.textAlign,
-          text_position_y: visualData.textPosition.y,
-          image_zoom: visualData.imageZoom,
-          image_position_x: visualData.imagePosition.x,
-          image_position_y: visualData.imagePosition.y
+          visual_data: {
+            textSize: visualData.textSize,
+            textAlign: visualData.textAlign,
+            textPosition: visualData.textPosition,
+            imageZoom: visualData.imageZoom,
+            imagePosition: visualData.imagePosition
+          }
         });
 
       if (dbError) {
