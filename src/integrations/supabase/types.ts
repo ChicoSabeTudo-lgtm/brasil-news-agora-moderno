@@ -991,7 +991,9 @@ export type Database = {
     }
     Functions: {
       approve_user_access: {
-        Args: { target_user_id: string; reason?: string }
+        Args:
+          | { target_user_id: string; admin_user_id: string; reason?: string }
+          | { target_user_id: string; reason?: string }
         Returns: boolean
       }
       can_user_vote: {
@@ -1007,7 +1009,9 @@ export type Database = {
         Returns: undefined
       }
       delete_user_safe: {
-        Args: { target_user_id: string; reason?: string }
+        Args:
+          | { target_user_id: string; admin_user_id: string; reason?: string }
+          | { target_user_id: string; reason?: string }
         Returns: boolean
       }
       generate_slug: {
@@ -1030,13 +1034,16 @@ export type Database = {
         Returns: undefined
       }
       revoke_user_access: {
-        Args: { target_user_id: string; reason?: string }
+        Args:
+          | { target_user_id: string; admin_user_id: string; reason?: string }
+          | { target_user_id: string; reason?: string }
         Returns: boolean
       }
       update_user_role: {
         Args: {
           target_user_id: string
           new_role: Database["public"]["Enums"]["app_role"]
+          admin_user_id: string
           reason?: string
         }
         Returns: boolean
