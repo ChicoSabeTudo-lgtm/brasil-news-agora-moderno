@@ -21,6 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose,
 } from '@/components/ui/dialog';
 import {
   Select,
@@ -365,7 +366,9 @@ export const UserManagement = () => {
                             </Select>
                           </div>
                           <div className="flex justify-end gap-2">
-                            <Button variant="outline">Cancelar</Button>
+                            <DialogClose asChild>
+                              <Button variant="outline">Cancelar</Button>
+                            </DialogClose>
                             <Button 
                               onClick={() => updateUserRole(user.user_id, newRole as 'admin' | 'redator')}
                             >
