@@ -107,6 +107,7 @@ async function updateUserRole(supabase: any, adminId: string, { target_user_id, 
     const { data, error } = await supabase.rpc('update_user_role', {
       target_user_id,
       new_role,
+      admin_user_id: adminId,
       reason: reason || 'Role updated by admin'
     });
 
@@ -132,6 +133,7 @@ async function deleteUser(supabase: any, adminId: string, { target_user_id, reas
     // Call the secure database function
     const { data, error } = await supabase.rpc('delete_user_safe', {
       target_user_id,
+      admin_user_id: adminId,
       reason: reason || 'User deleted by admin'
     });
 
@@ -163,6 +165,7 @@ async function approveUser(supabase: any, adminId: string, { target_user_id, rea
     // Call the secure database function
     const { data, error } = await supabase.rpc('approve_user_access', {
       target_user_id,
+      admin_user_id: adminId,
       reason: reason || 'User access approved by admin'
     });
 
@@ -188,6 +191,7 @@ async function revokeUser(supabase: any, adminId: string, { target_user_id, reas
     // Call the secure database function
     const { data, error } = await supabase.rpc('revoke_user_access', {
       target_user_id,
+      admin_user_id: adminId,
       reason: reason || 'User access revoked by admin'
     });
 
