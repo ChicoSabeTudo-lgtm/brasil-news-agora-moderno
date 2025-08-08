@@ -59,6 +59,14 @@ export default function Admin() {
       setActiveTab(tabParam);
     }
   }, [searchParams]);
+  useEffect(() => {
+    if (userRole !== 'admin') {
+      const restricted = new Set(['categories','advertisements','in-content-ads','analytics']);
+      if (restricted.has(activeTab)) {
+        setActiveTab('dashboard');
+      }
+    }
+  }, [userRole, activeTab]);
 
   // Load user profile data
   useEffect(() => {
@@ -109,14 +117,16 @@ export default function Admin() {
             </div>
             
             <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => navigate('/admin/configuracoes')}
-              >
-                <Settings className="w-4 h-4 mr-2" />
-                Configurações
-              </Button>
+{userRole === 'admin' && (
+  <Button 
+    variant="outline" 
+    size="sm"
+    onClick={() => navigate('/admin/configuracoes')}
+  >
+    <Settings className="w-4 h-4 mr-2" />
+    Configurações
+  </Button>
+)}
               
               <Button 
                 variant="destructive" 
@@ -155,18 +165,24 @@ export default function Admin() {
                 <Monitor className="w-4 h-4" />
                 Blocos
               </TabsTrigger>
-              <TabsTrigger value="categories" className="flex items-center gap-2">
-                <Tag className="w-4 h-4" />
-                Categorias
-              </TabsTrigger>
-              <TabsTrigger value="advertisements" className="flex items-center gap-2">
-                <Megaphone className="w-4 h-4" />
-                Propagandas
-              </TabsTrigger>
-              <TabsTrigger value="in-content-ads" className="flex items-center gap-2">
-                <FileText className="w-4 h-4" />
-                In-Content
-              </TabsTrigger>
+{userRole === 'admin' && (
+  <TabsTrigger value="categories" className="flex items-center gap-2">
+    <Tag className="w-4 h-4" />
+    Categorias
+  </TabsTrigger>
+)}
+{userRole === 'admin' && (
+  <TabsTrigger value="advertisements" className="flex items-center gap-2">
+    <Megaphone className="w-4 h-4" />
+    Propagandas
+  </TabsTrigger>
+)}
+{userRole === 'admin' && (
+  <TabsTrigger value="in-content-ads" className="flex items-center gap-2">
+    <FileText className="w-4 h-4" />
+    In-Content
+  </TabsTrigger>
+)}
               <TabsTrigger value="contact" className="flex items-center gap-2">
                 <Mail className="w-4 h-4" />
                 Contato
@@ -181,10 +197,12 @@ export default function Admin() {
                   Usuários
                 </TabsTrigger>
               )}
-              <TabsTrigger value="analytics" className="flex items-center gap-2">
-                <TrendingUp className="w-4 h-4" />
-                Análises
-              </TabsTrigger>
+{userRole === 'admin' && (
+  <TabsTrigger value="analytics" className="flex items-center gap-2">
+    <TrendingUp className="w-4 h-4" />
+    Análises
+  </TabsTrigger>
+)}
             </TabsList>
 
             <TabsContent value="dashboard" className="space-y-6">
@@ -260,32 +278,38 @@ export default function Admin() {
               <BlocksConfigManagement />
             </TabsContent>
 
-            <TabsContent value="categories">
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">Gerenciar Categorias</h2>
-                </div>
-                <CategoryManagement />
-              </div>
-            </TabsContent>
+{userRole === 'admin' && (
+  <TabsContent value="categories">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Gerenciar Categorias</h2>
+      </div>
+      <CategoryManagement />
+    </div>
+  </TabsContent>
+)}
 
-            <TabsContent value="advertisements">
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">Gerenciar Propagandas</h2>
-                </div>
-                <AdvertisementManagement />
-              </div>
-            </TabsContent>
+{userRole === 'admin' && (
+  <TabsContent value="advertisements">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Gerenciar Propagandas</h2>
+      </div>
+      <AdvertisementManagement />
+    </div>
+  </TabsContent>
+)}
 
-            <TabsContent value="in-content-ads">
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">Anúncios In-Content</h2>
-                </div>
-                <InContentAdsManagement />
-              </div>
-            </TabsContent>
+{userRole === 'admin' && (
+  <TabsContent value="in-content-ads">
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Anúncios In-Content</h2>
+      </div>
+      <InContentAdsManagement />
+    </div>
+  </TabsContent>
+)}
 
             <TabsContent value="contact">
               <div className="space-y-6">
@@ -320,64 +344,66 @@ export default function Admin() {
               </TabsContent>
             )}
 
-            <TabsContent value="analytics">
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold">Análises e Relatórios</h2>
-                
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Tráfego por Categoria</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span>Política</span>
-                          <div className="flex items-center gap-2">
-                            <div className="w-20 h-2 bg-muted rounded-full">
-                              <div className="w-16 h-2 bg-primary rounded-full"></div>
-                            </div>
-                            <span className="text-sm">80%</span>
-                          </div>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span>Economia</span>
-                          <div className="flex items-center gap-2">
-                            <div className="w-20 h-2 bg-muted rounded-full">
-                              <div className="w-12 h-2 bg-primary rounded-full"></div>
-                            </div>
-                            <span className="text-sm">60%</span>
-                          </div>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span>Esportes</span>
-                          <div className="flex items-center gap-2">
-                            <div className="w-20 h-2 bg-muted rounded-full">
-                              <div className="w-10 h-2 bg-primary rounded-full"></div>
-                            </div>
-                            <span className="text-sm">50%</span>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Performance Semanal</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-center py-8">
-                        <TrendingUp className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                        <p className="text-muted-foreground">
-                          Gráficos detalhados em desenvolvimento
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
+{userRole === 'admin' && (
+  <TabsContent value="analytics">
+    <div className="space-y-6">
+      <h2 className="text-2xl font-bold">Análises e Relatórios</h2>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Tráfego por Categoria</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span>Política</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-20 h-2 bg-muted rounded-full">
+                    <div className="w-16 h-2 bg-primary rounded-full"></div>
+                  </div>
+                  <span className="text-sm">80%</span>
                 </div>
               </div>
-            </TabsContent>
+              <div className="flex justify-between items-center">
+                <span>Economia</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-20 h-2 bg-muted rounded-full">
+                    <div className="w-12 h-2 bg-primary rounded-full"></div>
+                  </div>
+                  <span className="text-sm">60%</span>
+                </div>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Esportes</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-20 h-2 bg-muted rounded-full">
+                    <div className="w-10 h-2 bg-primary rounded-full"></div>
+                  </div>
+                  <span className="text-sm">50%</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Performance Semanal</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center py-8">
+              <TrendingUp className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">
+                Gráficos detalhados em desenvolvimento
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  </TabsContent>
+)}
           </Tabs>
         </div>
       </div>
