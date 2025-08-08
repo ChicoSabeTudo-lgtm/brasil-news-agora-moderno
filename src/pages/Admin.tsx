@@ -127,6 +127,17 @@ export default function Admin() {
     Configurações
   </Button>
 )}
+
+{userRole !== 'admin' && (
+  <Button 
+    variant="outline" 
+    size="sm"
+    onClick={() => navigate('/perfil')}
+  >
+    <UserCircle className="w-4 h-4 mr-2" />
+    Meu Perfil
+  </Button>
+)}
               
               <Button 
                 variant="destructive" 
