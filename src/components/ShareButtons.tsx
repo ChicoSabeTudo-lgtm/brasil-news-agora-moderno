@@ -19,10 +19,14 @@ export const ShareButtons = ({ title, description, url }: ShareButtonsProps) => 
   const encodedDescription = encodeURIComponent(description);
   const encodedUrl = encodeURIComponent(url);
 
+  // Use an Edge Function URL that serves proper OG/Twitter meta tags for bots
+  const previewUrl = `${window.location.origin}/functions/v1/share-preview?url=${encodeURIComponent(url)}`;
+  const encodedPreviewUrl = encodeURIComponent(previewUrl);
+
   const shareLinks = {
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedTitle}`,
-    twitter: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,
-    whatsapp: `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedPreviewUrl}&quote=${encodedTitle}`,
+    twitter: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedPreviewUrl}`,
+    whatsapp: `https://wa.me/?text=${encodedTitle}%20${encodedPreviewUrl}`,
   };
 
   const handleShare = (platform: string) => {
