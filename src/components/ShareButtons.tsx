@@ -19,8 +19,9 @@ export const ShareButtons = ({ title, description, url }: ShareButtonsProps) => 
   const encodedDescription = encodeURIComponent(description);
   const encodedUrl = encodeURIComponent(url);
 
-  // Use an Edge Function URL that serves proper OG/Twitter meta tags for bots
-  const previewUrl = `${window.location.origin}/functions/v1/share-preview?url=${encodeURIComponent(url)}`;
+  // Build public Edge Function URL for crawlers (must be absolute)
+  const functionsBase = "https://spgusjrjrhfychhdwixn.functions.supabase.co";
+  const previewUrl = `${functionsBase}/share-preview?url=${encodeURIComponent(url)}`;
   const encodedPreviewUrl = encodeURIComponent(previewUrl);
 
   const shareLinks = {

@@ -110,11 +110,14 @@ serve(async (req) => {
       const featured = article.news_images.find((i: any) => i.is_featured) || article.news_images[0];
       ogImage = featured?.image_url || "";
     }
-
-    // Fallback image: use a generic hero if not available
+    // Ensure absolute public URL for Open Graph
+    if (ogImage && !/^https?:\/\//.test(ogImage)) {
+      const base = Deno.env.get("SUPABASE_URL") ?? "";
+      ogImage = base ? `${base}/storage/v1/object/public/${ogImage}` : ogImage;
+    }
+    // Fallback image if still missing
     if (!ogImage) {
-      const fallback = 'https://lovable.dev/opengraph-image-p98pqg.png';
-      ogImage = fallback;
+      ogImage = 'https://lovable.dev/opengraph-image-p98pqg.png';
     }
 
     const html = `<!doctype html>
