@@ -6,58 +6,155 @@ import { Badge } from '@/components/ui/badge';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Eye, Clock, TrendingUp, TrendingDown, Users, Target } from 'lucide-react';
 import { format } from 'date-fns';
+import { supabase } from '@/integrations/supabase/client';
+import { useNews } from '@/hooks/useNews';
 
 type Period = 'today' | '7days' | '30days';
 
-// Mock data - In real implementation, this would come from the database
-const generateMockData = (period: Period) => {
-  const mockArticles = [
-    { id: 1, title: 'Nova lei de trânsito entra em vigor', category: 'Nacional', published_at: new Date('2024-01-15'), views: 1250 },
-    { id: 2, title: 'Time local vence campeonato estadual', category: 'Esportes', published_at: new Date('2024-01-14'), views: 890 },
-    { id: 3, title: 'Mercado financeiro em alta', category: 'Economia', published_at: new Date('2024-01-13'), views: 750 },
-    { id: 4, title: 'Festival de música movimenta a cidade', category: 'Entretenimento', published_at: new Date('2024-01-12'), views: 680 },
-    { id: 5, title: 'Novas tecnologias em saúde', category: 'Saude', published_at: new Date('2024-01-11'), views: 620 },
-    { id: 6, title: 'Prefeito anuncia obras de infraestrutura', category: 'Politica', published_at: new Date('2024-01-10'), views: 580 },
-    { id: 7, title: 'Descoberta científica revolucionária', category: 'Tecnologia', published_at: new Date('2024-01-09'), views: 520 },
-    { id: 8, title: 'Mudanças climáticas preocupam especialistas', category: 'Internacional', published_at: new Date('2024-01-08'), views: 480 },
-    { id: 9, title: 'Nova startup local recebe investimento', category: 'Economia', published_at: new Date('2024-01-07'), views: 420 },
-    { id: 10, title: 'Campanha de vacinação é prorrogada', category: 'Saude', published_at: new Date('2024-01-06'), views: 380 },
-  ];
+interface AnalyticsData {
+  topArticles: any[];
+  worstArticles: any[];
+  allArticles: any[];
+  categoryPerformance: any[];
+  avgReadTime: number;
+  onlineVisitors: number;
+  topArticleNow: any;
+  peakAudience: number;
+}
 
-  const categoryPerformance = [
-    { category: 'Nacional', views: 2100, color: '#8b5cf6' },
-    { category: 'Esportes', views: 1800, color: '#06b6d4' },
-    { category: 'Economia', views: 1650, color: '#10b981' },
-    { category: 'Entretenimento', views: 1200, color: '#f59e0b' },
-    { category: 'Saude', views: 1000, color: '#ef4444' },
-    { category: 'Politica', views: 950, color: '#84cc16' },
-    { category: 'Tecnologia', views: 800, color: '#6366f1' },
-    { category: 'Internacional', views: 700, color: '#ec4899' },
-  ];
+// Function to fetch real data from the database
+const fetchRealData = async (period: Period): Promise<AnalyticsData> => {
+  try {
+    // Calculate date range based on period
+    const now = new Date();
+    let startDate = new Date();
+    
+    switch (period) {
+      case 'today':
+        startDate.setHours(0, 0, 0, 0);
+        break;
+      case '7days':
+        startDate.setDate(now.getDate() - 7);
+        break;
+      case '30days':
+        startDate.setDate(now.getDate() - 30);
+        break;
+    }
 
-  return {
-    topArticles: mockArticles.slice(0, 5),
-    worstArticles: mockArticles.slice(-5).reverse(),
-    allArticles: mockArticles,
-    categoryPerformance,
-    avgReadTime: Math.floor(Math.random() * 180) + 120, // 2-5 minutes
-    onlineVisitors: Math.floor(Math.random() * 50) + 10,
-    topArticleNow: mockArticles[0],
-    peakAudience: Math.floor(Math.random() * 200) + 100,
-  };
+    // Fetch all published news with categories
+    const { data: allNews, error } = await supabase
+      .from('news')
+      .select(`
+        id,
+        title,
+        views,
+        published_at,
+        categories!inner (
+          name,
+          slug
+        )
+      `)
+      .eq('is_published', true)
+      .gte('published_at', startDate.toISOString())
+      .order('views', { ascending: false });
+
+    if (error) throw error;
+
+    // Process articles data
+    const processedArticles = allNews?.map(article => ({
+      id: article.id,
+      title: article.title,
+      views: article.views || 0,
+      published_at: new Date(article.published_at),
+      category: article.categories?.name || 'Sem categoria'
+    })) || [];
+
+    // Calculate category performance
+    const categoryStats: { [key: string]: number } = {};
+    processedArticles.forEach(article => {
+      if (!categoryStats[article.category]) {
+        categoryStats[article.category] = 0;
+      }
+      categoryStats[article.category] += article.views;
+    });
+
+    const colors = ['#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#84cc16', '#6366f1', '#ec4899'];
+    const categoryPerformance = Object.entries(categoryStats)
+      .map(([category, views], index) => ({
+        category,
+        views,
+        color: colors[index % colors.length]
+      }))
+      .sort((a, b) => b.views - a.views);
+
+    // Get top and worst performing articles
+    const topArticles = processedArticles.slice(0, 5);
+    const worstArticles = processedArticles.slice(-5).reverse();
+
+    return {
+      topArticles,
+      worstArticles,
+      allArticles: processedArticles,
+      categoryPerformance,
+      avgReadTime: Math.floor(Math.random() * 180) + 120, // Simulated for now
+      onlineVisitors: Math.floor(Math.random() * 50) + 10, // Simulated for now
+      topArticleNow: topArticles[0] || { title: 'Sem dados', views: 0 },
+      peakAudience: Math.floor(Math.random() * 200) + 100, // Simulated for now
+    };
+  } catch (error) {
+    console.error('Error fetching analytics data:', error);
+    // Return empty data structure on error
+    return {
+      topArticles: [],
+      worstArticles: [],
+      allArticles: [],
+      categoryPerformance: [],
+      avgReadTime: 150,
+      onlineVisitors: 15,
+      topArticleNow: { title: 'Sem dados', views: 0 },
+      peakAudience: 120,
+    };
+  }
 };
 
 export const AnalyticsPage = () => {
   const [period, setPeriod] = useState<Period>('7days');
-  const [data, setData] = useState(generateMockData('7days'));
+  const [data, setData] = useState<AnalyticsData>({
+    topArticles: [],
+    worstArticles: [],
+    allArticles: [],
+    categoryPerformance: [],
+    avgReadTime: 150,
+    onlineVisitors: 15,
+    topArticleNow: { title: 'Carregando...', views: 0 },
+    peakAudience: 120,
+  });
+  const [loading, setLoading] = useState(true);
   const [realTimeData, setRealTimeData] = useState({
-    onlineVisitors: 25,
-    topArticleNow: data.topArticleNow,
-    peakAudience: 142,
+    onlineVisitors: 15,
+    topArticleNow: { title: 'Carregando...', views: 0 },
+    peakAudience: 120,
   });
 
+  // Fetch real data when period changes
   useEffect(() => {
-    setData(generateMockData(period));
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const realData = await fetchRealData(period);
+        setData(realData);
+        setRealTimeData(prev => ({
+          ...prev,
+          topArticleNow: realData.topArticleNow,
+        }));
+      } catch (error) {
+        console.error('Error loading analytics data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
   }, [period]);
 
   // Real-time updates every 30 seconds
@@ -218,26 +315,50 @@ export const AnalyticsPage = () => {
               Top 5 - Melhor Desempenho
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {data.topArticles.map((article, index) => (
-                <div key={article.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Badge variant="secondary" className="w-6 h-6 flex items-center justify-center text-xs">
-                      {index + 1}
-                    </Badge>
-                    <div>
-                      <p className="font-medium text-sm">{article.title}</p>
-                      <p className="text-xs text-muted-foreground">{article.category}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-green-600">{article.views}</p>
-                    <p className="text-xs text-muted-foreground">visualizações</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+           <CardContent>
+             {loading ? (
+               <div className="space-y-4">
+                 {Array.from({ length: 5 }).map((_, index) => (
+                   <div key={index} className="flex items-center justify-between p-3 border rounded-lg animate-pulse">
+                     <div className="flex items-center gap-3">
+                       <div className="w-6 h-6 bg-gray-200 rounded"></div>
+                       <div>
+                         <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                         <div className="h-3 bg-gray-200 rounded w-16"></div>
+                       </div>
+                     </div>
+                     <div className="text-right">
+                       <div className="h-4 bg-gray-200 rounded w-12 mb-2"></div>
+                       <div className="h-3 bg-gray-200 rounded w-16"></div>
+                     </div>
+                   </div>
+                 ))}
+               </div>
+             ) : data.topArticles.length > 0 ? (
+               <div className="space-y-4">
+                 {data.topArticles.map((article, index) => (
+                   <div key={article.id} className="flex items-center justify-between p-3 border rounded-lg">
+                     <div className="flex items-center gap-3">
+                       <Badge variant="secondary" className="w-6 h-6 flex items-center justify-center text-xs">
+                         {index + 1}
+                       </Badge>
+                       <div>
+                         <p className="font-medium text-sm">{article.title}</p>
+                         <p className="text-xs text-muted-foreground">{article.category}</p>
+                       </div>
+                     </div>
+                     <div className="text-right">
+                       <p className="font-bold text-green-600">{article.views}</p>
+                       <p className="text-xs text-muted-foreground">visualizações</p>
+                     </div>
+                   </div>
+                 ))}
+               </div>
+             ) : (
+               <div className="text-center py-8 text-muted-foreground">
+                 Nenhum dado disponível para o período selecionado
+               </div>
+             )}
           </CardContent>
         </Card>
 
@@ -249,25 +370,49 @@ export const AnalyticsPage = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {data.worstArticles.map((article, index) => (
-                <div key={article.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Badge variant="outline" className="w-6 h-6 flex items-center justify-center text-xs">
-                      {index + 1}
-                    </Badge>
-                    <div>
-                      <p className="font-medium text-sm">{article.title}</p>
-                      <p className="text-xs text-muted-foreground">{article.category}</p>
+            {loading ? (
+              <div className="space-y-4">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg animate-pulse">
+                    <div className="flex items-center gap-3">
+                      <div className="w-6 h-6 bg-gray-200 rounded"></div>
+                      <div>
+                        <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                        <div className="h-3 bg-gray-200 rounded w-16"></div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="h-4 bg-gray-200 rounded w-12 mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-16"></div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-bold text-red-600">{article.views}</p>
-                    <p className="text-xs text-muted-foreground">visualizações</p>
+                ))}
+              </div>
+            ) : data.worstArticles.length > 0 ? (
+              <div className="space-y-4">
+                {data.worstArticles.map((article, index) => (
+                  <div key={article.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Badge variant="outline" className="w-6 h-6 flex items-center justify-center text-xs">
+                        {index + 1}
+                      </Badge>
+                      <div>
+                        <p className="font-medium text-sm">{article.title}</p>
+                        <p className="text-xs text-muted-foreground">{article.category}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-red-600">{article.views}</p>
+                      <p className="text-xs text-muted-foreground">visualizações</p>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                Nenhum dado disponível para o período selecionado
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
