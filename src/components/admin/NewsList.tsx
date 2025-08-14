@@ -39,6 +39,8 @@ interface News {
   is_breaking: boolean;
   is_featured: boolean;
   published_at: string | null;
+  scheduled_publish_at: string | null;
+  status: string;
   created_at: string;
   views: number;
   author_id: string;
@@ -147,7 +149,8 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
     const matchesCategory = filterCategory === 'all' || newsItem.categories?.name === filterCategory;
     const matchesStatus = filterStatus === 'all' || 
       (filterStatus === 'published' && newsItem.is_published) ||
-      (filterStatus === 'draft' && !newsItem.is_published);
+      (filterStatus === 'draft' && !newsItem.is_published && newsItem.status !== 'scheduled') ||
+      (filterStatus === 'scheduled' && newsItem.status === 'scheduled');
     
     return matchesSearch && matchesCategory && matchesStatus;
   });
@@ -252,8 +255,10 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
     }
   };
 
-  const getStatusBadge = (isPublished: boolean) => {
-    if (isPublished) {
+  const getStatusBadge = (newsItem: News) => {
+    if (newsItem.status === 'scheduled') {
+      return <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">Agendado</Badge>;
+    } else if (newsItem.is_published) {
       return <Badge variant="default">Publicado</Badge>;
     } else {
       return <Badge variant="secondary">Rascunho</Badge>;
@@ -334,6 +339,7 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
               <SelectItem value="all">Todos</SelectItem>
               <SelectItem value="published">Publicados</SelectItem>
               <SelectItem value="draft">Rascunhos</SelectItem>
+              <SelectItem value="scheduled">Agendados</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -415,7 +421,7 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
                     <TableCell>
                       <Badge variant="outline">{newsItem.categories?.name || 'Sem categoria'}</Badge>
                     </TableCell>
-                    <TableCell>{getStatusBadge(newsItem.is_published)}</TableCell>
+                    <TableCell>{getStatusBadge(newsItem)}</TableCell>
                     <TableCell>{newsItem.profiles?.full_name || 'Desconhecido'}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {formatDate(newsItem.published_at)}
