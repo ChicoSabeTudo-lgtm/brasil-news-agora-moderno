@@ -166,12 +166,22 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
       // Handle scheduling with pg_cron if status is 'scheduled'
       if (status === 'scheduled' && article.scheduledPublishAt && !editingNews) {
         try {
+          console.log('Attempting to schedule post:', {
+            savedNewsId,
+            scheduledTime: article.scheduledPublishAt.toISOString()
+          });
+          
           const { error: scheduleError } = await supabase.rpc('schedule_post_publish', {
             p_post_id: savedNewsId,
             p_when: article.scheduledPublishAt.toISOString()
           });
 
-          if (scheduleError) throw scheduleError;
+          if (scheduleError) {
+            console.error('Schedule error:', scheduleError);
+            throw scheduleError;
+          }
+          
+          console.log('Post scheduled successfully');
         } catch (error) {
           console.error('Error scheduling post:', error);
           toast({
