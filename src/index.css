@@ -8,68 +8,63 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 0 0% 12%;
+    /* Light theme - Admin Dashboard */
+    --background: 210 40% 98%;      /* #F9FAFB light gray background */
+    --foreground: 222 84% 5%;       /* #111827 dark text */
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 12%;
+    --card: 0 0% 100%;              /* #FFFFFF white cards */
+    --card-foreground: 222 84% 5%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 12%;
+    --popover-foreground: 222 84% 5%;
 
-    /* News Brand Colors */
-    --primary: 0 85% 45%;        /* Professional news red */
+    /* Bright blue for action elements #3B82F6 */
+    --primary: 217 91% 60%;         /* #3B82F6 */
     --primary-foreground: 0 0% 100%;
-    --primary-darker: 0 85% 35%; /* Darker red for hovers */
+    --primary-darker: 217 91% 55%;  /* Darker blue for hovers */
 
-    --secondary: 0 0% 18%;       /* Professional dark gray */
-    --secondary-foreground: 0 0% 95%;
+    --secondary: 210 40% 96%;       /* Light gray secondary */
+    --secondary-foreground: 222 84% 5%;
 
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 210 40% 96%;           /* Subtle backgrounds */
+    --muted-foreground: 215 16% 47%; /* Soft gray text */
 
-    --accent: 0 75% 50%;         /* Bright accent red */
-    --accent-foreground: 0 0% 100%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 84% 5%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    /* News specific colors */
-    --news-header: 0 0% 8%;      /* Deep black header */
+    /* News specific colors adapted for light theme */
+    --news-header: 222 84% 5%;      /* Dark header text */
     --news-header-foreground: 0 0% 100%;
-    --news-ticker: 0 0% 15%;     /* Ticker background */
-    --news-category: 0 85% 45%;  /* Category highlight */
-    --news-breaking: 0 100% 50%; /* Breaking news red */
+    --news-ticker: 210 40% 96%;     /* Light ticker background */
+    --news-category: 217 91% 60%;   /* Blue category highlight */
+    --news-breaking: 0 84% 60%;     /* Red for breaking news */
     
-    /* Gradients */
+    /* Gradients for light theme */
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-darker)));
-    --gradient-news: linear-gradient(180deg, hsl(var(--news-header)), hsl(0 0% 12%));
+    --gradient-news: linear-gradient(180deg, hsl(var(--background)), hsl(210 40% 95%));
     
-    /* Shadows */
+    /* Shadows for light theme */
     --shadow-news: 0 4px 20px -4px hsl(0 0% 0% / 0.1);
-    --shadow-card: 0 2px 10px -2px hsl(0 0% 0% / 0.1);
+    --shadow-card: 0 2px 10px -2px hsl(0 0% 0% / 0.05);
 
-    --border: 0 0% 90%;
-    --input: 0 0% 95%;
-    --ring: 0 85% 45%;
+    --border: 214 32% 91%;          /* Light gray borders */
+    --input: 214 32% 91%;
+    --ring: 217 91% 60%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 98%;
-
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Sidebar colors for light theme */
+    --sidebar-background: 0 0% 100%;     /* White sidebar */
+    --sidebar-foreground: 222 84% 5%;    /* Dark text */
+    --sidebar-primary: 217 91% 60%;      /* Blue accent */
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 40% 96%;       /* Light hover backgrounds */
+    --sidebar-accent-foreground: 222 84% 5%;
+    --sidebar-border: 214 32% 91%;       /* Light borders */
+    --sidebar-ring: 217 91% 60%;         /* Blue focus ring */
   }
 
   .dark {

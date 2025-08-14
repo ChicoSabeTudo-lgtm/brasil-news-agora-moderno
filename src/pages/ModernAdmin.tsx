@@ -61,7 +61,7 @@ export default function ModernAdmin() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-background dark">
+      <div className="min-h-screen bg-background">
         <SidebarProvider defaultOpen={true}>
           <div className="flex min-h-screen w-full">
             <AdminSidebar />

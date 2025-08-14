@@ -152,7 +152,7 @@ export const AdminSidebar = () => {
   const canAccess = (roles: string[]) => roles.includes(userRole || '');
 
   return (
-    <Sidebar className="border-r border-sidebar-border">
+    <Sidebar className="border-r border-sidebar-border bg-sidebar shadow-sm">
       <SidebarHeader className="border-b border-sidebar-border p-4">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
