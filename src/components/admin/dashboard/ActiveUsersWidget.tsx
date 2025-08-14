@@ -72,7 +72,7 @@ export const ActiveUsersWidget = () => {
   }
 
   return (
-    <Card className="admin-slide-in admin-hover-glow">
+    <Card className="admin-slide-in">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Users className="w-5 h-5 text-primary" />
@@ -92,7 +92,7 @@ export const ActiveUsersWidget = () => {
           {activeUsers.slice(0, 5).map((user) => (
             <div
               key={user.id}
-              className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+              className="flex items-center gap-3 p-3 rounded-lg border border-border"
             >
               <div className="relative">
                 <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">

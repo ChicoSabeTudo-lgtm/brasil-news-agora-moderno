@@ -136,7 +136,7 @@ export const UrgentTasksWidget = () => {
   }
 
   return (
-    <Card className="admin-slide-in admin-hover-glow">
+    <Card className="admin-slide-in">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <AlertTriangle className="w-5 h-5 text-primary" />
@@ -162,7 +162,7 @@ export const UrgentTasksWidget = () => {
             return (
               <div
                 key={task.id}
-                className="flex items-start gap-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+                className="flex items-start gap-3 p-3 rounded-lg border border-border"
               >
                 <div className="relative">
                   <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">

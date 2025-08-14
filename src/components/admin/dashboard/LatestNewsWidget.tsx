@@ -31,7 +31,7 @@ export const LatestNewsWidget = () => {
   }
 
   return (
-    <Card className="admin-slide-in admin-hover-glow">
+    <Card className="admin-slide-in">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileText className="w-5 h-5 text-primary" />
@@ -46,7 +46,7 @@ export const LatestNewsWidget = () => {
           {recentNews.map((article) => (
             <div
               key={article.id}
-              className="flex items-start gap-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+              className="flex items-start gap-3 p-3 rounded-lg border border-border"
             >
               <div className="flex-1 min-w-0">
                 <h4 className="font-medium text-sm line-clamp-2 mb-1">
