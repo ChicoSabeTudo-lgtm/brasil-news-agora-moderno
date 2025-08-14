@@ -27,12 +27,12 @@ export const DashboardLayout = () => {
       {/* Custom Widgets Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <LatestNewsWidget />
-        <UrgentTasksWidget />
-      </div>
-
-      {/* Additional Metrics */}
-      <div className="admin-slide-in">
-        <QuickMetrics />
+        <div className="grid grid-cols-1 gap-6">
+          <UrgentTasksWidget />
+          <div className="admin-slide-in">
+            <QuickMetrics />
+          </div>
+        </div>
       </div>
     </div>
   );

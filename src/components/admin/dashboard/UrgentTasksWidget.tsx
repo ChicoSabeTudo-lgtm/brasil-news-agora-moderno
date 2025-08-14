@@ -22,20 +22,19 @@ export const UrgentTasksWidget = () => {
       try {
         const urgentTasks: UrgentTask[] = [];
 
-        // Fetch unread contact messages
+        // Fetch all pending contact messages
         const { data: contacts } = await supabase
           .from('contact_messages')
           .select('*')
-          .eq('status', 'unread')
-          .order('created_at', { ascending: false })
-          .limit(3);
+          .eq('status', 'pending')
+          .order('created_at', { ascending: false });
 
         if (contacts) {
           contacts.forEach(contact => {
             urgentTasks.push({
               id: `contact-${contact.id}`,
               type: 'contact',
-              title: 'Nova mensagem de contato',
+              title: 'Mensagem de contato pendente',
               description: `De: ${contact.name} - ${contact.subject}`,
               created_at: contact.created_at,
               priority: 'high'
@@ -43,24 +42,44 @@ export const UrgentTasksWidget = () => {
           });
         }
 
-        // Fetch draft news older than 2 days
-        const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString();
+        // Fetch all draft news
         const { data: draftNews } = await supabase
           .from('news')
           .select('*')
           .eq('is_published', false)
-          .lt('created_at', twoDaysAgo)
-          .order('created_at', { ascending: true })
-          .limit(2);
+          .order('created_at', { ascending: true });
 
         if (draftNews) {
           draftNews.forEach(news => {
+            const daysDiff = Math.floor(
+              (Date.now() - new Date(news.created_at).getTime()) / (1000 * 60 * 60 * 24)
+            );
             urgentTasks.push({
               id: `news-${news.id}`,
               type: 'news_draft',
-              title: 'Rascunho pendente há mais de 2 dias',
+              title: `Rascunho pendente ${daysDiff > 0 ? `há ${daysDiff} ${daysDiff === 1 ? 'dia' : 'dias'}` : 'hoje'}`,
               description: news.title,
               created_at: news.created_at,
+              priority: daysDiff > 2 ? 'high' : daysDiff > 0 ? 'medium' : 'low'
+            });
+          });
+        }
+
+        // Fetch pending advertising requests
+        const { data: adRequests } = await supabase
+          .from('advertising_requests')
+          .select('*')
+          .eq('status', 'pending')
+          .order('created_at', { ascending: false });
+
+        if (adRequests) {
+          adRequests.forEach(ad => {
+            urgentTasks.push({
+              id: `ad-${ad.id}`,
+              type: 'contact',
+              title: 'Solicitação de publicidade pendente',
+              description: `${ad.company_name} - ${ad.advertising_type}`,
+              created_at: ad.created_at,
               priority: 'medium'
             });
           });
@@ -75,7 +94,7 @@ export const UrgentTasksWidget = () => {
           return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
         });
 
-        setTasks(urgentTasks.slice(0, 5));
+        setTasks(urgentTasks);
       } catch (error) {
         console.error('Error fetching urgent tasks:', error);
       } finally {
