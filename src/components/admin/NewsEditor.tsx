@@ -689,6 +689,8 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
       onClose={() => setShareModalOpen(false)}
       onShare={handleShareNews}
       newsTitle={publishedNewsData?.title || ''}
+      newsId={editingNews?.id || ''}
+      newsImage={newsImages.find(img => img.is_featured)?.image_url}
     />
     </>
   );

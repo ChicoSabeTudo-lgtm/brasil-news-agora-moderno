@@ -1046,6 +1046,54 @@ export type Database = {
         }
         Relationships: []
       }
+      social_scheduled_posts: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string
+          cron_job_id: number | null
+          error_message: string | null
+          id: string
+          image_url: string | null
+          news_id: string
+          platform: string
+          published_at: string | null
+          scheduled_for: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by: string
+          cron_job_id?: number | null
+          error_message?: string | null
+          id?: string
+          image_url?: string | null
+          news_id: string
+          platform: string
+          published_at?: string | null
+          scheduled_for: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string
+          cron_job_id?: number | null
+          error_message?: string | null
+          id?: string
+          image_url?: string | null
+          news_id?: string
+          platform?: string
+          published_at?: string | null
+          scheduled_for?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1146,6 +1194,10 @@ export type Database = {
         Args: { p_post_id: string }
         Returns: undefined
       }
+      cancel_social_schedule: {
+        Args: { p_post_id: string }
+        Returns: undefined
+      }
       cleanup_expired_otp_codes: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -1195,6 +1247,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      publish_social_post: {
+        Args: { p_post_id: string }
+        Returns: undefined
+      }
       revoke_user_access: {
         Args:
           | { admin_user_id: string; reason?: string; target_user_id: string }
@@ -1202,6 +1258,10 @@ export type Database = {
         Returns: boolean
       }
       schedule_post_publish: {
+        Args: { p_post_id: string; p_when: string }
+        Returns: undefined
+      }
+      schedule_social_post: {
         Args: { p_post_id: string; p_when: string }
         Returns: undefined
       }

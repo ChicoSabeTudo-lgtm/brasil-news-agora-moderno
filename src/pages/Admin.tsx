@@ -25,6 +25,7 @@ import { BlocksConfigManagement } from '@/components/admin/BlocksConfigManagemen
 import PostSharingForm from '@/components/admin/PostSharingForm';
 import { ProfileSettings } from '@/components/admin/ProfileSettings';
 import { SchedulingTest } from '@/components/admin/SchedulingTest';
+import { SocialPostsManagement } from '@/components/admin/SocialPostsManagement';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -165,6 +166,10 @@ export default function Admin() {
                 <PlusCircle className="w-4 h-4" />
                 Compartilhamento
               </TabsTrigger>
+              <TabsTrigger value="social-posts" className="flex items-center gap-2">
+                <Monitor className="w-4 h-4" />
+                Posts Sociais
+              </TabsTrigger>
               <TabsTrigger value="live" className="flex items-center gap-2">
                 <Radio className="w-4 h-4" />
                 Ao Vivo
@@ -253,6 +258,10 @@ export default function Admin() {
                   onDataUsed={() => setShareFormData(null)}
                 />
               </div>
+            </TabsContent>
+
+            <TabsContent value="social-posts">
+              <SocialPostsManagement />
             </TabsContent>
 
             <TabsContent value="live">
