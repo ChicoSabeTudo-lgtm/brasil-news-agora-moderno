@@ -24,6 +24,7 @@ import { PollManagement } from '@/components/admin/PollManagement';
 import { BlocksConfigManagement } from '@/components/admin/BlocksConfigManagement';
 import PostSharingForm from '@/components/admin/PostSharingForm';
 import { AnalyticsPage } from '@/components/admin/analytics/AnalyticsPage';
+import { SocialPostsManagement } from '@/components/admin/SocialPostsManagement';
 
 export default function ModernAdmin() {
   const { userRole } = useAuth();
@@ -82,6 +83,7 @@ export default function ModernAdmin() {
                     <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
                     <TabsTrigger value="news">Notícias</TabsTrigger>
                     <TabsTrigger value="post-sharing">Compartilhamento</TabsTrigger>
+                    <TabsTrigger value="social-posts">Posts Sociais</TabsTrigger>
                     <TabsTrigger value="live">Ao Vivo</TabsTrigger>
                     <TabsTrigger value="polls">Enquetes</TabsTrigger>
                     <TabsTrigger value="blocks-config">Blocos</TabsTrigger>
@@ -129,6 +131,10 @@ export default function ModernAdmin() {
                         onDataUsed={() => setShareFormData(null)}
                       />
                     </div>
+                  </TabsContent>
+
+                  <TabsContent value="social-posts" className="mt-0 h-full p-6">
+                    <SocialPostsManagement />
                   </TabsContent>
 
                   <TabsContent value="live" className="mt-0 h-full p-6">

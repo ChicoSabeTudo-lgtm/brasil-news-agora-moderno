@@ -22,6 +22,7 @@ import {
   Radio,
   Vote,
   Monitor,
+  Share2,
   Tag,
   Megaphone,
   Mail,
@@ -51,6 +52,12 @@ const adminMenuItems = [
     title: 'Compartilhamento',
     url: '/admin?tab=post-sharing',
     icon: PlusCircle,
+    roles: ['admin', 'redator'],
+  },
+  {
+    title: 'Posts Sociais',
+    url: '/admin?tab=social-posts',
+    icon: Share2,
     roles: ['admin', 'redator'],
   },
   {
