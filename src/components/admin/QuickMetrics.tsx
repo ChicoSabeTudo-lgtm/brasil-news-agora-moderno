@@ -3,16 +3,16 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface QuickMetricsData {
-  newsToday: number;
-  viewsToday: number;
+  newsThisMonth: number;
+  viewsThisMonth: number;
   pendingMessages: number;
   activeUsers: number;
 }
 
 export const QuickMetrics = () => {
   const [metrics, setMetrics] = useState<QuickMetricsData>({
-    newsToday: 0,
-    viewsToday: 0,
+    newsThisMonth: 0,
+    viewsThisMonth: 0,
     pendingMessages: 0,
     activeUsers: 0
   });
@@ -21,24 +21,27 @@ export const QuickMetrics = () => {
   useEffect(() => {
     const fetchQuickMetrics = async () => {
       try {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
 
-        // Notícias publicadas hoje
-        const { count: newsToday } = await supabase
+        // Notícias publicadas este mês
+        const { count: newsThisMonth } = await supabase
           .from('news')
           .select('*', { count: 'exact', head: true })
           .eq('is_published', true)
-          .gte('published_at', today.toISOString());
+          .gte('published_at', startOfMonth.toISOString())
+          .lte('published_at', endOfMonth.toISOString());
 
-        // Total de visualizações de hoje (usando notícias publicadas hoje como proxy)
-        const { data: todayNewsViews } = await supabase
+        // Total de visualizações deste mês
+        const { data: monthNewsViews } = await supabase
           .from('news')
           .select('views')
           .eq('is_published', true)
-          .gte('published_at', today.toISOString());
+          .gte('published_at', startOfMonth.toISOString())
+          .lte('published_at', endOfMonth.toISOString());
 
-        const todayViews = todayNewsViews?.reduce((sum, news) => sum + (news.views || 0), 0) || 0;
+        const monthViews = monthNewsViews?.reduce((sum, news) => sum + (news.views || 0), 0) || 0;
 
         // Mensagens pendentes (contato + publicidade)
         const { count: contactMessages } = await supabase
@@ -61,8 +64,8 @@ export const QuickMetrics = () => {
           .eq('access_revoked', false);
 
         setMetrics({
-          newsToday: newsToday || 0,
-          viewsToday: todayViews,
+          newsThisMonth: newsThisMonth || 0,
+          viewsThisMonth: monthViews,
           pendingMessages,
           activeUsers: activeUsers || 0
         });
@@ -114,21 +117,21 @@ export const QuickMetrics = () => {
       <CardHeader>
         <CardTitle>Métricas Rápidas</CardTitle>
         <CardDescription>
-          Resumo das principais estatísticas
+          Estatísticas do mês atual
         </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium">Notícias hoje</span>
+            <span className="text-sm font-medium">Notícias este mês</span>
             <span className="text-2xl font-bold text-primary">
-              {metrics.newsToday}
+              {metrics.newsThisMonth}
             </span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm font-medium">Visualizações hoje</span>
+            <span className="text-sm font-medium">Visualizações este mês</span>
             <span className="text-2xl font-bold text-primary">
-              {formatNumber(metrics.viewsToday)}
+              {formatNumber(metrics.viewsThisMonth)}
             </span>
           </div>
           <div className="flex justify-between items-center">
