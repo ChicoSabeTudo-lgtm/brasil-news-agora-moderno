@@ -32,6 +32,19 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
   const [selectedTime, setSelectedTime] = useState('12:00');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Format caption with line breaks, hashtags, and mentions
+  const formatCaption = (text: string): string => {
+    return text
+      // Convert line breaks to <br> tags
+      .replace(/\n/g, '<br>')
+      // Make hashtags blue and bold
+      .replace(/#(\w+)/g, '<span style="color: #1d4ed8; font-weight: 600;">#$1</span>')
+      // Make mentions blue and bold
+      .replace(/@(\w+)/g, '<span style="color: #1d4ed8; font-weight: 600;">@$1</span>')
+      // Make URLs clickable (basic detection)
+      .replace(/(https?:\/\/[^\s]+)/g, '<span style="color: #1d4ed8;">$1</span>');
+  };
+
   const downloadImage = () => {
     if (!postData.canvasDataUrl) {
       toast.error('Erro ao baixar imagem');
@@ -340,10 +353,14 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
                 {/* Caption */}
                 {caption && (
                   <div className="space-y-2">
-                    <p className="text-sm text-foreground leading-relaxed">
+                    <div className="text-sm text-foreground leading-relaxed">
                       <span className="font-semibold">portalchicosabetudo</span>{' '}
-                      {caption}
-                    </p>
+                      <span 
+                        dangerouslySetInnerHTML={{
+                          __html: formatCaption(caption)
+                        }}
+                      />
+                    </div>
                   </div>
                 )}
                 
