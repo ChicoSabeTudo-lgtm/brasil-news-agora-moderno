@@ -7,6 +7,7 @@ import { useNews } from "@/hooks/useNews";
 import { useCategories } from "@/hooks/useCategories";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 
 // Import news images
 import politicsImage from "@/assets/politics-news.jpg";
@@ -211,7 +212,8 @@ export const CategoryPage = ({ category, categoryColor = "#0066cc", description 
         twitterSite="@chicosabetudo"
         structuredData={categoryStructuredData}
       />
-    <Layout>
+    <AnalyticsTracker>
+      <Layout>
       <main className="container mx-auto px-4 py-8">
         <Breadcrumbs 
           items={[
@@ -324,6 +326,7 @@ export const CategoryPage = ({ category, categoryColor = "#0066cc", description 
         </section>
       </main>
     </Layout>
+    </AnalyticsTracker>
     </>
   );
 };

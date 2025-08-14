@@ -12,6 +12,7 @@ import { useVideos } from "@/hooks/useVideos";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { getBestVideoThumbnail } from "@/utils/videoUtils";
+import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 
 // Import default images
 import politicsImage from "@/assets/politics-news.jpg";
@@ -313,7 +314,8 @@ const Index = () => {
         ogUrl="https://chicosabetudo.sigametech.com.br"
         structuredData={homepageStructuredData}
       />
-      <Layout>
+      <AnalyticsTracker>
+        <Layout>
       <main className="container mx-auto px-4 py-8">
         {/* SEO H1 Header - Hidden */}
         <header className="mb-8 sr-only">
@@ -556,7 +558,8 @@ const Index = () => {
         onClose={() => setIsVideoModalOpen(false)} 
         video={selectedVideo} 
       />
-    </Layout>
+      </Layout>
+      </AnalyticsTracker>
     </>
   );
 };

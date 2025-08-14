@@ -19,6 +19,7 @@ import { InstagramEmbed } from '@/components/ui/instagram-embed';
 import { VideoPlayer } from '@/components/VideoPlayer';
 import { AudioPlayer } from '@/components/AudioPlayer';
 import { useNewsMedia } from '@/hooks/useNewsMedia';
+import { AnalyticsTracker } from '@/components/AnalyticsTracker';
 
 interface NewsData {
   id: string;
@@ -410,7 +411,8 @@ const NewsArticle = () => {
   };
 
   return (
-    <Layout>
+    <AnalyticsTracker articleId={news?.id}>
+      <Layout>
       <main className="container mx-auto px-4 py-8">
         {/* Breadcrumbs */}
         <Breadcrumbs items={getBreadcrumbItems()} />
@@ -605,6 +607,7 @@ const NewsArticle = () => {
         </div>
       </main>
     </Layout>
+    </AnalyticsTracker>
   );
 };
 
