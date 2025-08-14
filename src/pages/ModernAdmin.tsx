@@ -35,10 +35,15 @@ export default function ModernAdmin() {
   // Set initial tab based on URL parameters
   useEffect(() => {
     const tabParam = searchParams.get('tab');
-    if (tabParam) {
+    // Handle both /admin?tab=analytics and /admin/analytics routes
+    const pathname = window.location.pathname;
+    if (pathname === '/admin/analytics') {
+      setActiveTab('analytics');
+      navigate('/admin?tab=analytics', { replace: true });
+    } else if (tabParam) {
       setActiveTab(tabParam);
     }
-  }, [searchParams]);
+  }, [searchParams, navigate]);
 
   // Redirect unauthorized users away from admin-only tabs
   useEffect(() => {
