@@ -102,7 +102,7 @@ const adminOnlyItems = [
     title: 'Análises',
     url: '/admin?tab=analytics',
     icon: TrendingUp,
-    roles: ['admin'],
+    roles: ['admin', 'redator'],
   },
 ];
 
@@ -186,12 +186,14 @@ export const AdminSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {userRole === 'admin' && (
+        {(userRole === 'admin' || userRole === 'redator') && (
           <SidebarGroup>
-            <SidebarGroupLabel>Administração</SidebarGroupLabel>
+            <SidebarGroupLabel>
+              {userRole === 'admin' ? 'Administração' : 'Ferramentas'}
+            </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {adminOnlyItems.map((item) => (
+                {adminOnlyItems.filter(item => canAccess(item.roles)).map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
                       <NavLink to={item.url} className={getNavClassName(item.url)}>

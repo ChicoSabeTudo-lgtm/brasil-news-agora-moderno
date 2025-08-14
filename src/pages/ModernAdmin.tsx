@@ -48,7 +48,7 @@ export default function ModernAdmin() {
   // Redirect unauthorized users away from admin-only tabs
   useEffect(() => {
     if (userRole !== 'admin') {
-      const restricted = new Set(['categories','advertisements','in-content-ads','analytics','users']);
+      const restricted = new Set(['categories','advertisements','in-content-ads','users']);
       if (restricted.has(activeTab)) {
         setActiveTab('dashboard');
       }
@@ -91,8 +91,10 @@ export default function ModernAdmin() {
                         <TabsTrigger value="advertisements">Propagandas</TabsTrigger>
                         <TabsTrigger value="in-content-ads">In-Content</TabsTrigger>
                         <TabsTrigger value="users">Usuários</TabsTrigger>
-                        <TabsTrigger value="analytics">Análises</TabsTrigger>
                       </>
+                    )}
+                    {(userRole === 'admin' || userRole === 'redator') && (
+                      <TabsTrigger value="analytics">Análises</TabsTrigger>
                     )}
                     <TabsTrigger value="contact">Contato</TabsTrigger>
                     <TabsTrigger value="advertising">Anunciantes</TabsTrigger>
@@ -222,7 +224,7 @@ export default function ModernAdmin() {
                     </TabsContent>
                   )}
 
-                  {userRole === 'admin' && (
+                  {(userRole === 'admin' || userRole === 'redator') && (
                     <TabsContent value="analytics" className="mt-0 h-full">
                       <AnalyticsPage />
                     </TabsContent>
