@@ -21,7 +21,7 @@ import NewsArticle from "./pages/NewsArticle";
 import Search from "./pages/Search";
 import AoVivo from "./pages/AoVivo";
 import Auth from "./pages/Auth";
-import Admin from "./pages/Admin";
+import ModernAdmin from "./pages/ModernAdmin";
 import Contact from "./pages/Contact";
 import Advertise from "./pages/Advertise";
 import Videos from "./pages/Videos";
@@ -45,7 +45,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/perfil" element={<Profile />} />
-            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin" element={<ModernAdmin />} />
             <Route path="/admin/configuracoes" element={<SiteConfigurations />} />
             {/* Rota dinâmica para todas as categorias */}
             <Route path="/:categorySlug" element={<DynamicCategoryRoute />} />

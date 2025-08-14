@@ -73,48 +73,52 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 0 0% 6%;
-    --foreground: 0 0% 95%;
+    /* Admin Dashboard Dark Theme - #111 background with red accents #E53935 */
+    --background: 0 0% 6.67%;        /* #111 */
+    --foreground: 0 0% 100%;         /* White text */
 
-    --card: 0 0% 8%;
-    --card-foreground: 0 0% 95%;
+    --card: 0 0% 9%;                 /* Slightly lighter than background */
+    --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 0 0% 9%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 0 85% 55%;
+    /* Red accent color #E53935 converted to HSL */
+    --primary: 4 82% 56%;            /* #E53935 */
     --primary-foreground: 0 0% 100%;
-    --primary-darker: 0 85% 45%;
+    --primary-darker: 4 82% 46%;     /* Darker variant for hover */
 
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 90%;
+    --secondary: 0 0% 15%;           /* Subtle gray for secondary elements */
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 0 0% 12%;               /* Subtle gray backgrounds */
+    --muted-foreground: 0 0% 65%;    /* Gray text */
 
-    --accent: 0 75% 60%;
+    --accent: 4 82% 56%;             /* Same as primary for consistency */
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --news-header: 0 0% 4%;
+    --news-header: 0 0% 6.67%;       /* Same as background */
     --news-header-foreground: 0 0% 100%;
-    --news-ticker: 0 0% 8%;
-    --news-category: 0 85% 55%;
-    --news-breaking: 0 100% 60%;
+    --news-ticker: 0 0% 9%;
+    --news-category: 4 82% 56%;      /* Red accent */
+    --news-breaking: 4 82% 56%;      /* Red accent */
 
-    --border: 0 0% 15%;
+    --border: 0 0% 20%;              /* Subtle gray dividers */
     --input: 0 0% 12%;
-    --ring: 0 85% 55%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --ring: 4 82% 56%;               /* Red focus ring */
+    
+    /* Admin Sidebar Colors */
+    --sidebar-background: 0 0% 6.67%; /* #111 */
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 4 82% 56%;     /* Red accent */
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 0 0% 12%;       /* Hover backgrounds */
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 20%;       /* Subtle borders */
+    --sidebar-ring: 4 82% 56%;        /* Red focus ring */
   }
 }
 
@@ -140,6 +144,70 @@ All colors MUST be HSL.
 
 .animate-marquee {
   animation: marquee 30s linear infinite;
+}
+
+/* Admin Dashboard Micro-interactions */
+@keyframes badge-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+@keyframes hover-glow {
+  0% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 4px hsl(var(--primary) / 0.1);
+  }
+}
+
+@keyframes slide-in-from-left {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes notification-bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+.admin-badge-pulse {
+  animation: badge-pulse 2s infinite;
+}
+
+.admin-hover-glow {
+  transition: all 0.3s ease;
+}
+
+.admin-hover-glow:hover {
+  animation: hover-glow 0.3s ease-out;
+}
+
+.admin-slide-in {
+  animation: slide-in-from-left 0.4s ease-out;
+}
+
+.admin-notification-bounce {
+  animation: notification-bounce 0.6s ease-in-out;
 }
 
 /* Hide scrollbar but keep functionality */
