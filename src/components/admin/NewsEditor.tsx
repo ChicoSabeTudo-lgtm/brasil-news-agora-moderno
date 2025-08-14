@@ -191,7 +191,13 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
 
           if (scheduleError) {
             console.error('Schedule error details:', scheduleError);
-            throw scheduleError;
+            const errorMsg = scheduleError.message || scheduleError.hint || scheduleError.details || 'Erro desconhecido no agendamento';
+            toast({
+              title: "Erro no agendamento",
+              description: errorMsg,
+              variant: "destructive",
+            });
+            return;
           }
           
           console.log('Post scheduled successfully');

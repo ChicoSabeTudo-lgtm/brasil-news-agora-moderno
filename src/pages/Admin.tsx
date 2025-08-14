@@ -24,6 +24,7 @@ import { PollManagement } from '@/components/admin/PollManagement';
 import { BlocksConfigManagement } from '@/components/admin/BlocksConfigManagement';
 import PostSharingForm from '@/components/admin/PostSharingForm';
 import { ProfileSettings } from '@/components/admin/ProfileSettings';
+import { SchedulingTest } from '@/components/admin/SchedulingTest';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -223,6 +224,8 @@ export default function Admin() {
                 <RecentActivity />
                 <QuickMetrics />
               </div>
+              
+              {userRole === 'admin' && <SchedulingTest />}
             </TabsContent>
 
             <TabsContent value="news">
