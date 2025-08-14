@@ -23,6 +23,7 @@ import { DailyBriefsPanel } from '@/components/admin/DailyBriefsPanel';
 import { PollManagement } from '@/components/admin/PollManagement';
 import { BlocksConfigManagement } from '@/components/admin/BlocksConfigManagement';
 import PostSharingForm from '@/components/admin/PostSharingForm';
+import { AnalyticsPage } from '@/components/admin/analytics/AnalyticsPage';
 
 export default function ModernAdmin() {
   const { userRole } = useAuth();
@@ -217,18 +218,8 @@ export default function ModernAdmin() {
                   )}
 
                   {userRole === 'admin' && (
-                    <TabsContent value="analytics" className="mt-0 h-full p-6">
-                      <div className="space-y-6">
-                        <h2 className="text-2xl font-bold">Análises e Relatórios</h2>
-                        <div className="text-center py-16">
-                          <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <div className="w-8 h-8 bg-primary rounded-full animate-pulse" />
-                          </div>
-                          <p className="text-muted-foreground">
-                            Módulo de análises em desenvolvimento
-                          </p>
-                        </div>
-                      </div>
+                    <TabsContent value="analytics" className="mt-0 h-full">
+                      <AnalyticsPage />
                     </TabsContent>
                   )}
                 </Tabs>
