@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -109,6 +109,138 @@ export type Database = {
           website?: string | null
         }
         Relationships: []
+      }
+      analytics_audience_peaks: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          peak_count: number
+          peak_time: string
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          id?: string
+          peak_count: number
+          peak_time?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          peak_count?: number
+          peak_time?: string
+        }
+        Relationships: []
+      }
+      analytics_heartbeats: {
+        Row: {
+          article_id: string | null
+          created_at: string
+          id: string
+          last_seen: string
+          session_id: string
+          visitor_ip: unknown | null
+        }
+        Insert: {
+          article_id?: string | null
+          created_at?: string
+          id?: string
+          last_seen?: string
+          session_id: string
+          visitor_ip?: unknown | null
+        }
+        Update: {
+          article_id?: string | null
+          created_at?: string
+          id?: string
+          last_seen?: string
+          session_id?: string
+          visitor_ip?: unknown | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_heartbeats_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "news"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      analytics_page_views: {
+        Row: {
+          article_id: string | null
+          created_at: string
+          id: string
+          page_url: string
+          referrer: string | null
+          session_id: string
+          user_agent: string | null
+          visitor_ip: unknown | null
+        }
+        Insert: {
+          article_id?: string | null
+          created_at?: string
+          id?: string
+          page_url: string
+          referrer?: string | null
+          session_id: string
+          user_agent?: string | null
+          visitor_ip?: unknown | null
+        }
+        Update: {
+          article_id?: string | null
+          created_at?: string
+          id?: string
+          page_url?: string
+          referrer?: string | null
+          session_id?: string
+          user_agent?: string | null
+          visitor_ip?: unknown | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_page_views_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "news"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      analytics_read_time: {
+        Row: {
+          article_id: string | null
+          created_at: string
+          id: string
+          seconds: number
+          session_id: string
+        }
+        Insert: {
+          article_id?: string | null
+          created_at?: string
+          id?: string
+          seconds?: number
+          session_id: string
+        }
+        Update: {
+          article_id?: string | null
+          created_at?: string
+          id?: string
+          seconds?: number
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "analytics_read_time_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "news"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       categories: {
         Row: {
@@ -992,8 +1124,8 @@ export type Database = {
     Functions: {
       approve_user_access: {
         Args:
-          | { target_user_id: string; admin_user_id: string; reason?: string }
-          | { target_user_id: string; reason?: string }
+          | { admin_user_id: string; reason?: string; target_user_id: string }
+          | { reason?: string; target_user_id: string }
         Returns: boolean
       }
       can_user_vote: {
@@ -1008,20 +1140,36 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      cleanup_old_heartbeats: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       delete_user_safe: {
         Args:
-          | { target_user_id: string; admin_user_id: string; reason?: string }
-          | { target_user_id: string; reason?: string }
+          | { admin_user_id: string; reason?: string; target_user_id: string }
+          | { reason?: string; target_user_id: string }
         Returns: boolean
       }
       generate_slug: {
         Args: { title: string }
         Returns: string
       }
+      get_average_read_time: {
+        Args: { days_back?: number }
+        Returns: number
+      }
+      get_online_visitors_count: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      get_todays_peak_audience: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       has_role: {
         Args: {
-          _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
         }
         Returns: boolean
       }
@@ -1035,16 +1183,16 @@ export type Database = {
       }
       revoke_user_access: {
         Args:
-          | { target_user_id: string; admin_user_id: string; reason?: string }
-          | { target_user_id: string; reason?: string }
+          | { admin_user_id: string; reason?: string; target_user_id: string }
+          | { reason?: string; target_user_id: string }
         Returns: boolean
       }
       update_user_role: {
         Args: {
-          target_user_id: string
-          new_role: Database["public"]["Enums"]["app_role"]
           admin_user_id: string
+          new_role: Database["public"]["Enums"]["app_role"]
           reason?: string
+          target_user_id: string
         }
         Returns: boolean
       }

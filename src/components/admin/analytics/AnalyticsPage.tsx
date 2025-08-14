@@ -41,7 +41,7 @@ const fetchRealData = async (period: Period): Promise<AnalyticsData> => {
         break;
     }
 
-    // Fetch all published news with categories
+    // Fetch all published news with categories and real view counts
     const { data: allNews, error } = await supabase
       .from('news')
       .select(`
@@ -91,15 +91,22 @@ const fetchRealData = async (period: Period): Promise<AnalyticsData> => {
     const topArticles = processedArticles.slice(0, 5);
     const worstArticles = processedArticles.slice(-5).reverse();
 
+    // Get real analytics data using RPC functions
+    const [onlineVisitorsResult, avgReadTimeResult, peakAudienceResult] = await Promise.all([
+      supabase.rpc('get_online_visitors_count'),
+      supabase.rpc('get_average_read_time', { days_back: period === 'today' ? 1 : period === '7days' ? 7 : 30 }),
+      supabase.rpc('get_todays_peak_audience')
+    ]);
+
     return {
       topArticles,
       worstArticles,
       allArticles: processedArticles,
       categoryPerformance,
-      avgReadTime: Math.floor(Math.random() * 180) + 120, // Simulated for now
-      onlineVisitors: Math.floor(Math.random() * 50) + 10, // Simulated for now
+      avgReadTime: avgReadTimeResult.data || 150,
+      onlineVisitors: onlineVisitorsResult.data || 0,
       topArticleNow: topArticles[0] || { title: 'Sem dados', views: 0 },
-      peakAudience: Math.floor(Math.random() * 200) + 100, // Simulated for now
+      peakAudience: peakAudienceResult.data || 0,
     };
   } catch (error) {
     console.error('Error fetching analytics data:', error);
@@ -110,9 +117,9 @@ const fetchRealData = async (period: Period): Promise<AnalyticsData> => {
       allArticles: [],
       categoryPerformance: [],
       avgReadTime: 150,
-      onlineVisitors: 15,
+      onlineVisitors: 0,
       topArticleNow: { title: 'Sem dados', views: 0 },
-      peakAudience: 120,
+      peakAudience: 0,
     };
   }
 };
@@ -125,15 +132,15 @@ export const AnalyticsPage = () => {
     allArticles: [],
     categoryPerformance: [],
     avgReadTime: 150,
-    onlineVisitors: 15,
+    onlineVisitors: 0,
     topArticleNow: { title: 'Carregando...', views: 0 },
-    peakAudience: 120,
+    peakAudience: 0,
   });
   const [loading, setLoading] = useState(true);
   const [realTimeData, setRealTimeData] = useState({
-    onlineVisitors: 15,
+    onlineVisitors: 0,
     topArticleNow: { title: 'Carregando...', views: 0 },
-    peakAudience: 120,
+    peakAudience: 0,
   });
 
   // Fetch real data when period changes
@@ -145,7 +152,9 @@ export const AnalyticsPage = () => {
         setData(realData);
         setRealTimeData(prev => ({
           ...prev,
+          onlineVisitors: realData.onlineVisitors,
           topArticleNow: realData.topArticleNow,
+          peakAudience: realData.peakAudience,
         }));
       } catch (error) {
         console.error('Error loading analytics data:', error);
@@ -157,15 +166,30 @@ export const AnalyticsPage = () => {
     loadData();
   }, [period]);
 
-  // Real-time updates every 30 seconds
+  // Real-time updates every 30 seconds for live data
   useEffect(() => {
-    const interval = setInterval(() => {
-      setRealTimeData(prev => ({
-        ...prev,
-        onlineVisitors: Math.floor(Math.random() * 50) + 10,
-        peakAudience: Math.floor(Math.random() * 200) + 100,
-      }));
-    }, 30000);
+    const updateRealTimeData = async () => {
+      try {
+        const [onlineVisitorsResult, peakAudienceResult] = await Promise.all([
+          supabase.rpc('get_online_visitors_count'),
+          supabase.rpc('get_todays_peak_audience')
+        ]);
+
+        setRealTimeData(prev => ({
+          ...prev,
+          onlineVisitors: onlineVisitorsResult.data || 0,
+          peakAudience: peakAudienceResult.data || 0,
+        }));
+      } catch (error) {
+        console.error('Error updating real-time data:', error);
+      }
+    };
+
+    // Update immediately
+    updateRealTimeData();
+
+    // Then update every 30 seconds
+    const interval = setInterval(updateRealTimeData, 30000);
 
     return () => clearInterval(interval);
   }, []);
