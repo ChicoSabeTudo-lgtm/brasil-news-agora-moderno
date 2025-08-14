@@ -99,60 +99,49 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
   };
 
   const handleSave = async (status: 'draft' | 'published' | 'scheduled') => {
-    // Validate input data
-    const validationResult = validateAndSanitize(newsSchema, {
-      title: article.title,
-      subtitle: article.subtitle,
-      meta_description: article.metaDescription,
-      content: article.content,
-      category_id: article.categoryId,
-      tags: article.tags ? article.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [],
-      embed_code: article.embedCode,
-      is_breaking: article.isBreaking,
-      is_featured: article.isFeatured
-    });
-
-    if (!validationResult.success) {
-      toast({
-        title: "Erro de validação",
-        description: validationResult.errors.join(', '),
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Use the validated data
-    const validatedData = validationResult.data;
-
-    if (status === 'scheduled' && !article.scheduledPublishAt) {
-      toast({
-        title: "Data de agendamento obrigatória",
-        description: "Selecione uma data e hora para o agendamento.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setLoading(true);
-    
     try {
+      setLoading(true);
+
+      if (!user?.id) {
+        toast({
+          title: "Erro",
+          description: "Usuário não autenticado.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (status === 'scheduled' && !article.scheduledPublishAt) {
+        toast({
+          title: "Data de agendamento obrigatória",
+          description: "Selecione uma data e hora para o agendamento.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Prepare news data based on status
       const newsData = {
         title: article.title,
         subtitle: article.subtitle || null,
         meta_description: article.metaDescription,
         content: article.content,
-        category_id: article.categoryId,
+        category_id: article.categoryId || null,
         is_breaking: article.isBreaking,
         is_featured: article.isFeatured,
-        is_published: status === 'published',
-        published_at: status === 'published' ? new Date().toISOString() : null,
-        scheduled_publish_at: status === 'scheduled' ? article.scheduledPublishAt?.toISOString() : null,
         tags: article.tags ? article.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [],
         embed_code: article.embedCode || null,
-        author_id: user?.id
+        author_id: user?.id,
+        // Para publicação direta
+        is_published: status === 'published',
+        published_at: status === 'published' ? new Date().toISOString() : null,
+        // Para agendamento, não definir is_published nem published_at
+        scheduled_publish_at: status === 'scheduled' ? article.scheduledPublishAt?.toISOString() : null
       };
 
       let result;
+      let savedNewsId: string;
+
       if (editingNews) {
         // Update existing news
         result = await supabase
@@ -161,6 +150,7 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
           .eq('id', editingNews.id)
           .select()
           .single();
+        savedNewsId = editingNews.id;
       } else {
         // Create new news
         result = await supabase
@@ -168,12 +158,32 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
           .insert(newsData)
           .select()
           .single();
+        savedNewsId = result.data?.id;
       }
 
       if (result.error) throw result.error;
       
+      // Handle scheduling with pg_cron if status is 'scheduled'
+      if (status === 'scheduled' && article.scheduledPublishAt && !editingNews) {
+        try {
+          const { error: scheduleError } = await supabase.rpc('schedule_post_publish', {
+            p_post_id: savedNewsId,
+            p_when: article.scheduledPublishAt.toISOString()
+          });
+
+          if (scheduleError) throw scheduleError;
+        } catch (error) {
+          console.error('Error scheduling post:', error);
+          toast({
+            title: "Erro",
+            description: "Erro ao agendar a publicação.",
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+
       // Save images if there are any and we have a news ID
-      const savedNewsId = result.data.id;
       if (newsImages.length > 0) {
         try {
           // Delete existing images for this news
@@ -400,9 +410,52 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
 
         {/* Scheduling Section */}
         <div className="space-y-4 p-4 border rounded-lg bg-muted/50">
-          <div className="flex items-center space-x-2">
-            <Clock className="w-4 h-4" />
-            <Label className="text-sm font-medium">Agendamento de Publicação</Label>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Clock className="w-4 h-4" />
+              <Label className="text-sm font-medium">Agendamento de Publicação</Label>
+            </div>
+            {editingNews?.status === 'scheduled' && (
+              <div className="flex items-center space-x-2">
+                <span className="bg-amber-100 text-amber-800 px-2 py-1 text-xs font-semibold rounded-full">
+                  Agendado
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    try {
+                      setLoading(true);
+                      const { error } = await supabase.rpc('cancel_post_schedule', {
+                        p_post_id: editingNews.id
+                      });
+                      if (error) throw error;
+                      
+                      toast({
+                        title: "Agendamento cancelado",
+                        description: "A notícia voltou para rascunho.",
+                      });
+                      
+                      // Refresh page or update state
+                      window.location.reload();
+                    } catch (error) {
+                      console.error('Error canceling schedule:', error);
+                      toast({
+                        title: "Erro",
+                        description: "Não foi possível cancelar o agendamento.",
+                        variant: "destructive",
+                      });
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}
+                  disabled={loading}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  Cancelar Agendamento
+                </Button>
+              </div>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="scheduledDate">Data e hora para publicação (opcional)</Label>

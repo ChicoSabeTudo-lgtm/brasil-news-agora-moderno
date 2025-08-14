@@ -519,6 +519,7 @@ export type Database = {
           category_id: string | null
           content: string
           created_at: string
+          cron_job_id: number | null
           embed_code: string | null
           id: string
           is_breaking: boolean | null
@@ -528,6 +529,7 @@ export type Database = {
           published_at: string | null
           scheduled_publish_at: string | null
           slug: string | null
+          status: string
           subtitle: string | null
           tags: string[] | null
           title: string
@@ -539,6 +541,7 @@ export type Database = {
           category_id?: string | null
           content: string
           created_at?: string
+          cron_job_id?: number | null
           embed_code?: string | null
           id?: string
           is_breaking?: boolean | null
@@ -548,6 +551,7 @@ export type Database = {
           published_at?: string | null
           scheduled_publish_at?: string | null
           slug?: string | null
+          status?: string
           subtitle?: string | null
           tags?: string[] | null
           title: string
@@ -559,6 +563,7 @@ export type Database = {
           category_id?: string | null
           content?: string
           created_at?: string
+          cron_job_id?: number | null
           embed_code?: string | null
           id?: string
           is_breaking?: boolean | null
@@ -568,6 +573,7 @@ export type Database = {
           published_at?: string | null
           scheduled_publish_at?: string | null
           slug?: string | null
+          status?: string
           subtitle?: string | null
           tags?: string[] | null
           title?: string
@@ -1136,6 +1142,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      cancel_post_schedule: {
+        Args: { p_post_id: string }
+        Returns: undefined
+      }
       cleanup_expired_otp_codes: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -1177,6 +1187,10 @@ export type Database = {
         Args: { video_id: string }
         Returns: undefined
       }
+      publish_post: {
+        Args: { p_post_id: string }
+        Returns: undefined
+      }
       publish_scheduled_news: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -1186,6 +1200,10 @@ export type Database = {
           | { admin_user_id: string; reason?: string; target_user_id: string }
           | { reason?: string; target_user_id: string }
         Returns: boolean
+      }
+      schedule_post_publish: {
+        Args: { p_post_id: string; p_when: string }
+        Returns: undefined
       }
       update_user_role: {
         Args: {
