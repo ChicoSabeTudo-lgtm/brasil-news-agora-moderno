@@ -120,6 +120,8 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
         return;
       }
 
+      console.log('Saving article with status:', status, 'scheduledPublishAt:', article.scheduledPublishAt);
+
       // Prepare news data based on status
       const newsData = {
         title: article.title,
@@ -135,9 +137,12 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
         // Para publicação direta
         is_published: status === 'published',
         published_at: status === 'published' ? new Date().toISOString() : null,
-        // Para agendamento, não definir is_published nem published_at
+        // Para agendamento
+        status: status,
         scheduled_publish_at: status === 'scheduled' ? article.scheduledPublishAt?.toISOString() : null
       };
+
+      console.log('News data to save:', newsData);
 
       let result;
       let savedNewsId: string;
@@ -151,6 +156,7 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
           .select()
           .single();
         savedNewsId = editingNews.id;
+        console.log('Updated existing news:', result);
       } else {
         // Create new news
         result = await supabase
@@ -159,25 +165,32 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
           .select()
           .single();
         savedNewsId = result.data?.id;
+        console.log('Created new news:', result);
       }
 
-      if (result.error) throw result.error;
+      if (result.error) {
+        console.error('Database error:', result.error);
+        throw result.error;
+      }
       
       // Handle scheduling with pg_cron if status is 'scheduled'
-      if (status === 'scheduled' && article.scheduledPublishAt && !editingNews) {
+      if (status === 'scheduled' && article.scheduledPublishAt && savedNewsId) {
         try {
           console.log('Attempting to schedule post:', {
             savedNewsId,
-            scheduledTime: article.scheduledPublishAt.toISOString()
+            scheduledTime: article.scheduledPublishAt.toISOString(),
+            formattedTime: format(article.scheduledPublishAt, 'dd/MM/yyyy \'às\' HH:mm')
           });
           
-          const { error: scheduleError } = await supabase.rpc('schedule_post_publish', {
+          const { data: scheduleData, error: scheduleError } = await supabase.rpc('schedule_post_publish', {
             p_post_id: savedNewsId,
             p_when: article.scheduledPublishAt.toISOString()
           });
 
+          console.log('Schedule RPC response:', { data: scheduleData, error: scheduleError });
+
           if (scheduleError) {
-            console.error('Schedule error:', scheduleError);
+            console.error('Schedule error details:', scheduleError);
             throw scheduleError;
           }
           
@@ -186,7 +199,7 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
           console.error('Error scheduling post:', error);
           toast({
             title: "Erro",
-            description: "Erro ao agendar a publicação.",
+            description: "Erro ao agendar a publicação. Verifique o console para mais detalhes.",
             variant: "destructive",
           });
           return;
@@ -267,7 +280,7 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
       console.error('Error saving news:', error);
       toast({
         title: "Erro",
-        description: "Não foi possível salvar a notícia.",
+        description: "Não foi possível salvar a notícia. Detalhes no console.",
         variant: "destructive",
       });
     } finally {
