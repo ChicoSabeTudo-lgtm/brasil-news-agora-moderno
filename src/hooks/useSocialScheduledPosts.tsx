@@ -63,6 +63,7 @@ export const useSocialScheduledPosts = () => {
   }) => {
     try {
       setLoading(true);
+      console.log('🔄 Scheduling social post:', postData);
 
       // Primeiro inserir o post
       const { data: insertedPost, error: insertError } = await supabase
@@ -70,6 +71,8 @@ export const useSocialScheduledPosts = () => {
         .insert(postData)
         .select()
         .single();
+
+      console.log('📝 Post insertion result:', { insertedPost, insertError });
 
       if (insertError) throw insertError;
 
@@ -81,12 +84,15 @@ export const useSocialScheduledPosts = () => {
 
       if (scheduleError) throw scheduleError;
 
+      console.log('✅ Social post scheduled successfully:', insertedPost);
+      
       toast({
         title: "Post agendado",
         description: `Post agendado para ${new Date(postData.scheduled_for).toLocaleString()}.`,
       });
 
       // Atualizar a lista
+      console.log('🔄 Refreshing posts list...');
       await fetchPosts();
       return insertedPost;
     } catch (error) {
