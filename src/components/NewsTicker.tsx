@@ -138,17 +138,17 @@ export const NewsTicker = () => {
     }
   };
 
-  return <div className="bg-news-header text-news-header-foreground border-b border-border">
+  return <>
       {/* Breaking News Ticker */}
-      {!loading && breakingNews.length > 0 && <div className="border-b border-border py-2 bg-news-header">
+      {!loading && breakingNews.length > 0 && <div className="bg-red-600 text-white py-2">
           <div className="container mx-auto px-4">
             <div className="flex items-center">
-              <div className="bg-primary text-primary-foreground px-3 py-1 text-xs font-bold uppercase tracking-wide mr-4">
+              <div className="bg-white text-red-600 px-3 py-1 text-xs font-bold uppercase tracking-wide mr-4 rounded">
                 URGENTE
               </div>
               <div className="flex-1 overflow-hidden">
                 <div className="animate-marquee whitespace-nowrap">
-                  {breakingNews.map(news => <a key={news.id} href={`/${news.categories.slug}/${news.slug}`} className="text-sm mr-8 text-news-header-foreground hover:text-primary transition-colors cursor-pointer">
+                  {breakingNews.map(news => <a key={news.id} href={`/${news.categories.slug}/${news.slug}`} className="text-sm mr-8 text-white hover:text-red-200 transition-colors cursor-pointer">
                       {news.title}
                     </a>)}
                 </div>
@@ -157,22 +157,28 @@ export const NewsTicker = () => {
           </div>
         </div>}
 
-      {/* Market Data Ticker - Hidden on Mobile */}
-      <div className="py-2 hidden md:block bg-news-header">
+      {/* Market Data Ticker - CNN Brasil style */}
+      <div className="bg-news-ticker text-news-ticker-foreground py-1.5 border-b border-gray-300">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between overflow-x-auto">
-            <div className="flex items-center space-x-6 min-w-max">
-              {marketData.map((item, index) => <div key={index} className="flex items-center space-x-2 text-sm">
-                  <span className="font-medium text-muted-foreground">{item.symbol}</span>
-                  <span className="text-news-header-foreground">{item.value}</span>
+          <div className="flex items-center space-x-8 overflow-x-auto scrollbar-hide">
+            {marketData.length > 0 ? (
+              marketData.map((item, index) => (
+                <div key={index} className="flex items-center space-x-2 text-sm whitespace-nowrap min-w-max">
+                  <span className="font-bold text-gray-900 text-xs uppercase tracking-wide">{item.symbol}:</span>
+                  <span className="text-gray-800 font-semibold">{item.value}</span>
                   <div className="flex items-center space-x-1">
                     {getTrendIcon(item.trend)}
-                    <span className={getTrendColor(item.trend)}>{item.change}</span>
+                    <span className={`${getTrendColor(item.trend)} text-xs font-medium`}>
+                      {item.change}
+                    </span>
                   </div>
-                </div>)}
-            </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-gray-500 text-xs">Carregando dados financeiros...</div>
+            )}
           </div>
         </div>
       </div>
-    </div>;
+    </>;
 };

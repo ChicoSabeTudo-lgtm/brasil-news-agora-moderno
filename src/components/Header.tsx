@@ -60,8 +60,8 @@ export const Header = () => {
   return (
     <>
       {/* Fixed Top Bar - Logo and Search */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-news-header text-news-header-foreground border-b border-gray-700">
-        <div className="container mx-auto px-4 py-2 flex items-center justify-between">
+      <div className="fixed top-0 left-0 right-0 z-50 bg-news-header text-news-header-foreground shadow-lg">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           {/* Mobile Layout */}
           <div className="md:hidden flex items-center justify-between w-full">
             <div className="flex-1"></div>
@@ -69,7 +69,7 @@ export const Header = () => {
               <img 
                 src={logoUrl} 
                 alt="CHICOSABETUDO" 
-                className="h-12 w-auto object-contain"
+                className="h-14 w-auto object-contain"
                 style={{ imageRendering: 'crisp-edges' }}
                 onError={(e) => {
                   // Fallback para logo padrão apenas se não for do Supabase
@@ -115,7 +115,7 @@ export const Header = () => {
               <img 
                 src={logoUrl} 
                 alt="CHICOSABETUDO" 
-                className="h-12 w-auto object-contain"
+                className="h-16 w-auto object-contain"
                 style={{ imageRendering: 'crisp-edges' }}
                 onError={(e) => {
                   // Fallback para logo padrão apenas se não for do Supabase
@@ -137,7 +137,7 @@ export const Header = () => {
                 placeholder="Buscar notícias..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-80 bg-secondary border-gray-600"
+                className="pl-10 w-80 bg-white/10 border-white/20 text-white placeholder:text-white/70 focus:bg-white/20"
               />
             </form>
             
@@ -178,18 +178,18 @@ export const Header = () => {
       </div>
 
       {/* Spacer to push content below fixed header */}
-      <div className="h-16"></div>
+      <div className="h-20"></div>
 
       {/* Main Navigation */}
-      <header className="bg-news-header text-news-header-foreground">
+      <header className="bg-white text-gray-900 border-b border-gray-200 shadow-sm">
         <nav className="container mx-auto px-4">
-        <div className="flex items-center justify-between py-3">
+        <div className="flex items-center justify-between py-2">
           <div className="md:hidden">
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-news-header-foreground"
+              className="text-gray-900"
             >
               <Menu className="w-6 h-6" />
             </Button>
@@ -201,10 +201,10 @@ export const Header = () => {
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`flex items-center space-x-1 px-3 py-2 text-sm font-medium transition-colors hover:text-primary text-primary`}
+                  className={`flex items-center space-x-1 px-3 py-2 text-sm font-semibold transition-colors hover:text-red-600 text-red-600 border-r border-gray-200 last:border-r-0`}
                 >
                   <div className="flex items-center space-x-1">
-                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                    <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
                     <Play className="w-3 h-3" />
                   </div>
                   <span>{item.name}</span>
@@ -213,7 +213,7 @@ export const Header = () => {
                 <Link
                   key={item.name}
                   to={item.href}
-                  className="flex items-center space-x-1 px-3 py-2 text-sm font-medium transition-colors hover:text-primary text-news-header-foreground"
+                  className="flex items-center space-x-1 px-3 py-2 text-sm font-semibold transition-colors hover:text-red-600 text-gray-900 border-r border-gray-200 last:border-r-0"
                 >
                   <span>{item.name}</span>
                 </Link>
@@ -221,29 +221,29 @@ export const Header = () => {
             ))}
           </div>
 
-          <div className="text-sm text-gray-400">
+          <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">
             {new Date().toLocaleDateString("pt-BR", {
               weekday: "long",
-              year: "numeric",
-              month: "long",
               day: "numeric",
+              month: "long",
+              year: "numeric",
             })}
           </div>
         </div>
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden pb-4 border-t border-gray-700 mt-2 pt-4">
+          <div className="md:hidden pb-4 border-t border-gray-200 mt-2 pt-4">
             <div className="flex flex-col space-y-2">
               {navigationItems.map((item) => (
                 item.isLive ? (
                   <Link
                     key={item.name}
                     to={item.href}
-                    className="flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-colors hover:text-primary text-primary"
+                    className="flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-colors hover:text-red-600 text-red-600"
                   >
                     <div className="flex items-center space-x-1">
-                      <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                      <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
                       <Play className="w-3 h-3" />
                     </div>
                     <span>{item.name}</span>
@@ -252,7 +252,7 @@ export const Header = () => {
                   <Link
                     key={item.name}
                     to={item.href}
-                    className="flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-colors hover:text-primary text-news-header-foreground"
+                    className="flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-colors hover:text-red-600 text-gray-900"
                   >
                     <span>{item.name}</span>
                   </Link>

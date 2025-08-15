@@ -35,10 +35,11 @@ All colors MUST be HSL.
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    /* News specific colors adapted for light theme */
-    --news-header: 222 84% 5%;      /* Dark header text */
-    --news-header-foreground: 0 0% 100%;
-    --news-ticker: 210 40% 96%;     /* Light ticker background */
+    /* News specific colors - CNN Brasil style red header */
+    --news-header: 0 84% 35%;       /* Deep red header background #B71C1C */
+    --news-header-foreground: 0 0% 100%;  /* White text */
+    --news-ticker: 0 0% 95%;        /* Light gray ticker background */
+    --news-ticker-foreground: 222 84% 5%; /* Dark text for ticker */
     --news-category: 217 91% 60%;   /* Blue category highlight */
     --news-breaking: 0 84% 60%;     /* Red for breaking news */
     
@@ -95,9 +96,10 @@ All colors MUST be HSL.
     --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --news-header: 0 0% 6.67%;       /* Same as background */
-    --news-header-foreground: 0 0% 100%;
-    --news-ticker: 0 0% 9%;
+    --news-header: 0 84% 35%;        /* Deep red header */
+    --news-header-foreground: 0 0% 100%;  /* White text */
+    --news-ticker: 0 0% 9%;          /* Dark ticker background */
+    --news-ticker-foreground: 0 0% 100%; /* White ticker text */
     --news-category: 4 82% 56%;      /* Red accent */
     --news-breaking: 4 82% 56%;      /* Red accent */
 
