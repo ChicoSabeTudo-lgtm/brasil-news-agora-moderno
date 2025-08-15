@@ -1206,6 +1206,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      cleanup_old_social_posts: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       delete_user_safe: {
         Args:
           | { admin_user_id: string; reason?: string; target_user_id: string }
