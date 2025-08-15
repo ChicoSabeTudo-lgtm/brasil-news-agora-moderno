@@ -433,9 +433,9 @@ const Index = () => {
         <section className="mb-12">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-foreground border-b-2 border-primary pb-2 flex items-center gap-2">
-              <span className="bg-primary text-primary-foreground px-3 py-1 text-sm font-bold uppercase tracking-wide">
-                Vídeos
-              </span>
+        <span className="bg-slate-950 text-white px-3 py-1 text-sm font-bold uppercase tracking-wide">
+          Vídeos
+        </span>
             </h2>
             <Link to="/videos" className="text-primary hover:text-primary-darker font-semibold text-sm transition-colors">
               Ver todos →
