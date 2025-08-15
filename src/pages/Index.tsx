@@ -185,7 +185,7 @@ const Index = () => {
         </Link>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {newsItems.map(news => <NewsCard key={news.id} {...news} size="small" />)}
+        {newsItems.map(news => <NewsCard key={news.id} {...news} size="small" categoryColor={category.color} />)}
       </div>
     </section>
   );
@@ -207,7 +207,7 @@ const Index = () => {
         </Link>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {newsItems.map(news => <NewsCard key={news.id} {...news} size="medium" />)}
+        {newsItems.map(news => <NewsCard key={news.id} {...news} size="medium" categoryColor={category.color} />)}
       </div>
     </section>
   );
@@ -234,7 +234,9 @@ const Index = () => {
             <img src={news.imageUrl} alt={news.title} className="w-24 h-24 object-cover rounded flex-shrink-0" />
             <div className="flex-1">
               <Link to={`/${news.categorySlug}/${news.slug}`}>
-                <h3 className="font-semibold text-lg line-clamp-2 group-hover:text-primary transition-colors mb-2">
+                <h3 className="font-semibold text-lg line-clamp-2 transition-colors mb-2 hover:opacity-80" style={{ "--hover-color": category.color } as any}
+                    onMouseEnter={(e) => e.currentTarget.style.color = category.color}
+                    onMouseLeave={(e) => e.currentTarget.style.color = ''}>
                   {news.title}
                 </h3>
               </Link>
@@ -273,7 +275,7 @@ const Index = () => {
         {/* Notícia em destaque */}
         {newsItems[0] && (
           <div className="lg:col-span-2">
-            <NewsCard {...newsItems[0]} size="large" />
+            <NewsCard {...newsItems[0]} size="large" categoryColor={category.color} />
           </div>
         )}
         {/* Lista lateral */}
@@ -284,7 +286,9 @@ const Index = () => {
                 <img src={news.imageUrl} alt={news.title} className="w-20 h-20 object-cover rounded flex-shrink-0" />
                 <div className="flex-1">
                   <Link to={`/${news.categorySlug}/${news.slug}`}>
-                    <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors mb-1">
+                    <h3 className="font-semibold text-sm line-clamp-2 transition-colors mb-1"
+                        onMouseEnter={(e) => e.currentTarget.style.color = category.color}
+                        onMouseLeave={(e) => e.currentTarget.style.color = ''}>
                       {news.title}
                     </h3>
                   </Link>

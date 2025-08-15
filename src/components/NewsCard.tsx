@@ -13,6 +13,7 @@ interface NewsCardProps {
   size?: "small" | "medium" | "large";
   slug?: string;
   categorySlug?: string;
+  categoryColor?: string;
 }
 
 export const NewsCard = ({
@@ -26,6 +27,7 @@ export const NewsCard = ({
   size = "medium",
   slug,
   categorySlug,
+  categoryColor,
 }: NewsCardProps) => {
   const getSizeClasses = () => {
     switch (size) {
@@ -65,9 +67,11 @@ export const NewsCard = ({
       </div>
 
       <div className="p-4">
-        <h3 className={`font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-2 ${
+        <h3 className={`font-bold text-foreground transition-colors line-clamp-2 mb-2 ${
           size === "large" ? "text-xl" : size === "small" ? "text-sm" : "text-base"
-        }`}>
+        }`}
+        onMouseEnter={(e) => categoryColor && (e.currentTarget.style.color = categoryColor)}
+        onMouseLeave={(e) => e.currentTarget.style.color = ''}>
           {title}
         </h3>
         
