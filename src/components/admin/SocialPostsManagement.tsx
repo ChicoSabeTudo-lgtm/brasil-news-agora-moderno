@@ -18,9 +18,14 @@ import {
   Play, 
   X, 
   Search,
-  Filter
+  Filter,
+  Edit,
+  Eye,
+  Trash2
 } from 'lucide-react';
 import { useSocialScheduledPosts, SocialScheduledPost } from '@/hooks/useSocialScheduledPosts';
+import { SocialPostEditModal } from './SocialPostEditModal';
+import { SocialPostViewModal } from './SocialPostViewModal';
 
 const platformIcons = {
   instagram: Instagram,
@@ -51,10 +56,13 @@ const statusNames = {
 };
 
 export const SocialPostsManagement = () => {
-  const { posts, loading, fetchPosts, cancelSchedule, publishNow } = useSocialScheduledPosts();
+  const { posts, loading, fetchPosts, cancelSchedule, publishNow, updatePost, deletePost, cleanupOldPosts } = useSocialScheduledPosts();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [platformFilter, setPlatformFilter] = useState('all');
+  const [selectedPost, setSelectedPost] = useState<SocialScheduledPost | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
   useEffect(() => {
     fetchPosts();
@@ -77,13 +85,51 @@ export const SocialPostsManagement = () => {
     return format(new Date(dateString), 'dd/MM/yyyy \'às\' HH:mm', { locale: ptBR });
   };
 
+  const handleEditPost = (post: SocialScheduledPost) => {
+    setSelectedPost(post);
+    setIsEditModalOpen(true);
+  };
+
+  const handleViewPost = (post: SocialScheduledPost) => {
+    setSelectedPost(post);
+    setIsViewModalOpen(true);
+  };
+
+  const handleDeletePost = async (postId: string) => {
+    if (window.confirm('Tem certeza que deseja excluir este post?')) {
+      await deletePost(postId);
+    }
+  };
+
+  const handleSavePost = async (updatedData: Partial<SocialScheduledPost>) => {
+    if (selectedPost) {
+      const success = await updatePost(selectedPost.id, updatedData);
+      if (success) {
+        setIsEditModalOpen(false);
+        setSelectedPost(null);
+      }
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="w-5 h-5" />
-            Gerenciamento de Posts Sociais
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-5 h-5" />
+              Gerenciamento de Posts Sociais
+            </div>
+            <Button
+              variant="outline"
+              onClick={cleanupOldPosts}
+              disabled={loading}
+              className="flex items-center gap-2"
+              title="Limpar posts antigos (48h+)"
+            >
+              <Trash2 className="w-4 h-4" />
+              Limpeza Automática
+            </Button>
           </CardTitle>
           <CardDescription>
             Visualize e gerencie todos os posts agendados para redes sociais
@@ -217,39 +263,78 @@ export const SocialPostsManagement = () => {
                           <span className="text-sm text-muted-foreground">-</span>
                         )}
                       </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          {post.status === 'scheduled' && (
-                            <>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => publishNow(post.id)}
-                                disabled={loading}
-                                className="text-green-600 hover:text-green-700"
-                              >
-                                <Play className="w-3 h-3 mr-1" />
-                                Publicar
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => cancelSchedule(post.id)}
-                                disabled={loading}
-                                className="text-red-600 hover:text-red-700"
-                              >
-                                <X className="w-3 h-3 mr-1" />
-                                Cancelar
-                              </Button>
-                            </>
-                          )}
-                          {post.status === 'failed' && post.error_message && (
-                            <div className="text-sm text-red-600" title={post.error_message}>
-                              Erro
-                            </div>
-                          )}
-                        </div>
-                      </TableCell>
+                       <TableCell className="text-right">
+                         <div className="flex items-center justify-end gap-1">
+                           {/* Botão Visualizar */}
+                           <Button
+                             variant="ghost"
+                             size="sm"
+                             onClick={() => handleViewPost(post)}
+                             disabled={loading}
+                             title="Visualizar post"
+                           >
+                             <Eye className="w-3 h-3" />
+                           </Button>
+                           
+                           {/* Botão Editar - apenas para posts agendados */}
+                           {post.status === 'scheduled' && (
+                             <Button
+                               variant="ghost"
+                               size="sm"
+                               onClick={() => handleEditPost(post)}
+                               disabled={loading}
+                               title="Editar post"
+                             >
+                               <Edit className="w-3 h-3" />
+                             </Button>
+                           )}
+                           
+                           {/* Botão Excluir */}
+                           <Button
+                             variant="ghost"
+                             size="sm"
+                             onClick={() => handleDeletePost(post.id)}
+                             disabled={loading}
+                             className="text-red-600 hover:text-red-700"
+                             title="Excluir post"
+                           >
+                             <Trash2 className="w-3 h-3" />
+                           </Button>
+                           
+                           {/* Ações específicas para posts agendados */}
+                           {post.status === 'scheduled' && (
+                             <>
+                               <Button
+                                 variant="outline"
+                                 size="sm"
+                                 onClick={() => publishNow(post.id)}
+                                 disabled={loading}
+                                 className="text-green-600 hover:text-green-700"
+                               >
+                                 <Play className="w-3 h-3 mr-1" />
+                                 Publicar
+                               </Button>
+                               <Button
+                                 variant="outline"
+                                 size="sm"
+                                 onClick={() => cancelSchedule(post.id)}
+                                 disabled={loading}
+                                 className="text-red-600 hover:text-red-700"
+                               >
+                                 <X className="w-3 h-3 mr-1" />
+                                 Cancelar
+                               </Button>
+                             </>
+                           )}
+                           
+                           {/* Mostrar erro se houver */}
+                           {post.status === 'failed' && post.error_message && (
+                             <div className="text-sm text-red-600" title={post.error_message}>
+                               Erro
+                             </div>
+                           )}
+                         </div>
+                       </TableCell>
                     </TableRow>
                   ))
                 )}
@@ -286,6 +371,28 @@ export const SocialPostsManagement = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Modal de Edição */}
+      <SocialPostEditModal
+        post={selectedPost}
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedPost(null);
+        }}
+        onSave={handleSavePost}
+        loading={loading}
+      />
+
+      {/* Modal de Visualização */}
+      <SocialPostViewModal
+        post={selectedPost}
+        isOpen={isViewModalOpen}
+        onClose={() => {
+          setIsViewModalOpen(false);
+          setSelectedPost(null);
+        }}
+      />
     </div>
   );
 };

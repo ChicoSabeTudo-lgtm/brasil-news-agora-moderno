@@ -1,0 +1,171 @@
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { Instagram, Twitter, Facebook, Linkedin, Clock, Calendar, User, Eye } from 'lucide-react';
+import { SocialScheduledPost } from '@/hooks/useSocialScheduledPosts';
+
+interface SocialPostViewModalProps {
+  post: SocialScheduledPost | null;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+const platformIcons = {
+  instagram: Instagram,
+  twitter: Twitter,
+  facebook: Facebook,
+  linkedin: Linkedin,
+};
+
+const platformNames = {
+  instagram: 'Instagram',
+  twitter: 'Twitter',
+  facebook: 'Facebook',
+  linkedin: 'LinkedIn',
+};
+
+const statusColors = {
+  scheduled: 'bg-amber-100 text-amber-800',
+  published: 'bg-green-100 text-green-800',
+  failed: 'bg-red-100 text-red-800',
+  cancelled: 'bg-gray-100 text-gray-800',
+};
+
+const statusNames = {
+  scheduled: 'Agendado',
+  published: 'Publicado',
+  failed: 'Falhou',
+  cancelled: 'Cancelado',
+};
+
+export const SocialPostViewModal = ({ post, isOpen, onClose }: SocialPostViewModalProps) => {
+  if (!post) return null;
+
+  const PlatformIcon = platformIcons[post.platform as keyof typeof platformIcons];
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Eye className="w-5 h-5" />
+            Visualizar Post
+          </DialogTitle>
+          <DialogDescription>
+            Detalhes do post agendado para redes sociais
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-6">
+          {/* Cabeçalho com plataforma e status */}
+          <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+            <div className="flex items-center gap-3">
+              {PlatformIcon && <PlatformIcon className="w-6 h-6" />}
+              <div>
+                <h3 className="font-semibold">
+                  {platformNames[post.platform as keyof typeof platformNames]}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  ID: {post.id.slice(0, 8)}...
+                </p>
+              </div>
+            </div>
+            <Badge className={statusColors[post.status]}>
+              {statusNames[post.status]}
+            </Badge>
+          </div>
+
+          {/* Informações de timing */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-sm font-medium">
+                <Calendar className="w-4 h-4" />
+                Agendado para
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {format(new Date(post.scheduled_for), 'dd/MM/yyyy \'às\' HH:mm', { locale: ptBR })}
+              </p>
+            </div>
+
+            {post.published_at && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 text-sm font-medium">
+                  <Clock className="w-4 h-4" />
+                  Publicado em
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {format(new Date(post.published_at), 'dd/MM/yyyy \'às\' HH:mm', { locale: ptBR })}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Conteúdo do post */}
+          <div className="space-y-2">
+            <h4 className="font-medium">Conteúdo do Post</h4>
+            <div className="p-4 bg-muted rounded-lg">
+              <p className="whitespace-pre-wrap text-sm">{post.content}</p>
+              <div className="mt-2 text-xs text-muted-foreground">
+                {post.content.length} caracteres
+              </div>
+            </div>
+          </div>
+
+          {/* URL da imagem se existir */}
+          {post.image_url && (
+            <div className="space-y-2">
+              <h4 className="font-medium">Imagem</h4>
+              <div className="space-y-2">
+                <img 
+                  src={post.image_url} 
+                  alt="Preview da imagem do post" 
+                  className="max-w-full h-auto rounded-lg border"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+                <p className="text-xs text-muted-foreground break-all">
+                  {post.image_url}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Informações de erro se houver */}
+          {post.status === 'failed' && post.error_message && (
+            <div className="space-y-2">
+              <h4 className="font-medium text-red-600">Mensagem de Erro</h4>
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-800">{post.error_message}</p>
+              </div>
+            </div>
+          )}
+
+          {/* Metadados */}
+          <div className="border-t pt-4 space-y-2">
+            <h4 className="font-medium text-sm">Metadados</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-muted-foreground">
+              <div>
+                <span className="font-medium">Criado em:</span><br />
+                {format(new Date(post.created_at), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
+              </div>
+              <div>
+                <span className="font-medium">Atualizado em:</span><br />
+                {format(new Date(post.updated_at), 'dd/MM/yyyy HH:mm', { locale: ptBR })}
+              </div>
+              <div>
+                <span className="font-medium">ID da Notícia:</span><br />
+                {post.news_id}
+              </div>
+              <div>
+                <span className="font-medium">Criado por:</span><br />
+                {post.created_by}
+              </div>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};

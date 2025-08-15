@@ -226,14 +226,28 @@ export const useSocialScheduledPosts = () => {
 
   const cleanupOldPosts = async () => {
     try {
-      const { error } = await supabase.rpc('cleanup_old_social_posts');
+      setLoading(true);
+      
+      const { data, error } = await supabase.functions.invoke('cleanup-social-posts');
       
       if (error) throw error;
+      
+      toast({
+        title: "Limpeza concluída",
+        description: data.message || "Posts antigos foram removidos com sucesso.",
+      });
       
       // Atualizar a lista após limpeza
       await fetchPosts();
     } catch (error) {
       console.error('Error cleaning up old posts:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível realizar a limpeza automática.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
