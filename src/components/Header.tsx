@@ -157,7 +157,7 @@ export const Header = () => {
       <div className="h-20"></div>
 
       {/* Main Navigation */}
-      <header className="bg-white text-gray-900 border-b border-gray-200 shadow-sm">
+      <header className="text-gray-900 border-b border-gray-200 shadow-sm bg-slate-950">
         <nav className="container mx-auto px-4">
         <div className="flex items-center justify-between py-2">
           <div className="md:hidden">
@@ -174,7 +174,7 @@ export const Header = () => {
                   </div>
                   <span>{item.name}</span>
                 </Link> : <Link key={item.name} to={item.href} className="flex items-center space-x-1 px-3 py-2 text-sm font-semibold transition-colors hover:text-primary text-gray-900 border-r border-gray-200 last:border-r-0">
-                  <span>{item.name}</span>
+                  <span className="text-slate-50">{item.name}</span>
                 </Link>)}
           </div>
 

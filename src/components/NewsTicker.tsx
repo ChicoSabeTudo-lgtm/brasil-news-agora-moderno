@@ -127,7 +127,7 @@ export const NewsTicker = () => {
   };
   return <>
       {/* Breaking News Ticker */}
-      {!loading && breakingNews.length > 0 && <div className="text-white py-2 bg-slate-950">
+      {!loading && breakingNews.length > 0 && <div className="text-white py-2 bg-slate-500">
           <div className="container mx-auto px-4">
             <div className="flex items-center">
               <div className="bg-white text-red-600 px-3 py-1 text-xs font-bold uppercase tracking-wide mr-4 rounded">
