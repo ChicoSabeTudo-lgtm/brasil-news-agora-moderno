@@ -6,33 +6,34 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useCategories } from "@/hooks/useCategories";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 export const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const navigate = useNavigate();
-  const { user, signOut, userRole } = useAuth();
-  const { categories } = useCategories();
-  const { logoUrl } = useSiteLogo();
+  const {
+    user,
+    signOut,
+    userRole
+  } = useAuth();
+  const {
+    categories
+  } = useCategories();
+  const {
+    logoUrl
+  } = useSiteLogo();
 
   // Static navigation items
-  const staticItems = [
-    { name: "Ao Vivo", href: "/ao-vivo", isLive: true },
-    { name: "Vídeos", href: "/videos" },
-  ];
+  const staticItems = [{
+    name: "Ao Vivo",
+    href: "/ao-vivo",
+    isLive: true
+  }, {
+    name: "Vídeos",
+    href: "/videos"
+  }];
 
   // Dynamic category navigation items
   const categoryItems = categories.map(category => ({
@@ -43,7 +44,6 @@ export const Header = () => {
 
   // Combine all navigation items
   const navigationItems = [...staticItems, ...categoryItems];
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchTerm.trim()) {
@@ -52,35 +52,28 @@ export const Header = () => {
       setIsSearchModalOpen(false);
     }
   };
-
   const handleMobileSearch = () => {
     setIsSearchModalOpen(true);
   };
-
-  return (
-    <>
+  return <>
       {/* Fixed Top Bar - Logo and Search */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-background text-foreground shadow-lg border-b">
+      <div className="fixed top-0 left-0 right-0 z-50 text-foreground shadow-lg border-b bg-slate-950">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           {/* Mobile Layout */}
           <div className="md:hidden flex items-center justify-between w-full">
             <div className="flex-1"></div>
             <Link to="/" className="flex items-center">
-              <img 
-                src={logoUrl} 
-                alt="CHICOSABETUDO" 
-                className="h-14 w-auto object-contain"
-                style={{ imageRendering: 'crisp-edges' }}
-                onError={(e) => {
-                  // Fallback para logo padrão apenas se não for do Supabase
-                  const target = e.currentTarget as HTMLImageElement;
-                  if (target.src.includes('supabase.co')) {
-                    import('@/assets/chicosabetudo-logo.png').then(logo => {
-                      target.src = logo.default;
-                    });
-                  }
-                }}
-              />
+              <img src={logoUrl} alt="CHICOSABETUDO" className="h-14 w-auto object-contain" style={{
+              imageRendering: 'crisp-edges'
+            }} onError={e => {
+              // Fallback para logo padrão apenas se não for do Supabase
+              const target = e.currentTarget as HTMLImageElement;
+              if (target.src.includes('supabase.co')) {
+                import('@/assets/chicosabetudo-logo.png').then(logo => {
+                  target.src = logo.default;
+                });
+              }
+            }} />
             </Link>
             <div className="flex-1 flex justify-end items-center space-x-4">
               <Dialog open={isSearchModalOpen} onOpenChange={setIsSearchModalOpen}>
@@ -94,13 +87,7 @@ export const Header = () => {
                     <div className="grid flex-1 gap-2">
                       <form onSubmit={handleSearch} className="relative">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                        <Input
-                          placeholder="Buscar notícias..."
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                          className="pl-10 bg-secondary border-gray-600"
-                          autoFocus
-                        />
+                        <Input placeholder="Buscar notícias..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 bg-secondary border-gray-600" autoFocus />
                       </form>
                     </div>
                   </div>
@@ -112,37 +99,27 @@ export const Header = () => {
           {/* Desktop Layout */}
           <div className="hidden md:flex items-center space-x-6">
             <Link to="/" className="flex items-center">
-              <img 
-                src={logoUrl} 
-                alt="CHICOSABETUDO" 
-                className="h-16 w-auto object-contain"
-                style={{ imageRendering: 'crisp-edges' }}
-                onError={(e) => {
-                  // Fallback para logo padrão apenas se não for do Supabase
-                  const target = e.currentTarget as HTMLImageElement;
-                  if (target.src.includes('supabase.co')) {
-                    import('@/assets/chicosabetudo-logo.png').then(logo => {
-                      target.src = logo.default;
-                    });
-                  }
-                }}
-              />
+              <img src={logoUrl} alt="CHICOSABETUDO" className="h-16 w-auto object-contain" style={{
+              imageRendering: 'crisp-edges'
+            }} onError={e => {
+              // Fallback para logo padrão apenas se não for do Supabase
+              const target = e.currentTarget as HTMLImageElement;
+              if (target.src.includes('supabase.co')) {
+                import('@/assets/chicosabetudo-logo.png').then(logo => {
+                  target.src = logo.default;
+                });
+              }
+            }} />
             </Link>
           </div>
           
           <div className="hidden md:flex items-center space-x-4">
             <form onSubmit={handleSearch} className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                placeholder="Buscar notícias..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-80 bg-muted border-border text-foreground placeholder:text-muted-foreground focus:bg-accent"
-              />
+              <Input placeholder="Buscar notícias..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 w-80 bg-muted border-border text-foreground placeholder:text-muted-foreground focus:bg-accent" />
             </form>
             
-            {user && (
-              <DropdownMenu>
+            {user && <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="text-foreground">
                     <User className="h-5 w-5" />
@@ -171,8 +148,7 @@ export const Header = () => {
                     Sair
                   </DropdownMenuItem>
                 </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+              </DropdownMenu>}
           </div>
         </div>
       </div>
@@ -185,40 +161,21 @@ export const Header = () => {
         <nav className="container mx-auto px-4">
         <div className="flex items-center justify-between py-2">
           <div className="md:hidden">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-gray-900"
-            >
+            <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-900">
               <Menu className="w-6 h-6" />
             </Button>
           </div>
 
           <div className="hidden md:flex items-center space-x-6">
-            {navigationItems.map((item) => (
-              item.isLive ? (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`flex items-center space-x-1 px-3 py-2 text-sm font-semibold transition-colors hover:text-primary text-primary border-r border-gray-200 last:border-r-0`}
-                >
+            {navigationItems.map(item => item.isLive ? <Link key={item.name} to={item.href} className={`flex items-center space-x-1 px-3 py-2 text-sm font-semibold transition-colors hover:text-primary text-primary border-r border-gray-200 last:border-r-0`}>
                   <div className="flex items-center space-x-1">
                     <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
                     <Play className="w-3 h-3" />
                   </div>
                   <span>{item.name}</span>
-                </Link>
-              ) : (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className="flex items-center space-x-1 px-3 py-2 text-sm font-semibold transition-colors hover:text-primary text-gray-900 border-r border-gray-200 last:border-r-0"
-                >
+                </Link> : <Link key={item.name} to={item.href} className="flex items-center space-x-1 px-3 py-2 text-sm font-semibold transition-colors hover:text-primary text-gray-900 border-r border-gray-200 last:border-r-0">
                   <span>{item.name}</span>
-                </Link>
-              )
-            ))}
+                </Link>)}
           </div>
 
           <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">
@@ -226,43 +183,26 @@ export const Header = () => {
               weekday: "long",
               day: "numeric",
               month: "long",
-              year: "numeric",
+              year: "numeric"
             })}
           </div>
         </div>
 
         {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden pb-4 border-t border-gray-200 mt-2 pt-4">
+        {isMenuOpen && <div className="md:hidden pb-4 border-t border-gray-200 mt-2 pt-4">
             <div className="flex flex-col space-y-2">
-              {navigationItems.map((item) => (
-                item.isLive ? (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className="flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-colors hover:text-primary text-primary"
-                  >
+              {navigationItems.map(item => item.isLive ? <Link key={item.name} to={item.href} className="flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-colors hover:text-primary text-primary">
                     <div className="flex items-center space-x-1">
                       <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
                       <Play className="w-3 h-3" />
                     </div>
                     <span>{item.name}</span>
-                  </Link>
-                ) : (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className="flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-colors hover:text-primary text-gray-900"
-                  >
+                  </Link> : <Link key={item.name} to={item.href} className="flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-colors hover:text-primary text-gray-900">
                     <span>{item.name}</span>
-                  </Link>
-                )
-              ))}
+                  </Link>)}
             </div>
-          </div>
-        )}
+          </div>}
         </nav>
       </header>
-    </>
-  );
+    </>;
 };
