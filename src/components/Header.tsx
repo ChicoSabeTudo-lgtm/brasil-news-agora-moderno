@@ -60,7 +60,7 @@ export const Header = () => {
   return (
     <>
       {/* Fixed Top Bar - Logo and Search */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-news-header text-news-header-foreground shadow-lg">
+      <div className="fixed top-0 left-0 right-0 z-50 bg-primary text-primary-foreground shadow-lg">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           {/* Mobile Layout */}
           <div className="md:hidden flex items-center justify-between w-full">
@@ -85,7 +85,7 @@ export const Header = () => {
             <div className="flex-1 flex justify-end items-center space-x-4">
               <Dialog open={isSearchModalOpen} onOpenChange={setIsSearchModalOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-news-header-foreground">
+                  <Button variant="ghost" size="icon" className="text-primary-foreground">
                     <Search className="h-5 w-5" />
                   </Button>
                 </DialogTrigger>
@@ -137,14 +137,14 @@ export const Header = () => {
                 placeholder="Buscar notícias..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-80 bg-white/10 border-white/20 text-white placeholder:text-white/70 focus:bg-white/20"
+                className="pl-10 w-80 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/70 focus:bg-primary-foreground/20"
               />
             </form>
             
             {user && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-news-header-foreground">
+                  <Button variant="ghost" size="icon" className="text-primary-foreground">
                     <User className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -201,10 +201,10 @@ export const Header = () => {
                 <Link
                   key={item.name}
                   to={item.href}
-                  className={`flex items-center space-x-1 px-3 py-2 text-sm font-semibold transition-colors hover:text-red-600 text-red-600 border-r border-gray-200 last:border-r-0`}
+                  className={`flex items-center space-x-1 px-3 py-2 text-sm font-semibold transition-colors hover:text-primary text-primary border-r border-gray-200 last:border-r-0`}
                 >
                   <div className="flex items-center space-x-1">
-                    <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
+                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
                     <Play className="w-3 h-3" />
                   </div>
                   <span>{item.name}</span>
@@ -213,7 +213,7 @@ export const Header = () => {
                 <Link
                   key={item.name}
                   to={item.href}
-                  className="flex items-center space-x-1 px-3 py-2 text-sm font-semibold transition-colors hover:text-red-600 text-gray-900 border-r border-gray-200 last:border-r-0"
+                  className="flex items-center space-x-1 px-3 py-2 text-sm font-semibold transition-colors hover:text-primary text-gray-900 border-r border-gray-200 last:border-r-0"
                 >
                   <span>{item.name}</span>
                 </Link>
@@ -240,10 +240,10 @@ export const Header = () => {
                   <Link
                     key={item.name}
                     to={item.href}
-                    className="flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-colors hover:text-red-600 text-red-600"
+                    className="flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-colors hover:text-primary text-primary"
                   >
                     <div className="flex items-center space-x-1">
-                      <div className="w-2 h-2 bg-red-600 rounded-full animate-pulse"></div>
+                      <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
                       <Play className="w-3 h-3" />
                     </div>
                     <span>{item.name}</span>
@@ -252,7 +252,7 @@ export const Header = () => {
                   <Link
                     key={item.name}
                     to={item.href}
-                    className="flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-colors hover:text-red-600 text-gray-900"
+                    className="flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-colors hover:text-primary text-gray-900"
                   >
                     <span>{item.name}</span>
                   </Link>
