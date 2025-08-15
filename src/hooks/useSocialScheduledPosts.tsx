@@ -160,6 +160,83 @@ export const useSocialScheduledPosts = () => {
     }
   };
 
+  const updatePost = async (postId: string, updatedData: Partial<SocialScheduledPost>) => {
+    try {
+      setLoading(true);
+
+      const { error } = await supabase
+        .from('social_scheduled_posts')
+        .update(updatedData)
+        .eq('id', postId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Post atualizado",
+        description: "O post foi atualizado com sucesso.",
+      });
+
+      // Atualizar a lista
+      await fetchPosts();
+      return true;
+    } catch (error) {
+      console.error('Error updating social post:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível atualizar o post.",
+        variant: "destructive",
+      });
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deletePost = async (postId: string) => {
+    try {
+      setLoading(true);
+
+      const { error } = await supabase
+        .from('social_scheduled_posts')
+        .delete()
+        .eq('id', postId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Post excluído",
+        description: "O post foi excluído com sucesso.",
+      });
+
+      // Atualizar a lista
+      await fetchPosts();
+      return true;
+    } catch (error) {
+      console.error('Error deleting social post:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível excluir o post.",
+        variant: "destructive",
+      });
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cleanupOldPosts = async () => {
+    try {
+      const { error } = await supabase.rpc('cleanup_old_social_posts');
+      
+      if (error) throw error;
+      
+      // Atualizar a lista após limpeza
+      await fetchPosts();
+    } catch (error) {
+      console.error('Error cleaning up old posts:', error);
+    }
+  };
+
   useEffect(() => {
     fetchPosts();
   }, []);
@@ -170,6 +247,9 @@ export const useSocialScheduledPosts = () => {
     fetchPosts,
     schedulePost,
     cancelSchedule,
-    publishNow
+    publishNow,
+    updatePost,
+    deletePost,
+    cleanupOldPosts
   };
 };
