@@ -68,6 +68,15 @@ export const SocialPostsManagement = () => {
     fetchPosts();
   }, []);
 
+  // Auto-refresh posts every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchPosts();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const filteredPosts = posts.filter(post => {
     const matchesSearch = post.content.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || post.status === statusFilter;
