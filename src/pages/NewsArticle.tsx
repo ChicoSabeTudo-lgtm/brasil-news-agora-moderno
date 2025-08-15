@@ -20,6 +20,7 @@ import { VideoPlayer } from '@/components/VideoPlayer';
 import { AudioPlayer } from '@/components/AudioPlayer';
 import { useNewsMedia } from '@/hooks/useNewsMedia';
 import { AnalyticsTracker } from '@/components/AnalyticsTracker';
+import { useCategories } from '@/hooks/useCategories';
 
 interface NewsData {
   id: string;
@@ -57,6 +58,7 @@ const NewsArticle = () => {
   const [contentWithAds, setContentWithAds] = useState<string>('');
   const { generateBacklinks, isProcessing } = useBacklinks();
   const { mediaFiles } = useNewsMedia(news?.id);
+  const { categories } = useCategories();
 
   useEffect(() => {
     const fetchNews = async () => {
@@ -410,6 +412,12 @@ const NewsArticle = () => {
     return items;
   };
 
+  const getCategoryColor = () => {
+    if (!news?.categories?.slug) return '#0066cc';
+    const category = categories.find(cat => cat.slug === news.categories.slug);
+    return category?.color || '#0066cc';
+  };
+
   return (
     <AnalyticsTracker articleId={news?.id}>
       <Layout>
@@ -427,13 +435,19 @@ const NewsArticle = () => {
                   URGENTE
                 </span>
               )}
-              <span className="bg-primary text-primary-foreground px-3 py-1 text-sm font-bold uppercase tracking-wide">
+              <span 
+                className="text-white px-3 py-1 text-sm font-bold uppercase tracking-wide"
+                style={{ backgroundColor: getCategoryColor() }}
+              >
                 {news.categories.name}
               </span>
             </div>
 
             {/* Title */}
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4 leading-tight">
+            <h1 
+              className="text-3xl md:text-4xl font-bold mb-4 leading-tight"
+              style={{ color: getCategoryColor() }}
+            >
               {news.title}
             </h1>
 
