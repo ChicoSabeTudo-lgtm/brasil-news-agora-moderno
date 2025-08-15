@@ -57,7 +57,7 @@ export const Header = () => {
   };
   return <>
       {/* Fixed Top Bar - Logo and Search */}
-      <div className="fixed top-0 left-0 right-0 z-50 text-foreground shadow-lg border-b bg-slate-950">
+      <div className="fixed top-0 left-0 right-0 z-50 text-foreground shadow-sm border-b border-gray-800 bg-slate-950">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           {/* Mobile Layout */}
           <div className="md:hidden flex items-center justify-between w-full">
