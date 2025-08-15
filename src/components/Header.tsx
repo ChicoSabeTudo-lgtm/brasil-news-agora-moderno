@@ -178,7 +178,7 @@ export const Header = () => {
                 </Link>)}
           </div>
 
-          <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+          <div className="text-xs text-white font-medium uppercase tracking-wide">
             {new Date().toLocaleDateString("pt-BR", {
               weekday: "long",
               day: "numeric",
