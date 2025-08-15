@@ -26,6 +26,7 @@ export const useSocialScheduledPosts = () => {
   const fetchPosts = async (newsId?: string) => {
     try {
       setLoading(true);
+      console.log('🔄 Fetching social scheduled posts...');
       let query = supabase
         .from('social_scheduled_posts')
         .select('*')
@@ -38,6 +39,7 @@ export const useSocialScheduledPosts = () => {
       const { data, error } = await query;
 
       if (error) throw error;
+      console.log('✅ Posts fetched successfully:', data);
       setPosts((data || []) as SocialScheduledPost[]);
     } catch (error) {
       console.error('Error fetching social scheduled posts:', error);
