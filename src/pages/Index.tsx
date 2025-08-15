@@ -169,74 +169,77 @@ const Index = () => {
   };
 
   // Função para renderizar template 'standard' - Grid padrão
-  const renderStandardTemplate = (category: any, newsItems: any[]) => (
-    <section key={category.slug} className="mb-12">
+  const renderStandardTemplate = (category: any, newsItems: any[]) => <section key={category.slug} className="mb-12">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-foreground border-b-2 pb-2 flex items-center gap-2" style={{ borderColor: category.color }}>
-          <span 
-            className="text-white px-3 py-1 text-sm font-bold uppercase tracking-wide"
-            style={{ backgroundColor: category.color }}
-          >
+        <h2 className="text-2xl font-bold text-foreground border-b-2 pb-2 flex items-center gap-2" style={{
+        borderColor: category.color
+      }}>
+          <span className="text-white px-3 py-1 text-sm font-bold uppercase tracking-wide" style={{
+          backgroundColor: category.color
+        }}>
             {category.name}
           </span>
         </h2>
-        <Link to={`/${category.slug}`} className="hover:text-primary-darker font-semibold text-sm transition-colors" style={{ color: category.color }}>
+        <Link to={`/${category.slug}`} className="hover:text-primary-darker font-semibold text-sm transition-colors" style={{
+        color: category.color
+      }}>
           Ver todas →
         </Link>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {newsItems.map(news => <NewsCard key={news.id} {...news} size="small" categoryColor={category.color} />)}
       </div>
-    </section>
-  );
+    </section>;
 
   // Função para renderizar template 'grid' - Grade compacta
-  const renderGridTemplate = (category: any, newsItems: any[]) => (
-    <section key={category.slug} className="mb-12">
+  const renderGridTemplate = (category: any, newsItems: any[]) => <section key={category.slug} className="mb-12">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-foreground border-b-2 pb-2 flex items-center gap-2" style={{ borderColor: category.color }}>
-          <span 
-            className="text-white px-3 py-1 text-sm font-bold uppercase tracking-wide"
-            style={{ backgroundColor: category.color }}
-          >
+        <h2 className="text-2xl font-bold text-foreground border-b-2 pb-2 flex items-center gap-2" style={{
+        borderColor: category.color
+      }}>
+          <span className="text-white px-3 py-1 text-sm font-bold uppercase tracking-wide" style={{
+          backgroundColor: category.color
+        }}>
             {category.name}
           </span>
         </h2>
-        <Link to={`/${category.slug}`} className="hover:text-primary-darker font-semibold text-sm transition-colors" style={{ color: category.color }}>
+        <Link to={`/${category.slug}`} className="hover:text-primary-darker font-semibold text-sm transition-colors" style={{
+        color: category.color
+      }}>
           Ver todas →
         </Link>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {newsItems.map(news => <NewsCard key={news.id} {...news} size="medium" categoryColor={category.color} />)}
       </div>
-    </section>
-  );
+    </section>;
 
   // Função para renderizar template 'list' - Lista simples
-  const renderListTemplate = (category: any, newsItems: any[]) => (
-    <section key={category.slug} className="mb-12">
+  const renderListTemplate = (category: any, newsItems: any[]) => <section key={category.slug} className="mb-12">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-foreground border-b-2 pb-2 flex items-center gap-2" style={{ borderColor: category.color }}>
-          <span 
-            className="text-white px-3 py-1 text-sm font-bold uppercase tracking-wide"
-            style={{ backgroundColor: category.color }}
-          >
+        <h2 className="text-2xl font-bold text-foreground border-b-2 pb-2 flex items-center gap-2" style={{
+        borderColor: category.color
+      }}>
+          <span className="text-white px-3 py-1 text-sm font-bold uppercase tracking-wide" style={{
+          backgroundColor: category.color
+        }}>
             {category.name}
           </span>
         </h2>
-        <Link to={`/${category.slug}`} className="hover:text-primary-darker font-semibold text-sm transition-colors" style={{ color: category.color }}>
+        <Link to={`/${category.slug}`} className="hover:text-primary-darker font-semibold text-sm transition-colors" style={{
+        color: category.color
+      }}>
           Ver todas →
         </Link>
       </div>
       <div className="space-y-4">
-        {newsItems.map(news => (
-          <div key={news.id} className="flex gap-4 p-4 bg-card rounded-lg hover:shadow-card transition-shadow cursor-pointer group">
+        {newsItems.map(news => <div key={news.id} className="flex gap-4 p-4 bg-card rounded-lg hover:shadow-card transition-shadow cursor-pointer group">
             <img src={news.imageUrl} alt={news.title} className="w-24 h-24 object-cover rounded flex-shrink-0" />
             <div className="flex-1">
               <Link to={`/${news.categorySlug}/${news.slug}`}>
-                <h3 className="font-semibold text-lg line-clamp-2 transition-colors mb-2 hover:opacity-80" style={{ "--hover-color": category.color } as any}
-                    onMouseEnter={(e) => e.currentTarget.style.color = category.color}
-                    onMouseLeave={(e) => e.currentTarget.style.color = ''}>
+                <h3 className="font-semibold text-lg line-clamp-2 transition-colors mb-2 hover:opacity-80" style={{
+              "--hover-color": category.color
+            } as any} onMouseEnter={e => e.currentTarget.style.color = category.color} onMouseLeave={e => e.currentTarget.style.color = ''}>
                   {news.title}
                 </h3>
               </Link>
@@ -249,46 +252,40 @@ const Index = () => {
                 <span>{news.publishedAt}</span>
               </div>
             </div>
-          </div>
-        ))}
+          </div>)}
       </div>
-    </section>
-  );
+    </section>;
 
   // Função para renderizar template 'magazine' - Destaque + Lista lateral
-  const renderMagazineTemplate = (category: any, newsItems: any[]) => (
-    <section key={category.slug} className="mb-12">
+  const renderMagazineTemplate = (category: any, newsItems: any[]) => <section key={category.slug} className="mb-12">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-foreground border-b-2 pb-2 flex items-center gap-2" style={{ borderColor: category.color }}>
-          <span 
-            className="text-white px-3 py-1 text-sm font-bold uppercase tracking-wide"
-            style={{ backgroundColor: category.color }}
-          >
+        <h2 className="text-2xl font-bold text-foreground border-b-2 pb-2 flex items-center gap-2" style={{
+        borderColor: category.color
+      }}>
+          <span className="text-white px-3 py-1 text-sm font-bold uppercase tracking-wide" style={{
+          backgroundColor: category.color
+        }}>
             {category.name}
           </span>
         </h2>
-        <Link to={`/${category.slug}`} className="hover:text-primary-darker font-semibold text-sm transition-colors" style={{ color: category.color }}>
+        <Link to={`/${category.slug}`} className="hover:text-primary-darker font-semibold text-sm transition-colors" style={{
+        color: category.color
+      }}>
           Ver todas →
         </Link>
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Notícia em destaque */}
-        {newsItems[0] && (
-          <div className="lg:col-span-2">
+        {newsItems[0] && <div className="lg:col-span-2">
             <NewsCard {...newsItems[0]} size="large" categoryColor={category.color} />
-          </div>
-        )}
+          </div>}
         {/* Lista lateral */}
-        {newsItems.length > 1 && (
-          <div className="lg:col-span-1 space-y-4">
-            {newsItems.slice(1).map(news => (
-              <div key={news.id} className="flex gap-4 p-4 bg-card rounded-lg hover:shadow-card transition-shadow cursor-pointer group">
+        {newsItems.length > 1 && <div className="lg:col-span-1 space-y-4">
+            {newsItems.slice(1).map(news => <div key={news.id} className="flex gap-4 p-4 bg-card rounded-lg hover:shadow-card transition-shadow cursor-pointer group">
                 <img src={news.imageUrl} alt={news.title} className="w-20 h-20 object-cover rounded flex-shrink-0" />
                 <div className="flex-1">
                   <Link to={`/${news.categorySlug}/${news.slug}`}>
-                    <h3 className="font-semibold text-sm line-clamp-2 transition-colors mb-1"
-                        onMouseEnter={(e) => e.currentTarget.style.color = category.color}
-                        onMouseLeave={(e) => e.currentTarget.style.color = ''}>
+                    <h3 className="font-semibold text-sm line-clamp-2 transition-colors mb-1" onMouseEnter={e => e.currentTarget.style.color = category.color} onMouseLeave={e => e.currentTarget.style.color = ''}>
                       {news.title}
                     </h3>
                   </Link>
@@ -298,13 +295,10 @@ const Index = () => {
                     <span>{news.publishedAt}</span>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
+              </div>)}
+          </div>}
       </div>
-    </section>
-  );
+    </section>;
   return <>
       <SeoMeta title="Portal ChicoSabeTudo - Notícias da Bahia" description="Portal de notícias da Bahia com cobertura completa de política, economia, esportes e entretenimento. Informação confiável e atualizada 24h." keywords="notícias bahia, portal de notícias, bahia notícias, política bahia, esportes bahia" canonical="https://chicosabetudo.sigametech.com.br" ogImage="https://chicosabetudo.sigametech.com.br/lovable-uploads/aac6981c-a63e-4b99-a9d1-5be26ea5ad4a.png" ogUrl="https://chicosabetudo.sigametech.com.br" structuredData={homepageStructuredData} />
       <AnalyticsTracker>
@@ -384,7 +378,7 @@ const Index = () => {
             <div className="bg-card rounded-lg p-6 shadow-card">
               <div className="space-y-4">
                 {news.slice(0, 5).map((newsItem, index) => <div key={newsItem.id} className="flex items-start gap-4 p-3 hover:bg-muted rounded-lg cursor-pointer group transition-colors">
-                    <div className="flex-shrink-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm bg-slate-950">
                       {index + 1}
                     </div>
                     <div className="flex-1">
