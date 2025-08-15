@@ -52,11 +52,11 @@ export const NewsTicker = () => {
     <>
       {/* Breaking News Ticker */}
       {!loading && breakingNews.length > 0 && (
-        <div className="text-white py-2 bg-slate-500">
+        <div className="bg-gradient-to-r from-slate-800 to-slate-700 text-white py-3 border-b border-slate-600">
           <div className="container mx-auto px-4">
             <div className="flex items-center">
-              <div className="bg-white text-red-600 px-3 py-1 text-xs font-bold uppercase tracking-wide mr-4 rounded">
-                URGENTE
+              <div className="bg-gradient-to-r from-red-600 to-red-700 text-white px-4 py-1.5 text-xs font-bold uppercase tracking-wider mr-6 rounded-sm shadow-sm">
+                ÚLTIMAS NOTÍCIAS
               </div>
               <div className="flex-1 overflow-hidden">
                 <div className="animate-marquee whitespace-nowrap">
@@ -64,9 +64,9 @@ export const NewsTicker = () => {
                     <a 
                       key={news.id} 
                       href={`/${news.categories.slug}/${news.slug}`} 
-                      className="text-sm mr-8 text-white hover:text-red-200 transition-colors cursor-pointer"
+                      className="text-sm mr-12 text-slate-100 hover:text-white transition-colors duration-300 cursor-pointer font-medium"
                     >
-                      {news.title}
+                      • {news.title}
                     </a>
                   ))}
                 </div>
