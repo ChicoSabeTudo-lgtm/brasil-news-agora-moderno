@@ -157,7 +157,7 @@ export const Header = () => {
       <div className="h-20"></div>
 
       {/* Main Navigation */}
-      <header className="text-gray-900 border-b shadow-sm bg-slate-950">
+      <header className="text-gray-900 border-b border-gray-800 bg-slate-950">
         <nav className="container mx-auto px-4">
         <div className="flex items-center justify-between py-2">
           <div className="md:hidden">
