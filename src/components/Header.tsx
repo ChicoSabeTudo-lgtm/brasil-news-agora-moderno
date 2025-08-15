@@ -60,7 +60,7 @@ export const Header = () => {
   return (
     <>
       {/* Fixed Top Bar - Logo and Search */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-primary text-primary-foreground shadow-lg">
+      <div className="fixed top-0 left-0 right-0 z-50 bg-background text-foreground shadow-lg border-b">
         <div className="container mx-auto px-4 py-3 flex items-center justify-between">
           {/* Mobile Layout */}
           <div className="md:hidden flex items-center justify-between w-full">
@@ -85,7 +85,7 @@ export const Header = () => {
             <div className="flex-1 flex justify-end items-center space-x-4">
               <Dialog open={isSearchModalOpen} onOpenChange={setIsSearchModalOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-primary-foreground">
+                  <Button variant="ghost" size="icon" className="text-foreground">
                     <Search className="h-5 w-5" />
                   </Button>
                 </DialogTrigger>
@@ -137,14 +137,14 @@ export const Header = () => {
                 placeholder="Buscar notícias..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-80 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/70 focus:bg-primary-foreground/20"
+                className="pl-10 w-80 bg-muted border-border text-foreground placeholder:text-muted-foreground focus:bg-accent"
               />
             </form>
             
             {user && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-primary-foreground">
+                  <Button variant="ghost" size="icon" className="text-foreground">
                     <User className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
