@@ -94,6 +94,7 @@ export const useSocialScheduledPosts = () => {
       // Atualizar a lista
       console.log('🔄 Refreshing posts list...');
       await fetchPosts();
+      console.log('🔄 Posts after refresh:', posts);
       return insertedPost;
     } catch (error) {
       console.error('Error scheduling social post:', error);

@@ -82,7 +82,7 @@ export const SocialScheduler = ({ newsId, newsTitle, newsImage }: SocialSchedule
       });
 
       // Refresh posts for this news
-      await fetchPosts(newsId);
+      await fetchPosts();
     } catch (error) {
       console.error('Error scheduling post:', error);
     }
