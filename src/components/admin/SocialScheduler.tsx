@@ -64,6 +64,15 @@ export const SocialScheduler = ({ newsId, newsTitle, newsImage }: SocialSchedule
     scheduledDateTime.setHours(parseInt(hours), parseInt(minutes));
 
     try {
+      console.log('🎯 Starting schedule process with data:', {
+        news_id: newsId,
+        platform: formData.platform,
+        content: formData.content,
+        image_url: newsImage,
+        scheduled_for: scheduledDateTime.toISOString(),
+        created_by: user.id,
+      });
+
       await schedulePost({
         news_id: newsId,
         platform: formData.platform,
@@ -72,6 +81,8 @@ export const SocialScheduler = ({ newsId, newsTitle, newsImage }: SocialSchedule
         scheduled_for: scheduledDateTime.toISOString(),
         created_by: user.id,
       });
+
+      console.log('✅ Schedule completed successfully');
 
       // Reset form
       setFormData({
