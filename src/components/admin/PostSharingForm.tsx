@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useSiteConfigurations } from '@/hooks/useSiteConfigurations';
+import { useSocialScheduledPosts } from '@/hooks/useSocialScheduledPosts';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -38,6 +39,7 @@ interface PostData {
 export default function PostSharingForm({ prefilledData, onDataUsed }: { prefilledData?: { title: string; url: string } | null; onDataUsed?: () => void }) {
   const { user } = useAuth();
   const { configuration } = useSiteConfigurations();
+  const { schedulePost } = useSocialScheduledPosts();
   const { toast } = useToast();
   
   const [currentStep, setCurrentStep] = useState('content');
@@ -314,6 +316,24 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
     setIsSubmitting(true);
     
     try {
+      // Se é agendado, salvar na tabela interna
+      if (postData.schedulePost && postData.scheduleDate && postData.scheduleTime && user?.id) {
+        const scheduledDateTime = new Date(postData.scheduleDate);
+        const [hours, minutes] = postData.scheduleTime.split(':');
+        scheduledDateTime.setHours(parseInt(hours), parseInt(minutes));
+
+        // Salvar cada plataforma como um post separado
+        for (const platform of postData.platforms) {
+          await schedulePost({
+            news_id: 'webhook-post', // ID genérico para posts do webhook
+            platform: platform,
+            content: `${postData.title}\n\n${postData.summary}\n\n${postData.link}`,
+            scheduled_for: scheduledDateTime.toISOString(),
+            created_by: user.id,
+          });
+        }
+      }
+
       const webhookData = {
         type: 'social_media',
         timestamp: new Date().toISOString(),
@@ -341,7 +361,9 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
       if (response.ok) {
         toast({
           title: "Sucesso!",
-          description: "Post das redes sociais enviado com sucesso para o webhook.",
+          description: postData.schedulePost 
+            ? "Post agendado com sucesso! Você pode acompanhar no Gerenciamento de Posts Sociais."
+            : "Post das redes sociais enviado com sucesso para o webhook.",
         });
         
         // Reset only social fields
@@ -385,6 +407,22 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
     try {
       const imageUrl = await generateImageCanvas();
       
+      // Se é agendado, salvar na tabela interna
+      if (postData.scheduleInstagram && postData.instagramDate && postData.instagramTime && user?.id) {
+        const scheduledDateTime = new Date(postData.instagramDate);
+        const [hours, minutes] = postData.instagramTime.split(':');
+        scheduledDateTime.setHours(parseInt(hours), parseInt(minutes));
+
+        await schedulePost({
+          news_id: 'webhook-instagram-post', // ID genérico para posts do Instagram
+          platform: 'instagram',
+          content: postData.instagramCaption,
+          image_url: imageUrl || undefined,
+          scheduled_for: scheduledDateTime.toISOString(),
+          created_by: user.id,
+        });
+      }
+      
       const webhookData = {
         type: 'instagram',
         timestamp: new Date().toISOString(),
@@ -419,7 +457,9 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
       if (response.ok) {
         toast({
           title: "Sucesso!",
-          description: "Post do Instagram enviado com sucesso para o webhook.",
+          description: postData.scheduleInstagram 
+            ? "Post do Instagram agendado com sucesso! Você pode acompanhar no Gerenciamento de Posts Sociais."
+            : "Post do Instagram enviado com sucesso para o webhook.",
         });
         
         // Reset Instagram fields
