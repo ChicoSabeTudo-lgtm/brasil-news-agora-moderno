@@ -350,6 +350,9 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
         }
       };
 
+      console.log('Enviando webhook para:', configuration.social_webhook_url);
+      console.log('Dados do webhook:', webhookData);
+      
       const response = await fetch(configuration.social_webhook_url, {
         method: 'POST',
         headers: {
@@ -357,6 +360,10 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
         },
         body: JSON.stringify(webhookData)
       });
+
+      console.log('Response status:', response.status);
+      const responseText = await response.text();
+      console.log('Response body:', responseText);
 
       if (response.ok) {
         toast({
