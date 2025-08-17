@@ -318,19 +318,32 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
     try {
       // Se é agendado, salvar na tabela interna
       if (postData.schedulePost && postData.scheduleDate && postData.scheduleTime && user?.id) {
+        console.log('🔄 Tentando agendar posts...');
         const scheduledDateTime = new Date(postData.scheduleDate);
         const [hours, minutes] = postData.scheduleTime.split(':');
         scheduledDateTime.setHours(parseInt(hours), parseInt(minutes));
 
+        console.log('⏰ Data agendada:', scheduledDateTime);
+        console.log('👤 User ID:', user.id);
+        console.log('📱 Plataformas:', postData.platforms);
+
         // Salvar cada plataforma como um post separado
-        for (const platform of postData.platforms) {
-          await schedulePost({
-            news_id: 'webhook-post', // ID genérico para posts do webhook
-            platform: platform,
-            content: `${postData.title}\n\n${postData.summary}\n\n${postData.link}`,
-            scheduled_for: scheduledDateTime.toISOString(),
-            created_by: user.id,
-          });
+        try {
+          for (const platform of postData.platforms) {
+            console.log(`📤 Agendando para ${platform}...`);
+            const result = await schedulePost({
+              news_id: 'webhook-post', // ID genérico para posts do webhook
+              platform: platform,
+              content: `${postData.title}\n\n${postData.summary}\n\n${postData.link}`,
+              scheduled_for: scheduledDateTime.toISOString(),
+              created_by: user.id,
+            });
+            console.log(`✅ Post agendado para ${platform}:`, result);
+          }
+          console.log('🎉 Todos os posts foram agendados com sucesso!');
+        } catch (scheduleError) {
+          console.error('❌ Erro ao agendar posts:', scheduleError);
+          throw scheduleError;
         }
       }
 
