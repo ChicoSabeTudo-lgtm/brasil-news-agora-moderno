@@ -26,7 +26,12 @@ export const useSocialScheduledPosts = () => {
   const fetchPosts = async (newsId?: string) => {
     try {
       setLoading(true);
-      console.log('🔄 Fetching social scheduled posts...');
+      console.log('🔄 Fetching social scheduled posts...', { newsId });
+      
+      // Verificar autenticação
+      const { data: { user } } = await supabase.auth.getUser();
+      console.log('👤 Current user:', user?.id, user?.email);
+      
       let query = supabase
         .from('social_scheduled_posts')
         .select('*')
@@ -36,6 +41,7 @@ export const useSocialScheduledPosts = () => {
         query = query.eq('news_id', newsId);
       }
 
+      console.log('📡 Executing query...', { newsId });
       const { data, error } = await query;
 
       if (error) throw error;
