@@ -235,7 +235,11 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
                           selected={selectedDate}
                           onSelect={setSelectedDate}
                           initialFocus
-                          disabled={(date) => date < new Date()}
+                          disabled={(date) => {
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0);
+                            return date < today;
+                          }}
                         />
                       </PopoverContent>
                     </Popover>
