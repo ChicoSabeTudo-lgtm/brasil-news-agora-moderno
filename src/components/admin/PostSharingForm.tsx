@@ -329,6 +329,8 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
 
         // Salvar cada plataforma como um post separado
         try {
+          const schedulingPromises = [];
+          
           for (const platform of postData.platforms) {
             console.log(`📤 Agendando para ${platform}...`);
             
@@ -336,16 +338,45 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
             const webhookPostId = crypto.randomUUID();
             console.log(`🆔 UUID gerado para webhook: ${webhookPostId}`);
             
-            const result = await schedulePost({
+            const schedulePromise = schedulePost({
               news_id: webhookPostId, // UUID válido para posts do webhook
               platform: platform,
               content: `${postData.title}\n\n${postData.summary}\n\n${postData.link}`,
               scheduled_for: scheduledDateTime.toISOString(),
               created_by: user.id,
+            }).then(result => {
+              console.log(`✅ Post agendado para ${platform}:`, result);
+              return { platform, result, success: true };
+            }).catch(error => {
+              console.error(`❌ Erro ao agendar para ${platform}:`, error);
+              return { platform, error, success: false };
             });
-            console.log(`✅ Post agendado para ${platform}:`, result);
+            
+            schedulingPromises.push(schedulePromise);
           }
-          console.log('🎉 Todos os posts foram agendados com sucesso!');
+          
+          // Aguardar todos os agendamentos
+          const results = await Promise.all(schedulingPromises);
+          
+          // Verificar resultados
+          const successCount = results.filter(r => r.success).length;
+          const failureCount = results.filter(r => !r.success).length;
+          
+          console.log(`🎯 Resultados: ${successCount} sucessos, ${failureCount} falhas`);
+          
+          if (failureCount > 0) {
+            const failedPlatforms = results.filter(r => !r.success).map(r => r.platform);
+            toast({
+              title: "Agendamento Parcial",
+              description: `Alguns posts falharam: ${failedPlatforms.join(', ')}. Verifique os logs para detalhes.`,
+              variant: "destructive",
+            });
+          }
+          
+          if (successCount > 0) {
+            console.log(`🎉 ${successCount} posts foram agendados com sucesso!`);
+          }
+          
         } catch (scheduleError) {
           console.error('❌ Erro detalhado ao agendar posts:', {
             error: scheduleError,
@@ -440,22 +471,33 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
       
       // Se é agendado, salvar na tabela interna
       if (postData.scheduleInstagram && postData.instagramDate && postData.instagramTime && user?.id) {
-        const scheduledDateTime = new Date(postData.instagramDate);
-        const [hours, minutes] = postData.instagramTime.split(':');
-        scheduledDateTime.setHours(parseInt(hours), parseInt(minutes));
+        try {
+          const scheduledDateTime = new Date(postData.instagramDate);
+          const [hours, minutes] = postData.instagramTime.split(':');
+          scheduledDateTime.setHours(parseInt(hours), parseInt(minutes));
 
-        // Gerar UUID válido para posts de Instagram
-        const instagramPostId = crypto.randomUUID();
-        console.log(`🆔 UUID gerado para Instagram: ${instagramPostId}`);
-        
-        await schedulePost({
-          news_id: instagramPostId, // UUID válido para posts do Instagram
-          platform: 'instagram',
-          content: postData.instagramCaption,
-          image_url: imageUrl || undefined,
-          scheduled_for: scheduledDateTime.toISOString(),
-          created_by: user.id,
-        });
+          // Gerar UUID válido para posts de Instagram
+          const instagramPostId = crypto.randomUUID();
+          console.log(`🆔 UUID gerado para Instagram: ${instagramPostId}`);
+          
+          const result = await schedulePost({
+            news_id: instagramPostId, // UUID válido para posts do Instagram
+            platform: 'instagram',
+            content: postData.instagramCaption,
+            image_url: imageUrl || undefined,
+            scheduled_for: scheduledDateTime.toISOString(),
+            created_by: user.id,
+          });
+          
+          console.log('✅ Instagram post agendado:', result);
+        } catch (instagramError) {
+          console.error('❌ Erro ao agendar Instagram post:', instagramError);
+          toast({
+            title: "Aviso",
+            description: "Post do Instagram será enviado para webhook mas falhou ao salvar internamente.",
+            variant: "destructive",
+          });
+        }
       }
       
       const webhookData = {

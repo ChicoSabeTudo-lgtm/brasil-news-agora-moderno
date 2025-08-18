@@ -71,6 +71,13 @@ export const useSocialScheduledPosts = () => {
       setLoading(true);
       console.log('🔄 Scheduling social post:', postData);
 
+      // Verificar autenticação antes de inserir
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Usuário não autenticado');
+      }
+      console.log('👤 Authenticated user for insertion:', user.id);
+
       // Primeiro inserir o post
       const { data: insertedPost, error: insertError } = await supabase
         .from('social_scheduled_posts')
@@ -80,15 +87,33 @@ export const useSocialScheduledPosts = () => {
 
       console.log('📝 Post insertion result:', { insertedPost, insertError });
 
-      if (insertError) throw insertError;
+      if (insertError) {
+        console.error('❌ RLS/Insertion Error Details:', {
+          code: insertError.code,
+          message: insertError.message,
+          details: insertError.details,
+          hint: insertError.hint
+        });
+        throw new Error(`Erro ao salvar post: ${insertError.message}`);
+      }
 
-      // Depois agendar usando a função
-      const { error: scheduleError } = await supabase.rpc('schedule_social_post', {
-        p_post_id: insertedPost.id,
-        p_when: postData.scheduled_for
-      });
+      // Se o post foi inserido com sucesso, agendar usando a função
+      if (insertedPost) {
+        const { error: scheduleError } = await supabase.rpc('schedule_social_post', {
+          p_post_id: insertedPost.id,
+          p_when: postData.scheduled_for
+        });
 
-      if (scheduleError) throw scheduleError;
+        if (scheduleError) {
+          console.error('❌ Schedule RPC Error:', scheduleError);
+          // Post foi inserido mas agendamento falhou - vamos manter o post
+          toast({
+            title: "Aviso",
+            description: "Post salvo mas agendamento falhou. Post será executado imediatamente.",
+            variant: "destructive",
+          });
+        }
+      }
 
       console.log('✅ Social post scheduled successfully:', insertedPost);
       
@@ -100,13 +125,21 @@ export const useSocialScheduledPosts = () => {
       // Atualizar a lista
       console.log('🔄 Refreshing posts list...');
       await fetchPosts();
-      console.log('🔄 Posts after refresh:', posts);
       return insertedPost;
-    } catch (error) {
-      console.error('Error scheduling social post:', error);
+    } catch (error: any) {
+      console.error('❌ Complete Error scheduling social post:', {
+        error: error,
+        message: error?.message,
+        code: error?.code,
+        details: error?.details,
+        hint: error?.hint
+      });
+      
+      const errorMessage = error?.message || 'Erro desconhecido ao agendar post';
+      
       toast({
         title: "Erro",
-        description: "Não foi possível agendar o post.",
+        description: `Não foi possível agendar o post: ${errorMessage}`,
         variant: "destructive",
       });
       throw error;
