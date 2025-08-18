@@ -331,8 +331,13 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
         try {
           for (const platform of postData.platforms) {
             console.log(`📤 Agendando para ${platform}...`);
+            
+            // Gerar UUID válido para posts de webhook
+            const webhookPostId = crypto.randomUUID();
+            console.log(`🆔 UUID gerado para webhook: ${webhookPostId}`);
+            
             const result = await schedulePost({
-              news_id: 'webhook-post', // ID genérico para posts do webhook
+              news_id: webhookPostId, // UUID válido para posts do webhook
               platform: platform,
               content: `${postData.title}\n\n${postData.summary}\n\n${postData.link}`,
               scheduled_for: scheduledDateTime.toISOString(),
@@ -342,7 +347,13 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
           }
           console.log('🎉 Todos os posts foram agendados com sucesso!');
         } catch (scheduleError) {
-          console.error('❌ Erro ao agendar posts:', scheduleError);
+          console.error('❌ Erro detalhado ao agendar posts:', {
+            error: scheduleError,
+            message: scheduleError?.message,
+            details: scheduleError?.details,
+            hint: scheduleError?.hint,
+            code: scheduleError?.code
+          });
           throw scheduleError;
         }
       }
@@ -433,8 +444,12 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
         const [hours, minutes] = postData.instagramTime.split(':');
         scheduledDateTime.setHours(parseInt(hours), parseInt(minutes));
 
+        // Gerar UUID válido para posts de Instagram
+        const instagramPostId = crypto.randomUUID();
+        console.log(`🆔 UUID gerado para Instagram: ${instagramPostId}`);
+        
         await schedulePost({
-          news_id: 'webhook-instagram-post', // ID genérico para posts do Instagram
+          news_id: instagramPostId, // UUID válido para posts do Instagram
           platform: 'instagram',
           content: postData.instagramCaption,
           image_url: imageUrl || undefined,
