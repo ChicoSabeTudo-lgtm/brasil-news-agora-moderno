@@ -15,6 +15,7 @@ import {
   Twitter, 
   Facebook, 
   Linkedin, 
+  MessageCircle,
   Play, 
   X, 
   Search,
@@ -32,6 +33,7 @@ const platformIcons = {
   twitter: Twitter,
   facebook: Facebook,
   linkedin: Linkedin,
+  whatsapp: MessageCircle,
 };
 
 const platformNames = {
@@ -39,6 +41,7 @@ const platformNames = {
   twitter: 'Twitter',
   facebook: 'Facebook',
   linkedin: 'LinkedIn',
+  whatsapp: 'WhatsApp',
 };
 
 const statusColors = {
@@ -189,6 +192,7 @@ export const SocialPostsManagement = () => {
                   <SelectItem value="twitter">Twitter</SelectItem>
                   <SelectItem value="facebook">Facebook</SelectItem>
                   <SelectItem value="linkedin">LinkedIn</SelectItem>
+                  <SelectItem value="whatsapp">WhatsApp</SelectItem>
                 </SelectContent>
               </Select>
             </div>
