@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
-import { Calendar as CalendarIcon, Instagram, Twitter, Facebook, Linkedin } from 'lucide-react';
+import { Calendar as CalendarIcon, Instagram, Twitter, Facebook, Linkedin, MessageCircle } from 'lucide-react';
 import { SocialScheduledPost } from '@/hooks/useSocialScheduledPosts';
 
 interface SocialPostEditModalProps {
@@ -26,6 +26,7 @@ const platformIcons = {
   twitter: Twitter,
   facebook: Facebook,
   linkedin: Linkedin,
+  whatsapp: MessageCircle,
 };
 
 const platformNames = {
@@ -33,6 +34,7 @@ const platformNames = {
   twitter: 'Twitter',
   facebook: 'Facebook',
   linkedin: 'LinkedIn',
+  whatsapp: 'WhatsApp',
 };
 
 export const SocialPostEditModal = ({ post, isOpen, onClose, onSave, loading }: SocialPostEditModalProps) => {
@@ -67,7 +69,7 @@ export const SocialPostEditModal = ({ post, isOpen, onClose, onSave, loading }: 
     scheduledDateTime.setHours(parseInt(hours), parseInt(minutes));
 
     const updatedPost: Partial<SocialScheduledPost> = {
-      platform: formData.platform as 'instagram' | 'twitter' | 'facebook' | 'linkedin',
+      platform: formData.platform as 'instagram' | 'twitter' | 'facebook' | 'linkedin' | 'whatsapp',
       content: formData.content,
       image_url: formData.image_url || null,
       scheduled_for: scheduledDateTime.toISOString(),
@@ -143,6 +145,12 @@ export const SocialPostEditModal = ({ post, isOpen, onClose, onSave, loading }: 
                     <div className="flex items-center gap-2">
                       <Linkedin className="w-4 h-4" />
                       LinkedIn
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="whatsapp">
+                    <div className="flex items-center gap-2">
+                      <MessageCircle className="w-4 h-4" />
+                      WhatsApp
                     </div>
                   </SelectItem>
                 </SelectContent>

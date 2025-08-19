@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Instagram, Twitter, Facebook, Linkedin, Clock, Calendar, User, Eye } from 'lucide-react';
+import { Instagram, Twitter, Facebook, Linkedin, MessageCircle, Clock, Calendar, User, Eye } from 'lucide-react';
 import { SocialScheduledPost } from '@/hooks/useSocialScheduledPosts';
 
 interface SocialPostViewModalProps {
@@ -16,6 +16,7 @@ const platformIcons = {
   twitter: Twitter,
   facebook: Facebook,
   linkedin: Linkedin,
+  whatsapp: MessageCircle,
 };
 
 const platformNames = {
@@ -23,6 +24,7 @@ const platformNames = {
   twitter: 'Twitter',
   facebook: 'Facebook',
   linkedin: 'LinkedIn',
+  whatsapp: 'WhatsApp',
 };
 
 const statusColors = {

@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 export interface SocialScheduledPost {
   id: string;
   news_id: string;
-  platform: 'instagram' | 'twitter' | 'facebook' | 'linkedin';
+  platform: 'instagram' | 'twitter' | 'facebook' | 'linkedin' | 'whatsapp';
   content: string;
   image_url?: string;
   scheduled_for: string;
