@@ -161,7 +161,7 @@ export const Header = () => {
         <nav className="container mx-auto px-4">
         <div className="flex items-center justify-between py-2">
           <div className="md:hidden">
-            <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-gray-900">
+            <Button variant="ghost" size="icon" onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-white hover:text-primary">
               <Menu className="w-6 h-6" />
             </Button>
           </div>
