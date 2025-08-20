@@ -78,7 +78,7 @@ export const Header = () => {
             <div className="flex-1 flex justify-end items-center space-x-4">
               <Dialog open={isSearchModalOpen} onOpenChange={setIsSearchModalOpen}>
                 <DialogTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-foreground">
+                  <Button variant="ghost" size="icon" className="text-white hover:text-primary">
                     <Search className="h-5 w-5" />
                   </Button>
                 </DialogTrigger>
