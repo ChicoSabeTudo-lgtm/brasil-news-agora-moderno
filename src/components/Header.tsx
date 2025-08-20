@@ -189,7 +189,7 @@ export const Header = () => {
         </div>
 
         {/* Mobile Menu */}
-        {isMenuOpen && <div className="md:hidden pb-4 border-t border-gray-200 mt-2 pt-4">
+        {isMenuOpen && <div className="md:hidden pb-4 border-t border-gray-600 mt-2 pt-4">
             <div className="flex flex-col space-y-2">
               {navigationItems.map(item => item.isLive ? <Link key={item.name} to={item.href} className="flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-colors hover:text-primary text-primary">
                     <div className="flex items-center space-x-1">
@@ -197,7 +197,7 @@ export const Header = () => {
                       <Play className="w-3 h-3" />
                     </div>
                     <span>{item.name}</span>
-                  </Link> : <Link key={item.name} to={item.href} className="flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-colors hover:text-primary text-gray-900">
+                  </Link> : <Link key={item.name} to={item.href} className="flex items-center space-x-2 px-3 py-2 text-sm font-medium transition-colors hover:text-primary text-white">
                     <span>{item.name}</span>
                   </Link>)}
             </div>
