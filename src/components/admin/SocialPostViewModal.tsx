@@ -28,10 +28,10 @@ const platformNames = {
 };
 
 const statusColors = {
-  scheduled: 'bg-amber-100 text-amber-800',
-  published: 'bg-green-100 text-green-800',
-  failed: 'bg-red-100 text-red-800',
-  cancelled: 'bg-gray-100 text-gray-800',
+  scheduled: 'bg-amber-500/10 text-amber-700 border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-800',
+  published: 'bg-green-500/10 text-green-700 border-green-200 dark:bg-green-500/20 dark:text-green-300 dark:border-green-800',
+  failed: 'bg-red-500/10 text-red-700 border-red-200 dark:bg-red-500/20 dark:text-red-300 dark:border-red-800',
+  cancelled: 'bg-gray-500/10 text-gray-700 border-gray-200 dark:bg-gray-500/20 dark:text-gray-300 dark:border-gray-800',
 };
 
 const statusNames = {
@@ -73,7 +73,7 @@ export const SocialPostViewModal = ({ post, isOpen, onClose }: SocialPostViewMod
                 </p>
               </div>
             </div>
-            <Badge className={statusColors[post.status]}>
+            <Badge variant="outline" className={statusColors[post.status]}>
               {statusNames[post.status]}
             </Badge>
           </div>

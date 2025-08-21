@@ -45,10 +45,10 @@ const platformNames = {
 };
 
 const statusColors = {
-  scheduled: 'bg-amber-100 text-amber-800',
-  published: 'bg-green-100 text-green-800',
-  failed: 'bg-red-100 text-red-800',
-  cancelled: 'bg-gray-100 text-gray-800',
+  scheduled: 'bg-amber-500/10 text-amber-700 border-amber-200 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-800',
+  published: 'bg-green-500/10 text-green-700 border-green-200 dark:bg-green-500/20 dark:text-green-300 dark:border-green-800',
+  failed: 'bg-red-500/10 text-red-700 border-red-200 dark:bg-red-500/20 dark:text-red-300 dark:border-red-800',
+  cancelled: 'bg-gray-500/10 text-gray-700 border-gray-200 dark:bg-gray-500/20 dark:text-gray-300 dark:border-gray-800',
 };
 
 const statusNames = {
@@ -227,18 +227,33 @@ export const SocialPostsManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8">
-                      Carregando posts...
-                    </TableCell>
-                  </TableRow>
-                ) : filteredPosts.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                      Nenhum post encontrado
-                    </TableCell>
-                  </TableRow>
+                 {loading ? (
+                   <TableRow>
+                     <TableCell colSpan={6} className="text-center py-12">
+                       <div className="flex flex-col items-center gap-3">
+                         <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full"></div>
+                         <p className="text-sm text-muted-foreground">Carregando posts sociais...</p>
+                       </div>
+                     </TableCell>
+                   </TableRow>
+                 ) : filteredPosts.length === 0 ? (
+                   <TableRow>
+                     <TableCell colSpan={6} className="text-center py-12">
+                       <div className="flex flex-col items-center gap-3">
+                         <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center">
+                           <Calendar className="w-8 h-8 text-muted-foreground" />
+                         </div>
+                         <div>
+                           <h3 className="font-medium">Nenhum post encontrado</h3>
+                           <p className="text-sm text-muted-foreground mt-1">
+                             {posts.length === 0 
+                               ? "Ainda não há posts sociais cadastrados" 
+                               : "Tente ajustar os filtros para encontrar posts"}
+                           </p>
+                         </div>
+                       </div>
+                     </TableCell>
+                   </TableRow>
                 ) : (
                   filteredPosts.map((post) => (
                     <TableRow key={post.id}>
@@ -255,11 +270,11 @@ export const SocialPostsManagement = () => {
                           <p className="truncate text-sm">{post.content}</p>
                         </div>
                       </TableCell>
-                      <TableCell>
-                        <Badge className={statusColors[post.status]}>
-                          {statusNames[post.status]}
-                        </Badge>
-                      </TableCell>
+                       <TableCell>
+                         <Badge variant="outline" className={statusColors[post.status]}>
+                           {statusNames[post.status]}
+                         </Badge>
+                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
                           <Clock className="w-3 h-3" />
@@ -277,42 +292,34 @@ export const SocialPostsManagement = () => {
                         )}
                       </TableCell>
                        <TableCell className="text-right">
-                         <div className="flex items-center justify-end gap-1">
-                           {/* Botão Visualizar */}
+                         <div className="flex items-center justify-end gap-2">
+                           {/* Botão Visualizar - mais proeminente */}
                            <Button
-                             variant="ghost"
+                             variant="outline"
                              size="sm"
                              onClick={() => handleViewPost(post)}
                              disabled={loading}
-                             title="Visualizar post"
+                             className="bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700 dark:bg-blue-950 dark:hover:bg-blue-900 dark:border-blue-800 dark:text-blue-300"
+                             title="Visualizar detalhes do post"
                            >
-                             <Eye className="w-3 h-3" />
+                             <Eye className="w-4 h-4 mr-1" />
+                             Ver
                            </Button>
                            
                            {/* Botão Editar - apenas para posts agendados */}
                            {post.status === 'scheduled' && (
                              <Button
-                               variant="ghost"
+                               variant="outline"
                                size="sm"
                                onClick={() => handleEditPost(post)}
                                disabled={loading}
-                               title="Editar post"
+                               className="bg-amber-50 hover:bg-amber-100 border-amber-200 text-amber-700 dark:bg-amber-950 dark:hover:bg-amber-900 dark:border-amber-800 dark:text-amber-300"
+                               title="Editar post agendado"
                              >
-                               <Edit className="w-3 h-3" />
+                               <Edit className="w-4 h-4 mr-1" />
+                               Editar
                              </Button>
                            )}
-                           
-                           {/* Botão Excluir */}
-                           <Button
-                             variant="ghost"
-                             size="sm"
-                             onClick={() => handleDeletePost(post.id)}
-                             disabled={loading}
-                             className="text-red-600 hover:text-red-700"
-                             title="Excluir post"
-                           >
-                             <Trash2 className="w-3 h-3" />
-                           </Button>
                            
                            {/* Ações específicas para posts agendados */}
                            {post.status === 'scheduled' && (
@@ -322,9 +329,10 @@ export const SocialPostsManagement = () => {
                                  size="sm"
                                  onClick={() => publishNow(post.id)}
                                  disabled={loading}
-                                 className="text-green-600 hover:text-green-700"
+                                 className="bg-green-50 hover:bg-green-100 border-green-200 text-green-700 dark:bg-green-950 dark:hover:bg-green-900 dark:border-green-800 dark:text-green-300"
+                                 title="Publicar agora"
                                >
-                                 <Play className="w-3 h-3 mr-1" />
+                                 <Play className="w-4 h-4 mr-1" />
                                  Publicar
                                </Button>
                                <Button
@@ -332,17 +340,30 @@ export const SocialPostsManagement = () => {
                                  size="sm"
                                  onClick={() => cancelSchedule(post.id)}
                                  disabled={loading}
-                                 className="text-red-600 hover:text-red-700"
+                                 className="bg-red-50 hover:bg-red-100 border-red-200 text-red-700 dark:bg-red-950 dark:hover:bg-red-900 dark:border-red-800 dark:text-red-300"
+                                 title="Cancelar agendamento"
                                >
-                                 <X className="w-3 h-3 mr-1" />
+                                 <X className="w-4 h-4 mr-1" />
                                  Cancelar
                                </Button>
                              </>
                            )}
                            
+                           {/* Botão Excluir */}
+                           <Button
+                             variant="ghost"
+                             size="sm"
+                             onClick={() => handleDeletePost(post.id)}
+                             disabled={loading}
+                             className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/50"
+                             title="Excluir post permanentemente"
+                           >
+                             <Trash2 className="w-4 h-4" />
+                           </Button>
+                           
                            {/* Mostrar erro se houver */}
                            {post.status === 'failed' && post.error_message && (
-                             <div className="text-sm text-red-600" title={post.error_message}>
+                             <div className="text-sm text-red-600 dark:text-red-400 px-2 py-1 bg-red-50 dark:bg-red-950/50 rounded border border-red-200 dark:border-red-800" title={post.error_message}>
                                Erro
                              </div>
                            )}
