@@ -61,7 +61,12 @@ const statusNames = {
 
 export const SocialPostsManagement = () => {
   const { posts, loading, fetchPosts, cancelSchedule, publishNow, updatePost, deletePost, cleanupOldPosts } = useSocialScheduledPosts();
-  const { user, userRole } = useAuth();
+  const { user, userRole, isOtpVerified } = useAuth();
+  
+  // Bypass temporário para admins - permitir acesso mesmo sem OTP verificado
+  const hasAccess = user && userRole && 
+    (userRole === 'admin' || userRole === 'redator') && 
+    (isOtpVerified || userRole === 'admin'); // Admins podem acessar sem OTP
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [platformFilter, setPlatformFilter] = useState('all');
@@ -72,25 +77,28 @@ export const SocialPostsManagement = () => {
 
   useEffect(() => {
     // Verificar autenticação primeiro
-    if (user && (userRole === 'admin' || userRole === 'redator')) {
+    if (hasAccess) {
       setAuthChecked(true);
       fetchPosts();
     } else if (user === null) {
       // Usuário não autenticado
       setAuthChecked(true);
+    } else if (user && !isOtpVerified && userRole !== 'admin') {
+      // Usuário sem OTP verificado (exceto admin)
+      setAuthChecked(true);
     }
-  }, [user, userRole, fetchPosts]);
+  }, [user, userRole, isOtpVerified, hasAccess, fetchPosts]);
 
   // Auto-refresh posts apenas se usuário tem permissões
   useEffect(() => {
-    if (authChecked && user && (userRole === 'admin' || userRole === 'redator')) {
+    if (authChecked && hasAccess) {
       const interval = setInterval(() => {
         fetchPosts();
       }, 30000);
 
       return () => clearInterval(interval);
     }
-  }, [authChecked, user, userRole, fetchPosts]);
+  }, [authChecked, hasAccess, fetchPosts]);
 
   const filteredPosts = posts.filter(post => {
     const matchesSearch = post.content.toLowerCase().includes(searchTerm.toLowerCase());
@@ -266,31 +274,62 @@ export const SocialPostsManagement = () => {
                        </div>
                      </TableCell>
                    </TableRow>
-                 ) : userRole !== 'admin' && userRole !== 'redator' ? (
-                   <TableRow>
-                     <TableCell colSpan={6} className="text-center py-12">
-                       <div className="flex flex-col items-center gap-3">
-                         <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center">
-                           <X className="w-8 h-8 text-amber-500" />
-                         </div>
-                         <div>
-                           <h3 className="font-medium text-amber-700">Permissão insuficiente</h3>
-                           <p className="text-sm text-muted-foreground mt-1">
-                             Apenas administradores e redatores podem gerenciar posts sociais.
-                           </p>
-                         </div>
-                       </div>
-                     </TableCell>
-                   </TableRow>
-                 ) : loading ? (
-                   <TableRow>
-                     <TableCell colSpan={6} className="text-center py-12">
-                       <div className="flex flex-col items-center gap-3">
-                         <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full"></div>
-                         <p className="text-sm text-muted-foreground">Carregando posts sociais...</p>
-                       </div>
-                     </TableCell>
-                   </TableRow>
+                  ) : userRole !== 'admin' && userRole !== 'redator' ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-12">
+                        <div className="flex flex-col items-center gap-3">
+                          <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center">
+                            <X className="w-8 h-8 text-amber-500" />
+                          </div>
+                          <div>
+                            <h3 className="font-medium text-amber-700">Permissão insuficiente</h3>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              Apenas administradores e redatores podem gerenciar posts sociais.
+                            </p>
+                          </div>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : !hasAccess ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-12">
+                        <div className="flex flex-col items-center gap-3">
+                          <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center">
+                            <MessageCircle className="w-8 h-8 text-orange-500" />
+                          </div>
+                          <div className="space-y-2">
+                            <h3 className="font-medium text-orange-700">Verificação OTP necessária</h3>
+                            <p className="text-sm text-muted-foreground">
+                              Complete a verificação OTP para acessar o gerenciamento de posts sociais.
+                            </p>
+                            {userRole === 'admin' && (
+                              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-blue-800 text-sm">
+                                <p>🔓 Como administrador, você tem acesso temporário, mas recomendamos completar a verificação OTP.</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : loading ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center py-12">
+                        <div className="flex flex-col items-center gap-3">
+                          <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full"></div>
+                          <p className="text-sm text-muted-foreground">Carregando posts sociais...</p>
+                          {userRole === 'admin' && !isOtpVerified && (
+                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-blue-800 text-sm max-w-sm">
+                              <p>🔓 Acesso administrativo temporário ativo</p>
+                            </div>
+                          )}
+                          {!isOtpVerified && userRole !== 'admin' && (
+                            <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 text-orange-800 text-sm max-w-sm">
+                              <p>⏳ Aguardando verificação OTP...</p>
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
                  ) : filteredPosts.length === 0 ? (
                    <TableRow>
                      <TableCell colSpan={6} className="text-center py-12">

@@ -106,9 +106,12 @@ export default function Auth() {
     
     setIsLoading(true);
     
-    // For resend, we need the original password again
-    // In a real implementation, you might want to store this temporarily
-    // or have a separate resend endpoint that doesn't require password
+    // Solicitar reenvio do código - usuário precisará inserir senha novamente
+    const enteredPassword = prompt('Digite sua senha para reenviar o código:');
+    if (enteredPassword) {
+      await requestOTPLogin(currentEmail, enteredPassword);
+    }
+    
     setIsLoading(false);
   };
 
