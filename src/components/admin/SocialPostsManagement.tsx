@@ -25,6 +25,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { useSocialScheduledPosts, SocialScheduledPost } from '@/hooks/useSocialScheduledPosts';
+import { useAuth } from '@/hooks/useAuth';
 import { SocialPostEditModal } from './SocialPostEditModal';
 import { SocialPostViewModal } from './SocialPostViewModal';
 
@@ -60,25 +61,36 @@ const statusNames = {
 
 export const SocialPostsManagement = () => {
   const { posts, loading, fetchPosts, cancelSchedule, publishNow, updatePost, deletePost, cleanupOldPosts } = useSocialScheduledPosts();
+  const { user, userRole } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [platformFilter, setPlatformFilter] = useState('all');
   const [selectedPost, setSelectedPost] = useState<SocialScheduledPost | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
-    fetchPosts();
-  }, []);
-
-  // Auto-refresh posts every 30 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
+    // Verificar autenticação primeiro
+    if (user && (userRole === 'admin' || userRole === 'redator')) {
+      setAuthChecked(true);
       fetchPosts();
-    }, 30000);
+    } else if (user === null) {
+      // Usuário não autenticado
+      setAuthChecked(true);
+    }
+  }, [user, userRole, fetchPosts]);
 
-    return () => clearInterval(interval);
-  }, []);
+  // Auto-refresh posts apenas se usuário tem permissões
+  useEffect(() => {
+    if (authChecked && user && (userRole === 'admin' || userRole === 'redator')) {
+      const interval = setInterval(() => {
+        fetchPosts();
+      }, 30000);
+
+      return () => clearInterval(interval);
+    }
+  }, [authChecked, user, userRole, fetchPosts]);
 
   const filteredPosts = posts.filter(post => {
     const matchesSearch = post.content.toLowerCase().includes(searchTerm.toLowerCase());
@@ -98,11 +110,13 @@ export const SocialPostsManagement = () => {
   };
 
   const handleEditPost = (post: SocialScheduledPost) => {
+    console.log('✏️ Opening edit modal for post:', post.id);
     setSelectedPost(post);
     setIsEditModalOpen(true);
   };
 
   const handleViewPost = (post: SocialScheduledPost) => {
+    console.log('👀 Opening view modal for post:', post.id);
     setSelectedPost(post);
     setIsViewModalOpen(true);
   };
@@ -226,8 +240,49 @@ export const SocialPostsManagement = () => {
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
-                 {loading ? (
+               <TableBody>
+                 {!authChecked ? (
+                   <TableRow>
+                     <TableCell colSpan={6} className="text-center py-12">
+                       <div className="flex flex-col items-center gap-3">
+                         <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full"></div>
+                         <p className="text-sm text-muted-foreground">Verificando permissões...</p>
+                       </div>
+                     </TableCell>
+                   </TableRow>
+                 ) : !user ? (
+                   <TableRow>
+                     <TableCell colSpan={6} className="text-center py-12">
+                       <div className="flex flex-col items-center gap-3">
+                         <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center">
+                           <X className="w-8 h-8 text-red-500" />
+                         </div>
+                         <div>
+                           <h3 className="font-medium text-red-700">Acesso negado</h3>
+                           <p className="text-sm text-muted-foreground mt-1">
+                             Você precisa estar logado para visualizar os posts sociais.
+                           </p>
+                         </div>
+                       </div>
+                     </TableCell>
+                   </TableRow>
+                 ) : userRole !== 'admin' && userRole !== 'redator' ? (
+                   <TableRow>
+                     <TableCell colSpan={6} className="text-center py-12">
+                       <div className="flex flex-col items-center gap-3">
+                         <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center">
+                           <X className="w-8 h-8 text-amber-500" />
+                         </div>
+                         <div>
+                           <h3 className="font-medium text-amber-700">Permissão insuficiente</h3>
+                           <p className="text-sm text-muted-foreground mt-1">
+                             Apenas administradores e redatores podem gerenciar posts sociais.
+                           </p>
+                         </div>
+                       </div>
+                     </TableCell>
+                   </TableRow>
+                 ) : loading ? (
                    <TableRow>
                      <TableCell colSpan={6} className="text-center py-12">
                        <div className="flex flex-col items-center gap-3">
