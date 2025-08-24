@@ -101,7 +101,10 @@ export const SocialPostEditModal = ({ post, isOpen, onClose, onSave, loading }: 
           <DialogTitle className="flex items-center gap-2">
             {post && platformIcons[post.platform as keyof typeof platformIcons] && (
               <>
-                {platformIcons[post.platform as keyof typeof platformIcons]({ className: "w-5 h-5" })}
+                {(() => {
+                  const IconComponent = platformIcons[post.platform as keyof typeof platformIcons];
+                  return <IconComponent className="w-5 h-5" />;
+                })()}
                 Editar Post - {platformNames[post.platform as keyof typeof platformNames]}
               </>
             )}
