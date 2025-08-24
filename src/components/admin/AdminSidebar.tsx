@@ -1,5 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { usePendingCounts } from '@/hooks/usePendingCounts';
 import {
   Sidebar,
   SidebarContent,
@@ -119,13 +120,14 @@ const generalItems = [
     url: '/admin?tab=contact',
     icon: Mail,
     roles: ['admin', 'redator'],
-    badge: 'pendentes',
+    badgeType: 'contact',
   },
   {
     title: 'Anunciantes',
     url: '/admin?tab=advertising',
     icon: Building,
     roles: ['admin', 'redator'],
+    badgeType: 'advertising',
   },
 ];
 
@@ -134,6 +136,7 @@ export const AdminSidebar = () => {
   const location = useLocation();
   const { state } = useSidebar();
   const collapsed = state === 'collapsed';
+  const { data: pendingCounts } = usePendingCounts();
   
   const currentPath = location.pathname + location.search;
   
@@ -157,6 +160,18 @@ export const AdminSidebar = () => {
   };
 
   const canAccess = (roles: string[]) => roles.includes(userRole || '');
+
+  const getBadgeCount = (badgeType: string) => {
+    if (!pendingCounts) return 0;
+    switch (badgeType) {
+      case 'contact':
+        return pendingCounts.contactMessages;
+      case 'advertising':
+        return pendingCounts.advertisingRequests;
+      default:
+        return 0;
+    }
+  };
 
   return (
     <Sidebar className="border-r border-sidebar-border bg-sidebar shadow-sm">
@@ -224,16 +239,16 @@ export const AdminSidebar = () => {
                   <SidebarMenuButton asChild>
                     <NavLink to={item.url} className={getNavClassName(item.url)}>
                       <item.icon className="w-4 h-4" />
-                      {!collapsed && (
-                        <div className="flex items-center justify-between flex-1">
-                          <span>{item.title}</span>
-                          {item.badge && (
-                            <Badge variant="secondary" className="text-xs admin-badge-pulse">
-                              3
-                            </Badge>
-                          )}
-                        </div>
-                      )}
+                       {!collapsed && (
+                         <div className="flex items-center justify-between flex-1">
+                           <span>{item.title}</span>
+                           {item.badgeType && getBadgeCount(item.badgeType) > 0 && (
+                             <Badge variant="secondary" className="text-xs admin-badge-pulse">
+                               {getBadgeCount(item.badgeType)}
+                             </Badge>
+                           )}
+                         </div>
+                       )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
