@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -23,7 +23,9 @@ export const useSocialScheduledPosts = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const fetchPosts = async (newsId?: string) => {
+  const fetchPosts = useCallback(async (newsId?: string) => {
+    console.log('🔄 fetchPosts called with:', { newsId, timestamp: new Date().toISOString() });
+    
     try {
       setLoading(true);
       console.log('🔄 Fetching social scheduled posts...', { newsId });
@@ -57,7 +59,7 @@ export const useSocialScheduledPosts = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   const schedulePost = async (postData: {
     news_id: string;
@@ -297,9 +299,7 @@ export const useSocialScheduledPosts = () => {
     }
   };
 
-  useEffect(() => {
-    fetchPosts();
-  }, []);
+  // Removed automatic fetchPosts call on mount to prevent infinite loops
 
   return {
     posts,

@@ -76,29 +76,45 @@ export const SocialPostsManagement = () => {
   const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
+    console.log('🔄 Auth check effect triggered:', { 
+      user: !!user, 
+      userRole, 
+      isOtpVerified, 
+      hasAccess,
+      authChecked
+    });
+    
     // Verificar autenticação primeiro
     if (hasAccess) {
       setAuthChecked(true);
+      console.log('✅ User has access, fetching posts...');
       fetchPosts();
     } else if (user === null) {
       // Usuário não autenticado
+      console.log('❌ User not authenticated');
       setAuthChecked(true);
     } else if (user && !isOtpVerified && userRole !== 'admin') {
       // Usuário sem OTP verificado (exceto admin)
+      console.log('⚠️ User not OTP verified and not admin');
       setAuthChecked(true);
     }
-  }, [user, userRole, isOtpVerified, hasAccess, fetchPosts]);
+  }, [user, userRole, isOtpVerified, hasAccess]); // Removed fetchPosts from dependencies
 
   // Auto-refresh posts apenas se usuário tem permissões
   useEffect(() => {
     if (authChecked && hasAccess) {
+      console.log('🔄 Setting up auto-refresh interval');
       const interval = setInterval(() => {
+        console.log('⏰ Auto-refresh triggered');
         fetchPosts();
       }, 30000);
 
-      return () => clearInterval(interval);
+      return () => {
+        console.log('🛑 Clearing auto-refresh interval');
+        clearInterval(interval);
+      };
     }
-  }, [authChecked, hasAccess, fetchPosts]);
+  }, [authChecked, hasAccess]); // Removed fetchPosts from dependencies
 
   const filteredPosts = posts.filter(post => {
     const matchesSearch = post.content.toLowerCase().includes(searchTerm.toLowerCase());
