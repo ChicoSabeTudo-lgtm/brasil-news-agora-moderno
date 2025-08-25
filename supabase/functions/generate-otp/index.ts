@@ -19,7 +19,15 @@ Deno.serve(async (req) => {
   try {
     console.log('Generate OTP request received');
     
-    const supabase = createClient(
+    // Create separate clients for different operations
+    // supabaseAuth: for user authentication (uses anon key)
+    const supabaseAuth = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+    );
+    
+    // supabaseAdmin: for otp_codes table operations (uses service role)
+    const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
@@ -28,8 +36,8 @@ Deno.serve(async (req) => {
     
     console.log('Processing OTP request for email:', email);
 
-    // First verify user credentials
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+    // First verify user credentials using auth client
+    const { data: authData, error: authError } = await supabaseAuth.auth.signInWithPassword({
       email,
       password,
     });
@@ -45,8 +53,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Get user's WhatsApp phone number from profile
-    const { data: profile, error: profileError } = await supabase
+    // Get user's WhatsApp phone number from profile using admin client
+    const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('whatsapp_phone')
       .eq('user_id', authData.user.id)
@@ -69,17 +77,17 @@ Deno.serve(async (req) => {
 
     console.log('Generated OTP code:', otpCode, 'expires at:', expiresAt);
 
-    // Clean up expired codes first
-    await supabase.rpc('cleanup_expired_otp_codes');
+    // Clean up expired codes first using admin client
+    await supabaseAdmin.rpc('cleanup_expired_otp_codes');
 
-    // Delete any existing OTP codes for this email
-    await supabase
+    // Delete any existing OTP codes for this email using admin client
+    await supabaseAdmin
       .from('otp_codes')
       .delete()
       .eq('user_email', email);
 
-    // Save OTP code to database
-    const { error: otpError } = await supabase
+    // Save OTP code to database using admin client
+    const { error: otpError } = await supabaseAdmin
       .from('otp_codes')
       .insert({
         user_email: email,
@@ -98,8 +106,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Get webhook URL from site configurations
-    const { data: config } = await supabase
+    // Get webhook URL from site configurations using admin client
+    const { data: config } = await supabaseAdmin
       .from('site_configurations')
       .select('otp_webhook_url')
       .order('updated_at', { ascending: false })
