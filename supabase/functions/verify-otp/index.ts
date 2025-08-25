@@ -19,7 +19,9 @@ Deno.serve(async (req) => {
   try {
     console.log('Verify OTP request received');
     
-    const supabase = createClient(
+    // Create separate clients for different operations
+    // supabaseAdmin: for otp_codes table operations (uses service role)
+    const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
@@ -28,11 +30,11 @@ Deno.serve(async (req) => {
     
     console.log('Verifying OTP for email:', email, 'code:', code);
 
-    // Clean up expired codes first
-    await supabase.rpc('cleanup_expired_otp_codes');
+    // Clean up expired codes first using admin client
+    await supabaseAdmin.rpc('cleanup_expired_otp_codes');
 
-    // Find valid OTP code
-    const { data: otpData, error: otpError } = await supabase
+    // Find valid OTP code using admin client
+    const { data: otpData, error: otpError } = await supabaseAdmin
       .from('otp_codes')
       .select('*')
       .eq('user_email', email)
@@ -51,8 +53,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Get user by email for sign in
-    const { data: users, error: userError } = await supabase.auth.admin.listUsers();
+    // Get user by email for sign in using admin client
+    const { data: users, error: userError } = await supabaseAdmin.auth.admin.listUsers();
     
     if (userError) {
       console.error('Failed to get users:', userError);
@@ -80,15 +82,15 @@ Deno.serve(async (req) => {
 
     console.log('OTP verification successful for:', email);
 
-    // Delete the used OTP code
-    await supabase
+    // Delete the used OTP code using admin client
+    await supabaseAdmin
       .from('otp_codes')
       .delete()
       .eq('user_email', email)
       .eq('code', code);
 
     // Generate access tokens for the user using admin API
-    const { data: tokenData, error: tokenError } = await supabase.auth.admin.generateLink({
+    const { data: tokenData, error: tokenError } = await supabaseAdmin.auth.admin.generateLink({
       type: 'magiclink',
       email: email,
       options: {
