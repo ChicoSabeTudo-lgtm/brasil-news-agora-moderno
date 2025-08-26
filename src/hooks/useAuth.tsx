@@ -287,32 +287,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const verifyOTPLogin = async (email: string, code: string) => {
     try {
-      // Verificar o código OTP
-      const { data: otpData, error: otpError } = await supabase
-        .from('otp_codes')
-        .select('*')
-        .eq('user_email', email)
-        .eq('code', code)
-        .gte('expires_at', new Date().toISOString())
-        .maybeSingle();
+      // Chamar edge function para verificar o código OTP
+      const { data, error } = await supabase.functions.invoke('verify-otp', {
+        body: { email, code }
+      });
 
-      if (otpError || !otpData) {
+      if (error) {
+        const errorMessage = error.message || 'Erro ao verificar código OTP';
         toast({
-          title: "Código inválido",
-          description: "O código informado é inválido ou expirou.",
+          title: "Erro na verificação",
+          description: errorMessage,
           variant: "destructive",
         });
-        return { error: "Código inválido ou expirado" };
+        return { error: errorMessage };
       }
 
-      // Código válido, remover da tabela
-      await supabase
-        .from('otp_codes')
-        .delete()
-        .eq('user_email', email)
-        .eq('code', code);
+      if (data?.error) {
+        toast({
+          title: "Código inválido",
+          description: data.error,
+          variant: "destructive",
+        });
+        return { error: data.error };
+      }
 
-      // Marcar como OTP verificado - agora o usuário tem acesso completo
+      // Código válido - marcar como OTP verificado
       updateOtpVerified(true);
 
       toast({
