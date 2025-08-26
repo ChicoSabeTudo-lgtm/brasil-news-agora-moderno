@@ -13,17 +13,24 @@ export const Header = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const navigate = useNavigate();
-  const {
-    user,
-    signOut,
-    userRole
-  } = useAuth();
-  const {
-    categories
-  } = useCategories();
-  const {
-    logoUrl
-  } = useSiteLogo();
+  
+  // Safely get auth context with fallback
+  let user = null;
+  let signOut = async () => {};
+  let userRole = null;
+  
+  try {
+    const authContext = useAuth();
+    user = authContext.user;
+    signOut = authContext.signOut;
+    userRole = authContext.userRole;
+  } catch (error) {
+    // AuthProvider not available yet, use defaults
+    console.warn('Header rendered before AuthProvider is ready');
+  }
+  
+  const { categories } = useCategories();
+  const { logoUrl } = useSiteLogo();
 
   // Static navigation items
   const staticItems = [{
