@@ -132,14 +132,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const redirectUrl = `${window.location.origin}/`;
       
+      // Preparar os dados para incluir WhatsApp nos metadados
+      const userData: any = {
+        full_name: fullName,
+      };
+
+      // Incluir WhatsApp formatado nos metadados se fornecido
+      if (whatsappPhone) {
+        userData.whatsapp_phone = formatPhoneNumber(whatsappPhone);
+      }
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: redirectUrl,
-          data: {
-            full_name: fullName,
-          }
+          data: userData
         }
       });
       
@@ -150,23 +158,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           variant: "destructive",
         });
         return { error };
-      }
-
-      // If user was created and we have a WhatsApp phone, update profile
-      if (data.user && whatsappPhone) {
-        const formattedPhone = formatPhoneNumber(whatsappPhone);
-        
-        // Wait a bit for the profile to be created by the trigger
-        setTimeout(async () => {
-          const { error: profileError } = await supabase
-            .from('profiles')
-            .update({ whatsapp_phone: formattedPhone })
-            .eq('user_id', data.user.id);
-          
-          if (profileError) {
-            console.error('Error updating WhatsApp phone:', profileError);
-          }
-        }, 1000);
       }
       
       toast({
