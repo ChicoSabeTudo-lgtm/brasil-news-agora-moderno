@@ -22,6 +22,7 @@ export const RichTextEditor = ({
 }: RichTextEditorProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [showEmbedModal, setShowEmbedModal] = useState(false);
+  const [savedRange, setSavedRange] = useState<any>(null);
   const quillRef = useRef<any>(null);
 
   useEffect(() => {
@@ -71,8 +72,8 @@ export const RichTextEditor = ({
   const insertEmbed = (embedCode: string) => {
     if (quillRef.current) {
       const quill = quillRef.current.getEditor();
-      const range = quill.getSelection();
-      const index = range ? range.index : quill.getLength();
+      // Usar a posição salva ou o final do texto como fallback
+      const index = savedRange ? savedRange.index : quill.getLength();
       
       // Inserir uma linha em branco antes e depois do embed
       quill.insertText(index, '\n');
@@ -81,6 +82,9 @@ export const RichTextEditor = ({
       
       // Posicionar cursor após o embed
       quill.setSelection(index + 3);
+      
+      // Limpar a posição salva
+      setSavedRange(null);
     }
   };
 
@@ -100,6 +104,12 @@ export const RichTextEditor = ({
       ],
       handlers: {
         'embed-button': () => {
+          // Salvar a posição atual do cursor antes de abrir o modal
+          if (quillRef.current) {
+            const quill = quillRef.current.getEditor();
+            const range = quill.getSelection();
+            setSavedRange(range);
+          }
           setShowEmbedModal(true);
         }
       }
