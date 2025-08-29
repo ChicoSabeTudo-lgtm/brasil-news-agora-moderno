@@ -45,9 +45,8 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
     categoryId: '',
     isBreaking: false,
     isFeatured: false,
-    tags: '',
-    embedCode: '',
-    status: 'draft', // draft, published, scheduled
+        tags: '',
+        status: 'draft', // draft, published, scheduled
     scheduledPublishAt: null as Date | null
   });
   const [newsImages, setNewsImages] = useState<any[]>([]);
@@ -71,7 +70,6 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
         isBreaking: editingNews.is_breaking || false,
         isFeatured: editingNews.is_featured || false,
         tags: editingNews.tags?.join(', ') || '',
-        embedCode: editingNews.embed_code || '',
         status: editingNews.is_published ? 'published' : (editingNews.scheduled_publish_at ? 'scheduled' : 'draft'),
         scheduledPublishAt: editingNews.scheduled_publish_at ? new Date(editingNews.scheduled_publish_at) : null
       });
@@ -132,7 +130,6 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
         is_breaking: article.isBreaking,
         is_featured: article.isFeatured,
         tags: article.tags ? article.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [],
-        embed_code: article.embedCode || null,
         author_id: user?.id,
         // Para publicação direta
         is_published: status === 'published',
@@ -274,7 +271,6 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
           isBreaking: false,
           isFeatured: false,
           tags: '',
-          embedCode: '',
           status: 'draft',
           scheduledPublishAt: null
         });
@@ -394,28 +390,6 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="embedCode">Código Embed do Instagram (opcional)</Label>
-          <Textarea
-            id="embedCode"
-            placeholder="Cole aqui o código embed completo do Instagram, incluindo <blockquote> e <script>..."
-            rows={6}
-            value={article.embedCode}
-            onChange={(e) => setArticle({ ...article, embedCode: e.target.value })}
-          />
-          <p className="text-xs text-muted-foreground">
-            Cole o código de incorporação completo do Instagram, incluindo todas as tags necessárias. O componente renderizará o HTML bruto para funcionar corretamente.
-          </p>
-          {article.embedCode && (
-            <div className="mt-4 p-4 border rounded-lg bg-muted/50">
-              <Label className="text-sm font-medium mb-2 block">Pré-visualização do Embed:</Label>
-              <div 
-                dangerouslySetInnerHTML={{ __html: article.embedCode }}
-                className="instagram-embed-preview"
-              />
-            </div>
-          )}
-        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="flex items-center space-x-2">
@@ -625,15 +599,6 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
                   className="prose prose-lg max-w-none text-foreground"
                 />
 
-                {/* Embed Content */}
-                {article.embedCode && (
-                  <div className="my-6">
-                    <SafeHtmlRenderer 
-                      content={sanitizeEmbedCode(article.embedCode)}
-                      className="embed-content"
-                    />
-                  </div>
-                )}
 
                 {/* Tags */}
                 {article.tags && (

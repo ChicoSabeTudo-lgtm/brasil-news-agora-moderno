@@ -33,7 +33,6 @@ interface NewsData {
   views: number;
   tags: string[];
   is_breaking: boolean;
-  embed_code?: string;
   categories: {
     name: string;
     slug: string;
@@ -522,12 +521,6 @@ const NewsArticle = () => {
               )}
             </div>
 
-            {/* Instagram Embed */}
-            {news.embed_code && (
-              <div className="mb-8">
-                <InstagramEmbed embedCode={news.embed_code} />
-              </div>
-            )}
 
             {/* Media Files */}
             {mediaFiles.length > 0 && (
