@@ -426,9 +426,20 @@ All colors MUST be HSL.
 
 .embed-content iframe {
   max-width: 100%;
+  width: 100%;
+  min-height: 400px;
+  height: 400px;
   border: none;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsivo para dispositivos menores */
+@media (max-width: 640px) {
+  .embed-content iframe {
+    min-height: 250px;
+    height: 250px;
+  }
 }
 
 .embed-content blockquote {
@@ -499,8 +510,8 @@ All colors MUST be HSL.
   @apply bg-accent;
 }
 
-/* Estilos para embeds no editor */
-.embed-container {
+/* Estilos para embeds no editor - com borda tracejada */
+.rich-text-editor .embed-container {
   margin: 16px 0;
   padding: 12px;
   border: 2px dashed hsl(var(--border));
@@ -509,13 +520,24 @@ All colors MUST be HSL.
   position: relative;
 }
 
+/* Estilos para embeds na publicação - sem borda */
+.embed-container {
+  margin: 2rem 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  position: relative;
+}
+
 .embed-container iframe {
   max-width: 100%;
   height: auto;
 }
 
-.embed-container::before {
-  content: "📺 Embed";
+/* Label apenas para o editor - não aparece na publicação */
+.rich-text-editor .embed-container::before {
+  content: "📺 Assista";
   position: absolute;
   top: -8px;
   left: 12px;
