@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { formatInTimeZone } from 'date-fns-tz';
 import { 
   Calendar, 
   Clock, 
@@ -130,7 +131,8 @@ export const SocialPostsManagement = () => {
   };
 
   const formatDateTime = (dateString: string) => {
-    return format(new Date(dateString), 'dd/MM/yyyy \'às\' HH:mm', { locale: ptBR });
+    // Converter UTC para timezone brasileiro para exibição correta
+    return formatInTimeZone(new Date(dateString), 'America/Sao_Paulo', 'dd/MM/yyyy \'às\' HH:mm', { locale: ptBR });
   };
 
   const handleEditPost = (post: SocialScheduledPost) => {

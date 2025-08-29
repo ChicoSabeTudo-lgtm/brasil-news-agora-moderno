@@ -319,11 +319,14 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
       // Se é agendado, salvar na tabela interna
       if (postData.schedulePost && postData.scheduleDate && postData.scheduleTime && user?.id) {
         console.log('🔄 Tentando agendar posts...');
-        const scheduledDateTime = new Date(postData.scheduleDate);
-        const [hours, minutes] = postData.scheduleTime.split(':');
-        scheduledDateTime.setHours(parseInt(hours), parseInt(minutes));
+        // Criar data no timezone local brasileiro para evitar problemas de conversão
+        const scheduledDateTime = new Date(`${postData.scheduleDate}T${postData.scheduleTime}:00`);
+        
+        // Garantir que a data está no timezone local
+        const localDateTime = new Date(scheduledDateTime.getTime() - scheduledDateTime.getTimezoneOffset() * 60000);
 
-        console.log('⏰ Data agendada:', scheduledDateTime);
+        console.log('⏰ Data agendada original:', scheduledDateTime);
+        console.log('⏰ Data agendada local:', localDateTime);
         console.log('👤 User ID:', user.id);
         console.log('📱 Plataformas:', postData.platforms);
 
@@ -342,7 +345,7 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
               news_id: webhookPostId, // UUID válido para posts do webhook
               platform: platform,
               content: `${postData.title}\n\n${postData.summary}\n\n${postData.link}`,
-              scheduled_for: scheduledDateTime.toISOString(),
+            scheduled_for: localDateTime.toISOString(),
               created_by: user.id,
             }).then(result => {
               console.log(`✅ Post agendado para ${platform}:`, result);
