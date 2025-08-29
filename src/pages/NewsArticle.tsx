@@ -131,6 +131,9 @@ const NewsArticle = () => {
           // Inserir placeholders para anúncios in-content
           const contentWithAdPlaceholders = insertInContentAds(backlinksResult.processedContent, newsWithProfile.id);
           setContentWithAds(contentWithAdPlaceholders);
+          
+          // Reprocessar widgets do Twitter após carregar o conteúdo
+          setTimeout(reprocessTwitterWidgets, 100);
           if (backlinksResult.backlinksAdded > 0) {
             console.log(`Added ${backlinksResult.backlinksAdded} backlinks:`, backlinksResult.backlinks);
           }
@@ -141,6 +144,9 @@ const NewsArticle = () => {
           // Inserir placeholders para anúncios in-content mesmo sem backlinks
           const contentWithAdPlaceholders = insertInContentAds(newsWithProfile.content, newsWithProfile.id);
           setContentWithAds(contentWithAdPlaceholders);
+          
+          // Reprocessar widgets do Twitter após carregar o conteúdo
+          setTimeout(reprocessTwitterWidgets, 100);
         }
 
         // Buscar notícias relacionadas da mesma categoria
@@ -184,6 +190,13 @@ const NewsArticle = () => {
 
     fetchNews();
   }, [slug, id]);
+
+  // Função para reprocessar widgets do Twitter
+  const reprocessTwitterWidgets = () => {
+    if (typeof window !== 'undefined' && (window as any).twttr?.widgets) {
+      (window as any).twttr.widgets.load();
+    }
+  };
 
   const getImageUrl = (imageItem: any) => {
     if (!imageItem?.image_url) return null;
