@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { cn } from '@/lib/utils';
+import { EmbedModal } from './embed-modal';
 
 // Lazy load ReactQuill to avoid SSR issues
 let ReactQuill: any = null;
@@ -20,6 +21,7 @@ export const RichTextEditor = ({
   readOnly = false
 }: RichTextEditorProps) => {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [showEmbedModal, setShowEmbedModal] = useState(false);
   const quillRef = useRef<any>(null);
 
   useEffect(() => {
@@ -31,6 +33,32 @@ export const RichTextEditor = ({
           
           // Import Quill CSS
           await import('react-quill/dist/quill.snow.css');
+          
+          // Registrar blot personalizado para embeds
+          const Quill = RQ.Quill;
+          const BlockEmbed = Quill.import('blots/block/embed');
+          
+          class VideoBlot extends BlockEmbed {
+            static create(value: string) {
+              const node = super.create();
+              node.innerHTML = value;
+              node.setAttribute('contenteditable', false);
+              node.classList.add('embed-container');
+              return node;
+            }
+            
+            static value(node: HTMLElement) {
+              return node.innerHTML;
+            }
+          }
+          
+          VideoBlot.blotName = 'video';
+          VideoBlot.tagName = 'div';
+          Quill.register(VideoBlot);
+          
+          // Adicionar ícone personalizado para o botão embed
+          const icons = Quill.import('ui/icons');
+          icons['embed-button'] = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>';
         }
         setIsLoaded(true);
       }
@@ -39,18 +67,43 @@ export const RichTextEditor = ({
     loadQuill();
   }, []);
 
-  // Quill modules configuration - with clipboard support for formatting
+  // Função para inserir embed na posição do cursor
+  const insertEmbed = (embedCode: string) => {
+    if (quillRef.current) {
+      const quill = quillRef.current.getEditor();
+      const range = quill.getSelection();
+      const index = range ? range.index : quill.getLength();
+      
+      // Inserir uma linha em branco antes e depois do embed
+      quill.insertText(index, '\n');
+      quill.insertEmbed(index + 1, 'video', embedCode);
+      quill.insertText(index + 2, '\n');
+      
+      // Posicionar cursor após o embed
+      quill.setSelection(index + 3);
+    }
+  };
+
+  // Quill modules configuration - with clipboard support for formatting and custom embed button
   const modules = useMemo(() => ({
-    toolbar: [
-      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      [{ 'color': [] }, { 'background': [] }],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      [{ 'indent': '-1'}, { 'indent': '+1' }],
-      [{ 'align': [] }],
-      ['link', 'blockquote', 'code-block'],
-      ['clean']
-    ],
+    toolbar: {
+      container: [
+        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'color': [] }, { 'background': [] }],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        [{ 'indent': '-1'}, { 'indent': '+1' }],
+        [{ 'align': [] }],
+        ['link', 'blockquote', 'code-block'],
+        ['embed-button'], // Botão personalizado para embeds
+        ['clean']
+      ],
+      handlers: {
+        'embed-button': () => {
+          setShowEmbedModal(true);
+        }
+      }
+    },
     clipboard: {
       // Enable paste functionality
       allowed: {
@@ -79,7 +132,7 @@ export const RichTextEditor = ({
     'bold', 'italic', 'underline', 'strike', 'blockquote',
     'list', 'bullet', 'indent',
     'link', 'color', 'background',
-    'align', 'code-block'
+    'align', 'code-block', 'video'
   ], []);
 
   if (!isLoaded || !ReactQuill) {
@@ -105,6 +158,12 @@ export const RichTextEditor = ({
         formats={formats}
         placeholder={placeholder}
         readOnly={readOnly}
+      />
+      
+      <EmbedModal
+        isOpen={showEmbedModal}
+        onClose={() => setShowEmbedModal(false)}
+        onInsert={insertEmbed}
       />
     </div>
   );

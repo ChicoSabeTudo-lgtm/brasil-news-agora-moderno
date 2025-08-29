@@ -499,6 +499,32 @@ All colors MUST be HSL.
   @apply bg-accent;
 }
 
+/* Estilos para embeds no editor */
+.embed-container {
+  margin: 16px 0;
+  padding: 12px;
+  border: 2px dashed hsl(var(--border));
+  border-radius: 8px;
+  background: hsl(var(--muted) / 0.1);
+  position: relative;
+}
+
+.embed-container iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+.embed-container::before {
+  content: "📺 Embed";
+  position: absolute;
+  top: -8px;
+  left: 12px;
+  background: hsl(var(--background));
+  padding: 0 8px;
+  font-size: 12px;
+  color: hsl(var(--muted-foreground));
+}
+
 .rich-text-editor .ql-snow .ql-tooltip {
   @apply bg-background border border-border text-foreground shadow-lg;
 }
