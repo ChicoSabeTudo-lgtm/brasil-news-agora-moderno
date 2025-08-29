@@ -143,14 +143,17 @@ serve(async (req) => {
       // Verificar se a tag (keyword) aparece no conteúdo
       if (contentLower.includes(match.keyword.toLowerCase())) {
         const linkUrl = `/${match.categorySlug}/${match.slug}`
-        const linkHTML = `<a href="${linkUrl}" class="internal-backlink" title="${match.title}">${match.keyword}</a>`
         
-        // Criar regex para encontrar a primeira ocorrência da keyword que não está dentro de uma tag
-        const regex = new RegExp(`(?![^<]*>)\\b${match.keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i')
+        // Criar regex para encontrar e capturar a primeira ocorrência da keyword que não está dentro de uma tag
+        // Usando grupos de captura para preservar a capitalização original
+        const regex = new RegExp(`(?![^<]*>)\\b(${match.keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})\\b`, 'i')
         
-        // Substituir apenas a primeira ocorrência
+        // Substituir apenas a primeira ocorrência, preservando a capitalização original
         if (regex.test(processedContent)) {
-          processedContent = processedContent.replace(regex, linkHTML)
+          processedContent = processedContent.replace(regex, (fullMatch, capturedWord) => {
+            const linkHTML = `<a href="${linkUrl}" class="internal-backlink" title="${match.title}">${capturedWord}</a>`
+            return linkHTML
+          })
           console.log(`Added backlink for tag: ${match.keyword} -> ${match.title}`)
         }
       }
