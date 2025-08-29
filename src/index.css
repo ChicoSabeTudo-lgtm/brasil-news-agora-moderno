@@ -418,27 +418,29 @@ All colors MUST be HSL.
   }
 }
 
-/* Embed Content Styles */
+/* Embed Content Styles - para embeds em conteúdo publicado */
 .embed-content {
   margin: 2rem 0;
   text-align: center;
+  width: 100%;
 }
 
 .embed-content iframe {
-  max-width: 100%;
-  width: 100%;
-  min-height: 400px;
-  height: 400px;
+  width: 100% !important;
+  min-height: 400px !important;
+  height: 400px !important;
+  max-width: 100% !important;
   border: none;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: block;
 }
 
 /* Responsivo para dispositivos menores */
 @media (max-width: 640px) {
   .embed-content iframe {
-    min-height: 250px;
-    height: 250px;
+    min-height: 250px !important;
+    height: 250px !important;
   }
 }
 
@@ -520,19 +522,41 @@ All colors MUST be HSL.
   position: relative;
 }
 
-/* Estilos para embeds na publicação - sem borda */
-.embed-container {
-  margin: 2rem 0;
-  padding: 0;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  position: relative;
-}
-
-.embed-container iframe {
+.rich-text-editor .embed-container iframe {
   max-width: 100%;
   height: auto;
+  min-height: 200px;
+}
+
+/* Estilos para embeds na publicação - sem borda, com tamanho completo */
+.prose .embed-container {
+  margin: 2rem 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  position: relative;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.prose .embed-container iframe {
+  width: 100% !important;
+  min-height: 400px !important;
+  height: 400px !important;
+  max-width: 100% !important;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  display: block;
+}
+
+/* Responsivo para embeds na publicação */
+@media (max-width: 640px) {
+  .prose .embed-container iframe {
+    min-height: 250px !important;
+    height: 250px !important;
+  }
 }
 
 /* Label apenas para o editor - não aparece na publicação */
