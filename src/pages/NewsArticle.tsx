@@ -731,7 +731,10 @@ const NewsArticle = () => {
           {/* Sidebar */}
           <aside className="lg:col-span-1 no-print">
             <div className="bg-card rounded-lg p-6 shadow-card sticky top-8">
-              <h3 className="font-bold text-lg mb-4 border-l-4 border-primary pl-4">
+              <h3 
+                className="font-bold text-lg mb-4 pl-4"
+                style={{ borderLeft: `4px solid ${getCategoryColor()}` }}
+              >
                 Notícias Relacionadas
               </h3>
               <div className="space-y-4">
