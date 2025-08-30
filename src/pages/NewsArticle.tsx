@@ -411,11 +411,7 @@ const NewsArticle = () => {
   const enhanceContentStructure = (content: string): string => {
     let enhanced = content;
     
-    // Apply lead class to first paragraph
-    enhanced = enhanced.replace(
-      /(<p[^>]*>)(.*?)<\/p>/i, 
-      '<p class="lead">$2</p>'
-    );
+    // Lead formatting removed - keeping original paragraph styling
     
     // Convert strong emphasis patterns to highlight boxes
     enhanced = enhanced.replace(

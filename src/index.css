@@ -829,18 +829,7 @@ article .twitter-tweet {
   margin-bottom: 2rem;
 }
 
-/* Parágrafo de lead/resumo */
-.news-content .lead {
-  font-size: 1.2rem;
-  font-weight: 400;
-  line-height: 1.6;
-  color: hsl(var(--muted-foreground));
-  margin-bottom: 2rem;
-  padding: 1rem;
-  background: hsl(var(--muted) / 0.5);
-  border-left: 4px solid hsl(var(--secondary));
-  border-radius: 0 4px 4px 0;
-}
+/* Lead formatting removed */
 
 /* Citações e depoimentos */
 .news-content blockquote {
@@ -1060,9 +1049,7 @@ article .twitter-tweet {
     text-align: left;
   }
   
-  .news-content .lead {
-    font-size: 1.1rem;
-  }
+  /* Lead formatting removed */
   
   .news-content blockquote {
     padding: 1rem 1.5rem;
@@ -1081,13 +1068,7 @@ article .twitter-tweet {
   overflow-wrap: break-word;
 }
 
-/* Enhanced content processing */
-.news-content .lead-content {
-  font-size: 1.15rem;
-  font-weight: 400;
-  color: hsl(var(--muted-foreground));
-  line-height: 1.7;
-}
+/* Lead-content formatting removed */
 
 .news-content .processed-content {
   margin-top: 2rem;
@@ -1098,13 +1079,7 @@ article .twitter-tweet {
   text-align: center;
 }
 
-/* Enhanced content processing */
-.news-content .lead-content {
-  font-size: 1.15rem;
-  font-weight: 400;
-  color: hsl(var(--muted-foreground));
-  line-height: 1.7;
-}
+/* Duplicate lead-content formatting removed */
 
 .news-content .processed-content {
   margin-top: 2rem;
