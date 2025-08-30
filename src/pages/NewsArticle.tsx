@@ -442,11 +442,6 @@ const NewsArticle = () => {
       }
     );
     
-    // Add section dividers before h2 elements
-    enhanced = enhanced.replace(
-      /<h2/g, 
-      '<div class="section-divider"></div><h2'
-    );
     
     // Enhanced Action Buttons with Context Detection
     

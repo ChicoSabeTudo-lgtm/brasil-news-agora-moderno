@@ -888,12 +888,6 @@ article .twitter-tweet {
   border-bottom-color: var(--category-color, hsl(var(--primary)));
 }
 
-/* Separadores de seção */
-.news-content .section-divider {
-  margin: 3rem 0;
-  height: 1px;
-  background: linear-gradient(to right, transparent, hsl(var(--border)), transparent);
-}
 
 /* Caixas de destaque para informações importantes */
 .news-content .highlight-box {
