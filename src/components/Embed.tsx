@@ -24,6 +24,7 @@ declare global {
 interface EmbedProps {
   provider: 'youtube' | 'twitter' | 'instagram';
   id: string;
+  type?: string; // For Instagram: 'p', 'reel', 'tv'
   className?: string;
 }
 
@@ -92,28 +93,17 @@ const TwitterEmbedWrapper = ({ id }: { id: string }) => {
   );
 };
 
-// Instagram embed with native iframe
-const InstagramEmbedWrapper = ({ id }: { id: string }) => {
-  const postUrl = `https://www.instagram.com/p/${id}/`;
+// Instagram iframe component
+const InstagramIframe = ({ id, type = 'p' }: { id: string; type?: string }) => {
+  const embedUrl = `https://www.instagram.com/${type}/${id}/embed/captioned/`;
+  const postUrl = `https://www.instagram.com/${type}/${id}/`;
 
-  // Parse Instagram URL to extract type and ID
-  const parseInstagramUrl = (url: string) => {
-    const regex = /instagram\.com\/(reel|p|tv)\/([A-Za-z0-9_-]+)/;
-    const match = url.match(regex);
-    if (match) {
-      return { type: match[1], id: match[2] };
-    }
-    return null;
-  };
-
-  const parseResult = parseInstagramUrl(postUrl);
-
-  if (!parseResult) {
-    console.error('URL do Instagram inválida:', postUrl);
+  if (!id || !type.match(/^(p|reel|tv)$/)) {
+    console.error('Dados do Instagram inválidos:', { id, type });
     return (
       <Card className="w-full max-w-lg mx-auto p-6 text-center">
         <div className="space-y-4">
-          <p className="text-muted-foreground">URL do Instagram inválida</p>
+          <p className="text-muted-foreground">Dados do Instagram inválidos</p>
           <Button variant="outline" asChild>
             <a href={postUrl} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="w-4 h-4 mr-2" />
@@ -124,9 +114,6 @@ const InstagramEmbedWrapper = ({ id }: { id: string }) => {
       </Card>
     );
   }
-
-  const { type, id: parsedId } = parseResult;
-  const embedUrl = `https://www.instagram.com/${type}/${parsedId}/embed/captioned/`;
 
   return (
     <div className="w-full max-w-lg mx-auto">
@@ -143,7 +130,7 @@ const InstagramEmbedWrapper = ({ id }: { id: string }) => {
             border: 0,
             borderRadius: '8px'
           }}
-          title="Instagram embed"
+          title={`Instagram ${type} embed`}
           onError={() => {
             console.error('Erro ao carregar iframe do Instagram:', embedUrl);
           }}
@@ -162,7 +149,7 @@ const InstagramEmbedWrapper = ({ id }: { id: string }) => {
 };
 
 // Main Embed component
-export const Embed = ({ provider, id, className = '' }: EmbedProps) => {
+export const Embed = ({ provider, id, type, className = '' }: EmbedProps) => {
   if (!id || !provider) {
     return (
       <Card className={`w-full max-w-lg mx-auto p-6 text-center ${className}`}>
@@ -191,7 +178,7 @@ export const Embed = ({ provider, id, className = '' }: EmbedProps) => {
     case 'instagram':
       return (
         <div className={containerClasses}>
-          <InstagramEmbedWrapper id={id} />
+          <InstagramIframe id={id} type={type} />
         </div>
       );
     

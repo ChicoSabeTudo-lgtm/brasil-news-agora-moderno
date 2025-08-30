@@ -18,10 +18,11 @@ const purifyConfig = {
     'poster', 'preload', 'style', 'frameborder', 'allowfullscreen',
     'allow', 'loading', 'decoding', 'color', 'background-color',
     'text-align', 'font-size', 'font-weight', 'font-style', 'text-decoration',
-    'data-instgrm-captioned', 'data-instgrm-permalink', 'data-instgrm-version'
+    'data-instgrm-captioned', 'data-instgrm-permalink', 'data-instgrm-version',
+    'sandbox', 'referrerpolicy'
   ],
   ADD_TAGS: ['blockquote', 'iframe'],
-  ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling', 'data-instgrm-captioned', 'data-instgrm-permalink', 'data-instgrm-version'],
+  ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling', 'data-instgrm-captioned', 'data-instgrm-permalink', 'data-instgrm-version', 'sandbox', 'referrerpolicy'],
   ALLOW_DATA_ATTR: true,
   ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp|xxx):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
   KEEP_CONTENT: true,
@@ -320,7 +321,7 @@ const processHtmlWithEmbeds = (html: string) => {
   }
 
   // Split HTML by embed markers and create React elements
-  const parts: (string | { type: 'embed'; provider: string; id: string; key: string })[] = [];
+  const parts: (string | { type: 'embed'; provider: string; id: string; embedType?: string; key: string })[] = [];
   let lastIndex = 0;
 
   markers.forEach((marker, index) => {
@@ -337,6 +338,7 @@ const processHtmlWithEmbeds = (html: string) => {
       type: 'embed',
       provider: marker.provider,
       id: marker.id,
+      embedType: marker.type,
       key: `embed-${index}`
     });
 
@@ -429,6 +431,7 @@ export const SafeHtmlRenderer: React.FC<SafeHtmlRendererProps> = ({
                 key={part.key}
                 provider={part.provider as 'youtube' | 'twitter' | 'instagram'}
                 id={part.id}
+                type={part.embedType}
               />
             );
           }

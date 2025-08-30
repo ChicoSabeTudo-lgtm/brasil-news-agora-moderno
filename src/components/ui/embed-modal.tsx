@@ -53,8 +53,10 @@ export const EmbedModal = ({ isOpen, onClose, onInsert }: EmbedModalProps) => {
         return;
       }
 
-      // Generate embed marker
-      const marker = generateEmbedMarker(embedData.provider, embedData.id);
+      // Generate embed marker with type for Instagram
+      const marker = embedData.type 
+        ? generateEmbedMarker(embedData.provider, embedData.id, embedData.type)
+        : generateEmbedMarker(embedData.provider, embedData.id);
       
       onInsert(marker);
       setUrl('');
@@ -96,8 +98,8 @@ export const EmbedModal = ({ isOpen, onClose, onInsert }: EmbedModalProps) => {
             </Label>
             <Input
               id="embed-url"
-              type="url"
-              placeholder="Cole aqui a URL (YouTube, Twitter/X ou Instagram)..."
+              type="text"
+              placeholder="Cole URL ou código embed (YouTube, Twitter/X ou Instagram)..."
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               disabled={isValidating}
@@ -125,7 +127,7 @@ export const EmbedModal = ({ isOpen, onClose, onInsert }: EmbedModalProps) => {
                 <Instagram className="h-5 w-5 text-pink-500" />
                 <div className="text-sm">
                   <div className="font-medium">Instagram</div>
-                  <div className="text-muted-foreground">Posts, Reels e IGTV</div>
+                  <div className="text-muted-foreground">URLs ou código embed</div>
                 </div>
               </div>
             </div>
