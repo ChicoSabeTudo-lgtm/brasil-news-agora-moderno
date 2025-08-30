@@ -230,6 +230,34 @@ export const initializeTwitterWidgets = (container: HTMLElement | null = null, r
 };
 
 /**
+ * Initialize Instagram embeds for a specific container
+ * @param container - DOM element to process, or null for global processing
+ * @param retryCount - Number of retries attempted
+ */
+export const initializeInstagramEmbeds = (container: HTMLElement | null = null, retryCount = 0): void => {
+  if (typeof window === 'undefined') return;
+
+  // Check if Instagram script is loaded
+  if (!(window as any).instgrm?.Embeds) {
+    if (retryCount < 3) {
+      setTimeout(() => initializeInstagramEmbeds(container, retryCount + 1), 1000);
+    }
+    return;
+  }
+
+  try {
+    // Process Instagram embeds
+    if (container) {
+      (window as any).instgrm.Embeds.process(container);
+    } else {
+      (window as any).instgrm.Embeds.process();
+    }
+  } catch (error) {
+    console.error('Error processing Instagram embeds:', error);
+  }
+};
+
+/**
  * Simple height fix for Twitter iframes - remove only specific limitations
  * @param container - Container to search for Twitter embeds
  */
@@ -264,13 +292,25 @@ export const SafeHtmlRenderer: React.FC<{ content: string; className?: string }>
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    if (containerRef.current && sanitizedContent.includes('twitter-tweet')) {
+    if (containerRef.current) {
+      const hasTwitter = sanitizedContent.includes('twitter-tweet');
+      const hasInstagram = sanitizedContent.includes('data-instgrm-permalink') || sanitizedContent.includes('instagram.com');
+      
       // Initialize Twitter widgets for this specific container
-      const timer = setTimeout(() => {
-        initializeTwitterWidgets(containerRef.current);
-      }, 100);
+      if (hasTwitter) {
+        const twitterTimer = setTimeout(() => {
+          initializeTwitterWidgets(containerRef.current);
+        }, 100);
+      }
+      
+      // Initialize Instagram embeds for this specific container
+      if (hasInstagram) {
+        const instagramTimer = setTimeout(() => {
+          initializeInstagramEmbeds(containerRef.current);
+        }, 200);
+      }
 
-      // Sistema robusto de monitoramento para Twitter embeds
+      // Sistema robusto de monitoramento para embeds
       const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
           if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
@@ -319,6 +359,13 @@ export const SafeHtmlRenderer: React.FC<{ content: string; className?: string }>
                   element.style.setProperty('max-height', 'none', 'important');
                   element.style.setProperty('overflow', 'visible', 'important');
                 }
+                
+                // Detectar blockquotes do Instagram
+                if (element.classList?.contains('instagram-media') || 
+                    element.getAttribute('data-instgrm-permalink')) {
+                  // Re-processar Instagram embeds quando detectados
+                  initializeInstagramEmbeds(containerRef.current);
+                }
               }
             });
           }
@@ -335,7 +382,6 @@ export const SafeHtmlRenderer: React.FC<{ content: string; className?: string }>
       }
 
       return () => {
-        clearTimeout(timer);
         observer.disconnect();
       };
     }
