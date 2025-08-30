@@ -50,8 +50,11 @@
   left: 0;
   right: 0;
   background: hsl(var(--background));
-  padding: 0 16px;
+  padding: 8px 16px;
   z-index: 10;
+  display: flex;
+  align-items: center;
+  min-height: fit-content;
 }
 
 .main-caption {
@@ -59,6 +62,7 @@
   font-size: 13px;
   line-height: 1;
   margin: 0;
+  padding: 0;
 }
 
 /* Botões de navegação */
