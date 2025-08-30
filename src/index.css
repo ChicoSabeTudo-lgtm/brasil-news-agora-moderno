@@ -1157,38 +1157,166 @@ article .twitter-tweet {
   color: hsl(var(--muted-foreground));
 }
 
-/* Tabelas (se houver) */
+/* Professional Table Styling */
 .news-content table {
   width: 100%;
   border-collapse: collapse;
-  margin: 2rem 0;
-  background: hsl(var(--background));
-  border-radius: 8px;
+  margin: 1.5rem 0;
+  border: 1px solid hsl(var(--border));
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px hsl(var(--foreground) / 0.1);
+  box-shadow: 0 4px 12px hsl(var(--foreground) / 0.08);
+  background: hsl(var(--background));
 }
 
-.news-content th,
-.news-content td {
-  padding: 1rem;
-  text-align: left;
-  border-bottom: 1px solid hsl(var(--border));
+.news-content thead {
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.1), hsl(var(--secondary) / 0.1));
 }
 
 .news-content th {
-  background: hsl(var(--muted));
+  padding: 1rem 1.25rem;
+  text-align: left;
   font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
   color: hsl(var(--foreground));
+  border-bottom: 1px solid hsl(var(--border));
 }
 
-/* Código inline */
+.news-content td {
+  padding: 0.875rem 1.25rem;
+  border-bottom: 1px solid hsl(var(--border) / 0.5);
+  transition: all 0.2s ease;
+}
+
+.news-content tbody tr:hover {
+  background: hsl(var(--accent) / 0.3);
+  transform: scale(1.001);
+}
+
+.news-content tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Professional Inline Code Styling */
 .news-content code {
+  background: hsl(var(--muted) / 0.8);
+  color: hsl(var(--primary));
+  padding: 0.15rem 0.4rem;
+  border-radius: 6px;
+  font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Consolas', monospace;
+  font-size: 0.88em;
+  font-weight: 500;
+  border: 1px solid hsl(var(--border) / 0.5);
+  box-shadow: inset 0 1px 2px hsl(var(--foreground) / 0.05);
+  transition: all 0.2s ease;
+}
+
+.news-content code:hover {
   background: hsl(var(--muted));
-  padding: 0.2rem 0.4rem;
+  border-color: hsl(var(--border));
+}
+
+/* Professional List Styling */
+.news-content ul {
+  margin: 1.5rem 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.news-content ul li {
+  position: relative;
+  padding-left: 2rem;
+  margin-bottom: 0.8rem;
+  line-height: 1.7;
+}
+
+.news-content ul li::before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: hsl(var(--primary));
+  font-weight: bold;
+  font-size: 1.2em;
+  top: 0;
+}
+
+.news-content ol {
+  counter-reset: item;
+  padding-left: 0;
+  list-style: none;
+  margin: 1.5rem 0;
+}
+
+.news-content ol li {
+  counter-increment: item;
+  position: relative;
+  padding-left: 3rem;
+  margin-bottom: 0.8rem;
+  line-height: 1.7;
+}
+
+.news-content ol li::before {
+  content: counter(item);
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+/* Additional Code Elements */
+.news-content kbd {
+  background: hsl(var(--muted));
+  color: hsl(var(--foreground));
+  padding: 0.2rem 0.5rem;
   border-radius: 4px;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: inherit;
+  font-size: 0.85em;
+  font-weight: 600;
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 1px 3px hsl(var(--foreground) / 0.1), inset 0 1px 0 hsl(var(--background));
+}
+
+.news-content var {
+  color: hsl(var(--accent-foreground));
+  font-style: italic;
+  font-weight: 500;
+}
+
+.news-content samp {
+  background: hsl(var(--muted) / 0.6);
+  color: hsl(var(--muted-foreground));
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-family: monospace;
   font-size: 0.9em;
-  color: hsl(var(--destructive));
+}
+
+/* Mobile Responsiveness for Tables */
+@media (max-width: 768px) {
+  .news-content table {
+    font-size: 0.9rem;
+    border-radius: 8px;
+  }
+  
+  .news-content th,
+  .news-content td {
+    padding: 0.75rem 0.8rem;
+  }
+  
+  .news-content th {
+    font-size: 0.8rem;
+  }
 }
 
 /* Melhorias para impressão */
