@@ -1325,15 +1325,17 @@ article .twitter-tweet {
    ================================================================== */
 
 /* Container da imagem com legenda */
-.news-content .image-container {
+.image-container {
   margin: 2rem 0;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  position: relative;
+  display: block;
 }
 
 /* Imagem dentro do container */
-.news-content .image-container img {
+.image-container img {
   width: 100%;
   height: auto;
   display: block;
@@ -1341,10 +1343,13 @@ article .twitter-tweet {
   border: none;
   box-shadow: none;
   border-radius: 0;
+  max-height: 600px;
+  object-fit: contain;
+  background: hsl(var(--muted));
 }
 
 /* Legenda reformulada - igual à da imagem enviada */
-.news-content .image-caption {
+.image-caption {
   background: #E5E7EB; /* Fundo cinza claro igual à imagem */
   color: #374151; /* Texto escuro */
   font-size: 0.85rem;
@@ -1355,11 +1360,15 @@ article .twitter-tweet {
   text-align: left;
   font-weight: 400;
   border-top: 1px solid #D1D5DB;
+  position: relative;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Responsividade para mobile */
 @media (max-width: 768px) {
-  .news-content .image-caption {
+  .image-caption {
     font-size: 0.8rem;
     padding: 6px 10px;
   }
