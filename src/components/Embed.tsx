@@ -10,6 +10,12 @@ const TwitterEmbed = React.lazy(() =>
   }))
 );
 
+const InstagramEmbed = React.lazy(() => 
+  import('react-social-media-embed').then(module => ({ 
+    default: module.InstagramEmbed 
+  }))
+);
+
 // Type declaration for Instagram embed script
 declare global {
   interface Window {
@@ -94,54 +100,69 @@ const TwitterEmbedWrapper = ({ id }: { id: string }) => {
 
 // Instagram embed with fallback
 const InstagramEmbedWrapper = ({ id }: { id: string }) => {
+  const [useReactEmbed, setUseReactEmbed] = useState(true);
   const [loadError, setLoadError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const postUrl = `https://www.instagram.com/p/${id}/`;
   const embedRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const processInstagram = (retryCount = 0) => {
-      if (typeof window !== 'undefined' && window.instgrm?.Embeds?.process) {
-        try {
+  const processInstagramScript = (retryCount = 0) => {
+    if (typeof window !== 'undefined' && window.instgrm?.Embeds?.process) {
+      try {
+        requestAnimationFrame(() => {
           if (embedRef.current) {
             window.instgrm.Embeds.process(embedRef.current);
             setIsLoading(false);
           }
-        } catch (error) {
-          console.warn('Instagram embed processing failed:', error);
-          if (retryCount < 3) {
-            setTimeout(() => processInstagram(retryCount + 1), 1000 * (retryCount + 1));
-          } else {
-            setLoadError(true);
-            setIsLoading(false);
-          }
+        });
+      } catch (error) {
+        console.warn('Instagram embed processing failed:', error);
+        if (retryCount < 3) {
+          setTimeout(() => processInstagramScript(retryCount + 1), 1000 * (retryCount + 1));
+        } else {
+          setLoadError(true);
+          setIsLoading(false);
         }
-      } else if (retryCount < 5) {
-        // Retry if Instagram script is not loaded yet
-        setTimeout(() => processInstagram(retryCount + 1), 500 * (retryCount + 1));
-      } else {
-        setLoadError(true);
-        setIsLoading(false);
       }
-    };
+    } else if (retryCount < 5) {
+      setTimeout(() => processInstagramScript(retryCount + 1), 500 * (retryCount + 1));
+    } else {
+      console.error('Instagram script não disponível após múltiplas tentativas');
+      setLoadError(true);
+      setIsLoading(false);
+    }
+  };
 
-    // Add Instagram script if not present
+  useEffect(() => {
+    // Ensure Instagram script is loaded
     if (typeof window !== 'undefined' && !window.instgrm) {
       const script = document.createElement('script');
       script.src = 'https://www.instagram.com/embed.js';
       script.async = true;
-      script.onload = () => processInstagram();
+      script.onload = () => processInstagramScript();
       script.onerror = () => {
         setLoadError(true);
         setIsLoading(false);
       };
       document.head.appendChild(script);
-    } else {
-      processInstagram();
     }
-  }, [id]);
+  }, []);
 
-  if (loadError) {
+  useEffect(() => {
+    if (!useReactEmbed) {
+      processInstagramScript();
+    }
+  }, [id, useReactEmbed]);
+
+  const handleBlockquoteClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.tagName === 'A' && window.instgrm?.Embeds?.process) {
+      e.preventDefault();
+      processInstagramScript();
+    }
+  };
+
+  if (loadError && !useReactEmbed) {
     return (
       <Card className="w-full max-w-lg mx-auto p-6 text-center">
         <div className="space-y-4">
@@ -157,8 +178,29 @@ const InstagramEmbedWrapper = ({ id }: { id: string }) => {
     );
   }
 
+  // Try react-social-media-embed first
+  if (useReactEmbed) {
+    return (
+      <Suspense fallback={<EmbedSkeleton />}>
+        <div className="w-full max-w-lg mx-auto">
+          <InstagramEmbed
+            url={postUrl}
+            width={550}
+            captioned={true}
+            onLoad={() => setLoadError(false)}
+            onError={() => {
+              console.warn('React Instagram embed falhou, usando fallback nativo');
+              setUseReactEmbed(false);
+            }}
+          />
+        </div>
+      </Suspense>
+    );
+  }
+
+  // Fallback to native blockquote
   return (
-    <div ref={embedRef} className="w-full max-w-lg mx-auto">
+    <div ref={embedRef} className="w-full max-w-lg mx-auto" onClick={handleBlockquoteClick}>
       {isLoading && <EmbedSkeleton />}
       <blockquote
         className="instagram-media"
