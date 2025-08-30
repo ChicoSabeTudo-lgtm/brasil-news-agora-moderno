@@ -440,16 +440,27 @@ All colors MUST be HSL.
 }
 
 /* Instagram embed specific styles */
-.embed-content blockquote[data-instgrm-permalink] {
-  background: transparent;
-  border: none;
+.embed-content blockquote[data-instgrm-permalink],
+.instagram-embed blockquote[data-instgrm-permalink] {
+  background: transparent !important;
+  border: none !important;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  margin: 1rem auto;
-  max-width: 270px;
-  min-width: 163px;
-  transform: scale(0.5);
+  margin: 1rem auto !important;
+  max-width: 540px !important;
+  min-width: 326px !important;
+  width: 100% !important;
+  transform: none !important;
   transform-origin: center;
+}
+
+/* Ajustar iframe do Instagram */
+.embed-content iframe[src*="instagram.com"],
+.instagram-embed iframe[src*="instagram.com"] {
+  max-width: 540px !important;
+  width: 100% !important;
+  height: auto !important;
+  border-radius: 8px;
 }
 
 /* ================ TWITTER EMBED STYLES - SIMPLES ================ */
