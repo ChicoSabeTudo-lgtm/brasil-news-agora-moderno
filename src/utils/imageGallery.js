@@ -86,8 +86,14 @@ class ImageGallery {
     
     bindEvents() {
         // Navegação principal
-        this.container.querySelector('#prevButton').addEventListener('click', () => this.previousImage());
-        this.container.querySelector('#nextButton').addEventListener('click', () => this.nextImage());
+        this.container.querySelector('#prevButton').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.previousImage();
+        });
+        this.container.querySelector('#nextButton').addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.nextImage();
+        });
         
         // Navegação das miniaturas
         this.container.querySelector('#thumbsPrevButton').addEventListener('click', () => this.scrollThumbnails('left'));
@@ -328,11 +334,13 @@ class ImageGallery {
     
     bindFullscreenEvents(galleryClone) {
         // Navegação
-        galleryClone.querySelector('#prevButton').addEventListener('click', () => {
+        galleryClone.querySelector('#prevButton').addEventListener('click', (e) => {
+            e.stopPropagation();
             this.previousImage();
             this.updateFullscreenDisplay(galleryClone);
         });
-        galleryClone.querySelector('#nextButton').addEventListener('click', () => {
+        galleryClone.querySelector('#nextButton').addEventListener('click', (e) => {
+            e.stopPropagation();
             this.nextImage();
             this.updateFullscreenDisplay(galleryClone);
         });
