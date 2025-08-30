@@ -827,6 +827,8 @@ article .twitter-tweet {
   font-weight: 400;
   color: hsl(var(--foreground));
   margin-bottom: 2rem;
+  padding-left: 1rem;
+  border-left: 4px solid var(--category-color, hsl(var(--primary)));
 }
 
 /* Lead formatting removed */

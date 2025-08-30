@@ -643,7 +643,10 @@ const NewsArticle = () => {
             </div>
 
             {/* Enhanced Content with Professional Formatting */}
-            <div className="processed-content">
+            <div 
+              className="processed-content"
+              style={{ '--category-color': getCategoryColor() } as React.CSSProperties}
+            >
               {contentWithAds ? (
                 <SafeHtmlRenderer 
                   content={enhanceContentStructure(contentWithAds.replace(
