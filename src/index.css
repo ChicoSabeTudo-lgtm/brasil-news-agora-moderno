@@ -746,7 +746,7 @@ article .twitter-tweet {
 
 .prose .rich-text-content a:not([class]),
 .prose a:not([class]) {
-  @apply text-primary underline hover:text-primary/80;
+  @apply text-primary underline hover:text-primary/80 transition-colors duration-200;
 }
 
 .prose .rich-text-content code:not([class]),
@@ -850,7 +850,7 @@ article .twitter-tweet {
   margin: 2rem 0;
   padding: 1.5rem 2rem;
   background: hsl(var(--muted) / 0.3);
-  border-left: 5px solid hsl(var(--accent));
+  border-left: 5px solid hsl(var(--primary));
   border-radius: 0 8px 8px 0;
   color: hsl(var(--muted-foreground));
 }
@@ -885,12 +885,12 @@ article .twitter-tweet {
   color: hsl(var(--primary));
   text-decoration: none;
   border-bottom: 1px solid transparent;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .news-content a:hover {
   color: hsl(var(--primary) / 0.8);
-  border-bottom-color: hsl(var(--primary) / 0.8);
+  border-bottom-color: hsl(var(--primary) / 0.5);
 }
 
 /* Separadores de seção */
