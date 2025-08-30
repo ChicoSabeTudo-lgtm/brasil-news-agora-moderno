@@ -37,7 +37,7 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
     fontSize: 60,
     verticalPosition: 85,
     alignment: 'center',
-    fontFamily: 'Arial, sans-serif',
+    fontFamily: 'Archivo Black, sans-serif',
     color: '#ffffff',
   });
 
@@ -352,24 +352,6 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
                 </RadioGroup>
               </div>
 
-              <div>
-                <Label htmlFor="font-family">Família da Fonte</Label>
-                <Select 
-                  value={textState.fontFamily} 
-                  onValueChange={(value) => setTextState(prev => ({ ...prev, fontFamily: value }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Arial, sans-serif">Arial</SelectItem>
-                    <SelectItem value="Helvetica, sans-serif">Helvetica</SelectItem>
-                    <SelectItem value="Georgia, serif">Georgia</SelectItem>
-                    <SelectItem value="Times New Roman, serif">Times New Roman</SelectItem>
-                    <SelectItem value="Courier New, monospace">Courier New</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
 
               <div>
                 <Label htmlFor="font-color">Cor da Fonte</Label>
