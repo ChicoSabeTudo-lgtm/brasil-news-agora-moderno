@@ -113,12 +113,33 @@ export const sanitizeEmbedCode = (embedCode: string): string => {
     console.warn('Embed code contains untrusted domain');
     return '';
   }
+
+  // Para embeds do Twitter, remover o script e manter apenas o blockquote
+  if (embedCode.includes('twitter-tweet') || embedCode.includes('twitter.com') || embedCode.includes('x.com')) {
+    // Remove o script do Twitter pois já está carregado globalmente
+    let twitterEmbed = embedCode.replace(/<script[^>]*src=[^>]*twitter\.com\/widgets\.js[^>]*><\/script>/gi, '');
+    twitterEmbed = twitterEmbed.replace(/<script[^>]*src=[^>]*platform\.twitter\.com\/widgets\.js[^>]*><\/script>/gi, '');
+    
+    // Sanitizar apenas o blockquote
+    const embedConfig = {
+      ...purifyConfig,
+      ALLOW_UNKNOWN_PROTOCOLS: false,
+      ALLOWED_TAGS: ['blockquote', 'div', 'p', 'br', 'strong', 'em', 'a'],
+      ALLOWED_ATTR: [
+        'class', 'data-media-max-width', 'data-theme', 'data-cards', 'data-conversation',
+        'href', 'lang', 'dir', 'cite', 'data-src', 'data-tweet-id'
+      ],
+      FORBID_ATTR: ['onload', 'onerror', 'onclick', 'onmouseover', 'onmouseout', 'onfocus', 'onblur']
+    };
+    
+    return DOMPurify.sanitize(twitterEmbed.trim(), embedConfig);
+  }
   
-  // Sanitize the embed code with proper iframe/embed support
+  // Sanitize the embed code with proper iframe/embed support (para outros embeds)
   const embedConfig = {
     ...purifyConfig,
     ALLOW_UNKNOWN_PROTOCOLS: false,
-    ALLOWED_TAGS: ['iframe', 'blockquote', 'script', 'div', 'p', 'br', 'strong', 'em', 'a'],
+    ALLOWED_TAGS: ['iframe', 'blockquote', 'div', 'p', 'br', 'strong', 'em', 'a'],
     ALLOWED_ATTR: [
       'src', 'width', 'height', 'frameborder', 'allowfullscreen', 
       'allow', 'scrolling', 'title', 'style', 'class', 'id',

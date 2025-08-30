@@ -194,7 +194,17 @@ const NewsArticle = () => {
   // Função para reprocessar widgets do Twitter
   const reprocessTwitterWidgets = () => {
     if (typeof window !== 'undefined' && (window as any).twttr?.widgets) {
+      console.log('Reprocessando widgets do Twitter...');
       (window as any).twttr.widgets.load();
+    } else {
+      console.log('Twitter widgets não disponível ainda, tentando novamente...');
+      // Tentar novamente após um delay maior se o script ainda não carregou
+      setTimeout(() => {
+        if ((window as any).twttr?.widgets) {
+          console.log('Twitter widgets carregado, processando...');
+          (window as any).twttr.widgets.load();
+        }
+      }, 1000);
     }
   };
 
