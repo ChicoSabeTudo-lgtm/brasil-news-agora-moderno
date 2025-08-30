@@ -50,7 +50,7 @@
   left: 0;
   right: 0;
   background: hsl(var(--background));
-  padding: 8px 16px;
+  padding: 10px 16px;
   z-index: 10;
   display: flex;
   align-items: center;
