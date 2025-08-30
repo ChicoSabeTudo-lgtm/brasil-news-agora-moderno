@@ -10,12 +10,6 @@ const TwitterEmbed = React.lazy(() =>
   }))
 );
 
-const InstagramEmbed = React.lazy(() => 
-  import('react-social-media-embed').then(module => ({ 
-    default: module.InstagramEmbed 
-  }))
-);
-
 // Type declaration for Instagram embed script
 declare global {
   interface Window {
@@ -98,80 +92,28 @@ const TwitterEmbedWrapper = ({ id }: { id: string }) => {
   );
 };
 
-// Instagram embed with fallback
+// Instagram embed with native iframe
 const InstagramEmbedWrapper = ({ id }: { id: string }) => {
-  const [useReactEmbed, setUseReactEmbed] = useState(true);
-  const [loadError, setLoadError] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const postUrl = `https://www.instagram.com/p/${id}/`;
-  const embedRef = useRef<HTMLDivElement>(null);
 
-  const processInstagramScript = (retryCount = 0) => {
-    if (typeof window !== 'undefined' && window.instgrm?.Embeds?.process) {
-      try {
-        requestAnimationFrame(() => {
-          if (embedRef.current) {
-            window.instgrm.Embeds.process(embedRef.current);
-            setIsLoading(false);
-          }
-        });
-      } catch (error) {
-        console.warn('Instagram embed processing failed:', error);
-        if (retryCount < 3) {
-          setTimeout(() => processInstagramScript(retryCount + 1), 1000 * (retryCount + 1));
-        } else {
-          setLoadError(true);
-          setIsLoading(false);
-        }
-      }
-    } else if (retryCount < 5) {
-      setTimeout(() => processInstagramScript(retryCount + 1), 500 * (retryCount + 1));
-    } else {
-      console.error('Instagram script não disponível após múltiplas tentativas');
-      setLoadError(true);
-      setIsLoading(false);
+  // Parse Instagram URL to extract type and ID
+  const parseInstagramUrl = (url: string) => {
+    const regex = /instagram\.com\/(reel|p|tv)\/([A-Za-z0-9_-]+)/;
+    const match = url.match(regex);
+    if (match) {
+      return { type: match[1], id: match[2] };
     }
+    return null;
   };
 
-  useEffect(() => {
-    // Check if Instagram script is already loaded in layout
-    if (typeof window !== 'undefined') {
-      if (window.instgrm) {
-        // Script already loaded, process immediately
-        processInstagramScript();
-      } else {
-        // Script not loaded yet, wait for it or load it
-        const checkScript = () => {
-          if (window.instgrm) {
-            processInstagramScript();
-          } else {
-            setTimeout(checkScript, 100);
-          }
-        };
-        checkScript();
-      }
-    }
-  }, []);
+  const parseResult = parseInstagramUrl(postUrl);
 
-  useEffect(() => {
-    if (!useReactEmbed) {
-      processInstagramScript();
-    }
-  }, [id, useReactEmbed]);
-
-  const handleBlockquoteClick = (e: React.MouseEvent) => {
-    const target = e.target as HTMLElement;
-    if (target.tagName === 'A' && window.instgrm?.Embeds?.process) {
-      e.preventDefault();
-      processInstagramScript();
-    }
-  };
-
-  if (loadError && !useReactEmbed) {
+  if (!parseResult) {
+    console.error('URL do Instagram inválida:', postUrl);
     return (
       <Card className="w-full max-w-lg mx-auto p-6 text-center">
         <div className="space-y-4">
-          <p className="text-muted-foreground">Não foi possível carregar o post do Instagram</p>
+          <p className="text-muted-foreground">URL do Instagram inválida</p>
           <Button variant="outline" asChild>
             <a href={postUrl} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="w-4 h-4 mr-2" />
@@ -183,43 +125,38 @@ const InstagramEmbedWrapper = ({ id }: { id: string }) => {
     );
   }
 
-  // Try react-social-media-embed first
-  if (useReactEmbed) {
-    return (
-      <Suspense fallback={<EmbedSkeleton />}>
-        <div className="w-full max-w-lg mx-auto">
-          <InstagramEmbed
-            url={postUrl}
-            width={550}
-            captioned={true}
-            onLoad={() => setLoadError(false)}
-            onError={() => {
-              console.warn('React Instagram embed falhou, usando fallback nativo');
-              setUseReactEmbed(false);
-            }}
-          />
-        </div>
-      </Suspense>
-    );
-  }
+  const { type, id: parsedId } = parseResult;
+  const embedUrl = `https://www.instagram.com/${type}/${parsedId}/embed/captioned/`;
 
-  // Fallback to native blockquote
   return (
-    <div ref={embedRef} className="w-full max-w-lg mx-auto" onClick={handleBlockquoteClick}>
-      {isLoading && <EmbedSkeleton />}
-      <blockquote
-        className="instagram-media"
-        data-instgrm-permalink={`${postUrl}?utm_source=ig_embed`}
-        data-instgrm-version="14"
-        data-instgrm-captioned
-        style={{ display: isLoading ? 'none' : 'block' }}
-      >
-        <div style={{ padding: '16px' }}>
-          <a href={postUrl} target="_blank" rel="noopener noreferrer">
-            Ver esta publicação no Instagram
+    <div className="w-full max-w-lg mx-auto">
+      <div className="relative w-full" style={{ aspectRatio: '4/5' }}>
+        <iframe
+          src={embedUrl}
+          loading="lazy"
+          allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
+          sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation"
+          referrerPolicy="origin-when-cross-origin"
+          style={{
+            width: '100%',
+            height: '100%',
+            border: 0,
+            borderRadius: '8px'
+          }}
+          title="Instagram embed"
+          onError={() => {
+            console.error('Erro ao carregar iframe do Instagram:', embedUrl);
+          }}
+        />
+      </div>
+      <div className="mt-2 text-center">
+        <Button variant="ghost" size="sm" asChild>
+          <a href={postUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground">
+            <ExternalLink className="w-3 h-3 mr-1" />
+            Ver no Instagram
           </a>
-        </div>
-      </blockquote>
+        </Button>
+      </div>
     </div>
   );
 };
