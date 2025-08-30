@@ -1344,7 +1344,7 @@ article .twitter-tweet {
   box-shadow: none;
   border-radius: 0;
   max-height: 600px;
-  object-fit: contain;
+  object-fit: cover;
   background: hsl(var(--muted));
 }
 
@@ -1359,7 +1359,6 @@ article .twitter-tweet {
   font-style: normal;
   text-align: left;
   font-weight: 400;
-  border-top: 1px solid #D1D5DB;
   position: relative;
   display: block;
   width: 100%;
