@@ -1,11 +1,6 @@
-import { useState } from "react";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
+import { useEffect, useRef } from "react";
+import ImageGallery from "@/utils/imageGallery";
+import "@/styles/imageGallery.css";
 
 interface NewsImage {
   image_url: string;
@@ -20,80 +15,48 @@ interface NewsImageGalleryProps {
 }
 
 export const NewsImageGallery = ({ images, newsTitle, getImageUrl }: NewsImageGalleryProps) => {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const galleryRef = useRef<HTMLDivElement>(null);
+  const galleryInstanceRef = useRef<ImageGallery | null>(null);
+
+  useEffect(() => {
+    if (!galleryRef.current || !images || images.length === 0) return;
+
+    // Se há apenas uma imagem, usa o layout simples
+    if (images.length === 1) {
+      const image = images[0];
+      galleryRef.current.innerHTML = `
+        <div class="mb-8">
+          <div class="image-container">
+            <img src="${getImageUrl(image)}" alt="${newsTitle}" />
+            ${image.caption ? `<div class="image-caption">${image.caption}</div>` : ''}
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    // Para múltiplas imagens, usar a galeria JavaScript moderna
+    const galleryId = `gallery-${Math.random().toString(36).substr(2, 9)}`;
+    galleryRef.current.id = galleryId;
+
+    const galleryImages = images.map(image => ({
+      src: getImageUrl(image),
+      caption: image.caption || ''
+    }));
+
+    // Criar nova instância da galeria
+    galleryInstanceRef.current = new ImageGallery(galleryId, galleryImages);
+
+    // Cleanup
+    return () => {
+      if (galleryInstanceRef.current) {
+        galleryInstanceRef.current.destroy();
+        galleryInstanceRef.current = null;
+      }
+    };
+  }, [images, newsTitle, getImageUrl]);
 
   if (!images || images.length === 0) return null;
 
-  // Se há apenas uma imagem, mostra ela normalmente
-  if (images.length === 1) {
-    const image = images[0];
-    return (
-      <div className="mb-8">
-        <div className="image-container">
-          <img
-            src={getImageUrl(image)}
-            alt={newsTitle}
-          />
-          {image.caption && (
-            <div className="image-caption">
-              {image.caption}
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  // Se há múltiplas imagens, usa a galeria com carousel
-  return (
-    <div className="image-gallery mb-8">
-      {/* Imagem principal */}
-      <div className="image-container">
-        <img
-          src={getImageUrl(images[selectedIndex])}
-          alt={images[selectedIndex].caption || newsTitle}
-        />
-        {images[selectedIndex].caption && (
-          <div className="image-caption">
-            {images[selectedIndex].caption}
-          </div>
-        )}
-      </div>
-
-      {/* Carousel de thumbnails */}
-      <div className="mt-4">
-        <Carousel className="w-full max-w-xs mx-auto">
-          <CarouselContent>
-            {images.map((image, index) => (
-              <CarouselItem key={index} className="basis-1/3">
-                <div
-                  className={`cursor-pointer transition-all duration-300 rounded-lg overflow-hidden border-2 ${
-                    selectedIndex === index
-                      ? "border-primary scale-110 shadow-lg"
-                      : "border-transparent hover:border-primary/50 hover:scale-105"
-                  }`}
-                  onClick={() => setSelectedIndex(index)}
-                >
-                  <img
-                    src={getImageUrl(image)}
-                    alt={image.caption || `Imagem ${index + 1}`}
-                    className="w-full h-16 object-cover"
-                  />
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious className="left-2" />
-          <CarouselNext className="right-2" />
-        </Carousel>
-      </div>
-
-      {/* Contador de imagens */}
-      <div className="text-center mt-2">
-        <span className="text-sm text-muted-foreground">
-          {selectedIndex + 1} de {images.length}
-        </span>
-      </div>
-    </div>
-  );
+  return <div ref={galleryRef} className="mb-8"></div>;
 };
