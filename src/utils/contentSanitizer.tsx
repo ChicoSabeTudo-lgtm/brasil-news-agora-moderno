@@ -116,23 +116,31 @@ export const sanitizeEmbedCode = (embedCode: string): string => {
 
   // Para embeds do Twitter, remover o script e manter apenas o blockquote
   if (embedCode.includes('twitter-tweet') || embedCode.includes('twitter.com') || embedCode.includes('x.com')) {
+    console.log('Detectado embed do Twitter:', embedCode);
+    
     // Remove o script do Twitter pois já está carregado globalmente
     let twitterEmbed = embedCode.replace(/<script[^>]*src=[^>]*twitter\.com\/widgets\.js[^>]*><\/script>/gi, '');
     twitterEmbed = twitterEmbed.replace(/<script[^>]*src=[^>]*platform\.twitter\.com\/widgets\.js[^>]*><\/script>/gi, '');
     
-    // Sanitizar apenas o blockquote
-    const embedConfig = {
-      ...purifyConfig,
-      ALLOW_UNKNOWN_PROTOCOLS: false,
-      ALLOWED_TAGS: ['blockquote', 'div', 'p', 'br', 'strong', 'em', 'a'],
+    console.log('Twitter embed após remoção do script:', twitterEmbed);
+    
+    // Configuração específica para Twitter com TODOS os atributos necessários
+    const twitterConfig = {
+      ALLOWED_TAGS: ['blockquote', 'div', 'p', 'br', 'strong', 'em', 'a', 'span'],
       ALLOWED_ATTR: [
         'class', 'data-media-max-width', 'data-theme', 'data-cards', 'data-conversation',
-        'href', 'lang', 'dir', 'cite', 'data-src', 'data-tweet-id'
+        'data-tweet-id', 'data-src', 'data-lang', 'data-width', 'data-height',
+        'href', 'lang', 'dir', 'cite', 'rel', 'target', 'title',
+        'ref_src', 'twsrc', 'data-*'
       ],
+      ALLOW_DATA_ATTR: true,
       FORBID_ATTR: ['onload', 'onerror', 'onclick', 'onmouseover', 'onmouseout', 'onfocus', 'onblur']
     };
     
-    return DOMPurify.sanitize(twitterEmbed.trim(), embedConfig);
+    const sanitized = DOMPurify.sanitize(twitterEmbed.trim(), twitterConfig);
+    console.log('Twitter embed sanitizado:', sanitized);
+    
+    return sanitized;
   }
   
   // Sanitize the embed code with proper iframe/embed support (para outros embeds)

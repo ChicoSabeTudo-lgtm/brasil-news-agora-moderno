@@ -191,21 +191,47 @@ const NewsArticle = () => {
     fetchNews();
   }, [slug, id]);
 
-  // Função para reprocessar widgets do Twitter
+  // Função para reprocessar widgets do Twitter com retry e targeting específico
   const reprocessTwitterWidgets = () => {
-    if (typeof window !== 'undefined' && (window as any).twttr?.widgets) {
-      console.log('Reprocessando widgets do Twitter...');
-      (window as any).twttr.widgets.load();
-    } else {
-      console.log('Twitter widgets não disponível ainda, tentando novamente...');
-      // Tentar novamente após um delay maior se o script ainda não carregou
-      setTimeout(() => {
-        if ((window as any).twttr?.widgets) {
-          console.log('Twitter widgets carregado, processando...');
+    const processTwitter = (retryCount = 0) => {
+      if (typeof window === 'undefined') return;
+
+      console.log(`Tentativa ${retryCount + 1} de processar Twitter widgets`);
+      
+      // Verificar se o script do Twitter está carregado
+      if (!(window as any).twttr?.widgets) {
+        console.log('Script do Twitter não carregado ainda');
+        if (retryCount < 5) {
+          setTimeout(() => processTwitter(retryCount + 1), 500 * (retryCount + 1));
+        }
+        return;
+      }
+
+      try {
+        // Processar apenas o container do conteúdo
+        const contentContainer = document.querySelector('.rich-text-content, .news-content, [data-content="article"]');
+        
+        if (contentContainer) {
+          console.log('Processando Twitter widgets no container específico');
+          (window as any).twttr.widgets.load(contentContainer);
+        } else {
+          console.log('Processando Twitter widgets globalmente');
           (window as any).twttr.widgets.load();
         }
-      }, 1000);
-    }
+        
+        // Verificar se há blockquotes do Twitter
+        const twitterBlocks = document.querySelectorAll('.twitter-tweet');
+        console.log(`Encontrados ${twitterBlocks.length} blockquotes do Twitter`);
+        
+      } catch (error) {
+        console.error('Erro ao processar widgets do Twitter:', error);
+        if (retryCount < 3) {
+          setTimeout(() => processTwitter(retryCount + 1), 1000);
+        }
+      }
+    };
+
+    processTwitter();
   };
 
   const getImageUrl = (imageItem: any) => {
