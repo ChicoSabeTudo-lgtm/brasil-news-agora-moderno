@@ -427,38 +427,11 @@ All colors MUST be HSL.
 
 .embed-content iframe {
   width: 100% !important;
-  min-height: 400px !important;
-  height: 400px !important;
   max-width: 100% !important;
   border: none;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   display: block;
-}
-
-/* Exceções específicas para Twitter embeds */
-.embed-content iframe[id^="twitter-widget"],
-.embed-content iframe[src*="twitter.com"],
-.embed-content iframe[src*="x.com"] {
-  height: auto !important;
-  min-height: auto !important;
-  max-height: none !important;
-}
-
-/* Responsivo para dispositivos menores */
-@media (max-width: 640px) {
-  .embed-content iframe {
-    min-height: 250px !important;
-    height: 250px !important;
-  }
-  
-  /* Twitter embeds mantêm altura natural em mobile também */
-  .embed-content iframe[id^="twitter-widget"],
-  .embed-content iframe[src*="twitter.com"],
-  .embed-content iframe[src*="x.com"] {
-    height: auto !important;
-    min-height: auto !important;
-  }
 }
 
 .embed-content blockquote {
@@ -590,38 +563,11 @@ article .twitter-tweet {
 
 .prose .embed-container iframe {
   width: 100% !important;
-  min-height: 400px !important;
-  height: 400px !important;
   max-width: 100% !important;
   border: none;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   display: block;
-}
-
-/* Exceções específicas para Twitter embeds em artigos */
-.prose .embed-container iframe[id^="twitter-widget"],
-.prose .embed-container iframe[src*="twitter.com"],
-.prose .embed-container iframe[src*="x.com"] {
-  height: auto !important;
-  min-height: auto !important;
-  max-height: none !important;
-}
-
-/* Responsivo para embeds na publicação */
-@media (max-width: 640px) {
-  .prose .embed-container iframe {
-    min-height: 250px !important;
-    height: 250px !important;
-  }
-  
-  /* Twitter embeds mantêm altura natural em mobile também */
-  .prose .embed-container iframe[id^="twitter-widget"],
-  .prose .embed-container iframe[src*="twitter.com"],
-  .prose .embed-container iframe[src*="x.com"] {
-    height: auto !important;
-    min-height: auto !important;
-  }
 }
 
 /* Label apenas para o editor - não aparece na publicação */
