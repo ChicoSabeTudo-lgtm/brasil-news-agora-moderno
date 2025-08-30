@@ -411,10 +411,39 @@ const NewsArticle = () => {
   const enhanceContentStructure = (content: string): string => {
     let enhanced = content;
     
-    // Detect and mark first paragraph as lead
+    // Apply lead class to first paragraph
     enhanced = enhanced.replace(
       /(<p[^>]*>)(.*?)<\/p>/i, 
-      '$1<span class="lead-content">$2</span></p>'
+      '<p class="lead">$2</p>'
+    );
+    
+    // Convert strong emphasis patterns to highlight boxes
+    enhanced = enhanced.replace(
+      /<p[^>]*><strong>([^<]+):<\/strong>\s*(.*?)<\/p>/gi,
+      '<div class="highlight-box"><h4>🔍 $1</h4><p>$2</p></div>'
+    );
+    
+    // Convert note patterns to info boxes
+    enhanced = enhanced.replace(
+      /<p[^>]*>(?:Nota|Observação|Importante|Atenção):\s*(.*?)<\/p>/gi,
+      '<div class="info-box"><h4>ℹ️ Informação Importante</h4><p>$1</p></div>'
+    );
+    
+    // Enhance blockquotes with proper cite structure
+    enhanced = enhanced.replace(
+      /<blockquote[^>]*>(.*?)<\/blockquote>/gi,
+      (match, content) => {
+        // Check if there's already a cite element
+        if (content.includes('<cite>')) {
+          return `<blockquote>${content}</blockquote>`;
+        }
+        // Look for attribution patterns
+        const citeMatch = content.match(/(.*?)(?:—|–|-)\s*([^<]+)$/);
+        if (citeMatch) {
+          return `<blockquote><p>"${citeMatch[1].trim()}"</p><cite>— ${citeMatch[2].trim()}</cite></blockquote>`;
+        }
+        return `<blockquote><p>"${content.trim()}"</p></blockquote>`;
+      }
     );
     
     // Add section dividers before h2 elements
@@ -423,10 +452,16 @@ const NewsArticle = () => {
       '<div class="section-divider"></div><h2'
     );
     
-    // Enhance embedded content with action buttons
+    // Enhance YouTube links with action buttons
     enhanced = enhanced.replace(
       /(https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+))/gi,
       '<div class="embed-container"><button class="action-button" onclick="window.open(\'$1\', \'_blank\')">📺 Assista ao vídeo</button></div>'
+    );
+    
+    // Convert legal references to info boxes
+    enhanced = enhanced.replace(
+      /<p[^>]*>(?:Segundo|De acordo com|Conforme)\s+(?:a\s+)?(?:lei|artigo|código|constituição)[^.]*\.(.*?)<\/p>/gi,
+      '<div class="info-box"><h4>⚖️ Aspectos Legais</h4><p>$&</p></div>'
     );
     
     return enhanced;
