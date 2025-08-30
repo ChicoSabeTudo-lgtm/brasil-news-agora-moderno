@@ -54,22 +54,24 @@ export const NewsImageGallery = ({ images, newsTitle, getImageUrl }: NewsImageGa
     const image = images[0];
     return (
       <div className="mb-8">
-        <div className="relative group rounded-xl overflow-hidden bg-muted">
-          <img 
-            src={getImageUrl(image)} 
-            alt={newsTitle}
-            className="w-full h-auto object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
-            onClick={toggleFullscreen}
-          />
-          <button
-            onClick={toggleFullscreen}
-            className="absolute top-4 right-4 p-2 bg-background/80 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            <Maximize2 className="w-4 h-4" />
-          </button>
+        <div className="rounded-xl overflow-hidden bg-muted">
+          <div className="relative group">
+            <img 
+              src={getImageUrl(image)} 
+              alt={newsTitle}
+              className="w-full h-auto object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
+              onClick={toggleFullscreen}
+            />
+            <button
+              onClick={toggleFullscreen}
+              className="absolute top-4 right-4 p-2 bg-background/80 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <Maximize2 className="w-4 h-4" />
+            </button>
+          </div>
           {image.caption && (
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background/90 to-transparent p-4">
-              <p className="text-sm text-foreground/90">{image.caption}</p>
+            <div className="p-3 bg-muted border-t border-border">
+              <p className="text-sm text-foreground/80">{image.caption}</p>
             </div>
           )}
         </div>
@@ -107,9 +109,9 @@ export const NewsImageGallery = ({ images, newsTitle, getImageUrl }: NewsImageGa
   return (
     <div className="mb-8">
       {/* Main gallery */}
-      <div className="relative group rounded-xl overflow-hidden bg-muted mb-4">
+      <div className="rounded-xl overflow-hidden bg-muted mb-4">
         {/* Main image */}
-        <div className="relative aspect-video bg-muted flex items-center justify-center">
+        <div className="relative group aspect-video bg-muted flex items-center justify-center">
           <img 
             src={getImageUrl(currentImage)} 
             alt={newsTitle}
@@ -147,14 +149,14 @@ export const NewsImageGallery = ({ images, newsTitle, getImageUrl }: NewsImageGa
           <div className="absolute top-4 left-4 px-3 py-1 bg-background/80 backdrop-blur-sm rounded-full text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
             {currentIndex + 1} / {images.length}
           </div>
-
-          {/* Caption overlay */}
-          {currentImage.caption && (
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background/90 to-transparent p-4">
-              <p className="text-sm text-foreground/90">{currentImage.caption}</p>
-            </div>
-          )}
         </div>
+
+        {/* Caption footer */}
+        {currentImage.caption && (
+          <div className="p-3 bg-muted border-t border-border">
+            <p className="text-sm text-foreground/80">{currentImage.caption}</p>
+          </div>
+        )}
       </div>
 
       {images.length > 1 && (
