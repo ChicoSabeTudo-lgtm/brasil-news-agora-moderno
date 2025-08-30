@@ -2,6 +2,8 @@ import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { ExternalLink, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useInstagramEmbedDetector } from '@/hooks/useInstagramEmbedDetector';
+import { InstagramFallback } from '@/components/InstagramFallback';
 
 // Dynamic imports for social media embeds (SSR: false)
 const TwitterEmbed = React.lazy(() => 
@@ -99,91 +101,73 @@ const TwitterEmbedWrapper = ({ id }: { id: string }) => {
   );
 };
 
-// Instagram embed with official implementation and fallback
+// Instagram embed with intelligent detection and elegant fallback
 const InstagramEmbedWrapper = ({ id, type = 'p' }: { id: string; type?: string }) => {
-  const [loadError, setLoadError] = useState(false);
-  const [showFallback, setShowFallback] = useState(false);
-  const embedRef = useRef<HTMLDivElement>(null);
+  const [embedRef, { isEmbedFailed, isEmbedSuccess, isLoading }, startDetection] = useInstagramEmbedDetector({
+    timeout: 3000,
+    maxCheckAttempts: 10,
+    checkInterval: 500
+  });
+
   const postUrl = `https://www.instagram.com/${type}/${id}/`;
 
   // Validate Instagram data
   if (!id || !type.match(/^(p|reel|tv)$/)) {
     return (
-      <Card className="w-full max-w-lg mx-auto p-6 text-center">
-        <div className="space-y-4">
-          <p className="text-muted-foreground">Dados do Instagram inválidos</p>
-          <Button variant="outline" asChild>
-            <a href={postUrl} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="w-4 h-4 mr-2" />
-              Ver no Instagram
-            </a>
-          </Button>
-        </div>
-      </Card>
+      <InstagramFallback 
+        embedUrl={postUrl}
+        reason="blocked"
+        className="w-full max-w-lg mx-auto"
+      />
     );
   }
 
-  // Initialize Instagram embed with timeout fallback
+  // Start detection after component mounts
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (embedRef.current && !embedRef.current.querySelector('iframe')) {
-        setShowFallback(true);
-      }
-    }, 3000);
+      startDetection();
+    }, 100);
 
-    // Try to process Instagram embeds
+    return () => clearTimeout(timer);
+  }, [startDetection]);
+
+  // Process Instagram embeds when component loads
+  useEffect(() => {
     if (window.instgrm?.Embeds?.process) {
       try {
         window.instgrm.Embeds.process(embedRef.current);
       } catch (error) {
         console.error('Erro ao processar embed do Instagram:', error);
-        setLoadError(true);
       }
     }
-
-    return () => clearTimeout(timer);
   }, []);
 
-  // Show fallback card if loading failed or timeout
-  if (loadError || showFallback) {
+  // Show intelligent fallback if embed failed
+  if (isEmbedFailed) {
     return (
-      <Card className="w-full max-w-lg mx-auto p-6 text-center">
-        <div className="space-y-4">
-          <p className="text-muted-foreground">
-            Não foi possível carregar o conteúdo do Instagram
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Alguns vídeos/reels podem forçar abrir no Instagram por políticas da plataforma
-          </p>
-          <Button variant="outline" asChild>
-            <a href={postUrl} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="w-4 h-4 mr-2" />
-              Assistir no Instagram
-            </a>
-          </Button>
-        </div>
-      </Card>
+      <InstagramFallback 
+        embedUrl={postUrl}
+        reason="privacy"
+        className="w-full max-w-lg mx-auto"
+      />
     );
   }
 
   return (
-    <Suspense fallback={<EmbedSkeleton />}>
-      <div className="w-full max-w-lg mx-auto" ref={embedRef}>
+    <div ref={embedRef} className="w-full max-w-lg mx-auto">
+      {isLoading && (
+        <div className="flex items-center justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      )}
+      <Suspense fallback={<EmbedSkeleton />}>
         <InstagramEmbed
           url={postUrl}
           width="100%"
           captioned
-          onLoad={() => {
-            setLoadError(false);
-            // Call Instagram embed processing after load
-            if (window.instgrm?.Embeds?.process) {
-              window.instgrm.Embeds.process(embedRef.current);
-            }
-          }}
-          onError={() => setLoadError(true)}
         />
-      </div>
-    </Suspense>
+      </Suspense>
+    </div>
   );
 };
 
