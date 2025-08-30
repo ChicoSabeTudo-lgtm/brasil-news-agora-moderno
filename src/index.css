@@ -312,11 +312,13 @@ All colors MUST be HSL.
 }
 
 .main-image img {
-  @apply w-full h-96 object-cover transition-transform duration-500 hover:scale-105;
+  @apply w-full h-auto object-cover transition-transform duration-500;
+  max-height: 600px;
 }
 
 .image-caption {
-  @apply absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent text-white p-6 text-sm font-medium leading-relaxed;
+  @apply absolute bottom-0 left-0 right-0 text-white p-4 text-sm font-medium leading-relaxed;
+  background: linear-gradient(transparent, rgba(0,0,0,0.8));
   backdrop-filter: blur(2px);
 }
 
@@ -978,12 +980,14 @@ article .twitter-tweet {
   box-shadow: 0 4px 12px hsl(var(--foreground) / 0.1);
 }
 
+/* Sobrescreve estilos das legendas no conteúdo das notícias */
 .news-content .image-caption {
-  font-size: 0.9rem;
-  color: hsl(var(--muted-foreground));
-  text-align: center;
-  margin-top: 0.5rem;
-  font-style: italic;
+  @apply absolute bottom-0 left-0 right-0 text-white p-4 text-sm font-medium leading-relaxed;
+  background: linear-gradient(transparent, rgba(0,0,0,0.8));
+  backdrop-filter: blur(2px);
+  font-style: normal;
+  text-align: left;
+  margin-top: 0;
 }
 
 /* Contêineres e botões de ação */
