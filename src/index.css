@@ -875,17 +875,17 @@ article .twitter-tweet {
   line-height: 1.7;
 }
 
-/* Links com estilo profissional */
+/* Links com estilo profissional - usando cor da categoria */
 .news-content a {
-  color: hsl(var(--primary));
+  color: var(--category-color, hsl(var(--primary)));
   text-decoration: none;
   border-bottom: 1px solid transparent;
   transition: all 0.2s ease;
 }
 
 .news-content a:hover {
-  color: hsl(var(--primary) / 0.8);
-  border-bottom-color: hsl(var(--primary) / 0.5);
+  opacity: 0.8;
+  border-bottom-color: var(--category-color, hsl(var(--primary)));
 }
 
 /* Separadores de seção */
