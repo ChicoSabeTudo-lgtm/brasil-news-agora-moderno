@@ -1,5 +1,7 @@
+import React, { useEffect, useRef } from 'react';
 import DOMPurify from 'dompurify';
-import React from 'react';
+import { Embed } from '@/components/Embed';
+import { parseEmbedMarkers } from '@/utils/embedUtils';
 
 // Configure DOMPurify with safe settings - preserving Rich Text Editor formatting
 const purifyConfig = {
@@ -304,120 +306,140 @@ const forceTwitterHeightFix = (container: HTMLElement): void => {
   }, 100);
 };
 
+// Process HTML and replace embed markers with React components
+const processHtmlWithEmbeds = (html: string) => {
+  const markers = parseEmbedMarkers(html);
+  
+  if (markers.length === 0) {
+    // No embed markers, return sanitized HTML as before
+    return {
+      processedHtml: sanitizeHtml(html),
+      embeds: []
+    };
+  }
+
+  // Split HTML by embed markers and create React elements
+  const parts: (string | { type: 'embed'; provider: string; id: string; key: string })[] = [];
+  let lastIndex = 0;
+
+  markers.forEach((marker, index) => {
+    // Add HTML content before this marker
+    if (marker.index > lastIndex) {
+      const beforeContent = html.slice(lastIndex, marker.index);
+      if (beforeContent.trim()) {
+        parts.push(sanitizeHtml(beforeContent));
+      }
+    }
+
+    // Add embed component
+    parts.push({
+      type: 'embed',
+      provider: marker.provider,
+      id: marker.id,
+      key: `embed-${index}`
+    });
+
+    lastIndex = marker.index + marker.marker.length;
+  });
+
+  // Add remaining HTML content
+  if (lastIndex < html.length) {
+    const remainingContent = html.slice(lastIndex);
+    if (remainingContent.trim()) {
+      parts.push(sanitizeHtml(remainingContent));
+    }
+  }
+
+  return { parts };
+};
+
+interface SafeHtmlRendererProps {
+  html?: string;
+  content?: string; // Legacy prop support
+  className?: string;
+}
+
 /**
- * Creates a safe component for rendering HTML content
- * @param content - The content to render
+ * Creates a safe component for rendering HTML content with embed support
+ * @param html - The HTML content to render (new prop)
+ * @param content - The content to render (legacy prop for compatibility)
  * @param className - Optional CSS class
- * @returns JSX element with sanitized content
+ * @returns JSX element with sanitized content and embedded components
  */
-export const SafeHtmlRenderer: React.FC<{ content: string; className?: string }> = ({ 
+export const SafeHtmlRenderer: React.FC<SafeHtmlRendererProps> = ({ 
+  html,
   content, 
   className = '' 
 }) => {
-  const sanitizedContent = sanitizeHtml(content);
-  const containerRef = React.useRef<HTMLDivElement>(null);
+  // Support both new 'html' prop and legacy 'content' prop
+  const htmlContent = html || content || '';
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
-    if (containerRef.current) {
-      const hasTwitter = sanitizedContent.includes('twitter-tweet');
-      const hasInstagram = sanitizedContent.includes('data-instgrm-permalink') || sanitizedContent.includes('instagram.com');
-      
-      // Initialize Twitter widgets for this specific container
-      if (hasTwitter) {
-        const twitterTimer = setTimeout(() => {
-          initializeTwitterWidgets(containerRef.current);
-        }, 100);
-      }
-      
-      // Initialize Instagram embeds for this specific container
-      if (hasInstagram) {
-        const instagramTimer = setTimeout(() => {
-          initializeInstagramEmbeds(containerRef.current);
-        }, 200);
-      }
+  useEffect(() => {
+    if (!containerRef.current) return;
 
-      // Sistema robusto de monitoramento para embeds
-      const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-            const addedNodes = Array.from(mutation.addedNodes);
-            addedNodes.forEach((node) => {
-              if (node.nodeType === Node.ELEMENT_NODE) {
-                const element = node as HTMLElement;
-                
-                // Detectar iframes do Twitter
-                if (element.tagName === 'IFRAME') {
-                  const iframe = element as HTMLIFrameElement;
-                  if (element.id?.startsWith('twitter-widget') || 
-                     iframe.src?.includes('twitter.com') || 
-                     iframe.src?.includes('x.com')) {
-                  
-                    // Aplicar correções de altura imediatamente e com retry
-                  const applyFix = (retryCount = 0) => {
-                    element.style.setProperty('height', 'auto', 'important');
-                    element.style.setProperty('max-height', 'none', 'important');
-                    element.style.setProperty('min-height', 'auto', 'important');
-                    element.style.setProperty('overflow', 'visible', 'important');
-                    element.style.setProperty('border', 'none', 'important');
-                    
-                    // Retry se necessário
-                    if (retryCount < 3) {
-                      setTimeout(() => applyFix(retryCount + 1), 250 * (retryCount + 1));
-                    }
-                  };
-                  
-                  applyFix();
-                  
-                  // Configurar ResizeObserver para monitoramento contínuo
-                  const resizeObserver = new ResizeObserver(() => {
-                    element.style.setProperty('height', 'auto', 'important');
-                    element.style.setProperty('max-height', 'none', 'important');
-                  });
-                  
-                    resizeObserver.observe(element);
-                  }
-                }
-                
-                // Detectar blockquotes do Twitter
-                if (element.classList?.contains('twitter-tweet') || 
-                    element.getAttribute('data-tweet-id')) {
-                  element.style.setProperty('height', 'auto', 'important');
-                  element.style.setProperty('max-height', 'none', 'important');
-                  element.style.setProperty('overflow', 'visible', 'important');
-                }
-                
-                // Detectar blockquotes do Instagram
-                if (element.classList?.contains('instagram-media') || 
-                    element.getAttribute('data-instgrm-permalink')) {
-                  // Re-processar Instagram embeds quando detectados
-                  initializeInstagramEmbeds(containerRef.current);
-                }
-              }
-            });
-          }
-        });
+    const container = containerRef.current;
+    
+    // Only initialize social media widgets for remaining HTML content (not embeds)
+    const htmlElements = container.querySelectorAll('[data-html-content="true"]');
+    htmlElements.forEach((element) => {
+      initializeTwitterWidgets(element as HTMLElement);
+      initializeInstagramEmbeds(element as HTMLElement);
+    });
+
+    // Set up a MutationObserver to handle dynamically added content
+    const observer = new MutationObserver(() => {
+      const newHtmlElements = container.querySelectorAll('[data-html-content="true"]');
+      newHtmlElements.forEach((element) => {
+        initializeTwitterWidgets(element as HTMLElement);
+        initializeInstagramEmbeds(element as HTMLElement);
       });
+    });
 
-      if (containerRef.current) {
-        observer.observe(containerRef.current, { 
-          childList: true, 
-          subtree: true,
-          attributes: true,
-          attributeFilter: ['style', 'height', 'max-height']
-        });
-      }
+    observer.observe(container, {
+      childList: true,
+      subtree: true
+    });
 
-      return () => {
-        observer.disconnect();
-      };
-    }
-  }, [sanitizedContent]);
+    return () => {
+      observer.disconnect();
+    };
+  }, [htmlContent]);
+
+  const { parts } = processHtmlWithEmbeds(htmlContent);
 
   return (
-    <div 
-      ref={containerRef}
-      className={className}
-      dangerouslySetInnerHTML={{ __html: sanitizedContent }}
-    />
+    <div ref={containerRef} className={className}>
+      {parts ? (
+        parts.map((part, index) => {
+          if (typeof part === 'string') {
+            // Render HTML content
+            return (
+              <div
+                key={`html-${index}`}
+                data-html-content="true"
+                dangerouslySetInnerHTML={{ __html: part }}
+              />
+            );
+          } else if (part.type === 'embed') {
+            // Render embed component
+            return (
+              <Embed
+                key={part.key}
+                provider={part.provider as 'youtube' | 'twitter' | 'instagram'}
+                id={part.id}
+              />
+            );
+          }
+          return null;
+        })
+      ) : (
+        // Fallback for content without embeds
+        <div
+          data-html-content="true"
+          dangerouslySetInnerHTML={{ __html: sanitizeHtml(htmlContent) }}
+        />
+      )}
+    </div>
   );
 };

@@ -1,61 +1,84 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { sanitizeEmbedCode } from '@/utils/contentSanitizer';
 import { useToast } from '@/hooks/use-toast';
+import { embedUrlSchema, extractEmbedData, generateEmbedMarker } from '@/utils/embedUtils';
+import { Youtube, Twitter, Instagram, ExternalLink } from 'lucide-react';
 
 interface EmbedModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onInsert: (embedCode: string) => void;
+  onInsert: (embedMarker: string) => void;
 }
 
 export const EmbedModal = ({ isOpen, onClose, onInsert }: EmbedModalProps) => {
-  const [embedCode, setEmbedCode] = useState('');
+  const [url, setUrl] = useState('');
+  const [isValidating, setIsValidating] = useState(false);
   const { toast } = useToast();
 
-  const handleInsert = () => {
-    if (!embedCode.trim()) {
+  const handleInsert = async () => {
+    if (!url.trim()) {
       toast({
         title: "Erro",
-        description: "Por favor, insira um código embed válido.",
+        description: "Por favor, insira uma URL válida.",
         variant: "destructive"
       });
       return;
     }
 
+    setIsValidating(true);
+
     try {
-      const sanitizedCode = sanitizeEmbedCode(embedCode.trim());
-      if (!sanitizedCode) {
+      // Validate URL format
+      const validation = embedUrlSchema.safeParse(url.trim());
+      if (!validation.success) {
         toast({
-          title: "Código inválido",
-          description: "O código embed não é válido ou não é de uma fonte confiável.",
+          title: "URL inválida",
+          description: "A URL deve ser do YouTube, Twitter/X ou Instagram.",
           variant: "destructive"
         });
         return;
       }
 
-      onInsert(sanitizedCode);
-      setEmbedCode('');
+      // Extract embed data
+      const embedData = extractEmbedData(url.trim());
+      if (!embedData) {
+        toast({
+          title: "Não foi possível processar",
+          description: "Não foi possível extrair os dados da URL fornecida.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Generate embed marker
+      const marker = generateEmbedMarker(embedData.provider, embedData.id);
+      
+      onInsert(marker);
+      setUrl('');
       onClose();
       
       toast({
         title: "Embed inserido",
-        description: "O código embed foi inserido no conteúdo com sucesso.",
+        description: `${embedData.provider === 'youtube' ? 'Vídeo do YouTube' : 
+                     embedData.provider === 'twitter' ? 'Tweet' : 
+                     'Post do Instagram'} inserido com sucesso.`,
       });
     } catch (error) {
       toast({
         title: "Erro",
-        description: "Erro ao processar o código embed.",
+        description: "Erro ao processar a URL do embed.",
         variant: "destructive"
       });
+    } finally {
+      setIsValidating(false);
     }
   };
 
   const handleClose = () => {
-    setEmbedCode('');
+    setUrl('');
     onClose();
   };
 
@@ -66,37 +89,55 @@ export const EmbedModal = ({ isOpen, onClose, onInsert }: EmbedModalProps) => {
           <DialogTitle>Inserir Embed</DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-4 py-4">
+        <div className="space-y-6 py-4">
           <div className="space-y-2">
-            <Label htmlFor="embed-code">
-              Código Embed (YouTube, Instagram, Twitter, etc.)
+            <Label htmlFor="embed-url">
+              URL do Conteúdo
             </Label>
-            <Textarea
-              id="embed-code"
-              placeholder="Cole aqui o código embed..."
-              value={embedCode}
-              onChange={(e) => setEmbedCode(e.target.value)}
-              className="min-h-[120px]"
+            <Input
+              id="embed-url"
+              type="url"
+              placeholder="Cole aqui a URL (YouTube, Twitter/X ou Instagram)..."
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              disabled={isValidating}
             />
           </div>
           
-          <div className="text-sm text-muted-foreground">
-            <p>Suporte para:</p>
-            <ul className="list-disc list-inside mt-1 space-y-1">
-              <li>YouTube (iframe embeds)</li>
-              <li>Instagram (posts e stories)</li>
-              <li>Twitter/X (embedded tweets)</li>
-              <li>Outros iframes seguros</li>
-            </ul>
+          <div className="space-y-3">
+            <p className="text-sm font-medium">Plataformas suportadas:</p>
+            <div className="grid grid-cols-1 gap-3">
+              <div className="flex items-center gap-3 p-3 border rounded-lg">
+                <Youtube className="h-5 w-5 text-red-500" />
+                <div className="text-sm">
+                  <div className="font-medium">YouTube</div>
+                  <div className="text-muted-foreground">youtube.com, youtu.be</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 border rounded-lg">
+                <Twitter className="h-5 w-5 text-blue-500" />
+                <div className="text-sm">
+                  <div className="font-medium">Twitter/X</div>
+                  <div className="text-muted-foreground">twitter.com, x.com</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 border rounded-lg">
+                <Instagram className="h-5 w-5 text-pink-500" />
+                <div className="text-sm">
+                  <div className="font-medium">Instagram</div>
+                  <div className="text-muted-foreground">Posts, Reels e IGTV</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={handleClose}>
+          <Button variant="outline" onClick={handleClose} disabled={isValidating}>
             Cancelar
           </Button>
-          <Button onClick={handleInsert}>
-            Inserir Embed
+          <Button onClick={handleInsert} disabled={isValidating || !url.trim()}>
+            {isValidating ? "Validando..." : "Inserir Embed"}
           </Button>
         </DialogFooter>
       </DialogContent>
