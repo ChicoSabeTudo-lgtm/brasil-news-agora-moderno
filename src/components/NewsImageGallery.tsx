@@ -70,8 +70,8 @@ export const NewsImageGallery = ({ images, newsTitle, getImageUrl }: NewsImageGa
             </button>
           </div>
           {image.caption && (
-            <div className="p-3 bg-muted border-t border-border">
-              <p className="text-sm text-foreground/80">{image.caption}</p>
+            <div className="px-3 py-1 bg-muted border-t border-border">
+              <p className="text-foreground/80" style={{fontSize: '9px'}}>{image.caption}</p>
             </div>
           )}
         </div>
@@ -153,8 +153,8 @@ export const NewsImageGallery = ({ images, newsTitle, getImageUrl }: NewsImageGa
 
         {/* Caption footer */}
         {currentImage.caption && (
-          <div className="p-3 bg-muted border-t border-border">
-            <p className="text-sm text-foreground/80">{currentImage.caption}</p>
+          <div className="px-3 py-1 bg-muted border-t border-border">
+            <p className="text-foreground/80" style={{fontSize: '9px'}}>{currentImage.caption}</p>
           </div>
         )}
       </div>
