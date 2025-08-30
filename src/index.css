@@ -775,3 +775,364 @@ article .twitter-tweet {
 .prose pre code:not([class]) {
   @apply bg-transparent p-0;
 }
+
+/* ===================================================================
+   FORMATAÇÃO PROFISSIONAL PARA CONTEÚDO DE NOTÍCIAS
+   Solução CSS para melhorar espaçamento e tipografia
+   ================================================================== */
+
+/* Container principal do conteúdo da notícia */
+.news-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  line-height: 1.7;
+  color: hsl(var(--foreground));
+  background: hsl(var(--background));
+}
+
+/* Título principal da notícia */
+.news-content h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 1.5rem;
+  color: hsl(var(--foreground));
+  letter-spacing: -0.02em;
+}
+
+/* Subtítulos e seções */
+.news-content h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  color: hsl(var(--foreground));
+  border-left: 4px solid hsl(var(--primary));
+  padding-left: 1rem;
+}
+
+.news-content h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-top: 2rem;
+  margin-bottom: 0.8rem;
+  color: hsl(var(--foreground));
+}
+
+/* Parágrafos - Formatação principal */
+.news-content p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+  text-align: justify;
+  hyphens: auto;
+  word-spacing: 0.1em;
+}
+
+/* Primeiro parágrafo com destaque */
+.news-content p:first-of-type {
+  font-size: 1.15rem;
+  font-weight: 400;
+  color: hsl(var(--foreground));
+  margin-bottom: 2rem;
+}
+
+/* Parágrafo de lead/resumo */
+.news-content .lead {
+  font-size: 1.2rem;
+  font-weight: 400;
+  line-height: 1.6;
+  color: hsl(var(--muted-foreground));
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: hsl(var(--muted) / 0.5);
+  border-left: 4px solid hsl(var(--secondary));
+  border-radius: 0 4px 4px 0;
+}
+
+/* Citações e depoimentos */
+.news-content blockquote {
+  font-size: 1.1rem;
+  font-style: italic;
+  line-height: 1.7;
+  margin: 2rem 0;
+  padding: 1.5rem 2rem;
+  background: hsl(var(--muted) / 0.3);
+  border-left: 5px solid hsl(var(--accent));
+  border-radius: 0 8px 8px 0;
+  color: hsl(var(--muted-foreground));
+}
+
+.news-content blockquote p {
+  margin-bottom: 0.5rem;
+}
+
+.news-content blockquote cite {
+  display: block;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  font-style: normal;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Listas com melhor espaçamento */
+.news-content ul,
+.news-content ol {
+  margin: 1.5rem 0;
+  padding-left: 2rem;
+}
+
+.news-content li {
+  margin-bottom: 0.8rem;
+  line-height: 1.7;
+}
+
+/* Links com estilo profissional */
+.news-content a {
+  color: hsl(var(--primary));
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.news-content a:hover {
+  color: hsl(var(--primary) / 0.8);
+  border-bottom-color: hsl(var(--primary) / 0.8);
+}
+
+/* Separadores de seção */
+.news-content .section-divider {
+  margin: 3rem 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, hsl(var(--border)), transparent);
+}
+
+/* Caixas de destaque para informações importantes */
+.news-content .highlight-box {
+  background: hsl(var(--secondary) / 0.1);
+  border: 1px solid hsl(var(--secondary) / 0.3);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  border-left: 5px solid hsl(var(--secondary));
+}
+
+.news-content .highlight-box h4 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: hsl(var(--foreground));
+  font-size: 1.2rem;
+}
+
+.news-content .highlight-box p {
+  margin-bottom: 0.5rem;
+  color: hsl(var(--foreground));
+}
+
+/* Caixa de informação */
+.news-content .info-box {
+  background: hsl(var(--primary) / 0.05);
+  border: 1px solid hsl(var(--primary) / 0.2);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  border-left: 5px solid hsl(var(--primary));
+}
+
+.news-content .info-box h4 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: hsl(var(--primary));
+  font-size: 1.2rem;
+}
+
+.news-content .info-box p {
+  margin-bottom: 0.5rem;
+  color: hsl(var(--foreground));
+}
+
+/* Formatação para datas e metadados */
+.news-content .meta-info {
+  font-size: 0.9rem;
+  color: hsl(var(--muted-foreground));
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.news-content .meta-info span {
+  margin-right: 1rem;
+}
+
+/* Imagens no conteúdo */
+.news-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 2rem 0;
+  box-shadow: 0 4px 12px hsl(var(--foreground) / 0.1);
+}
+
+.news-content .image-caption {
+  font-size: 0.9rem;
+  color: hsl(var(--muted-foreground));
+  text-align: center;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* Botões de ação (como "Assista") */
+.news-content .action-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.5rem;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 500;
+  margin: 1rem 0;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.news-content .action-button:hover {
+  background: hsl(var(--primary) / 0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px hsl(var(--primary) / 0.3);
+  color: hsl(var(--primary-foreground));
+  border-bottom: none;
+}
+
+.news-content .action-button.secondary {
+  background: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+}
+
+.news-content .action-button.secondary:hover {
+  background: hsl(var(--secondary) / 0.9);
+}
+
+/* Responsividade para dispositivos móveis */
+@media (max-width: 768px) {
+  .news-content {
+    padding: 15px;
+  }
+  
+  .news-content h1 {
+    font-size: 1.8rem;
+  }
+  
+  .news-content h2 {
+    font-size: 1.3rem;
+    margin-top: 2rem;
+  }
+  
+  .news-content p {
+    font-size: 1rem;
+    text-align: left;
+  }
+  
+  .news-content .lead {
+    font-size: 1.1rem;
+  }
+  
+  .news-content blockquote {
+    padding: 1rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+}
+
+/* Melhorias para legibilidade */
+.news-content {
+  /* Melhora a renderização de fontes */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Melhora a quebra de palavras */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Espaçamento entre seções de conteúdo */
+.news-content > * + * {
+  margin-top: 1.5rem;
+}
+
+.news-content > h2 + * {
+  margin-top: 1rem;
+}
+
+.news-content > h3 + * {
+  margin-top: 0.8rem;
+}
+
+/* Estilo para texto em negrito e itálico */
+.news-content strong {
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.news-content em {
+  font-style: italic;
+  color: hsl(var(--muted-foreground));
+}
+
+/* Tabelas (se houver) */
+.news-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+  background: hsl(var(--background));
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px hsl(var(--foreground) / 0.1);
+}
+
+.news-content th,
+.news-content td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.news-content th {
+  background: hsl(var(--muted));
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+/* Código inline */
+.news-content code {
+  background: hsl(var(--muted));
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.9em;
+  color: hsl(var(--destructive));
+}
+
+/* Melhorias para impressão */
+@media print {
+  .news-content {
+    font-size: 12pt;
+    line-height: 1.5;
+    color: black;
+  }
+  
+  .news-content a {
+    color: black;
+    text-decoration: underline;
+  }
+  
+  .news-content .action-button {
+    display: none;
+  }
+}

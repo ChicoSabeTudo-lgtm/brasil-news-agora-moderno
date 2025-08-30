@@ -540,7 +540,7 @@ const NewsArticle = () => {
 
             {/* Article Content with In-Content Ads - CONTAINER SEM LIMITAÇÕES DE ALTURA */}
             <div 
-              className="prose prose-lg max-w-none text-foreground mb-8"
+              className="news-content prose prose-lg max-w-none text-foreground mb-8"
               data-content="article"
               style={{
                 height: 'auto',
@@ -555,12 +555,12 @@ const NewsArticle = () => {
                     (match, newsId, paragraphPos) => 
                       `<div id="in-content-ad-${paragraphPos}"></div>`
                   )}
-                  className="rich-text-content news-content"
+                  className="rich-text-content"
                 />
               ) : (
                 <SafeHtmlRenderer 
                   content={processedContent || news.content}
-                  className="rich-text-content news-content"
+                  className="rich-text-content"
                 />
               )}
               
