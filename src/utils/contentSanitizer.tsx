@@ -239,48 +239,88 @@ export const initializeTwitterWidgets = (container: HTMLElement | null = null, r
 };
 
 /**
- * Force height fix for Twitter iframes
+ * Force height fix for Twitter iframes - VERSÃO ROBUSTA
  * @param container - Container to search for Twitter embeds
  */
 const forceTwitterHeightFix = (container: HTMLElement): void => {
-  // Wait a bit for iframe to be fully rendered
-  setTimeout(() => {
-    const twitterIframes = container.querySelectorAll('iframe[id^="twitter-widget"]');
-    
-    twitterIframes.forEach((iframe) => {
-      const htmlIframe = iframe as HTMLIFrameElement;
+  const applyHeightFix = (delay = 0) => {
+    setTimeout(() => {
+      // Corrigir iframes do Twitter
+      const twitterIframes = container.querySelectorAll('iframe[id^="twitter-widget"], iframe[src*="twitter.com"], iframe[src*="x.com"]');
       
-      // Remove height restrictions
-      htmlIframe.style.height = 'auto';
-      htmlIframe.style.maxHeight = 'none';
-      htmlIframe.style.minHeight = 'auto';
-      
-      // Try to access iframe content if same-origin
-      try {
-        if (htmlIframe.contentDocument) {
-          const body = htmlIframe.contentDocument.body;
-          if (body) {
-            body.style.height = 'auto';
-            body.style.maxHeight = 'none';
-            body.style.overflow = 'visible';
+      twitterIframes.forEach((iframe) => {
+        const htmlIframe = iframe as HTMLIFrameElement;
+        
+        // Aplicar estilos com força máxima
+        htmlIframe.style.setProperty('height', 'auto', 'important');
+        htmlIframe.style.setProperty('max-height', 'none', 'important');
+        htmlIframe.style.setProperty('min-height', 'auto', 'important');
+        htmlIframe.style.setProperty('overflow', 'visible', 'important');
+        htmlIframe.style.setProperty('border', 'none', 'important');
+        
+        // Tentar acessar conteúdo do iframe
+        try {
+          if (htmlIframe.contentDocument) {
+            const body = htmlIframe.contentDocument.body;
+            const html = htmlIframe.contentDocument.documentElement;
+            
+            if (body) {
+              body.style.setProperty('height', 'auto', 'important');
+              body.style.setProperty('max-height', 'none', 'important');
+              body.style.setProperty('overflow', 'visible', 'important');
+            }
+            
+            if (html) {
+              html.style.setProperty('height', 'auto', 'important');
+              html.style.setProperty('max-height', 'none', 'important');
+              html.style.setProperty('overflow', 'visible', 'important');
+            }
           }
+        } catch (e) {
+          // Cross-origin - usar ResizeObserver
+          const resizeObserver = new ResizeObserver((entries) => {
+            entries.forEach(entry => {
+              const iframe = entry.target as HTMLIFrameElement;
+              iframe.style.setProperty('height', 'auto', 'important');
+              iframe.style.setProperty('max-height', 'none', 'important');
+            });
+          });
+          
+          resizeObserver.observe(htmlIframe);
         }
-      } catch (e) {
-        // Cross-origin iframe, can't access content
-        console.log('Cannot access iframe content (cross-origin)');
-      }
-    });
+      });
 
-    // Also fix blockquote containers
-    const twitterBlocks = container.querySelectorAll('.twitter-tweet');
-    twitterBlocks.forEach((block) => {
-      const htmlBlock = block as HTMLElement;
-      htmlBlock.style.height = 'auto';
-      htmlBlock.style.maxHeight = 'none';
-      htmlBlock.style.minHeight = 'auto';
-      htmlBlock.style.overflow = 'visible';
-    });
-  }, 500);
+      // Corrigir blockquotes e containers do Twitter
+      const twitterBlocks = container.querySelectorAll('.twitter-tweet, blockquote[data-tweet-id]');
+      twitterBlocks.forEach((block) => {
+        const htmlBlock = block as HTMLElement;
+        htmlBlock.style.setProperty('height', 'auto', 'important');
+        htmlBlock.style.setProperty('max-height', 'none', 'important');
+        htmlBlock.style.setProperty('min-height', 'auto', 'important');
+        htmlBlock.style.setProperty('overflow', 'visible', 'important');
+        htmlBlock.style.setProperty('border', 'none', 'important');
+        htmlBlock.style.setProperty('padding', '0', 'important');
+        htmlBlock.style.setProperty('background', 'transparent', 'important');
+      });
+
+      // Corrigir containers pais
+      const twitterContainers = container.querySelectorAll('div:has(.twitter-tweet), div:has(iframe[id^="twitter-widget"])');
+      twitterContainers.forEach((cont) => {
+        const htmlCont = cont as HTMLElement;
+        htmlCont.style.setProperty('height', 'auto', 'important');
+        htmlCont.style.setProperty('max-height', 'none', 'important');
+        htmlCont.style.setProperty('overflow', 'visible', 'important');
+      });
+      
+    }, delay);
+  };
+
+  // Aplicar correções em múltiplos momentos
+  applyHeightFix(0);     // Imediato
+  applyHeightFix(100);   // 100ms
+  applyHeightFix(500);   // 500ms
+  applyHeightFix(1000);  // 1s
+  applyHeightFix(2000);  // 2s
 };
 
 /**
@@ -303,7 +343,7 @@ export const SafeHtmlRenderer: React.FC<{ content: string; className?: string }>
         initializeTwitterWidgets(containerRef.current);
       }, 100);
 
-      // Set up mutation observer to watch for iframe changes
+      // Sistema robusto de monitoramento para Twitter embeds
       const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
           if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
@@ -311,13 +351,46 @@ export const SafeHtmlRenderer: React.FC<{ content: string; className?: string }>
             addedNodes.forEach((node) => {
               if (node.nodeType === Node.ELEMENT_NODE) {
                 const element = node as HTMLElement;
-                if (element.tagName === 'IFRAME' && element.id?.startsWith('twitter-widget')) {
-                  // Force height fix on new iframe
-                  setTimeout(() => {
-                    element.style.height = 'auto';
-                    element.style.maxHeight = 'none';
-                    element.style.minHeight = 'auto';
-                  }, 100);
+                
+                // Detectar iframes do Twitter
+                if (element.tagName === 'IFRAME') {
+                  const iframe = element as HTMLIFrameElement;
+                  if (element.id?.startsWith('twitter-widget') || 
+                     iframe.src?.includes('twitter.com') || 
+                     iframe.src?.includes('x.com')) {
+                  
+                    // Aplicar correções de altura imediatamente e com retry
+                  const applyFix = (retryCount = 0) => {
+                    element.style.setProperty('height', 'auto', 'important');
+                    element.style.setProperty('max-height', 'none', 'important');
+                    element.style.setProperty('min-height', 'auto', 'important');
+                    element.style.setProperty('overflow', 'visible', 'important');
+                    element.style.setProperty('border', 'none', 'important');
+                    
+                    // Retry se necessário
+                    if (retryCount < 3) {
+                      setTimeout(() => applyFix(retryCount + 1), 250 * (retryCount + 1));
+                    }
+                  };
+                  
+                  applyFix();
+                  
+                  // Configurar ResizeObserver para monitoramento contínuo
+                  const resizeObserver = new ResizeObserver(() => {
+                    element.style.setProperty('height', 'auto', 'important');
+                    element.style.setProperty('max-height', 'none', 'important');
+                  });
+                  
+                    resizeObserver.observe(element);
+                  }
+                }
+                
+                // Detectar blockquotes do Twitter
+                if (element.classList?.contains('twitter-tweet') || 
+                    element.getAttribute('data-tweet-id')) {
+                  element.style.setProperty('height', 'auto', 'important');
+                  element.style.setProperty('max-height', 'none', 'important');
+                  element.style.setProperty('overflow', 'visible', 'important');
                 }
               }
             });
@@ -328,7 +401,9 @@ export const SafeHtmlRenderer: React.FC<{ content: string; className?: string }>
       if (containerRef.current) {
         observer.observe(containerRef.current, { 
           childList: true, 
-          subtree: true 
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['style', 'height', 'max-height']
         });
       }
 

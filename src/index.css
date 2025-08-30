@@ -462,8 +462,13 @@ All colors MUST be HSL.
   width: calc(100% - 2px);
 }
 
-/* Twitter embed styles - forçar altura completa sem limitações */
-.twitter-tweet {
+/* ================ TWITTER EMBED STYLES - CORREÇÃO COMPLETA ================ */
+
+/* Remover TODAS as limitações de altura em Twitter embeds */
+.twitter-tweet,
+.twitter-tweet[data-theme],
+.twitter-tweet[data-width],
+blockquote.twitter-tweet {
   margin: 2rem auto !important;
   max-width: 540px !important;
   width: 100% !important;
@@ -471,37 +476,75 @@ All colors MUST be HSL.
   max-height: none !important;
   min-height: auto !important;
   overflow: visible !important;
+  box-sizing: border-box !important;
 }
 
-/* Container e iframe específicos para tweets */
+/* Forçar altura automática em containers e iframes Twitter */
 .twitter-tweet-container,
 .twitter-tweet iframe,
-iframe[id^="twitter-widget"] {
+iframe[id^="twitter-widget"],
+iframe[src*="twitter.com"],
+iframe[src*="x.com"] {
+  height: auto !important;
+  max-height: none !important;
+  min-height: auto !important;
+  overflow: visible !important;
+  border: none !important;
+}
+
+/* Eliminar limitações em TODOS os elementos internos do Twitter */
+.twitter-tweet *,
+.twitter-tweet-rendered *,
+.twitter-tweet-rendered,
+iframe[src*="twitter.com"] *,
+iframe[src*="x.com"] * {
   height: auto !important;
   max-height: none !important;
   min-height: auto !important;
   overflow: visible !important;
 }
 
-/* Forçar altura automática em todos os elementos Twitter */
-.twitter-tweet *,
-.twitter-tweet-rendered *,
-iframe[src*="twitter.com"] {
-  height: auto !important;
-  max-height: none !important;
-}
-
-/* Corrigir dentro de containers de artigo */
+/* Correções específicas para containers de artigo com especificidade máxima */
 .prose .twitter-tweet,
 .rich-text-content .twitter-tweet,
-article .twitter-tweet {
+.news-content .twitter-tweet,
+article .twitter-tweet,
+[data-content="article"] .twitter-tweet,
+.ql-editor .twitter-tweet {
   height: auto !important;
   max-height: none !important;
   min-height: auto !important;
+  overflow: visible !important;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
 }
 
-/* CSS específico para elementos gerados dinamicamente pelo Twitter */
-.twitter-tweet-rendered {
+/* Sobrescrever qualquer limitação da classe .prose do Tailwind */
+.prose {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.prose * {
+  max-height: none !important;
+}
+
+/* Garantir que elementos dynamicamente criados pelo Twitter não tenham limitações */
+.twitter-tweet-rendered,
+.twitter-tweet-error,
+.twitter-tweet iframe[id^="twitter-widget"] {
+  height: auto !important;
+  max-height: none !important;
+  min-height: auto !important;
+  overflow: visible !important;
+  display: block !important;
+}
+
+/* Corrigir possíveis limitações de containers pais */
+div:has(.twitter-tweet),
+div:has(iframe[id^="twitter-widget"]),
+.embed-content:has(.twitter-tweet) {
   height: auto !important;
   max-height: none !important;
   min-height: auto !important;
