@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, X, Maximize2 } from "lucide-react";
+import { ImageCaption } from './ImageCaption';
 
 interface NewsImage {
   image_url: string;
@@ -70,11 +71,7 @@ export const NewsImageGallery = ({ images, newsTitle, getImageUrl }: NewsImageGa
             </button>
           </div>
         </div>
-        {image.caption && (
-          <div className="px-3 py-2 bg-white">
-            <p className="text-foreground/80 leading-tight" style={{fontSize: '11px'}}>{image.caption}</p>
-          </div>
-        )}
+        {image.caption && <ImageCaption caption={image.caption} />}
 
         {/* Fullscreen modal for single image */}
         {isFullscreen && (
@@ -153,11 +150,7 @@ export const NewsImageGallery = ({ images, newsTitle, getImageUrl }: NewsImageGa
       </div>
 
       {/* Caption footer - separate from gallery */}
-      {currentImage.caption && (
-        <div className="px-3 py-2 bg-white">
-          <p className="text-foreground/80 leading-tight" style={{fontSize: '11px'}}>{currentImage.caption}</p>
-        </div>
-      )}
+      {currentImage.caption && <ImageCaption caption={currentImage.caption} />}
 
       {images.length > 1 && (
         <div className="flex gap-2 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
