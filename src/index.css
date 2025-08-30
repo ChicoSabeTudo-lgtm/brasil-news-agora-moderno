@@ -446,8 +446,11 @@ All colors MUST be HSL.
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   margin: 1rem auto;
-  max-width: 540px;
-  min-width: 326px;
+  max-width: 270px;
+  min-width: 163px;
+  transform: scale(0.5);
+  transform-origin: center;
+}
   padding: 0;
   width: calc(100% - 2px);
 }
