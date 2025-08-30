@@ -471,9 +471,6 @@ All colors MUST be HSL.
   max-height: none !important;
   min-height: auto !important;
   overflow: visible !important;
-  border: 1px solid rgb(196, 207, 214) !important;
-  border-radius: 12px !important;
-  padding: 12px !important;
 }
 
 /* Container e iframe específicos para tweets */
