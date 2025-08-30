@@ -1061,6 +1061,40 @@ article .twitter-tweet {
   overflow-wrap: break-word;
 }
 
+/* Enhanced content processing */
+.news-content .lead-content {
+  font-size: 1.15rem;
+  font-weight: 400;
+  color: hsl(var(--muted-foreground));
+  line-height: 1.7;
+}
+
+.news-content .processed-content {
+  margin-top: 2rem;
+}
+
+.news-content .embed-container {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+/* Enhanced content processing */
+.news-content .lead-content {
+  font-size: 1.15rem;
+  font-weight: 400;
+  color: hsl(var(--muted-foreground));
+  line-height: 1.7;
+}
+
+.news-content .processed-content {
+  margin-top: 2rem;
+}
+
+.news-content .embed-container {
+  margin: 2rem 0;
+  text-align: center;
+}
+
 /* Espaçamento entre seções de conteúdo */
 .news-content > * + * {
   margin-top: 1.5rem;

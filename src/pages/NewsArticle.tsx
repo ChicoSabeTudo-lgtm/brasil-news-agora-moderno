@@ -401,10 +401,35 @@ const NewsArticle = () => {
     const diffInMinutes = Math.abs(updated.getTime() - published.getTime()) / (1000 * 60);
     
     if (diffInMinutes > 1) {
-      return `Atualizada em ${format(updated, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`;
+      return format(updated, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
     }
     
-    return `Publicada em ${format(published, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}`;
+    return format(published, "dd/MM/yyyy 'às' HH:mm", { locale: ptBR });
+  };
+
+  // Enhanced content structure processor
+  const enhanceContentStructure = (content: string): string => {
+    let enhanced = content;
+    
+    // Detect and mark first paragraph as lead
+    enhanced = enhanced.replace(
+      /(<p[^>]*>)(.*?)<\/p>/i, 
+      '$1<span class="lead-content">$2</span></p>'
+    );
+    
+    // Add section dividers before h2 elements
+    enhanced = enhanced.replace(
+      /<h2/g, 
+      '<div class="section-divider"></div><h2'
+    );
+    
+    // Enhance embedded content with action buttons
+    enhanced = enhanced.replace(
+      /(https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+))/gi,
+      '<div class="embed-container"><button class="action-button" onclick="window.open(\'$1\', \'_blank\')">📺 Assista ao vídeo</button></div>'
+    );
+    
+    return enhanced;
   };
 
   if (loading) {
@@ -475,7 +500,28 @@ const NewsArticle = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Article */}
-          <article className="lg:col-span-3">
+          <article className="lg:col-span-3 news-content">
+            {/* Professional Meta Information */}
+            <div className="meta-info">
+              <span className="flex items-center gap-1">
+                📅 {formatPublishedAt(news.published_at)}
+              </span>
+              <span className="flex items-center gap-1">
+                👤 {news.profiles?.full_name || 'Redação'}
+              </span>
+              <span className="flex items-center gap-1">
+                🏷️ {news.categories?.name}
+              </span>
+              <span className="flex items-center gap-1">
+                👁️ {news.views || 0} visualizações
+              </span>
+              {news.updated_at && news.updated_at !== news.published_at && (
+                <span className="flex items-center gap-1">
+                  🔄 Atualizado em {formatUpdatedAt(news.published_at, news.updated_at)}
+                </span>
+              )}
+            </div>
+
             {/* Category and Breaking Badge */}
             <div className="mb-4 flex items-center gap-2">
               {news.is_breaking && (
@@ -538,29 +584,21 @@ const NewsArticle = () => {
               <Advertisement position="international" />
             </div>
 
-            {/* Article Content with In-Content Ads - CONTAINER SEM LIMITAÇÕES DE ALTURA */}
-            <div 
-              className="news-content prose prose-lg max-w-none text-foreground mb-8"
-              data-content="article"
-              style={{
-                height: 'auto',
-                maxHeight: 'none',
-                overflow: 'visible'
-              }}
-            >
+            {/* Enhanced Content with Professional Formatting */}
+            <div className="processed-content">
               {contentWithAds ? (
                 <SafeHtmlRenderer 
-                  content={contentWithAds.replace(
+                  content={enhanceContentStructure(contentWithAds.replace(
                     /<div data-in-content-ad="([^"]+)" data-paragraph="(\d+)"><\/div>/g,
                     (match, newsId, paragraphPos) => 
                       `<div id="in-content-ad-${paragraphPos}"></div>`
-                  )}
-                  className="rich-text-content"
+                  ))}
+                  className="news-article-content"
                 />
               ) : (
                 <SafeHtmlRenderer 
-                  content={processedContent || news.content}
-                  className="rich-text-content"
+                  content={enhanceContentStructure(processedContent || news.content)}
+                  className="news-article-content"
                 />
               )}
               
