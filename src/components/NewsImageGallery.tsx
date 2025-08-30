@@ -53,7 +53,7 @@ export const NewsImageGallery = ({ images, newsTitle, getImageUrl }: NewsImageGa
   if (images.length === 1) {
     const image = images[0];
     return (
-      <div className="mb-8">
+      <div className="mb-4">
         <div className="rounded-xl overflow-hidden bg-muted">
           <div className="relative group">
             <img 
@@ -69,12 +69,12 @@ export const NewsImageGallery = ({ images, newsTitle, getImageUrl }: NewsImageGa
               <Maximize2 className="w-4 h-4" />
             </button>
           </div>
-          {image.caption && (
-            <div className="px-3 py-1 bg-muted border-t border-border">
-              <p className="text-foreground/80" style={{fontSize: '9px'}}>{image.caption}</p>
-            </div>
-          )}
         </div>
+        {image.caption && (
+          <div className="px-3 py-2 bg-white">
+            <p className="text-foreground/80 leading-tight" style={{fontSize: '11px'}}>{image.caption}</p>
+          </div>
+        )}
 
         {/* Fullscreen modal for single image */}
         {isFullscreen && (
@@ -107,9 +107,9 @@ export const NewsImageGallery = ({ images, newsTitle, getImageUrl }: NewsImageGa
   const currentImage = images[currentIndex];
 
   return (
-    <div className="mb-8">
+    <div className="mb-4">
       {/* Main gallery */}
-      <div className="rounded-xl overflow-hidden bg-muted mb-4">
+      <div className="rounded-xl overflow-hidden bg-muted">
         {/* Main image */}
         <div className="relative group aspect-video bg-muted flex items-center justify-center">
           <img 
@@ -150,14 +150,14 @@ export const NewsImageGallery = ({ images, newsTitle, getImageUrl }: NewsImageGa
             {currentIndex + 1} / {images.length}
           </div>
         </div>
-
-        {/* Caption footer */}
-        {currentImage.caption && (
-          <div className="px-3 py-1 bg-muted border-t border-border">
-            <p className="text-foreground/80" style={{fontSize: '9px'}}>{currentImage.caption}</p>
-          </div>
-        )}
       </div>
+
+      {/* Caption footer - separate from gallery */}
+      {currentImage.caption && (
+        <div className="px-3 py-2 bg-white">
+          <p className="text-foreground/80 leading-tight" style={{fontSize: '11px'}}>{currentImage.caption}</p>
+        </div>
+      )}
 
       {images.length > 1 && (
         <div className="flex gap-2 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
