@@ -583,26 +583,6 @@ const NewsArticle = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Article */}
           <article className="lg:col-span-3 news-content">
-            {/* Professional Meta Information */}
-            <div className="meta-info">
-              <span className="flex items-center gap-1">
-                📅 {formatPublishedAt(news.published_at)}
-              </span>
-              <span className="flex items-center gap-1">
-                👤 {news.profiles?.full_name || 'Redação'}
-              </span>
-              <span className="flex items-center gap-1">
-                🏷️ {news.categories?.name}
-              </span>
-              <span className="flex items-center gap-1">
-                👁️ {news.views || 0} visualizações
-              </span>
-              {news.updated_at && news.updated_at !== news.published_at && (
-                <span className="flex items-center gap-1">
-                  🔄 Atualizado em {formatUpdatedAt(news.published_at, news.updated_at)}
-                </span>
-              )}
-            </div>
 
             {/* Category and Breaking Badge */}
             <div className="mb-4 flex items-center gap-2">
