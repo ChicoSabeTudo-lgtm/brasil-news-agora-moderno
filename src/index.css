@@ -451,9 +451,6 @@ All colors MUST be HSL.
   transform: scale(0.5);
   transform-origin: center;
 }
-  padding: 0;
-  width: calc(100% - 2px);
-}
 
 /* ================ TWITTER EMBED STYLES - SIMPLES ================ */
 
