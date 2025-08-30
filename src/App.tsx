@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { SiteCodeInjector } from "@/components/SiteCodeInjector";
+import { EmbedBridge } from "@/components/EmbedBridge";
 
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -40,6 +41,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <SiteCodeInjector />
+        <EmbedBridge />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
