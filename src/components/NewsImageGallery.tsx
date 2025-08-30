@@ -21,14 +21,18 @@ export const NewsImageGallery = ({ images, newsTitle, getImageUrl }: NewsImageGa
   useEffect(() => {
     if (!galleryRef.current || !images || images.length === 0) return;
 
-    // Se há apenas uma imagem, usa o layout simples
+    // Se há apenas uma imagem, usa a estrutura da galeria mas sem navegação
     if (images.length === 1) {
       const image = images[0];
       galleryRef.current.innerHTML = `
-        <div class="mb-8">
-          <div class="image-container">
-            <img src="${getImageUrl(image)}" alt="${newsTitle}" />
-            ${image.caption ? `<div class="image-caption">${image.caption}</div>` : ''}
+        <div class="gallery-main mb-8">
+          <div class="main-image-container">
+            <img class="main-image" src="${getImageUrl(image)}" alt="${newsTitle}" />
+            ${image.caption ? `
+              <div class="image-overlay">
+                <p class="main-caption">${image.caption}</p>
+              </div>
+            ` : ''}
           </div>
         </div>
       `;
