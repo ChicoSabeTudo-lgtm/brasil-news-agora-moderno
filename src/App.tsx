@@ -49,8 +49,6 @@ const App = () => (
             <Route path="/perfil" element={<Profile />} />
             <Route path="/admin" element={<ModernAdmin />} />
             <Route path="/admin/configuracoes" element={<SiteConfigurations />} />
-            {/* Rota dinâmica para todas as categorias */}
-            <Route path="/:categorySlug" element={<DynamicCategoryRoute />} />
             <Route path="/busca" element={<Search />} />
             <Route path="/ao-vivo" element={<AoVivo />} />
             <Route path="/videos" element={<Videos />} />
@@ -61,6 +59,8 @@ const App = () => (
             <Route path="/sitemap.xml" element={<Sitemap />} />
             <Route path="/noticia/:id" element={<NewsArticle />} />
             <Route path="/:categorySlug/:slug" element={<NewsArticle />} />
+            {/* Rota dinâmica para todas as categorias */}
+            <Route path="/:categorySlug" element={<DynamicCategoryRoute />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
