@@ -812,7 +812,7 @@ article .twitter-tweet {
   margin-top: 2.5rem;
   margin-bottom: 1rem;
   color: hsl(var(--foreground));
-  border-left: 4px solid hsl(var(--primary));
+  border-left: 4px solid hsl(var(--category-primary, var(--primary)));
   padding-left: 1rem;
 }
 
@@ -894,17 +894,17 @@ article .twitter-tweet {
   line-height: 1.7;
 }
 
-/* Links com estilo profissional */
+/* Links com estilo profissional - cores dinâmicas */
 .news-content a {
-  color: hsl(var(--primary));
+  color: hsl(var(--category-primary, var(--primary)));
   text-decoration: none;
   border-bottom: 1px solid transparent;
   transition: all 0.3s ease;
 }
 
 .news-content a:hover {
-  color: hsl(var(--primary) / 0.8);
-  border-bottom-color: hsl(var(--primary) / 0.8);
+  color: hsl(var(--category-primary-hover, var(--primary)) / 0.8);
+  border-bottom-color: hsl(var(--category-primary, var(--primary)) / 0.8);
 }
 
 /* Separadores de seção */
@@ -936,20 +936,20 @@ article .twitter-tweet {
   color: hsl(var(--foreground));
 }
 
-/* Caixa de informação */
+/* Caixa de informação - cores dinâmicas */
 .news-content .info-box {
-  background: hsl(var(--primary) / 0.05);
-  border: 1px solid hsl(var(--primary) / 0.2);
+  background: hsl(var(--category-primary-alpha, var(--primary) / 0.05));
+  border: 1px solid hsl(var(--category-primary, var(--primary)) / 0.2);
   border-radius: 8px;
   padding: 1.5rem;
   margin: 2rem 0;
-  border-left: 5px solid hsl(var(--primary));
+  border-left: 5px solid hsl(var(--category-primary, var(--primary)));
 }
 
 .news-content .info-box h4 {
   margin-top: 0;
   margin-bottom: 1rem;
-  color: hsl(var(--primary));
+  color: hsl(var(--category-primary, var(--primary)));
   font-size: 1.2rem;
 }
 
@@ -997,14 +997,15 @@ article .twitter-tweet {
   margin: 1.5rem 0;
 }
 
+/* News Content - Dynamic Category Colors */
 .news-content .action-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
   padding: 0.8rem 1.5rem;
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
+  background: hsl(var(--category-primary, var(--primary)));
+  color: white;
   text-decoration: none;
   border-radius: 8px;
   font-weight: 600;
@@ -1025,7 +1026,7 @@ article .twitter-tweet {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, hsl(var(--primary-foreground) / 0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
   transition: left 0.5s;
 }
 
@@ -1034,15 +1035,15 @@ article .twitter-tweet {
 }
 
 .news-content .action-button:hover {
-  background: hsl(var(--primary) / 0.9);
+  background: hsl(var(--category-primary-hover, var(--primary)));
   transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 8px 20px hsl(var(--primary) / 0.3);
-  color: hsl(var(--primary-foreground));
+  box-shadow: 0 8px 20px hsl(var(--category-primary-alpha, var(--primary) / 0.3));
+  color: white;
   border-bottom: none;
 }
 
 .news-content .action-button:focus {
-  ring: 2px solid hsl(var(--primary));
+  ring: 2px solid hsl(var(--category-primary, var(--primary)));
   ring-offset: 2px;
 }
 
@@ -1206,7 +1207,7 @@ article .twitter-tweet {
 /* Professional Inline Code Styling */
 .news-content code {
   background: hsl(var(--muted) / 0.8);
-  color: hsl(var(--primary));
+  color: hsl(var(--category-primary, var(--primary)));
   padding: 0.15rem 0.4rem;
   border-radius: 6px;
   font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Consolas', monospace;
@@ -1240,7 +1241,7 @@ article .twitter-tweet {
   content: "▸";
   position: absolute;
   left: 0;
-  color: hsl(var(--primary));
+  color: hsl(var(--category-primary, var(--primary)));
   font-weight: bold;
   font-size: 1.2em;
   top: 0;
@@ -1266,8 +1267,8 @@ article .twitter-tweet {
   position: absolute;
   left: 0;
   top: 0;
-  background: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
+  background: hsl(var(--category-primary, var(--primary)));
+  color: white;
   width: 1.8rem;
   height: 1.8rem;
   border-radius: 50%;
