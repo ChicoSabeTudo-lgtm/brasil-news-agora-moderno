@@ -15,7 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { SafeHtmlRenderer, sanitizeEmbedCode } from '@/utils/contentSanitizer';
-import { InstagramEmbed } from '@/components/ui/instagram-embed';
+
 import { VideoPlayer } from '@/components/VideoPlayer';
 import { AudioPlayer } from '@/components/AudioPlayer';
 import { useNewsMedia } from '@/hooks/useNewsMedia';

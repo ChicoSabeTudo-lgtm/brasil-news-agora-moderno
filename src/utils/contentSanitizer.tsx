@@ -17,12 +17,13 @@ const purifyConfig = {
     'target', 'rel', 'data-*', 'controls', 'autoplay', 'loop', 'muted',
     'poster', 'preload', 'style', 'frameborder', 'allowfullscreen',
     'allow', 'loading', 'decoding', 'color', 'background-color',
-    'text-align', 'font-size', 'font-weight', 'font-style', 'text-decoration'
+    'text-align', 'font-size', 'font-weight', 'font-style', 'text-decoration',
+    'data-instgrm-captioned', 'data-instgrm-permalink', 'data-instgrm-version'
   ],
+  ADD_TAGS: ['blockquote', 'iframe'],
+  ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling', 'data-instgrm-captioned', 'data-instgrm-permalink', 'data-instgrm-version'],
   ALLOW_DATA_ATTR: true,
   ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp|xxx):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
-  ADD_TAGS: ['iframe'],
-  ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling'],
   KEEP_CONTENT: true,
   FORCE_BODY: false
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { ExternalLink, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,11 +10,16 @@ const TwitterEmbed = React.lazy(() =>
   }))
 );
 
-const InstagramEmbed = React.lazy(() => 
-  import('react-social-media-embed').then(module => ({ 
-    default: module.InstagramEmbed 
-  }))
-);
+// Type declaration for Instagram embed script
+declare global {
+  interface Window {
+    instgrm?: {
+      Embeds?: {
+        process?: (element?: HTMLElement) => void;
+      };
+    };
+  }
+}
 
 interface EmbedProps {
   provider: 'youtube' | 'twitter' | 'instagram';
@@ -90,7 +95,51 @@ const TwitterEmbedWrapper = ({ id }: { id: string }) => {
 // Instagram embed with fallback
 const InstagramEmbedWrapper = ({ id }: { id: string }) => {
   const [loadError, setLoadError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const postUrl = `https://www.instagram.com/p/${id}/`;
+  const embedRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const processInstagram = (retryCount = 0) => {
+      if (typeof window !== 'undefined' && window.instgrm?.Embeds?.process) {
+        try {
+          if (embedRef.current) {
+            window.instgrm.Embeds.process(embedRef.current);
+            setIsLoading(false);
+          }
+        } catch (error) {
+          console.warn('Instagram embed processing failed:', error);
+          if (retryCount < 3) {
+            setTimeout(() => processInstagram(retryCount + 1), 1000 * (retryCount + 1));
+          } else {
+            setLoadError(true);
+            setIsLoading(false);
+          }
+        }
+      } else if (retryCount < 5) {
+        // Retry if Instagram script is not loaded yet
+        setTimeout(() => processInstagram(retryCount + 1), 500 * (retryCount + 1));
+      } else {
+        setLoadError(true);
+        setIsLoading(false);
+      }
+    };
+
+    // Add Instagram script if not present
+    if (typeof window !== 'undefined' && !window.instgrm) {
+      const script = document.createElement('script');
+      script.src = 'https://www.instagram.com/embed.js';
+      script.async = true;
+      script.onload = () => processInstagram();
+      script.onerror = () => {
+        setLoadError(true);
+        setIsLoading(false);
+      };
+      document.head.appendChild(script);
+    } else {
+      processInstagram();
+    }
+  }, [id]);
 
   if (loadError) {
     return (
@@ -109,16 +158,22 @@ const InstagramEmbedWrapper = ({ id }: { id: string }) => {
   }
 
   return (
-    <Suspense fallback={<EmbedSkeleton />}>
-      <div className="w-full max-w-lg mx-auto">
-        <InstagramEmbed
-          url={postUrl}
-          width={550}
-          onLoad={() => setLoadError(false)}
-          onError={() => setLoadError(true)}
-        />
-      </div>
-    </Suspense>
+    <div ref={embedRef} className="w-full max-w-lg mx-auto">
+      {isLoading && <EmbedSkeleton />}
+      <blockquote
+        className="instagram-media"
+        data-instgrm-permalink={`${postUrl}?utm_source=ig_embed`}
+        data-instgrm-version="14"
+        data-instgrm-captioned
+        style={{ display: isLoading ? 'none' : 'block' }}
+      >
+        <div style={{ padding: '16px' }}>
+          <a href={postUrl} target="_blank" rel="noopener noreferrer">
+            Ver esta publicação no Instagram
+          </a>
+        </div>
+      </blockquote>
+    </div>
   );
 };
 
