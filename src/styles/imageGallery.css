@@ -16,7 +16,7 @@
 .main-image-container {
   position: relative;
   width: 100%;
-  height: 400px;
+  height: 500px;
   overflow: hidden;
   cursor: pointer;
   background: hsl(var(--muted));
@@ -51,7 +51,7 @@
   right: 0;
   background: hsl(var(--background));
   border-top: 1px solid hsl(var(--border));
-  padding: 16px 20px;
+  padding: 8px 20px;
   z-index: 10;
 }
 
@@ -296,7 +296,7 @@
   }
   
   .main-image-container {
-    height: 300px;
+    height: 375px;
   }
   
   .nav-button {
@@ -359,7 +359,7 @@
 
 @media (max-width: 480px) {
   .main-image-container {
-    height: 250px;
+    height: 315px;
   }
   
   .nav-button {
