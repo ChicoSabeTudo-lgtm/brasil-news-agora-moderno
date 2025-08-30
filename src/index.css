@@ -1319,6 +1319,52 @@ article .twitter-tweet {
   }
 }
 
+/* ===================================================================
+   LEGENDA DE IMAGEM REFORMULADA - CHICO SABE TUDO
+   Formatação igual à da imagem enviada pelo usuário
+   ================================================================== */
+
+/* Container da imagem com legenda */
+.news-content .image-container {
+  margin: 2rem 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Imagem dentro do container */
+.news-content .image-container img {
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 0;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* Legenda reformulada - igual à da imagem enviada */
+.news-content .image-caption {
+  background: #E5E7EB; /* Fundo cinza claro igual à imagem */
+  color: #374151; /* Texto escuro */
+  font-size: 0.85rem;
+  line-height: 1.4;
+  padding: 8px 12px;
+  margin: 0;
+  font-style: normal;
+  text-align: left;
+  font-weight: 400;
+  border-top: 1px solid #D1D5DB;
+}
+
+/* Responsividade para mobile */
+@media (max-width: 768px) {
+  .news-content .image-caption {
+    font-size: 0.8rem;
+    padding: 6px 10px;
+  }
+}
+
 /* Melhorias para impressão */
 @media print {
   .news-content {

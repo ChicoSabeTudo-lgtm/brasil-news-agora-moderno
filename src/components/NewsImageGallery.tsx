@@ -29,16 +29,15 @@ export const NewsImageGallery = ({ images, newsTitle, getImageUrl }: NewsImageGa
     const image = images[0];
     return (
       <div className="mb-8">
-        <div className="relative">
+        <div className="image-container">
           <img
             src={getImageUrl(image)}
             alt={newsTitle}
-            className="w-full h-auto rounded-lg shadow-lg max-h-[600px] object-contain bg-muted"
           />
           {image.caption && (
-            <p className="text-sm text-muted-foreground mt-2 italic text-center">
+            <div className="image-caption">
               {image.caption}
-            </p>
+            </div>
           )}
         </div>
       </div>
@@ -49,16 +48,15 @@ export const NewsImageGallery = ({ images, newsTitle, getImageUrl }: NewsImageGa
   return (
     <div className="image-gallery mb-8">
       {/* Imagem principal */}
-      <div className="relative">
+      <div className="image-container">
         <img
           src={getImageUrl(images[selectedIndex])}
           alt={images[selectedIndex].caption || newsTitle}
-          className="w-full h-auto rounded-lg shadow-lg max-h-[600px] object-contain bg-muted"
         />
         {images[selectedIndex].caption && (
-          <p className="text-sm text-muted-foreground mt-2 italic">
+          <div className="image-caption">
             {images[selectedIndex].caption}
-          </p>
+          </div>
         )}
       </div>
 
