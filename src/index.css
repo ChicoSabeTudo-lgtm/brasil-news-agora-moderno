@@ -1338,6 +1338,7 @@ article .twitter-tweet {
   line-height: 1.4;
   padding: 8px 12px;
   margin: 0;
+  margin-top: 0; /* Garante que fica colada ao container */
   font-style: normal;
   text-align: left;
   font-weight: 400;
@@ -1345,6 +1346,7 @@ article .twitter-tweet {
   display: block;
   width: 100%;
   box-sizing: border-box;
+  z-index: 10; /* Garante que fica visível sobre outros elementos */
 }
 
 /* Responsividade para mobile */
