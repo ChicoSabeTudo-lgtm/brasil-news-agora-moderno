@@ -17,17 +17,38 @@ export const InstagramEmbed = ({ embedCode, className }: InstagramEmbedProps) =>
       // Inserir o HTML bruto do embed
       containerRef.current.innerHTML = embedCode;
       
-      // Processar scripts do Instagram
-      if (window.instgrm) {
-        window.instgrm.Embeds.process();
-      } else {
-        // Se o script do Instagram ainda não carregou, tentar novamente em 500ms
-        setTimeout(() => {
-          if (window.instgrm) {
+      // Função para processar embeds com retry
+      const processEmbeds = (retryCount = 0) => {
+        if (window.instgrm?.Embeds) {
+          try {
             window.instgrm.Embeds.process();
+          } catch (error) {
+            console.warn('Instagram embed processing failed:', error);
+            if (retryCount < 3) {
+              setTimeout(() => processEmbeds(retryCount + 1), 1000);
+            }
           }
-        }, 500);
-      }
+        } else if (retryCount < 10) {
+          // Retry até 10 vezes com intervalos crescentes
+          setTimeout(() => processEmbeds(retryCount + 1), 500 + (retryCount * 500));
+        } else {
+          console.warn('Instagram script não carregou após múltiplas tentativas');
+          // Fallback: carregar o script manualmente
+          const script = document.createElement('script');
+          script.async = true;
+          script.src = 'https://www.instagram.com/embed.js';
+          script.onload = () => {
+            setTimeout(() => {
+              if (window.instgrm?.Embeds) {
+                window.instgrm.Embeds.process();
+              }
+            }, 100);
+          };
+          document.head.appendChild(script);
+        }
+      };
+      
+      processEmbeds();
     }
   }, [embedCode]);
 
