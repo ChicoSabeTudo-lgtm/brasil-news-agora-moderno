@@ -134,17 +134,22 @@ const InstagramEmbedWrapper = ({ id }: { id: string }) => {
   };
 
   useEffect(() => {
-    // Ensure Instagram script is loaded
-    if (typeof window !== 'undefined' && !window.instgrm) {
-      const script = document.createElement('script');
-      script.src = 'https://www.instagram.com/embed.js';
-      script.async = true;
-      script.onload = () => processInstagramScript();
-      script.onerror = () => {
-        setLoadError(true);
-        setIsLoading(false);
-      };
-      document.head.appendChild(script);
+    // Check if Instagram script is already loaded in layout
+    if (typeof window !== 'undefined') {
+      if (window.instgrm) {
+        // Script already loaded, process immediately
+        processInstagramScript();
+      } else {
+        // Script not loaded yet, wait for it or load it
+        const checkScript = () => {
+          if (window.instgrm) {
+            processInstagramScript();
+          } else {
+            setTimeout(checkScript, 100);
+          }
+        };
+        checkScript();
+      }
     }
   }, []);
 
