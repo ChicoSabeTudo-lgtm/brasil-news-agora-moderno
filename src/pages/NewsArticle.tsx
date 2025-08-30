@@ -21,7 +21,6 @@ import { AudioPlayer } from '@/components/AudioPlayer';
 import { useNewsMedia } from '@/hooks/useNewsMedia';
 import { AnalyticsTracker } from '@/components/AnalyticsTracker';
 import { useCategories } from '@/hooks/useCategories';
-import { useCategoryColors } from '@/utils/categoryColors';
 
 interface NewsData {
   id: string;
@@ -37,7 +36,6 @@ interface NewsData {
   categories: {
     name: string;
     slug: string;
-    color?: string;
   };
   profiles: {
     full_name: string;
@@ -574,9 +572,6 @@ const NewsArticle = () => {
     const category = categories.find(cat => cat.slug === news.categories.slug);
     return category?.color || '#0066cc';
   };
-
-  // Aplicar cores dinâmicas da categoria apenas quando news estiver carregado
-  useCategoryColors(news?.categories?.slug, news?.categories?.color);
 
   return (
     <AnalyticsTracker articleId={news?.id}>
