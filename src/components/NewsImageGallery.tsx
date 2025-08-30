@@ -158,7 +158,7 @@ export const NewsImageGallery = ({ images, newsTitle, getImageUrl }: NewsImageGa
             <button
               key={index}
               onClick={() => goToImage(index)}
-              className={`flex-shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition-all ${
+              className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
                 index === currentIndex 
                   ? "border-primary shadow-lg scale-105" 
                   : "border-border hover:border-primary/50"
