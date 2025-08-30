@@ -462,21 +462,49 @@ All colors MUST be HSL.
   width: calc(100% - 2px);
 }
 
-/* Twitter embed styles - garantir altura completa */
+/* Twitter embed styles - forçar altura completa sem limitações */
 .twitter-tweet {
   margin: 2rem auto !important;
   max-width: 540px !important;
   width: 100% !important;
-  /* Remove qualquer limitação de altura */
+  height: auto !important;
+  max-height: none !important;
+  min-height: auto !important;
+  overflow: visible !important;
+  border: 1px solid rgb(196, 207, 214) !important;
+  border-radius: 12px !important;
+  padding: 12px !important;
+}
+
+/* Container e iframe específicos para tweets */
+.twitter-tweet-container,
+.twitter-tweet iframe,
+iframe[id^="twitter-widget"] {
   height: auto !important;
   max-height: none !important;
   min-height: auto !important;
   overflow: visible !important;
 }
 
-/* Container para tweets - sem limitação de altura */
-.twitter-tweet-container,
-.twitter-tweet iframe {
+/* Forçar altura automática em todos os elementos Twitter */
+.twitter-tweet *,
+.twitter-tweet-rendered *,
+iframe[src*="twitter.com"] {
+  height: auto !important;
+  max-height: none !important;
+}
+
+/* Corrigir dentro de containers de artigo */
+.prose .twitter-tweet,
+.rich-text-content .twitter-tweet,
+article .twitter-tweet {
+  height: auto !important;
+  max-height: none !important;
+  min-height: auto !important;
+}
+
+/* CSS específico para elementos gerados dinamicamente pelo Twitter */
+.twitter-tweet-rendered {
   height: auto !important;
   max-height: none !important;
   min-height: auto !important;
