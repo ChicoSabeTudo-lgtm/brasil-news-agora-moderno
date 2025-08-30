@@ -185,6 +185,95 @@ export const sanitizeUserInput = (input: string, maxLength: number = 1000): stri
 };
 
 /**
+ * Extract Twitter tweet ID from URL or embed code
+ * @param content - Twitter embed code or URL
+ * @returns Tweet ID if found, null otherwise
+ */
+export const extractTwitterId = (content: string): string | null => {
+  // Extract from tweet URL
+  const urlMatch = content.match(/(?:twitter\.com|x\.com)\/\w+\/status\/(\d+)/);
+  if (urlMatch) return urlMatch[1];
+
+  // Extract from data-tweet-id attribute
+  const dataMatch = content.match(/data-tweet-id="(\d+)"/);
+  if (dataMatch) return dataMatch[1];
+
+  return null;
+};
+
+/**
+ * Initialize Twitter widgets for a specific container (useful for modals)
+ * @param container - DOM element to process, or null for global processing
+ * @param retryCount - Number of retries attempted
+ */
+export const initializeTwitterWidgets = (container: HTMLElement | null = null, retryCount = 0): void => {
+  if (typeof window === 'undefined') return;
+
+  const processTwitter = () => {
+    // Check if Twitter script is loaded
+    if (!(window as any).twttr?.widgets) {
+      console.log(`Twitter widgets not loaded yet (attempt ${retryCount + 1})`);
+      if (retryCount < 5) {
+        setTimeout(() => initializeTwitterWidgets(container, retryCount + 1), 500 * (retryCount + 1));
+      }
+      return;
+    }
+
+    try {
+      if (container) {
+        console.log('Processing Twitter widgets in specific container');
+        (window as any).twttr.widgets.load(container);
+      } else {
+        console.log('Processing Twitter widgets globally');
+        (window as any).twttr.widgets.load();
+      }
+
+      // Check for unprocessed Twitter blockquotes and try programmatic approach
+      const unprocessedTweets = container 
+        ? container.querySelectorAll('.twitter-tweet:not([data-twitter-processed])')
+        : document.querySelectorAll('.twitter-tweet:not([data-twitter-processed])');
+      
+      console.log(`Found ${unprocessedTweets.length} unprocessed Twitter embeds`);
+      
+      unprocessedTweets.forEach((blockquote: Element) => {
+        const tweetId = extractTwitterId(blockquote.outerHTML);
+        if (tweetId) {
+          console.log(`Creating programmatic tweet for ID: ${tweetId}`);
+          // Create a container for the programmatic embed
+          const embedContainer = document.createElement('div');
+          blockquote.parentNode?.insertBefore(embedContainer, blockquote);
+          
+          // Use programmatic API
+          (window as any).twttr.widgets.createTweet(tweetId, embedContainer, {
+            theme: 'light',
+            conversation: 'none',
+            cards: 'visible'
+          }).then(() => {
+            // Remove original blockquote after successful embed
+            blockquote.remove();
+          }).catch((error: Error) => {
+            console.error('Failed to create programmatic tweet:', error);
+            // Keep original blockquote as fallback
+            blockquote.setAttribute('data-twitter-processed', 'true');
+          });
+        } else {
+          // Mark as processed to avoid reprocessing
+          blockquote.setAttribute('data-twitter-processed', 'true');
+        }
+      });
+
+    } catch (error) {
+      console.error('Error processing Twitter widgets:', error);
+      if (retryCount < 3) {
+        setTimeout(() => initializeTwitterWidgets(container, retryCount + 1), 1000);
+      }
+    }
+  };
+
+  processTwitter();
+};
+
+/**
  * Creates a safe component for rendering HTML content
  * @param content - The content to render
  * @param className - Optional CSS class
@@ -195,9 +284,22 @@ export const SafeHtmlRenderer: React.FC<{ content: string; className?: string }>
   className = '' 
 }) => {
   const sanitizedContent = sanitizeHtml(content);
-  
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (containerRef.current && sanitizedContent.includes('twitter-tweet')) {
+      // Initialize Twitter widgets for this specific container
+      const timer = setTimeout(() => {
+        initializeTwitterWidgets(containerRef.current);
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [sanitizedContent]);
+
   return (
     <div 
+      ref={containerRef}
       className={className}
       dangerouslySetInnerHTML={{ __html: sanitizedContent }}
     />
