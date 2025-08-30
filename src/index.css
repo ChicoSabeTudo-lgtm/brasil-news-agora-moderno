@@ -315,19 +315,7 @@ All colors MUST be HSL.
   @apply w-full h-96 object-cover transition-transform duration-500 hover:scale-105;
 }
 
-.image-caption {
-  @apply absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent text-white p-6 text-sm font-medium leading-relaxed;
-  backdrop-filter: blur(2px);
-}
-
-.image-caption::before {
-  content: "";
-  @apply absolute top-0 left-6 w-8 h-0.5 bg-primary;
-}
-
-.image-caption p {
-  @apply mb-0 pt-2;
-}
+/* Removido - estilo conflitante de image-caption */
 
 .gallery-thumbnails {
   @apply grid grid-cols-3 gap-2 mt-4;
@@ -978,13 +966,7 @@ article .twitter-tweet {
   box-shadow: 0 4px 12px hsl(var(--foreground) / 0.1);
 }
 
-.news-content .image-caption {
-  font-size: 0.9rem;
-  color: hsl(var(--muted-foreground));
-  text-align: center;
-  margin-top: 0.5rem;
-  font-style: italic;
-}
+/* Estilo antigo removido - estava causando conflito */
 
 /* Contêineres e botões de ação */
 .news-content .action-container {
