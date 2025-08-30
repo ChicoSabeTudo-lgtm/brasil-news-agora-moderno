@@ -803,12 +803,7 @@ article .twitter-tweet {
 }
 
 /* Subtitle da notícia com traço da cor da categoria */
-.news-title h2 {
-  font-size: 1.2rem;
-  font-weight: 400;
-  line-height: 1.6;
-  margin-bottom: 2rem;
-  color: hsl(var(--muted-foreground));
+.news-content h2.text-xl {
   border-left: 4px solid var(--category-color, hsl(var(--primary)));
   padding-left: 1rem;
 }
