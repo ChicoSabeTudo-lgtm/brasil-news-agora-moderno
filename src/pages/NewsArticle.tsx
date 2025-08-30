@@ -578,7 +578,10 @@ const NewsArticle = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Article */}
-          <article className="lg:col-span-3 news-content">
+            <article 
+              className="lg:col-span-3 news-content"
+              style={{ '--category-color': getCategoryColor() } as React.CSSProperties}
+            >
 
             {/* Category and Breaking Badge */}
             <div className="mb-4 flex items-center gap-2">
@@ -643,10 +646,7 @@ const NewsArticle = () => {
             </div>
 
             {/* Enhanced Content with Professional Formatting */}
-            <div 
-              className="processed-content"
-              style={{ '--category-color': getCategoryColor() } as React.CSSProperties}
-            >
+            <div className="processed-content">
               {contentWithAds ? (
                 <SafeHtmlRenderer 
                   content={enhanceContentStructure(contentWithAds.replace(
