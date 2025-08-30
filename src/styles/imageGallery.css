@@ -51,14 +51,14 @@
   right: 0;
   background: hsl(var(--background));
   border-top: 1px solid hsl(var(--border));
-  padding: 1px 16px;
+  padding: 0 16px;
   z-index: 10;
 }
 
 .main-caption {
   color: hsl(var(--foreground));
   font-size: 13px;
-  line-height: 1.1;
+  line-height: 1;
   margin: 0;
 }
 
