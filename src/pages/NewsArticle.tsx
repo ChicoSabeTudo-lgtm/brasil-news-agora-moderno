@@ -452,10 +452,57 @@ const NewsArticle = () => {
       '<div class="section-divider"></div><h2'
     );
     
-    // Enhance YouTube links with action buttons
+    // Enhanced Action Buttons with Context Detection
+    
+    // Primary video buttons (YouTube, Vimeo)
     enhanced = enhanced.replace(
       /(https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+))/gi,
-      '<div class="embed-container"><button class="action-button" onclick="window.open(\'$1\', \'_blank\')">📺 Assista ao vídeo</button></div>'
+      '<div class="action-container"><button class="action-button" onclick="window.open(\'$1\', \'_blank\')" aria-label="Assistir vídeo no YouTube">📺 Assista ao vídeo</button></div>'
+    );
+    
+    enhanced = enhanced.replace(
+      /(https?:\/\/(?:www\.)?vimeo\.com\/(\d+))/gi,
+      '<div class="action-container"><button class="action-button" onclick="window.open(\'$1\', \'_blank\')" aria-label="Assistir vídeo no Vimeo">📺 Assista ao vídeo</button></div>'
+    );
+    
+    // Secondary buttons for documents and external links
+    enhanced = enhanced.replace(
+      /(https?:\/\/[^\s]+\.pdf)/gi,
+      '<div class="action-container"><button class="action-button secondary" onclick="window.open(\'$1\', \'_blank\')" aria-label="Baixar documento PDF">📄 Baixe o documento</button></div>'
+    );
+    
+    // Social media buttons
+    enhanced = enhanced.replace(
+      /(https?:\/\/(?:www\.)?instagram\.com\/p\/[\w-]+)/gi,
+      '<div class="action-container"><button class="action-button secondary" onclick="window.open(\'$1\', \'_blank\')" aria-label="Ver no Instagram">📱 Ver no Instagram</button></div>'
+    );
+    
+    enhanced = enhanced.replace(
+      /(https?:\/\/(?:www\.)?twitter\.com\/[\w-]+\/status\/\d+)/gi,
+      '<div class="action-container"><button class="action-button secondary" onclick="window.open(\'$1\', \'_blank\')" aria-label="Ver no Twitter">📱 Ver no Twitter</button></div>'
+    );
+    
+    // Contextual action phrases
+    enhanced = enhanced.replace(
+      /<p[^>]*>(.*?)(?:Leia mais|Saiba mais|Veja também).*?<a[^>]+href="([^"]+)"[^>]*>(.*?)<\/a>(.*?)<\/p>/gi,
+      '<p>$1$4</p><div class="action-container"><button class="action-button secondary" onclick="window.open(\'$2\', \'_blank\')" aria-label="Leia mais informações">📄 Leia mais</button></div>'
+    );
+    
+    enhanced = enhanced.replace(
+      /<p[^>]*>(.*?)(?:Assista|Veja o vídeo).*?<a[^>]+href="([^"]+)"[^>]*>(.*?)<\/a>(.*?)<\/p>/gi,
+      '<p>$1$4</p><div class="action-container"><button class="action-button" onclick="window.open(\'$2\', \'_blank\')" aria-label="Assistir vídeo">📺 Assista ao vídeo</button></div>'
+    );
+    
+    // Data and report buttons
+    enhanced = enhanced.replace(
+      /(https?:\/\/[^\s]+\.(?:xls|xlsx|csv))/gi,
+      '<div class="action-container"><button class="action-button secondary" onclick="window.open(\'$1\', \'_blank\')" aria-label="Baixar planilha">📊 Baixe os dados</button></div>'
+    );
+    
+    // Generic external links with context
+    enhanced = enhanced.replace(
+      /<p[^>]*>(.*?)(?:Acesse|Visite|Confira).*?<a[^>]+href="(https?:\/\/[^"]+)"[^>]*>(.*?)<\/a>(.*?)<\/p>/gi,
+      '<p>$1$4</p><div class="action-container"><button class="action-button secondary" onclick="window.open(\'$2\', \'_blank\')" aria-label="Acessar link externo">🔗 Acesse aqui</button></div>'
     );
     
     // Convert legal references to info boxes
