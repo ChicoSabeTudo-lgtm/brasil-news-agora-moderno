@@ -10,6 +10,12 @@ const TwitterEmbed = React.lazy(() =>
   }))
 );
 
+const InstagramEmbed = React.lazy(() => 
+  import('react-social-media-embed').then(module => ({ 
+    default: module.InstagramEmbed 
+  }))
+);
+
 // Type declaration for Instagram embed script
 declare global {
   interface Window {
@@ -93,13 +99,15 @@ const TwitterEmbedWrapper = ({ id }: { id: string }) => {
   );
 };
 
-// Instagram iframe component
-const InstagramIframe = ({ id, type = 'p' }: { id: string; type?: string }) => {
-  const embedUrl = `https://www.instagram.com/${type}/${id}/embed/captioned/`;
+// Instagram embed with official implementation and fallback
+const InstagramEmbedWrapper = ({ id, type = 'p' }: { id: string; type?: string }) => {
+  const [loadError, setLoadError] = useState(false);
+  const [showFallback, setShowFallback] = useState(false);
+  const embedRef = useRef<HTMLDivElement>(null);
   const postUrl = `https://www.instagram.com/${type}/${id}/`;
 
+  // Validate Instagram data
   if (!id || !type.match(/^(p|reel|tv)$/)) {
-    console.error('Dados do Instagram inválidos:', { id, type });
     return (
       <Card className="w-full max-w-lg mx-auto p-6 text-center">
         <div className="space-y-4">
@@ -115,36 +123,67 @@ const InstagramIframe = ({ id, type = 'p' }: { id: string; type?: string }) => {
     );
   }
 
+  // Initialize Instagram embed with timeout fallback
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (embedRef.current && !embedRef.current.querySelector('iframe')) {
+        setShowFallback(true);
+      }
+    }, 3000);
+
+    // Try to process Instagram embeds
+    if (window.instgrm?.Embeds?.process) {
+      try {
+        window.instgrm.Embeds.process(embedRef.current);
+      } catch (error) {
+        console.error('Erro ao processar embed do Instagram:', error);
+        setLoadError(true);
+      }
+    }
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Show fallback card if loading failed or timeout
+  if (loadError || showFallback) {
+    return (
+      <Card className="w-full max-w-lg mx-auto p-6 text-center">
+        <div className="space-y-4">
+          <p className="text-muted-foreground">
+            Não foi possível carregar o conteúdo do Instagram
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Alguns vídeos/reels podem forçar abrir no Instagram por políticas da plataforma
+          </p>
+          <Button variant="outline" asChild>
+            <a href={postUrl} target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Assistir no Instagram
+            </a>
+          </Button>
+        </div>
+      </Card>
+    );
+  }
+
   return (
-    <div className="w-full max-w-lg mx-auto">
-      <div className="relative w-full" style={{ aspectRatio: '4/5' }}>
-        <iframe
-          src={embedUrl}
-          loading="lazy"
-          allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
-          sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-presentation"
-          referrerPolicy="origin-when-cross-origin"
-          style={{
-            width: '100%',
-            height: '100%',
-            border: 0,
-            borderRadius: '8px'
+    <Suspense fallback={<EmbedSkeleton />}>
+      <div className="w-full max-w-lg mx-auto" ref={embedRef}>
+        <InstagramEmbed
+          url={postUrl}
+          width="100%"
+          captioned
+          onLoad={() => {
+            setLoadError(false);
+            // Call Instagram embed processing after load
+            if (window.instgrm?.Embeds?.process) {
+              window.instgrm.Embeds.process(embedRef.current);
+            }
           }}
-          title={`Instagram ${type} embed`}
-          onError={() => {
-            console.error('Erro ao carregar iframe do Instagram:', embedUrl);
-          }}
+          onError={() => setLoadError(true)}
         />
       </div>
-      <div className="mt-2 text-center">
-        <Button variant="ghost" size="sm" asChild>
-          <a href={postUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground">
-            <ExternalLink className="w-3 h-3 mr-1" />
-            Ver no Instagram
-          </a>
-        </Button>
-      </div>
-    </div>
+    </Suspense>
   );
 };
 
@@ -178,7 +217,7 @@ export const Embed = ({ provider, id, type, className = '' }: EmbedProps) => {
     case 'instagram':
       return (
         <div className={containerClasses}>
-          <InstagramIframe id={id} type={type} />
+          <InstagramEmbedWrapper id={id} type={type} />
         </div>
       );
     
