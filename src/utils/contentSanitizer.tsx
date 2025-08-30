@@ -143,6 +143,32 @@ export const sanitizeEmbedCode = (embedCode: string): string => {
     return sanitized;
   }
   
+  // Para embeds do Instagram, preservar estrutura completa
+  if (embedCode.includes('instagram.com') || embedCode.includes('data-instgrm-permalink')) {
+    console.log('Detectado embed do Instagram:', embedCode);
+    
+    // Remove o script do Instagram pois será carregado globalmente
+    let instagramEmbed = embedCode.replace(/<script[^>]*src=[^>]*instagram\.com\/embed\.js[^>]*><\/script>/gi, '');
+    
+    // Configuração específica para Instagram preservando todos os estilos e atributos necessários
+    const instagramConfig = {
+      ALLOWED_TAGS: ['blockquote', 'div', 'p', 'a', 'svg', 'g', 'path'],
+      ALLOWED_ATTR: [
+        'class', 'data-instgrm-permalink', 'data-instgrm-version', 'data-instgrm-captioned',
+        'style', 'href', 'target', 'rel', 'viewBox', 'version', 'xmlns', 'stroke',
+        'stroke-width', 'fill', 'fill-rule', 'transform', 'd'
+      ],
+      ALLOW_DATA_ATTR: true,
+      ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp|xxx):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
+      FORBID_ATTR: ['onload', 'onerror', 'onclick', 'onmouseover', 'onmouseout', 'onfocus', 'onblur']
+    };
+    
+    const sanitized = DOMPurify.sanitize(instagramEmbed.trim(), instagramConfig);
+    console.log('Instagram embed sanitizado:', sanitized);
+    
+    return sanitized;
+  }
+  
   // Sanitize the embed code with proper iframe/embed support (para outros embeds)
   const embedConfig = {
     ...purifyConfig,

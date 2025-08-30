@@ -441,17 +441,29 @@ All colors MUST be HSL.
 
 /* Instagram embed specific styles */
 .embed-content blockquote[data-instgrm-permalink],
-.instagram-embed blockquote[data-instgrm-permalink] {
+.instagram-embed blockquote[data-instgrm-permalink],
+.instagram-media {
   background: transparent !important;
   border: none !important;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  margin: 1rem auto !important;
-  max-width: 540px !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+  margin: 1.5rem auto !important;
+  max-width: min(540px, 100%) !important;
   min-width: 326px !important;
   width: 100% !important;
   transform: none !important;
-  transform-origin: center;
+  transform-origin: center !important;
+  overflow: hidden !important;
+}
+
+/* Responsividade para Instagram embeds */
+@media (max-width: 640px) {
+  .embed-content blockquote[data-instgrm-permalink],
+  .instagram-embed blockquote[data-instgrm-permalink],
+  .instagram-media {
+    min-width: 280px !important;
+    margin: 1rem auto !important;
+  }
 }
 
 /* Ajustar iframe do Instagram */
@@ -460,7 +472,37 @@ All colors MUST be HSL.
   max-width: 540px !important;
   width: 100% !important;
   height: auto !important;
-  border-radius: 8px;
+  min-height: 400px !important;
+  border-radius: 12px !important;
+  border: none !important;
+  background: white;
+}
+
+/* Preservar estilos inline do Instagram */
+.instagram-media * {
+  box-sizing: border-box !important;
+}
+
+/* Melhorar aparência dos links do Instagram */
+.instagram-media a {
+  text-decoration: none !important;
+  color: inherit !important;
+}
+
+/* Loading placeholder para Instagram */
+.instagram-media:not(:has(iframe)) {
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  position: relative;
+}
+
+.instagram-media:not(:has(iframe))::after {
+  content: "Carregando Instagram...";
+  color: #65676b;
+  font-size: 14px;
 }
 
 /* ================ TWITTER EMBED STYLES - SIMPLES ================ */
