@@ -1314,19 +1314,19 @@ article .twitter-tweet {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   position: relative;
   display: block;
+  height: 400px; /* Altura fixa para padronização */
 }
 
 /* Imagem dentro do container */
 .image-container img {
   width: 100%;
-  height: auto;
+  height: 100%; /* Altura total do container */
   display: block;
   margin: 0;
   border: none;
   box-shadow: none;
   border-radius: 0;
-  max-height: 600px;
-  object-fit: cover;
+  object-fit: cover; /* Preenche o container mantendo proporção */
   background: hsl(var(--muted));
 }
 
