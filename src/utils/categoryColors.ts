@@ -25,6 +25,9 @@ export const getCategoryColor = (categorySlug?: string, categoryColor?: string):
 
 // Função para aplicar cores dinâmicas via CSS Custom Properties
 export const applyCategoryColors = (categorySlug?: string, categoryColor?: string) => {
+  // Verificar se estamos no browser
+  if (typeof document === 'undefined') return;
+  
   const color = getCategoryColor(categorySlug, categoryColor);
   
   // Converter hex para hsl
@@ -76,16 +79,21 @@ export const applyCategoryColors = (categorySlug?: string, categoryColor?: strin
 // Hook personalizado para aplicar cores dinâmicas
 export const useCategoryColors = (categorySlug?: string, categoryColor?: string) => {
   useEffect(() => {
-    applyCategoryColors(categorySlug, categoryColor);
+    // Só aplicar cores se houver dados válidos
+    if (categorySlug || categoryColor) {
+      applyCategoryColors(categorySlug, categoryColor);
+    }
     
     // Cleanup function para remover as variáveis quando o componente desmontar
     return () => {
-      document.documentElement.style.removeProperty('--category-primary');
-      document.documentElement.style.removeProperty('--category-primary-rgb');
-      document.documentElement.style.removeProperty('--category-primary-hover');
-      document.documentElement.style.removeProperty('--category-primary-dark');
-      document.documentElement.style.removeProperty('--category-primary-alpha');
-      document.documentElement.style.removeProperty('--category-primary-alpha-hover');
+      if (typeof document !== 'undefined') {
+        document.documentElement.style.removeProperty('--category-primary');
+        document.documentElement.style.removeProperty('--category-primary-rgb');
+        document.documentElement.style.removeProperty('--category-primary-hover');
+        document.documentElement.style.removeProperty('--category-primary-dark');
+        document.documentElement.style.removeProperty('--category-primary-alpha');
+        document.documentElement.style.removeProperty('--category-primary-alpha-hover');
+      }
     };
   }, [categorySlug, categoryColor]);
 };

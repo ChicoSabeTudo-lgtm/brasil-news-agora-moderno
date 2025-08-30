@@ -569,14 +569,14 @@ const NewsArticle = () => {
     return items;
   };
 
-  // Aplicar cores dinâmicas da categoria
-  useCategoryColors(news?.categories?.slug, news?.categories?.color);
-  
   const getCategoryColor = () => {
     if (!news?.categories?.slug) return '#0066cc';
     const category = categories.find(cat => cat.slug === news.categories.slug);
     return category?.color || '#0066cc';
   };
+
+  // Aplicar cores dinâmicas da categoria apenas quando news estiver carregado
+  useCategoryColors(news?.categories?.slug, news?.categories?.color);
 
   return (
     <AnalyticsTracker articleId={news?.id}>
