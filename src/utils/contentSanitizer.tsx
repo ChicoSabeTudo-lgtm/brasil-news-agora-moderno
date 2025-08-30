@@ -209,68 +209,27 @@ export const extractTwitterId = (content: string): string | null => {
 export const initializeTwitterWidgets = (container: HTMLElement | null = null, retryCount = 0): void => {
   if (typeof window === 'undefined') return;
 
-  const processTwitter = () => {
-    // Check if Twitter script is loaded
-    if (!(window as any).twttr?.widgets) {
-      console.log(`Twitter widgets not loaded yet (attempt ${retryCount + 1})`);
-      if (retryCount < 5) {
-        setTimeout(() => initializeTwitterWidgets(container, retryCount + 1), 500 * (retryCount + 1));
-      }
-      return;
+  // Check if Twitter script is loaded
+  if (!(window as any).twttr?.widgets) {
+    if (retryCount < 5) {
+      setTimeout(() => initializeTwitterWidgets(container, retryCount + 1), 500 * (retryCount + 1));
     }
+    return;
+  }
 
-    try {
-      if (container) {
-        console.log('Processing Twitter widgets in specific container');
-        (window as any).twttr.widgets.load(container);
-      } else {
-        console.log('Processing Twitter widgets globally');
-        (window as any).twttr.widgets.load();
-      }
-
-      // Check for unprocessed Twitter blockquotes and try programmatic approach
-      const unprocessedTweets = container 
-        ? container.querySelectorAll('.twitter-tweet:not([data-twitter-processed])')
-        : document.querySelectorAll('.twitter-tweet:not([data-twitter-processed])');
-      
-      console.log(`Found ${unprocessedTweets.length} unprocessed Twitter embeds`);
-      
-      unprocessedTweets.forEach((blockquote: Element) => {
-        const tweetId = extractTwitterId(blockquote.outerHTML);
-        if (tweetId) {
-          console.log(`Creating programmatic tweet for ID: ${tweetId}`);
-          // Create a container for the programmatic embed
-          const embedContainer = document.createElement('div');
-          blockquote.parentNode?.insertBefore(embedContainer, blockquote);
-          
-          // Use programmatic API
-          (window as any).twttr.widgets.createTweet(tweetId, embedContainer, {
-            theme: 'light',
-            conversation: 'none',
-            cards: 'visible'
-          }).then(() => {
-            // Remove original blockquote after successful embed
-            blockquote.remove();
-          }).catch((error: Error) => {
-            console.error('Failed to create programmatic tweet:', error);
-            // Keep original blockquote as fallback
-            blockquote.setAttribute('data-twitter-processed', 'true');
-          });
-        } else {
-          // Mark as processed to avoid reprocessing
-          blockquote.setAttribute('data-twitter-processed', 'true');
-        }
-      });
-
-    } catch (error) {
-      console.error('Error processing Twitter widgets:', error);
-      if (retryCount < 3) {
-        setTimeout(() => initializeTwitterWidgets(container, retryCount + 1), 1000);
-      }
+  try {
+    // Use only widgets.load() to avoid duplication
+    if (container) {
+      (window as any).twttr.widgets.load(container);
+    } else {
+      (window as any).twttr.widgets.load();
     }
-  };
-
-  processTwitter();
+  } catch (error) {
+    console.error('Error processing Twitter widgets:', error);
+    if (retryCount < 3) {
+      setTimeout(() => initializeTwitterWidgets(container, retryCount + 1), 1000);
+    }
+  }
 };
 
 /**
