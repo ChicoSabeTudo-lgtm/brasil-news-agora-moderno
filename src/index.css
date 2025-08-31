@@ -798,7 +798,7 @@ article .twitter-tweet {
   margin-top: 2.5rem;
   margin-bottom: 1rem;
   color: hsl(var(--foreground));
-  border-left: 4px solid hsl(var(--primary));
+  border-left: 4px solid var(--category-color, hsl(var(--primary)));
   padding-left: 1rem;
 }
 
@@ -1203,10 +1203,10 @@ article .twitter-tweet {
 }
 
 .news-content ul li::before {
-  content: "▸";
+  content: "●";
   position: absolute;
   left: 0;
-  color: hsl(var(--primary));
+  color: var(--category-color, hsl(var(--primary)));
   font-weight: bold;
   font-size: 1.2em;
   top: 0;
