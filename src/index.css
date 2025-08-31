@@ -815,6 +815,19 @@ article .twitter-tweet {
   margin-top: 2rem;
   margin-bottom: 0.8rem;
   color: hsl(var(--foreground));
+  border-left: 3px solid var(--category-color, hsl(var(--primary)));
+  padding-left: 1rem;
+}
+
+.news-content h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-top: 1.5rem;
+  margin-bottom: 0.8rem;
+  color: hsl(var(--foreground));
+  border-left: 2px solid var(--category-color, hsl(var(--primary)));
+  padding-left: 1rem;
 }
 
 /* Parágrafos - Formatação principal */
