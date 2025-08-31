@@ -94,7 +94,22 @@ export const NewsCard = ({
   if (slug && categorySlug) {
     return (
       <Link to={newsLink}>
-        <Card className="group overflow-hidden hover:shadow-card transition-all duration-300 cursor-pointer animate-slide-up">
+        <Card 
+          className="group overflow-hidden transition-all duration-300 cursor-pointer animate-slide-up hover:shadow-lg"
+          style={{
+            '--category-shadow': categoryColor 
+              ? `0 4px 20px -4px ${categoryColor}40`
+              : 'var(--shadow-card)'
+          } as React.CSSProperties}
+          onMouseEnter={(e) => {
+            if (categoryColor) {
+              e.currentTarget.style.boxShadow = `0 4px 20px -4px ${categoryColor}40`;
+            }
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.boxShadow = '';
+          }}
+        >
           {cardContent}
         </Card>
       </Link>
@@ -102,7 +117,17 @@ export const NewsCard = ({
   }
 
   return (
-    <Card className="group overflow-hidden hover:shadow-card transition-all duration-300 cursor-pointer animate-slide-up">
+    <Card 
+      className="group overflow-hidden transition-all duration-300 cursor-pointer animate-slide-up hover:shadow-lg"
+      onMouseEnter={(e) => {
+        if (categoryColor) {
+          e.currentTarget.style.boxShadow = `0 4px 20px -4px ${categoryColor}40`;
+        }
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.boxShadow = '';
+      }}
+    >
       {cardContent}
     </Card>
   );
