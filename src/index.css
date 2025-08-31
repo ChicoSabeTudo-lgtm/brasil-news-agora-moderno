@@ -1209,7 +1209,8 @@ article .twitter-tweet {
   color: var(--category-color, hsl(var(--primary)));
   font-weight: bold;
   font-size: 0.6em;
-  top: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .news-content ol {
