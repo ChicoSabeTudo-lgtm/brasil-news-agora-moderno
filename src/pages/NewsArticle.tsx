@@ -64,6 +64,14 @@ const NewsArticle = () => {
       try {
         setLoading(true);
         
+        console.log('🔍 NewsArticle Debug:', { 
+          slug, 
+          id, 
+          categorySlug, 
+          currentUrl: window.location.href,
+          pathname: window.location.pathname 
+        });
+        
         let query = supabase
           .from('news')
           .select(`
@@ -82,16 +90,24 @@ const NewsArticle = () => {
 
         // Buscar por slug ou por ID (compatibilidade com rotas antigas)
         if (slug) {
+          console.log('🔍 Buscando por slug:', slug);
           query = query.eq('slug', slug);
         } else if (id) {
+          console.log('🔍 Buscando por ID:', id);
           query = query.eq('id', id);
         } else {
+          console.error('❌ Parâmetros inválidos:', { slug, id, categorySlug });
           throw new Error('Parâmetros inválidos');
         }
 
         const { data: newsData, error: newsError } = await query.single();
 
-        if (newsError) throw newsError;
+        console.log('🔍 Resultado da consulta:', { newsData, newsError });
+
+        if (newsError) {
+          console.error('❌ Erro na consulta:', newsError);
+          throw newsError;
+        }
 
         // Buscar perfil do autor
         let profileData = null;
