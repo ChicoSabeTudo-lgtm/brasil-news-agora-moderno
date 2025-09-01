@@ -6,9 +6,11 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Upload, ZoomIn, Move, Type, ArrowRight } from 'lucide-react';
+import { Upload, ZoomIn, Move, Type, ArrowRight, Loader2, AlertCircle } from 'lucide-react';
 import { PostData, ImageState, TextState } from './InstagramPostGenerator';
 import { useInstagramMockup } from '@/hooks/useInstagramMockup';
+import { toast } from 'sonner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface InstagramEditorProps {
   onContinue: (data: PostData) => void;
@@ -20,7 +22,7 @@ const CANVAS_HEIGHT = 1440;
 const BOTTOM_PADDING = 65;
 
 export default function InstagramEditor({ onContinue, initialData }: InstagramEditorProps) {
-  const { mockupUrl } = useInstagramMockup();
+  const { mockupUrl, refetchMockup } = useInstagramMockup();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -41,6 +43,12 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
     color: '#ffffff',
   });
 
+  // Estados para debugging e loading
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isCanvasReady, setIsCanvasReady] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState<string[]>([]);
+
   // Initialize with existing data if provided
   useEffect(() => {
     if (initialData) {
@@ -51,45 +59,73 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
 
   const drawCanvas = useCallback(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) {
+      addDebugInfo('Canvas não encontrado');
+      return;
+    }
 
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!ctx) {
+      addDebugInfo('Contexto 2D não disponível');
+      return;
+    }
+
+    addDebugInfo('Iniciando renderização do canvas');
 
     // Clear canvas
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
+    setIsCanvasReady(false);
+
     // Draw image if exists
     if (imageState.url) {
       const img = new Image();
       img.onload = () => {
-        const { zoom, positionX, positionY } = imageState;
-        
-        // Calculate scaled dimensions
-        const scaledWidth = img.width * zoom;
-        const scaledHeight = img.height * zoom;
-        
-        // Calculate position based on percentage
-        const x = (CANVAS_WIDTH - scaledWidth) * (positionX / 100);
-        const y = (CANVAS_HEIGHT - scaledHeight) * (positionY / 100);
-        
-        ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
-        
-        // Draw Instagram mockup first (behind text)
-        drawMockupOverlay(ctx);
-        
-        // Draw text overlay on top
-        drawTextOverlay(ctx);
+        try {
+          const { zoom, positionX, positionY } = imageState;
+          
+          addDebugInfo(`Renderizando imagem: zoom=${zoom}, pos=(${positionX}%, ${positionY}%)`);
+          
+          // Calculate scaled dimensions
+          const scaledWidth = img.width * zoom;
+          const scaledHeight = img.height * zoom;
+          
+          // Calculate position based on percentage
+          const x = (CANVAS_WIDTH - scaledWidth) * (positionX / 100);
+          const y = (CANVAS_HEIGHT - scaledHeight) * (positionY / 100);
+          
+          ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
+          addDebugInfo('Imagem renderizada');
+          
+          // Draw Instagram mockup and text
+          drawMockupOverlay(ctx, () => {
+            drawTextOverlay(ctx);
+            setIsCanvasReady(true);
+            addDebugInfo('Canvas pronto com imagem, mockup e texto');
+          });
+        } catch (error) {
+          addDebugInfo(`Erro ao renderizar imagem: ${error}`);
+          setIsCanvasReady(true);
+        }
       };
+      
+      img.onerror = () => {
+        addDebugInfo('Erro ao carregar imagem no canvas');
+        setIsCanvasReady(true);
+        toast.error('Erro ao carregar imagem no preview');
+      };
+      
       img.src = imageState.url;
     } else {
-      // Draw Instagram mockup first
-      drawMockupOverlay(ctx);
-      
-      // Draw text overlay on top
-      drawTextOverlay(ctx);
+      addDebugInfo('Renderizando apenas mockup e texto');
+      // Draw Instagram mockup and text
+      drawMockupOverlay(ctx, () => {
+        drawTextOverlay(ctx);
+        setIsCanvasReady(true);
+        addDebugInfo('Canvas pronto sem imagem');
+      });
     }
   }, [imageState, textState, mockupUrl]);
 
@@ -155,17 +191,32 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
     });
   };
 
-  const drawMockupOverlay = (ctx: CanvasRenderingContext2D) => {
-    if (!mockupUrl) return;
+  const drawMockupOverlay = (ctx: CanvasRenderingContext2D, onComplete?: () => void) => {
+    if (!mockupUrl) {
+      addDebugInfo('Mockup URL não disponível');
+      if (onComplete) onComplete();
+      return;
+    }
 
     const mockupImg = new Image();
     mockupImg.onload = () => {
-      // Draw the mockup scaled to cover the full canvas (1080x1440)
-      ctx.drawImage(mockupImg, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-      
-      // Redraw text on top of mockup
-      drawTextOverlay(ctx);
+      try {
+        addDebugInfo('Mockup carregado, aplicando overlay');
+        // Draw the mockup scaled to cover the full canvas (1080x1440)
+        ctx.drawImage(mockupImg, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        addDebugInfo('Mockup renderizado');
+        if (onComplete) onComplete();
+      } catch (error) {
+        addDebugInfo(`Erro ao renderizar mockup: ${error}`);
+        if (onComplete) onComplete();
+      }
     };
+    
+    mockupImg.onerror = () => {
+      addDebugInfo('Erro ao carregar mockup');
+      if (onComplete) onComplete();
+    };
+    
     mockupImg.crossOrigin = 'anonymous';
     mockupImg.src = mockupUrl;
   };
@@ -174,11 +225,79 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
     drawCanvas();
   }, [drawCanvas]);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const addDebugInfo = (info: string) => {
+    console.log(`🎨 Instagram Editor: ${info}`);
+    setDebugInfo(prev => [...prev.slice(-9), `${new Date().toLocaleTimeString()}: ${info}`]);
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file && (file.type === 'image/jpeg' || file.type === 'image/png')) {
+    
+    addDebugInfo('Iniciando upload de imagem...');
+    setIsUploadingImage(true);
+    setUploadError(null);
+
+    try {
+      // Validações
+      if (!file) {
+        throw new Error('Nenhum arquivo selecionado');
+      }
+
+      addDebugInfo(`Arquivo selecionado: ${file.name} (${file.type}, ${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+
+      // Validar tipo de arquivo
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error(`Tipo de arquivo não suportado: ${file.type}. Use JPG, PNG ou WebP.`);
+      }
+
+      // Validar tamanho (máximo 10MB)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        throw new Error(`Arquivo muito grande (${(file.size / 1024 / 1024).toFixed(2)}MB). Máximo: 10MB.`);
+      }
+
+      // Limpar URL anterior se existir
+      if (imageState.url) {
+        URL.revokeObjectURL(imageState.url);
+        addDebugInfo('URL anterior limpa');
+      }
+
+      // Criar nova URL de objeto
       const url = URL.createObjectURL(file);
+      addDebugInfo('Nova URL de objeto criada');
+
+      // Testar se a imagem pode ser carregada
+      await new Promise<void>((resolve, reject) => {
+        const testImg = new Image();
+        testImg.onload = () => {
+          addDebugInfo(`Imagem carregada com sucesso: ${testImg.width}x${testImg.height}`);
+          resolve();
+        };
+        testImg.onerror = () => {
+          reject(new Error('Erro ao carregar a imagem. Arquivo pode estar corrompido.'));
+        };
+        testImg.src = url;
+      });
+
+      // Atualizar estado
       setImageState(prev => ({ ...prev, file, url }));
+      addDebugInfo('Estado da imagem atualizado');
+      
+      toast.success('Imagem carregada com sucesso!');
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido ao carregar imagem';
+      addDebugInfo(`Erro: ${errorMessage}`);
+      setUploadError(errorMessage);
+      toast.error(errorMessage);
+      
+      // Limpar input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } finally {
+      setIsUploadingImage(false);
     }
   };
 
@@ -223,16 +342,48 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label htmlFor="image-upload">Enviar Imagem (JPG/PNG)</Label>
+                <Label htmlFor="image-upload">Enviar Imagem (JPG/PNG/WebP)</Label>
                 <Input
                   id="image-upload"
                   ref={fileInputRef}
                   type="file"
-                  accept="image/jpeg,image/png"
+                  accept="image/jpeg,image/jpg,image/png,image/webp"
                   onChange={handleImageUpload}
                   className="cursor-pointer"
+                  disabled={isUploadingImage}
                 />
+                {isUploadingImage && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Carregando imagem...
+                  </div>
+                )}
+                {uploadError && (
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>{uploadError}</AlertDescription>
+                  </Alert>
+                )}
+                {imageState.url && !uploadError && (
+                  <div className="text-sm text-green-600">
+                    ✅ Imagem carregada com sucesso
+                  </div>
+                )}
               </div>
+
+              {/* Debug Information */}
+              {debugInfo.length > 0 && (
+                <div className="bg-muted p-3 rounded text-xs">
+                  <details>
+                    <summary className="cursor-pointer font-medium">Debug Info</summary>
+                    <div className="mt-2 space-y-1">
+                      {debugInfo.map((info, index) => (
+                        <div key={index} className="text-muted-foreground">{info}</div>
+                      ))}
+                    </div>
+                  </details>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -368,12 +519,21 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
 
           <Button 
             onClick={handleContinue}
-            disabled={!isValid}
+            disabled={!isValid || isUploadingImage || !isCanvasReady}
             className="w-full"
             size="lg"
           >
-            Continuar para Finalizar
-            <ArrowRight className="ml-2 h-4 w-4" />
+            {!isCanvasReady ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Preparando...
+              </>
+            ) : (
+              <>
+                Continuar para Finalizar
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </>
+            )}
           </Button>
         </div>
 
@@ -384,7 +544,7 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
               <CardTitle>Visualização ao Vivo</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="border rounded-lg overflow-hidden" style={{ width: '324px', height: '432px' }}>
+              <div className="border rounded-lg overflow-hidden relative" style={{ width: '324px', height: '432px' }}>
                 <canvas
                   ref={canvasRef}
                   width={CANVAS_WIDTH}
@@ -395,10 +555,26 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
                     objectFit: 'contain',
                   }}
                 />
+                {!isCanvasReady && (
+                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                    <div className="text-white text-center">
+                      <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
+                      <p className="text-sm">Carregando preview...</p>
+                    </div>
+                  </div>
+                )}
               </div>
               <p className="text-sm text-muted-foreground mt-2 text-center">
                 Tamanho final: 1080x1440px
               </p>
+              {!mockupUrl && (
+                <Alert className="mt-2">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    Mockup do Instagram não encontrado. Configure um mockup nas configurações do site.
+                  </AlertDescription>
+                </Alert>
+              )}
             </CardContent>
           </Card>
         </div>
