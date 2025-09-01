@@ -86,43 +86,83 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
 
     // Draw image if exists
     if (imageState.url) {
-      const img = new Image();
-      img.onload = () => {
-        try {
-          const { zoom, positionX, positionY } = imageState;
-          
-          addDebugInfo(`Renderizando imagem: zoom=${zoom}, pos=(${positionX}%, ${positionY}%)`);
-          
-          // Calculate scaled dimensions
-          const scaledWidth = img.width * zoom;
-          const scaledHeight = img.height * zoom;
-          
-          // Calculate position based on percentage
-          const x = (CANVAS_WIDTH - scaledWidth) * (positionX / 100);
-          const y = (CANVAS_HEIGHT - scaledHeight) * (positionY / 100);
-          
-          ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
-          addDebugInfo('Imagem renderizada');
-          
-          // Draw Instagram mockup and text
-          drawMockupOverlay(ctx, () => {
-            drawTextOverlay(ctx);
+      addDebugInfo(`Tentando carregar imagem: ${imageState.url.substring(0, 50)}...`);
+      
+      const loadImageWithRetry = (attempts = 0) => {
+        const img = new Image();
+        
+        // Configure CORS for object URLs
+        img.crossOrigin = 'anonymous';
+        
+        // Add timeout for image loading
+        const timeout = setTimeout(() => {
+          addDebugInfo(`Timeout ao carregar imagem (tentativa ${attempts + 1})`);
+          if (attempts < 1) {
+            addDebugInfo('Tentando novamente...');
+            setTimeout(() => loadImageWithRetry(attempts + 1), 500);
+          } else {
+            addDebugInfo('Falha definitiva no carregamento da imagem');
             setIsCanvasReady(true);
-            addDebugInfo('Canvas pronto com imagem, mockup e texto');
-          });
-        } catch (error) {
-          addDebugInfo(`Erro ao renderizar imagem: ${error}`);
+            toast.error('Falha ao carregar imagem após tentativas');
+          }
+        }, 10000);
+        
+        img.onload = () => {
+          try {
+            clearTimeout(timeout);
+            const { zoom, positionX, positionY } = imageState;
+            
+            addDebugInfo(`Imagem carregada: ${img.width}x${img.height}, zoom=${zoom}, pos=(${positionX}%, ${positionY}%)`);
+            
+            // Calculate scaled dimensions
+            const scaledWidth = img.width * zoom;
+            const scaledHeight = img.height * zoom;
+            
+            // Calculate position based on percentage
+            const x = (CANVAS_WIDTH - scaledWidth) * (positionX / 100);
+            const y = (CANVAS_HEIGHT - scaledHeight) * (positionY / 100);
+            
+            ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
+            addDebugInfo('Imagem renderizada com sucesso');
+            
+            // Draw Instagram mockup and text
+            drawMockupOverlay(ctx, () => {
+              drawTextOverlay(ctx);
+              setIsCanvasReady(true);
+              addDebugInfo('Canvas pronto com imagem, mockup e texto');
+            });
+          } catch (error) {
+            clearTimeout(timeout);
+            addDebugInfo(`Erro ao renderizar imagem: ${error}`);
+            setIsCanvasReady(true);
+          }
+        };
+        
+        img.onerror = (error) => {
+          clearTimeout(timeout);
+          addDebugInfo(`Erro ao carregar imagem no canvas (tentativa ${attempts + 1}): ${error}`);
+          
+          if (attempts < 1) {
+            addDebugInfo('Tentando novamente...');
+            setTimeout(() => loadImageWithRetry(attempts + 1), 500);
+          } else {
+            addDebugInfo('Falha definitiva no carregamento da imagem');
+            setIsCanvasReady(true);
+            toast.error('Erro ao carregar imagem no preview');
+          }
+        };
+        
+        // Validate URL before loading
+        if (!imageState.url || !imageState.url.startsWith('blob:')) {
+          addDebugInfo('URL da imagem inválida');
           setIsCanvasReady(true);
+          return;
         }
+        
+        img.src = imageState.url;
       };
       
-      img.onerror = () => {
-        addDebugInfo('Erro ao carregar imagem no canvas');
-        setIsCanvasReady(true);
-        toast.error('Erro ao carregar imagem no preview');
-      };
-      
-      img.src = imageState.url;
+      loadImageWithRetry();
     } else {
       addDebugInfo('Renderizando apenas mockup e texto');
       // Draw Instagram mockup and text
