@@ -91,14 +91,20 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
       const loadImageWithRetry = (attempts = 0) => {
         const img = new Image();
         
-        // Configure CORS for object URLs
-        img.crossOrigin = 'anonymous';
+        // Validate URL before loading
+        if (!imageState.url || (!imageState.url.startsWith('blob:') && !imageState.url.startsWith('data:'))) {
+          addDebugInfo(`URL da imagem inválida: ${imageState.url}`);
+          setIsCanvasReady(true);
+          return;
+        }
+        
+        addDebugInfo(`Tentativa ${attempts + 1}: Carregando URL ${imageState.url.substring(0, 50)}...`);
         
         // Add timeout for image loading
         const timeout = setTimeout(() => {
           addDebugInfo(`Timeout ao carregar imagem (tentativa ${attempts + 1})`);
           if (attempts < 1) {
-            addDebugInfo('Tentando novamente...');
+            addDebugInfo('Tentando novamente sem crossOrigin...');
             setTimeout(() => loadImageWithRetry(attempts + 1), 500);
           } else {
             addDebugInfo('Falha definitiva no carregamento da imagem');
@@ -112,7 +118,7 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
             clearTimeout(timeout);
             const { zoom, positionX, positionY } = imageState;
             
-            addDebugInfo(`Imagem carregada: ${img.width}x${img.height}, zoom=${zoom}, pos=(${positionX}%, ${positionY}%)`);
+            addDebugInfo(`Imagem carregada com sucesso: ${img.width}x${img.height}, zoom=${zoom}, pos=(${positionX}%, ${positionY}%)`);
             
             // Calculate scaled dimensions
             const scaledWidth = img.width * zoom;
@@ -123,7 +129,7 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
             const y = (CANVAS_HEIGHT - scaledHeight) * (positionY / 100);
             
             ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
-            addDebugInfo('Imagem renderizada com sucesso');
+            addDebugInfo('Imagem renderizada com sucesso no canvas');
             
             // Draw Instagram mockup and text
             drawMockupOverlay(ctx, () => {
@@ -133,17 +139,20 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
             });
           } catch (error) {
             clearTimeout(timeout);
-            addDebugInfo(`Erro ao renderizar imagem: ${error}`);
+            addDebugInfo(`Erro ao renderizar imagem no canvas: ${error instanceof Error ? error.message : String(error)}`);
             setIsCanvasReady(true);
           }
         };
         
-        img.onerror = (error) => {
+        img.onerror = (event) => {
           clearTimeout(timeout);
-          addDebugInfo(`Erro ao carregar imagem no canvas (tentativa ${attempts + 1}): ${error}`);
+          const errorDetails = event instanceof Event && event.target instanceof HTMLImageElement 
+            ? `src: ${event.target.src}, naturalWidth: ${event.target.naturalWidth}` 
+            : String(event);
+          addDebugInfo(`Erro detalhado ao carregar imagem (tentativa ${attempts + 1}): ${errorDetails}`);
           
           if (attempts < 1) {
-            addDebugInfo('Tentando novamente...');
+            addDebugInfo('Tentando novamente sem crossOrigin...');
             setTimeout(() => loadImageWithRetry(attempts + 1), 500);
           } else {
             addDebugInfo('Falha definitiva no carregamento da imagem');
@@ -152,11 +161,13 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
           }
         };
         
-        // Validate URL before loading
-        if (!imageState.url || !imageState.url.startsWith('blob:')) {
-          addDebugInfo('URL da imagem inválida');
-          setIsCanvasReady(true);
-          return;
+        // Only set crossOrigin for first attempt with external URLs
+        // Blob URLs are same-origin and don't need CORS
+        if (attempts === 0 && !imageState.url.startsWith('blob:') && !imageState.url.startsWith('data:')) {
+          img.crossOrigin = 'anonymous';
+          addDebugInfo('Configurando crossOrigin=anonymous para URL externa');
+        } else {
+          addDebugInfo('Carregando sem crossOrigin (blob/data URL ou retry)');
         }
         
         img.src = imageState.url;
