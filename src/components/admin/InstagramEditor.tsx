@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -26,6 +26,9 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Memoize mockup URL to prevent unnecessary re-renders
+  const stableMockupUrl = useMemo(() => mockupUrl, [mockupUrl]);
+
   const [imageState, setImageState] = useState<ImageState>({
     file: null,
     url: null,
@@ -46,7 +49,9 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
   // Estados para debugging e loading
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isCanvasReady, setIsCanvasReady] = useState(false);
+  const [isMockupLoading, setIsMockupLoading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [mockupLoadError, setMockupLoadError] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<string[]>([]);
 
   // Initialize with existing data if provided
@@ -127,7 +132,7 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
         addDebugInfo('Canvas pronto sem imagem');
       });
     }
-  }, [imageState, textState, mockupUrl]);
+  }, [imageState.url, imageState.zoom, imageState.positionX, imageState.positionY, textState, stableMockupUrl]);
 
   const drawTextOverlay = (ctx: CanvasRenderingContext2D) => {
     if (!textState.title.trim()) return;
@@ -192,38 +197,64 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
   };
 
   const drawMockupOverlay = (ctx: CanvasRenderingContext2D, onComplete?: () => void) => {
-    if (!mockupUrl) {
+    if (!stableMockupUrl) {
       addDebugInfo('Mockup URL não disponível');
       if (onComplete) onComplete();
       return;
     }
 
+    setIsMockupLoading(true);
+    setMockupLoadError(null);
+
     const mockupImg = new Image();
+    
+    const timeout = setTimeout(() => {
+      addDebugInfo('Timeout ao carregar mockup');
+      setMockupLoadError('Timeout ao carregar mockup');
+      setIsMockupLoading(false);
+      if (onComplete) onComplete();
+    }, 10000);
+
     mockupImg.onload = () => {
       try {
+        clearTimeout(timeout);
         addDebugInfo('Mockup carregado, aplicando overlay');
         // Draw the mockup scaled to cover the full canvas (1080x1440)
         ctx.drawImage(mockupImg, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
         addDebugInfo('Mockup renderizado');
+        setIsMockupLoading(false);
         if (onComplete) onComplete();
       } catch (error) {
-        addDebugInfo(`Erro ao renderizar mockup: ${error}`);
+        clearTimeout(timeout);
+        const errorMsg = `Erro ao renderizar mockup: ${error}`;
+        addDebugInfo(errorMsg);
+        setMockupLoadError(errorMsg);
+        setIsMockupLoading(false);
         if (onComplete) onComplete();
       }
     };
     
     mockupImg.onerror = () => {
-      addDebugInfo('Erro ao carregar mockup');
+      clearTimeout(timeout);
+      const errorMsg = 'Erro ao carregar mockup';
+      addDebugInfo(errorMsg);
+      setMockupLoadError(errorMsg);
+      setIsMockupLoading(false);
       if (onComplete) onComplete();
     };
     
     mockupImg.crossOrigin = 'anonymous';
-    mockupImg.src = mockupUrl;
+    mockupImg.src = stableMockupUrl;
   };
 
+  // Debounced effect to prevent excessive re-renders
   useEffect(() => {
-    drawCanvas();
-  }, [imageState, textState, mockupUrl]);
+    const timer = setTimeout(() => {
+      drawCanvas();
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [drawCanvas]);
 
   const addDebugInfo = (info: string) => {
     console.log(`🎨 Instagram Editor: ${info}`);

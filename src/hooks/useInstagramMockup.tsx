@@ -18,15 +18,14 @@ export const useInstagramMockup = () => {
 
       return data;
     },
-    staleTime: 0,
-    gcTime: 0,
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 
-  const mockupUrl = configuration?.mockup_image_url 
-    ? `${configuration.mockup_image_url}?t=${Date.now()}`
-    : null;
+  // Remove timestamp to prevent infinite re-renders
+  const mockupUrl = configuration?.mockup_image_url || null;
     
   return {
     mockupUrl,
