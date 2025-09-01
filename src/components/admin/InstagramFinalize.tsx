@@ -83,7 +83,7 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
       // Upload to Supabase storage
       const fileName = `instagram-post-${Date.now()}.jpg`;
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('news-media')
+        .from('social-posts')
         .upload(fileName, blob, {
           contentType: 'image/jpeg',
         });
@@ -94,7 +94,7 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
 
       // Get public URL
       const { data: urlData } = supabase.storage
-        .from('news-media')
+        .from('social-posts')
         .getPublicUrl(uploadData.path);
 
       const imageUrl = urlData.publicUrl;

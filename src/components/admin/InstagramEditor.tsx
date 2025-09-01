@@ -340,23 +340,49 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
       }
 
       // Limpar URL anterior se existir
-      if (imageState.url) {
+      if (imageState.url && imageState.url.startsWith('blob:')) {
         URL.revokeObjectURL(imageState.url);
         addDebugInfo('URL anterior limpa');
       }
 
-      // Criar nova URL de objeto
-      const url = URL.createObjectURL(file);
-      addDebugInfo('Nova URL de objeto criada');
-
-      // Validação simplificada - deixar o canvas fazer a validação real
-      addDebugInfo('Pré-validação da imagem concluída - processando...');
-
-      // Atualizar estado
-      setImageState(prev => ({ ...prev, file, url }));
-      addDebugInfo('Estado da imagem atualizado');
+      // Usar FileReader para converter para DataURL (evita problemas de CORS)
+      const reader = new FileReader();
       
-      toast.success('Imagem carregada com sucesso!');
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        if (dataUrl) {
+          addDebugInfo('Imagem convertida para DataURL com sucesso');
+          
+          // Pré-validação da imagem
+          const tempImg = new Image();
+          tempImg.onload = () => {
+            addDebugInfo(`Pré-validação concluída: ${tempImg.width}x${tempImg.height}`);
+            
+            // Atualizar estado
+            setImageState(prev => ({ ...prev, file, url: dataUrl }));
+            addDebugInfo('Estado da imagem atualizado com DataURL');
+            
+            toast.success('Imagem carregada com sucesso!');
+          };
+          
+          tempImg.onerror = () => {
+            addDebugInfo('Erro na pré-validação da imagem');
+            setUploadError('Erro ao carregar a imagem. Tente outro arquivo.');
+            toast.error('Erro ao carregar a imagem. Tente outro arquivo.');
+          };
+          
+          tempImg.src = dataUrl;
+        }
+      };
+      
+      reader.onerror = () => {
+        addDebugInfo('Erro ao ler arquivo com FileReader');
+        setUploadError('Erro ao processar a imagem.');
+        toast.error('Erro ao processar a imagem.');
+      };
+      
+      addDebugInfo('Iniciando conversão com FileReader...');
+      reader.readAsDataURL(file);
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido ao carregar imagem';
