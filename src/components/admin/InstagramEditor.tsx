@@ -223,7 +223,7 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
 
   useEffect(() => {
     drawCanvas();
-  }, [drawCanvas]);
+  }, [imageState, textState, mockupUrl]);
 
   const addDebugInfo = (info: string) => {
     console.log(`🎨 Instagram Editor: ${info}`);
