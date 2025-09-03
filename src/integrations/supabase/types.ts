@@ -1230,6 +1230,10 @@ export type Database = {
         Args: { days_back?: number }
         Returns: number
       }
+      get_image_url_with_fallback: {
+        Args: { p_image_url: string; p_path: string; p_public_url: string }
+        Returns: string
+      }
       get_online_visitors_count: {
         Args: Record<PropertyKey, never>
         Returns: number
