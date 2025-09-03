@@ -4,13 +4,10 @@ import { ExternalLink, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useInstagramEmbedDetector } from '@/hooks/useInstagramEmbedDetector';
 import { InstagramFallback } from '@/components/InstagramFallback';
+import { EmbedErrorBoundary } from '@/components/EmbedErrorBoundary';
 
-// Dynamic imports for social media embeds (SSR: false)
-const TwitterEmbed = React.lazy(() => 
-  import('react-social-media-embed').then(module => ({ 
-    default: module.TwitterEmbed 
-  }))
-);
+// Import TwitterEmbed directly to avoid lazy loading issues
+import { TwitterEmbed } from 'react-social-media-embed';
 
 const InstagramEmbed = React.lazy(() => 
   import('react-social-media-embed').then(module => ({ 
@@ -66,10 +63,21 @@ const YouTubeEmbed = ({ id }: { id: string }) => (
   </div>
 );
 
-// Twitter embed with fallback
+// Twitter embed with improved error handling
 const TwitterEmbedWrapper = ({ id }: { id: string }) => {
   const [loadError, setLoadError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const tweetUrl = `https://twitter.com/i/status/${id}`;
+
+  const handleLoad = () => {
+    setIsLoading(false);
+    setLoadError(false);
+  };
+
+  const handleError = () => {
+    setIsLoading(false);
+    setLoadError(true);
+  };
 
   if (loadError) {
     return (
@@ -88,16 +96,17 @@ const TwitterEmbedWrapper = ({ id }: { id: string }) => {
   }
 
   return (
-    <Suspense fallback={<EmbedSkeleton />}>
-      <div className="w-full max-w-lg mx-auto">
+    <div className="w-full max-w-lg mx-auto">
+      {isLoading && <EmbedSkeleton />}
+      <div style={{ display: isLoading ? 'none' : 'block' }}>
         <TwitterEmbed
           url={tweetUrl}
           width={550}
-          onLoad={() => setLoadError(false)}
-          onError={() => setLoadError(true)}
+          onLoad={handleLoad}
+          onError={handleError}
         />
       </div>
-    </Suspense>
+    </div>
   );
 };
 
@@ -194,7 +203,12 @@ export const Embed = ({ provider, id, type, className = '' }: EmbedProps) => {
     case 'twitter':
       return (
         <div className={containerClasses}>
-          <TwitterEmbedWrapper id={id} />
+          <EmbedErrorBoundary 
+            fallbackUrl={`https://twitter.com/i/status/${id}`}
+            fallbackText="Não foi possível carregar o tweet"
+          >
+            <TwitterEmbedWrapper id={id} />
+          </EmbedErrorBoundary>
         </div>
       );
     
