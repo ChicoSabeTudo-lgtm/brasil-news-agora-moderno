@@ -85,11 +85,11 @@ const TwitterEmbedWrapper = ({ id }: { id: string }) => {
   }
 
   return (
-    <div className="w-full max-w-xl mx-auto">
+    <div className="w-full max-w-2xl mx-auto">
       <iframe
         src={embedUrl}
         width="100%"
-        height="600"
+        height="700"
         frameBorder="0"
         onError={() => setLoadError(true)}
         className="w-full border rounded-lg"
