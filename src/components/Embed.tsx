@@ -6,8 +6,7 @@ import { useInstagramEmbedDetector } from '@/hooks/useInstagramEmbedDetector';
 import { InstagramFallback } from '@/components/InstagramFallback';
 import { EmbedErrorBoundary } from '@/components/EmbedErrorBoundary';
 
-// Import TwitterEmbed directly to avoid lazy loading issues
-import { TwitterEmbed } from 'react-social-media-embed';
+// Twitter agora usa iframe nativo para melhor compatibilidade
 
 const InstagramEmbed = React.lazy(() => 
   import('react-social-media-embed').then(module => ({ 
@@ -63,21 +62,11 @@ const YouTubeEmbed = ({ id }: { id: string }) => (
   </div>
 );
 
-// Twitter embed with improved error handling
+// Twitter embed with native iframe (more reliable)
 const TwitterEmbedWrapper = ({ id }: { id: string }) => {
   const [loadError, setLoadError] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const tweetUrl = `https://twitter.com/i/status/${id}`;
-
-  const handleLoad = () => {
-    setIsLoading(false);
-    setLoadError(false);
-  };
-
-  const handleError = () => {
-    setIsLoading(false);
-    setLoadError(true);
-  };
+  const embedUrl = `https://platform.twitter.com/embed/Tweet.html?id=${id}`;
 
   if (loadError) {
     return (
@@ -97,13 +86,17 @@ const TwitterEmbedWrapper = ({ id }: { id: string }) => {
 
   return (
     <div className="w-full max-w-lg mx-auto">
-      {isLoading && <EmbedSkeleton />}
-      <div style={{ display: isLoading ? 'none' : 'block' }}>
-        <TwitterEmbed
-          url={tweetUrl}
-          width={550}
-          onLoad={handleLoad}
-          onError={handleError}
+      <div className="bg-background border rounded-lg overflow-hidden">
+        <iframe
+          src={embedUrl}
+          width="100%"
+          height="600"
+          frameBorder="0"
+          scrolling="no"
+          loading="lazy"
+          onError={() => setLoadError(true)}
+          className="w-full"
+          title={`Tweet ${id}`}
         />
       </div>
     </div>
