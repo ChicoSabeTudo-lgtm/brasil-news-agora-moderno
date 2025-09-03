@@ -86,7 +86,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
         
         // Handle specific auth events
@@ -104,18 +104,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           return;
         }
         
+        // Synchronous state updates only
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Validate token before proceeding
-          const isValidToken = await checkTokenValidity();
-          if (!isValidToken) {
-            setLoading(false);
-            return;
-          }
-          
-          // Fetch user role
+          // Defer role fetching to avoid blocking auth state change
           setTimeout(async () => {
             try {
               const { data, error } = await supabase
@@ -141,7 +135,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    // Get initial session and validate token
+    // Get initial session - simple version without token validation
     const initializeAuth = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -150,15 +144,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           console.error('❌ Initial session error:', error);
           setLoading(false);
           return;
-        }
-        
-        if (session) {
-          // Validate token on app startup
-          const isValidToken = await checkTokenValidity();
-          if (!isValidToken) {
-            setLoading(false);
-            return;
-          }
         }
         
         console.log('Initial session:', session?.user?.email);
