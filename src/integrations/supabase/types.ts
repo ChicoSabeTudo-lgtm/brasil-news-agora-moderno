@@ -688,8 +688,10 @@ export type Database = {
           created_at: string
           id: string
           image_url: string
-          is_featured: boolean
+          is_cover: boolean
           news_id: string
+          path: string | null
+          public_url: string | null
           sort_order: number
           updated_at: string
         }
@@ -698,8 +700,10 @@ export type Database = {
           created_at?: string
           id?: string
           image_url: string
-          is_featured?: boolean
+          is_cover?: boolean
           news_id: string
+          path?: string | null
+          public_url?: string | null
           sort_order?: number
           updated_at?: string
         }
@@ -708,8 +712,10 @@ export type Database = {
           created_at?: string
           id?: string
           image_url?: string
-          is_featured?: boolean
+          is_cover?: boolean
           news_id?: string
+          path?: string | null
+          public_url?: string | null
           sort_order?: number
           updated_at?: string
         }
@@ -1255,6 +1261,10 @@ export type Database = {
         Args: { p_post_id: string }
         Returns: undefined
       }
+      reorder_news_images: {
+        Args: { p_image_orders: Json; p_news_id: string }
+        Returns: undefined
+      }
       revoke_user_access: {
         Args:
           | { admin_user_id: string; reason?: string; target_user_id: string }
@@ -1267,6 +1277,10 @@ export type Database = {
       }
       schedule_social_post: {
         Args: { p_post_id: string; p_when: string }
+        Returns: undefined
+      }
+      set_news_cover: {
+        Args: { p_image_id: string; p_news_id: string }
         Returns: undefined
       }
       update_user_role: {

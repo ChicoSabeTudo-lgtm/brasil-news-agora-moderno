@@ -5,7 +5,7 @@ import { ImageCaption } from './ImageCaption';
 interface NewsImage {
   image_url: string;
   caption?: string;
-  is_featured: boolean;
+  is_cover: boolean;
 }
 
 interface NewsImageGalleryProps {

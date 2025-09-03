@@ -24,7 +24,7 @@ interface NewsItem {
   } | null;
   news_images: {
     image_url: string;
-    is_featured: boolean;
+    is_cover: boolean;
     caption: string;
   }[];
   profiles: {
@@ -52,7 +52,7 @@ export const useNews = () => {
           ),
           news_images (
             image_url,
-            is_featured,
+            is_cover,
             caption
           )
         `)

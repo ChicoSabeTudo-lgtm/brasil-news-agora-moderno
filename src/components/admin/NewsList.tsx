@@ -52,7 +52,7 @@ interface News {
   } | null;
   news_images?: {
     image_url: string;
-    is_featured: boolean;
+    is_cover: boolean;
     caption: string;
   }[];
 }
@@ -105,7 +105,7 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
           ),
           news_images (
             image_url,
-            is_featured,
+            is_cover,
             caption
           )
         `)
@@ -406,7 +406,7 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
                       {newsItem.news_images && newsItem.news_images.length > 0 ? (
                         <div className="flex items-center gap-2">
                           <img
-                            src={newsItem.news_images.find(img => img.is_featured)?.image_url || newsItem.news_images[0]?.image_url}
+                            src={newsItem.news_images.find(img => img.is_cover)?.image_url || newsItem.news_images[0]?.image_url}
                             alt="Capa da notícia"
                             className="w-10 h-10 object-cover rounded"
                           />

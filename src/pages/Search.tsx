@@ -24,7 +24,7 @@ interface NewsItem {
   };
   news_images: {
     image_url: string;
-    is_featured: boolean;
+    is_cover: boolean;
   }[];
   views: number;
   is_breaking: boolean;
@@ -72,7 +72,7 @@ const Search = () => {
           ),
           news_images (
             image_url,
-            is_featured
+            is_cover
           )
         `)
         .eq('is_published', true)
@@ -109,7 +109,7 @@ const Search = () => {
           ),
           news_images (
             image_url,
-            is_featured
+            is_cover
           )
         `)
         .eq('is_published', true)
@@ -136,7 +136,7 @@ const Search = () => {
   const getImageUrl = (newsItem: NewsItem) => {
     if (!newsItem.news_images?.length) return null;
     
-    const featuredImage = newsItem.news_images.find(img => img.is_featured) || newsItem.news_images[0];
+    const featuredImage = newsItem.news_images.find(img => img.is_cover) || newsItem.news_images[0];
     if (!featuredImage?.image_url) return null;
     
     if (featuredImage.image_url.startsWith('http')) {

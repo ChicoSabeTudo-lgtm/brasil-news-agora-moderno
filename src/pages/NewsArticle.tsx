@@ -42,7 +42,7 @@ interface NewsData {
   };
   news_images: {
     image_url: string;
-    is_featured: boolean;
+    is_cover: boolean;
     caption: string;
   }[];
 }
@@ -82,7 +82,7 @@ const NewsArticle = () => {
             ),
             news_images (
               image_url,
-              is_featured,
+              is_cover,
               caption
             )
           `)
@@ -179,7 +179,7 @@ const NewsArticle = () => {
             ),
             news_images (
               image_url,
-              is_featured
+              is_cover
             )
           `)
           .eq('is_published', true)
@@ -264,12 +264,12 @@ const NewsArticle = () => {
 
   const getFeaturedImage = () => {
     if (!news?.news_images?.length) return null;
-    return news.news_images.find(img => img.is_featured) || news.news_images[0];
+    return news.news_images.find(img => img.is_cover) || news.news_images[0];
   };
 
   const configureSEO = (newsData: NewsData) => {
     const currentUrl = window.location.href;
-    const featuredImage = newsData.news_images?.find(img => img.is_featured) || newsData.news_images?.[0];
+    const featuredImage = newsData.news_images?.find(img => img.is_cover) || newsData.news_images?.[0];
     const imageUrl = featuredImage ? getImageUrl(featuredImage) : null;
     const siteName = "ChicoSabeTudo";
     const excerpt = newsData.subtitle || newsData.meta_description;
