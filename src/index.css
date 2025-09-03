@@ -780,6 +780,21 @@ article .twitter-tweet {
   background: hsl(var(--background));
 }
 
+/* Exceção para Twitter embeds - permite quebrar limitação do container */
+.twitter-embed-breakout {
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+  max-width: none !important;
+}
+
+@media (max-width: 1024px) {
+  .twitter-embed-breakout {
+    width: 100%;
+    margin-left: 0;
+    max-width: 100% !important;
+  }
+}
+
 /* Título principal da notícia */
 .news-content h1 {
   font-size: 2.2rem;

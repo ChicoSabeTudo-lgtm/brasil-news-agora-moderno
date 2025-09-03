@@ -85,14 +85,15 @@ const TwitterEmbedWrapper = ({ id }: { id: string }) => {
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full twitter-embed-breakout">
       <iframe
         src={embedUrl}
         width="100%"
-        height="700"
+        height="800"
         frameBorder="0"
         onError={() => setLoadError(true)}
-        className="w-full border rounded-lg"
+        className="w-full border rounded-lg mx-auto"
+        style={{ maxWidth: '600px' }}
         title={`Tweet ${id}`}
       />
     </div>
