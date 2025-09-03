@@ -57,36 +57,100 @@ export const ImageGalleryEditor = ({ newsId, onImagesChange, initialImages = [] 
     }
   };
 
-  const convertToAvif = async (file: File): Promise<File> => {
-    return new Promise((resolve, reject) => {
+  // Detect format support
+  const canConvertToFormat = (format: string): Promise<boolean> => {
+    return new Promise((resolve) => {
       const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const img = new Image();
-      
-      img.onload = () => {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx?.drawImage(img, 0, 0);
+      canvas.width = 1;
+      canvas.height = 1;
+      canvas.toBlob(
+        (blob) => resolve(!!blob),
+        format,
+        0.8
+      );
+    });
+  };
+
+  const optimizeImage = async (file: File): Promise<File> => {
+    console.log('Starting image optimization for:', file.name);
+    
+    return new Promise(async (resolve, reject) => {
+      try {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
         
-        canvas.toBlob(
-          (blob) => {
-            if (blob) {
-              const avifFile = new File([blob], `${file.name.split('.')[0]}.avif`, {
-                type: 'image/avif',
-                lastModified: Date.now()
-              });
-              resolve(avifFile);
-            } else {
-              reject(new Error('Failed to convert image to AVIF'));
+        img.onload = async () => {
+          console.log('Image loaded, dimensions:', img.width, 'x', img.height);
+          
+          // Resize if too large (max 1920px width)
+          const maxWidth = 1920;
+          const maxHeight = 1920;
+          
+          let { width, height } = img;
+          
+          if (width > maxWidth || height > maxHeight) {
+            const ratio = Math.min(maxWidth / width, maxHeight / height);
+            width = Math.floor(width * ratio);
+            height = Math.floor(height * ratio);
+            console.log('Resizing to:', width, 'x', height);
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // Try formats in order of preference: AVIF -> WebP -> JPEG
+          const formats = [
+            { mime: 'image/avif', ext: 'avif' },
+            { mime: 'image/webp', ext: 'webp' },
+            { mime: 'image/jpeg', ext: 'jpg' }
+          ];
+          
+          for (const format of formats) {
+            console.log('Trying format:', format.mime);
+            
+            const supported = await canConvertToFormat(format.mime);
+            console.log('Format supported:', supported);
+            
+            if (supported) {
+              canvas.toBlob(
+                (blob) => {
+                  if (blob) {
+                    console.log('Successfully converted to', format.mime, 'Size:', blob.size);
+                    const optimizedFile = new File([blob], `${file.name.split('.')[0]}.${format.ext}`, {
+                      type: format.mime,
+                      lastModified: Date.now()
+                    });
+                    resolve(optimizedFile);
+                    return;
+                  }
+                  console.log('Failed to convert to', format.mime);
+                },
+                format.mime,
+                0.85
+              );
+              break;
             }
-          },
-          'image/avif',
-          0.8 // Quality setting (0-1)
-        );
-      };
-      
-      img.onerror = () => reject(new Error('Failed to load image'));
-      img.src = URL.createObjectURL(file);
+          }
+          
+          // If all conversions fail, return original file
+          setTimeout(() => {
+            console.log('All format conversions failed, using original file');
+            resolve(file);
+          }, 1000);
+        };
+        
+        img.onerror = () => {
+          console.error('Failed to load image for optimization');
+          reject(new Error('Failed to load image'));
+        };
+        
+        img.src = URL.createObjectURL(file);
+      } catch (error) {
+        console.error('Error in image optimization:', error);
+        reject(error);
+      }
     });
   };
 
@@ -94,33 +158,65 @@ export const ImageGalleryEditor = ({ newsId, onImagesChange, initialImages = [] 
     setUploading(true);
     
     try {
-      // Convert image to AVIF format
-      const avifFile = await convertToAvif(file);
+      console.log('Starting upload for file:', file.name, 'Size:', file.size);
       
-      const fileName = `${Math.random()}.avif`;
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        throw new Error('Por favor, selecione apenas arquivos de imagem.');
+      }
+      
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        throw new Error('O arquivo deve ter no máximo 10MB.');
+      }
+      
+      // Optimize image with format detection and fallbacks
+      const optimizedFile = await optimizeImage(file);
+      console.log('Image optimized:', optimizedFile.name, 'Size:', optimizedFile.size);
+      
+      const fileExtension = optimizedFile.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExtension}`;
       const filePath = `${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from('news-images')
-        .upload(filePath, avifFile);
+        .upload(filePath, optimizedFile);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw new Error(`Erro no upload: ${uploadError.message}`);
+      }
 
       const { data: { publicUrl } } = supabase.storage
         .from('news-images')
         .getPublicUrl(filePath);
+
+      console.log('Upload successful, public URL:', publicUrl);
 
       const newImage: NewsImage = {
         image_url: publicUrl,
         caption: '',
         is_featured: images.length === 0, // Primeira imagem é destaque automaticamente
         sort_order: images.length,
-        file: avifFile
+        file: optimizedFile
       };
 
       return newImage;
     } catch (error) {
       console.error('Error uploading image:', error);
+      
+      // Provide more specific error messages
+      let errorMessage = 'Não foi possível fazer upload da imagem.';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      toast({
+        title: "Erro no Upload",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      
       throw error;
     }
   };
