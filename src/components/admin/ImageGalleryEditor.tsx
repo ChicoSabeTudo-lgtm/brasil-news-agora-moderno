@@ -160,22 +160,8 @@ export const ImageGalleryEditor = ({ newsId, onImagesChange, initialImages = [] 
   };
 
   const handleFileUpload = async (file: File) => {
-    console.log('🔍 ImageGalleryEditor - Iniciando upload:', {
-      fileName: file.name,
-      fileSize: file.size,
-      user: user?.id,
-      userRole,
-      isOtpVerified,
-      canUpload
-    });
-
     // Verificar autenticação antes do upload
     if (!canUpload) {
-      console.error('❌ Upload negado - usuário sem permissão:', {
-        user: user?.id,
-        userRole,
-        isOtpVerified
-      });
       toast({
         title: "Acesso negado",
         description: "Você precisa estar logado e ter permissão de redator ou admin para fazer upload de imagens.",
@@ -183,20 +169,6 @@ export const ImageGalleryEditor = ({ newsId, onImagesChange, initialImages = [] 
       });
       throw new Error("Acesso negado");
     }
-
-    // Verificar se o token ainda é válido
-    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError || !session) {
-      console.error('❌ Sessão inválida ou expirada:', sessionError);
-      toast({
-        title: "Sessão expirada",
-        description: "Por favor, faça login novamente para continuar.",
-        variant: "destructive",
-      });
-      throw new Error("Sessão expirada");
-    }
-
-    console.log('✅ Sessão válida, prosseguindo com upload...');
 
     setUploading(true);
     
@@ -221,21 +193,12 @@ export const ImageGalleryEditor = ({ newsId, onImagesChange, initialImages = [] 
       const fileName = `${Math.random()}.${fileExtension}`;
       const filePath = `${fileName}`;
 
-      console.log('📤 Tentando upload para Supabase Storage:', {
-        bucket: 'news-images',
-        filePath,
-        fileSize: optimizedFile.size
-      });
-
       const { error: uploadError } = await supabase.storage
         .from('news-images')
         .upload(filePath, optimizedFile);
 
       if (uploadError) {
-        console.error('❌ Erro no upload do Supabase Storage:', {
-          error: uploadError,
-          message: uploadError.message
-        });
+        console.error('Upload error:', uploadError);
         
         // Provide specific error messages for common issues
         if (uploadError.message?.includes('unauthorized') || uploadError.message?.includes('permission')) {
