@@ -24,8 +24,11 @@ interface NewsItem {
   } | null;
   news_images: {
     image_url: string;
+    public_url?: string;
+    path?: string;
     is_cover: boolean;
     caption: string;
+    sort_order: number;
   }[];
   profiles: {
     full_name: string;
@@ -52,8 +55,11 @@ export const useNews = () => {
           ),
           news_images (
             image_url,
+            public_url,
+            path,
             is_cover,
-            caption
+            caption,
+            sort_order
           )
         `)
         .eq('is_published', true)

@@ -42,8 +42,11 @@ interface NewsData {
   };
   news_images: {
     image_url: string;
+    public_url?: string;
+    path?: string;
     is_cover: boolean;
     caption: string;
+    sort_order: number;
   }[];
 }
 
@@ -82,8 +85,11 @@ const NewsArticle = () => {
             ),
             news_images (
               image_url,
+              public_url,
+              path,
               is_cover,
-              caption
+              caption,
+              sort_order
             )
           `)
           .eq('is_published', true);
@@ -648,7 +654,6 @@ const NewsArticle = () => {
             <NewsImageGallery 
               images={news.news_images || []}
               newsTitle={news.title}
-              getImageUrl={getImageUrl}
             />
 
             {/* Advertisement */}

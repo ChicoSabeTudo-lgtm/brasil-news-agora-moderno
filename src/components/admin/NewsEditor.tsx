@@ -586,10 +586,9 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
 
                 {/* Images Gallery */}
                 {newsImages.length > 0 && (
-                  <NewsImageGallery
+                  <NewsImageGallery 
                     images={newsImages}
                     newsTitle={article.title || 'Título da notícia'}
-                    getImageUrl={(image) => image.image_url}
                   />
                 )}
 

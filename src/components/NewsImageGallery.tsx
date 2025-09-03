@@ -1,20 +1,24 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, X, Maximize2 } from "lucide-react";
 import { ImageCaption } from './ImageCaption';
+import { ImageWithFallback } from './ImageWithFallback';
+import { getImageUrl } from '@/utils/imageUtils';
 
 interface NewsImage {
   image_url: string;
+  public_url?: string;
+  path?: string;
   caption?: string;
   is_cover: boolean;
+  sort_order: number;
 }
 
 interface NewsImageGalleryProps {
   images: NewsImage[];
   newsTitle: string;
-  getImageUrl: (image: NewsImage) => string;
 }
 
-export const NewsImageGallery = ({ images, newsTitle, getImageUrl }: NewsImageGalleryProps) => {
+export const NewsImageGallery = ({ images, newsTitle }: NewsImageGalleryProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -57,7 +61,7 @@ export const NewsImageGallery = ({ images, newsTitle, getImageUrl }: NewsImageGa
       <div className="mb-4">
         <div className="rounded-xl overflow-hidden bg-muted">
           <div className="relative group">
-            <img 
+            <ImageWithFallback 
               src={getImageUrl(image)} 
               alt={newsTitle}
               className="w-full h-auto object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
