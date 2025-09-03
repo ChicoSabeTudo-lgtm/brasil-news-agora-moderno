@@ -36,15 +36,85 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('isOtpVerified', verified.toString());
   };
 
+  // Token refresh monitoring
+  const checkTokenValidity = async () => {
+    try {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      
+      if (error) {
+        console.error('❌ Token validation error:', error);
+        // If token is invalid, force logout
+        await signOut();
+        return false;
+      }
+      
+      if (!session) {
+        console.log('ℹ️ No session found');
+        return false;
+      }
+      
+      // Check if token is close to expiring (within 5 minutes)
+      const expiresAt = session.expires_at;
+      const now = Math.floor(Date.now() / 1000);
+      const timeUntilExpiry = expiresAt - now;
+      
+      if (timeUntilExpiry < 300) { // 5 minutes
+        console.log('🔄 Token expiring soon, attempting refresh...');
+        const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession();
+        
+        if (refreshError) {
+          console.error('❌ Token refresh failed:', refreshError);
+          await signOut();
+          return false;
+        }
+        
+        if (refreshedSession) {
+          console.log('✅ Token refreshed successfully');
+          setSession(refreshedSession);
+          setUser(refreshedSession.user);
+          return true;
+        }
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('❌ Error checking token validity:', error);
+      return false;
+    }
+  };
+
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         console.log('Auth state changed:', event, session?.user?.email);
+        
+        // Handle specific auth events
+        if (event === 'TOKEN_REFRESHED') {
+          console.log('✅ Token was refreshed');
+        }
+        
+        if (event === 'SIGNED_OUT') {
+          console.log('👋 User signed out');
+          setSession(null);
+          setUser(null);
+          setUserRole(null);
+          updateOtpVerified(false);
+          setLoading(false);
+          return;
+        }
+        
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
+          // Validate token before proceeding
+          const isValidToken = await checkTokenValidity();
+          if (!isValidToken) {
+            setLoading(false);
+            return;
+          }
+          
           // Fetch user role
           setTimeout(async () => {
             try {
@@ -71,15 +141,45 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    // THEN get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session:', session?.user?.email);
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    // Get initial session and validate token
+    const initializeAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('❌ Initial session error:', error);
+          setLoading(false);
+          return;
+        }
+        
+        if (session) {
+          // Validate token on app startup
+          const isValidToken = await checkTokenValidity();
+          if (!isValidToken) {
+            setLoading(false);
+            return;
+          }
+        }
+        
+        console.log('Initial session:', session?.user?.email);
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
+      } catch (error) {
+        console.error('❌ Error initializing auth:', error);
+        setLoading(false);
+      }
+    };
 
-    return () => subscription.unsubscribe();
+    initializeAuth();
+
+    // Set up token monitoring interval (check every 4 minutes)
+    const tokenCheckInterval = setInterval(checkTokenValidity, 4 * 60 * 1000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearInterval(tokenCheckInterval);
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {

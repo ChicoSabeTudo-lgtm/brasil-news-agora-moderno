@@ -184,6 +184,20 @@ export const ImageGalleryEditor = ({ newsId, onImagesChange, initialImages = [] 
       throw new Error("Acesso negado");
     }
 
+    // Verificar se o token ainda é válido
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !session) {
+      console.error('❌ Sessão inválida ou expirada:', sessionError);
+      toast({
+        title: "Sessão expirada",
+        description: "Por favor, faça login novamente para continuar.",
+        variant: "destructive",
+      });
+      throw new Error("Sessão expirada");
+    }
+
+    console.log('✅ Sessão válida, prosseguindo com upload...');
+
     setUploading(true);
     
     try {
