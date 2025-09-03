@@ -85,18 +85,16 @@ const TwitterEmbedWrapper = ({ id }: { id: string }) => {
   }
 
   return (
-    <div className="w-full max-w-lg mx-auto">
-      <div className="bg-background border rounded-lg">
-        <iframe
-          src={embedUrl}
-          width="100%"
-          height="500"
-          frameBorder="0"
-          onError={() => setLoadError(true)}
-          className="w-full"
-          title={`Tweet ${id}`}
-        />
-      </div>
+    <div className="w-full max-w-xl mx-auto">
+      <iframe
+        src={embedUrl}
+        width="100%"
+        height="600"
+        frameBorder="0"
+        onError={() => setLoadError(true)}
+        className="w-full border rounded-lg"
+        title={`Tweet ${id}`}
+      />
     </div>
   );
 };
