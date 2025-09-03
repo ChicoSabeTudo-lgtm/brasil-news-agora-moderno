@@ -90,13 +90,13 @@ const TwitterEmbedWrapper = ({ id }: { id: string }) => {
         <iframe
           src={embedUrl}
           width="100%"
-          height="500"
+          height="800"
           frameBorder="0"
+          scrolling="no"
           loading="lazy"
           onError={() => setLoadError(true)}
           className="w-full"
           title={`Tweet ${id}`}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
         />
       </div>
     </div>
