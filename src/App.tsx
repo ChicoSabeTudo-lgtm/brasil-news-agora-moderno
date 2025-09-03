@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { SiteCodeInjector } from "@/components/SiteCodeInjector";
 import { EmbedBridge } from "@/components/EmbedBridge";
 
@@ -46,9 +47,21 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/perfil" element={<Profile />} />
-            <Route path="/admin" element={<ModernAdmin />} />
-            <Route path="/admin/configuracoes" element={<SiteConfigurations />} />
+            <Route path="/perfil" element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin" element={
+              <ProtectedRoute requiredRole="redator">
+                <ModernAdmin />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/configuracoes" element={
+              <ProtectedRoute requiredRole="admin">
+                <SiteConfigurations />
+              </ProtectedRoute>
+            } />
             <Route path="/busca" element={<Search />} />
             <Route path="/ao-vivo" element={<AoVivo />} />
             <Route path="/videos" element={<Videos />} />

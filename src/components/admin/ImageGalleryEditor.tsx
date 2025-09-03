@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Upload, X, Star, StarOff, ChevronUp, ChevronDown, GripVertical } from 'lucide-react';
 
@@ -28,6 +29,10 @@ export const ImageGalleryEditor = ({ newsId, onImagesChange, initialImages = [] 
   const [images, setImages] = useState<NewsImage[]>(initialImages);
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
+  const { user, userRole, isOtpVerified } = useAuth();
+
+  // Verificar se o usuário tem permissão para fazer upload
+  const canUpload = user && isOtpVerified && (userRole === 'admin' || userRole === 'redator');
 
   useEffect(() => {
     if (newsId) {
@@ -155,6 +160,16 @@ export const ImageGalleryEditor = ({ newsId, onImagesChange, initialImages = [] 
   };
 
   const handleFileUpload = async (file: File) => {
+    // Verificar autenticação antes do upload
+    if (!canUpload) {
+      toast({
+        title: "Acesso negado",
+        description: "Você precisa estar logado e ter permissão de redator ou admin para fazer upload de imagens.",
+        variant: "destructive",
+      });
+      throw new Error("Acesso negado");
+    }
+
     setUploading(true);
     
     try {
@@ -184,6 +199,14 @@ export const ImageGalleryEditor = ({ newsId, onImagesChange, initialImages = [] 
 
       if (uploadError) {
         console.error('Upload error:', uploadError);
+        
+        // Provide specific error messages for common issues
+        if (uploadError.message?.includes('unauthorized') || uploadError.message?.includes('permission')) {
+          throw new Error('Você não tem permissão para fazer upload. Verifique se está logado e tem o role adequado.');
+        } else if (uploadError.message?.includes('policy')) {
+          throw new Error('Erro de política de segurança. Contate o administrador.');
+        }
+        
         throw new Error(`Erro no upload: ${uploadError.message}`);
       }
 
@@ -373,6 +396,28 @@ export const ImageGalleryEditor = ({ newsId, onImagesChange, initialImages = [] 
       });
     }
   };
+
+  // Mostrar mensagem de acesso se não autorizado
+  if (!canUpload) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Galeria de Imagens</CardTitle>
+          <CardDescription>
+            Você precisa estar logado e ter permissão de redator ou admin para gerenciar imagens.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">
+            <p className="text-muted-foreground mb-4">Acesso não autorizado para upload de imagens.</p>
+            <Button onClick={() => window.location.href = '/auth'}>
+              Fazer Login
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
