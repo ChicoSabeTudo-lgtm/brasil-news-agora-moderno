@@ -62,11 +62,33 @@ const YouTubeEmbed = ({ id }: { id: string }) => (
   </div>
 );
 
-// Twitter embed with native iframe (more reliable)
+// Twitter embed with native blockquote approach
 const TwitterEmbedWrapper = ({ id }: { id: string }) => {
   const [loadError, setLoadError] = useState(false);
   const tweetUrl = `https://twitter.com/i/status/${id}`;
-  const embedUrl = `https://platform.twitter.com/embed/Tweet.html?id=${id}`;
+  const tweetRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Load Twitter widgets script if not already loaded
+    if (!(window as any).twttr) {
+      const script = document.createElement('script');
+      script.src = 'https://platform.twitter.com/widgets.js';
+      script.async = true;
+      script.charset = 'utf-8';
+      document.head.appendChild(script);
+      
+      script.onload = () => {
+        if ((window as any).twttr?.widgets) {
+          (window as any).twttr.widgets.load(tweetRef.current);
+        }
+      };
+    } else {
+      // Script already loaded, just process the widgets
+      if ((window as any).twttr?.widgets) {
+        (window as any).twttr.widgets.load(tweetRef.current);
+      }
+    }
+  }, []);
 
   if (loadError) {
     return (
@@ -85,16 +107,12 @@ const TwitterEmbedWrapper = ({ id }: { id: string }) => {
   }
 
   return (
-    <div className="w-full twitter-embed-breakout">
-      <iframe
-        src={embedUrl}
-        width="100%"
-        frameBorder="0"
-        onError={() => setLoadError(true)}
-        className="w-full border rounded-lg mx-auto twitter-iframe"
-        style={{ maxWidth: '600px', minHeight: '400px', height: 'auto' }}
-        title={`Tweet ${id}`}
-      />
+    <div ref={tweetRef} className="w-full twitter-embed-breakout">
+      <blockquote className="twitter-tweet" data-theme="light">
+        <a href={tweetUrl} target="_blank" rel="noopener noreferrer">
+          Loading tweet...
+        </a>
+      </blockquote>
     </div>
   );
 };
