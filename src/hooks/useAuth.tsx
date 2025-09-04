@@ -87,15 +87,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
-        
-        // Handle specific auth events
-        if (event === 'TOKEN_REFRESHED') {
-          console.log('✅ Token was refreshed');
-        }
+        console.log('Auth state changed:', event);
         
         if (event === 'SIGNED_OUT') {
-          console.log('👋 User signed out');
           setSession(null);
           setUser(null);
           setUserRole(null);
@@ -109,25 +103,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Defer role fetching to avoid blocking auth state change
+          // Defer role fetching to avoid blocking
           setTimeout(async () => {
             try {
-              const { data, error } = await supabase
+              const { data } = await supabase
                 .from('user_roles')
                 .select('role')
                 .eq('user_id', session.user.id)
-                .single();
+                .maybeSingle();
               
-              if (!error && data) {
-                setUserRole(data.role);
-              }
+              setUserRole(data?.role || 'redator');
             } catch (error) {
-              console.error('Error fetching user role:', error);
+              setUserRole('redator');
             }
           }, 0);
         } else {
           setUserRole(null);
-          // Se não há sessão ativa, limpar OTP verificado
           updateOtpVerified(false);
         }
         
@@ -135,28 +126,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    // Get initial session - simple version without token validation
-    const initializeAuth = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('❌ Initial session error:', error);
-          setLoading(false);
-          return;
-        }
-        
-        console.log('Initial session:', session?.user?.email);
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      } catch (error) {
-        console.error('❌ Error initializing auth:', error);
-        setLoading(false);
-      }
-    };
-
-    initializeAuth();
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      // Session will be processed by the listener above
+    });
 
     // Set up token monitoring interval (check every 4 minutes)
     const tokenCheckInterval = setInterval(checkTokenValidity, 4 * 60 * 1000);

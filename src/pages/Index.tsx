@@ -78,21 +78,23 @@ const Index = () => {
     }
   };
 
-  // Helper function to get image URL
+  // Helper function to get image URL using utility
   const getImageUrl = (newsItem: any) => {
     if (newsItem.news_images && newsItem.news_images.length > 0) {
-      const featuredImage = newsItem.news_images.find((img: any) => img.is_featured);
-      const imageUrl = featuredImage?.image_url || newsItem.news_images[0]?.image_url;
-
-      // Se a URL já é completa (começa com http), usar como está
-      if (imageUrl && imageUrl.startsWith('http')) {
+      const coverImage = newsItem.news_images.find((img: any) => img.is_cover);
+      const firstImage = coverImage || newsItem.news_images[0];
+      
+      // Use image utility function
+      const imageUrl = firstImage.public_url || firstImage.image_url;
+      if (imageUrl && (imageUrl.startsWith('http') || imageUrl.startsWith('/'))) {
         return imageUrl;
       }
-
-      // Se é uma URL do Supabase Storage, construir a URL completa
-      if (imageUrl && imageUrl.startsWith('news-images/')) {
-        return `https://spgusjrjrhfychhdwixn.supabase.co/storage/v1/object/public/${imageUrl}`;
+      
+      // Fallback to path construction
+      if (firstImage.path) {
+        return `https://spgusjrjrhfychhdwixn.supabase.co/storage/v1/object/public/news-images/${firstImage.path}`;
       }
+      
       return imageUrl;
     }
     return categoryImages[newsItem.categories?.slug] || breakingImage;
