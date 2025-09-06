@@ -192,6 +192,15 @@ export const NewsGallery = ({
 
   // Verificar se o usuário tem permissão para editar
   const canEdit = isEditor && user && isOtpVerified && (userRole === 'admin' || userRole === 'redator');
+  
+  // Debug das permissões
+  console.log('NewsGallery permissions:', {
+    isEditor,
+    user: !!user,
+    isOtpVerified,
+    userRole,
+    canEdit
+  });
 
   useEffect(() => {
     if (newsId) {
@@ -337,10 +346,18 @@ export const NewsGallery = ({
 
   // Upload de múltiplos arquivos
   const handleFileUpload = async (files: File[]) => {
+    console.log('Tentando upload:', { canEdit, files: files.length });
+    
     if (!canEdit) {
+      const reason = !isEditor ? 'Não está no modo editor' :
+                     !user ? 'Usuário não autenticado' :
+                     !isOtpVerified ? 'OTP não verificado' :
+                     !(userRole === 'admin' || userRole === 'redator') ? 'Permissão insuficiente' : 'Motivo desconhecido';
+                     
+      console.error('Upload negado:', reason);
       toast({
         title: "Acesso negado",
-        description: "Você não tem permissão para fazer upload de imagens.",
+        description: `Você não tem permissão para fazer upload de imagens. Motivo: ${reason}`,
         variant: "destructive",
       });
       return;
@@ -349,14 +366,51 @@ export const NewsGallery = ({
     setUploading(true);
     
     try {
+      console.log('Iniciando upload de', files.length, 'arquivos');
+      
       // Upload todos os arquivos em paralelo
-      const uploadPromises = files.map(uploadFile);
+      const uploadPromises = files.map((file, index) => {
+        console.log(`Iniciando upload do arquivo ${index + 1}:`, file.name);
+        return uploadFile(file);
+      });
       const uploadedImages = await Promise.all(uploadPromises);
       
-      // Atualizar estado local
-      const updatedImages = [...images, ...uploadedImages];
-      setImages(updatedImages);
-      onImagesChange?.(updatedImages);
+      console.log('Upload concluído, salvando no banco:', uploadedImages);
+      
+      // Se temos newsId, salvar diretamente no banco
+      if (newsId && uploadedImages.length > 0) {
+        const imagesToSave = uploadedImages.map((img, index) => ({
+          news_id: newsId,
+          image_url: img.image_url,
+          path: img.path,
+          public_url: img.public_url,
+          caption: img.caption || null,
+          is_cover: img.is_cover,
+          sort_order: images.length + index
+        }));
+
+        const { data: savedImages, error: saveError } = await supabase
+          .from('news_images')
+          .insert(imagesToSave)
+          .select();
+
+        if (saveError) {
+          console.error('Erro ao salvar imagens no banco:', saveError);
+          throw new Error(`Erro ao salvar no banco: ${saveError.message}`);
+        }
+        
+        console.log('Imagens salvas no banco:', savedImages);
+        
+        // Atualizar estado com dados salvos (incluindo IDs)
+        const updatedImages = [...images, ...(savedImages || [])];
+        setImages(updatedImages);
+        onImagesChange?.(updatedImages);
+      } else {
+        // Atualizar apenas estado local (para newsId vazio)
+        const updatedImages = [...images, ...uploadedImages];
+        setImages(updatedImages);
+        onImagesChange?.(updatedImages);
+      }
 
       toast({
         title: "Upload concluído",

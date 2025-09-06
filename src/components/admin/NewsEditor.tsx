@@ -18,8 +18,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Save, Eye, Send, Clock, Calendar as CalendarIcon } from 'lucide-react';
-import { ImageGalleryEditor } from './ImageGalleryEditor';
 import { NewsDownloadManager } from './NewsDownloadManager';
+import { NewsGallery } from '@/components/NewsGallery';
 import { NewsImageGallery } from '@/components/NewsImageGallery';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { MediaManager } from '@/components/MediaManager';
@@ -209,38 +209,8 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
         }
       }
 
-      // Save images if there are any and we have a news ID
-      if (newsImages.length > 0) {
-        try {
-          // Delete existing images for this news
-          await supabase
-            .from('news_images')
-            .delete()
-            .eq('news_id', savedNewsId);
-
-          // Insert new images
-          const imagesToSave = newsImages.map((img, index) => ({
-            news_id: savedNewsId,
-            image_url: img.image_url,
-            caption: img.caption || null,
-            is_featured: img.is_featured,
-            sort_order: index
-          }));
-
-          const { error: imagesError } = await supabase
-            .from('news_images')
-            .insert(imagesToSave);
-
-          if (imagesError) throw imagesError;
-        } catch (error) {
-          console.error('Error saving images:', error);
-          toast({
-            title: "Aviso",
-            description: "A notícia foi salva, mas houve um erro ao salvar as imagens.",
-            variant: "destructive",
-          });
-        }
-      }
+      // NewsGallery já gerencia o salvamento das imagens automaticamente
+      // Removida lógica duplicada de salvamento de imagens
       
       toast({
         title: status === 'draft' ? "Rascunho salvo" : status === 'scheduled' ? "Notícia agendada" : "Notícia publicada",
@@ -368,9 +338,13 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
         </div>
 
         {/* Image Gallery */}
-        <ImageGalleryEditor
+        <NewsGallery 
           newsId={editingNews?.id}
-          onImagesChange={setNewsImages}
+          isEditor={true}
+          onImagesChange={(images) => {
+            console.log('Images changed in NewsEditor:', images);
+            setNewsImages(images);
+          }}
           initialImages={newsImages}
         />
 
