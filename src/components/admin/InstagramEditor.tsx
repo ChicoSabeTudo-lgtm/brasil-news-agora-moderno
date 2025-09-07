@@ -190,6 +190,16 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
 
     const { fontSize, verticalPosition, alignment, fontFamily, color } = textState;
     
+    // Wait for fonts to load before drawing
+    if (!document.fonts.check(`900 ${fontSize}px "Archivo Black"`)) {
+      addDebugInfo('Fonte Archivo Black ainda não carregada, aguardando...');
+      document.fonts.ready.then(() => {
+        addDebugInfo('Fontes carregadas, redesenhando canvas');
+        drawCanvas();
+      });
+      return;
+    }
+    
     // Semi-transparent overlay for text readability
     const overlayHeight = fontSize + 40;
     const overlayY = (CANVAS_HEIGHT * verticalPosition / 100) - overlayHeight / 2;
@@ -197,10 +207,13 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
     ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
     ctx.fillRect(0, Math.max(0, overlayY), CANVAS_WIDTH, overlayHeight);
 
-    // Text setup - ensure bold weight
-    ctx.font = `900 ${fontSize}px ${fontFamily}`;
+    // Text setup - ensure Archivo Black is used with fallback
+    const fontString = `900 ${fontSize}px "Archivo Black", "Arial Black", sans-serif`;
+    ctx.font = fontString;
     ctx.fillStyle = color;
     ctx.textBaseline = 'middle';
+    
+    addDebugInfo(`Aplicando fonte: ${fontString}`);
 
     // Text alignment
     let textX = CANVAS_WIDTH / 2;
