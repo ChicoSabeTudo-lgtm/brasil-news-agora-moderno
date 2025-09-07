@@ -62,27 +62,41 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
   };
 
   const sendInstagramPost = async () => {
+    console.log('🚀 [INSTAGRAM] Iniciando sendInstagramPost...');
+    console.log('🔍 [INSTAGRAM] User:', user?.id);
+    console.log('🔍 [INSTAGRAM] postData.canvasDataUrl exists:', !!postData.canvasDataUrl);
+    console.log('🔍 [INSTAGRAM] siteConfig exists:', !!siteConfig);
+    
     if (!user || !postData.canvasDataUrl) {
+      console.error('❌ [INSTAGRAM] Dados incompletos - user:', !!user, 'canvasDataUrl:', !!postData.canvasDataUrl);
       toast.error('Dados incompletos para envio');
       return;
     }
 
     const socialWebhookUrl = siteConfig?.social_webhook_url;
+    console.log('🔍 [INSTAGRAM] socialWebhookUrl:', socialWebhookUrl);
+    
     if (!socialWebhookUrl) {
+      console.error('❌ [INSTAGRAM] URL do webhook não configurada');
       toast.error('URL do webhook não configurada');
       return;
     }
 
     setIsSubmitting(true);
+    console.log('🔄 [INSTAGRAM] setIsSubmitting(true) - Iniciando processo...');
 
     try {
-      console.log('🚀 Iniciando processo de envio do Instagram...');
+      console.log('🚀 [INSTAGRAM] Entrando no bloco try...');
       
       // Convert canvas data URL to blob
-      console.log('📊 Convertendo canvas para blob...');
+      console.log('📊 [INSTAGRAM] Convertendo canvas para blob...');
+      console.log('🔍 [INSTAGRAM] Canvas data URL length:', postData.canvasDataUrl.length);
+      
       const response = await fetch(postData.canvasDataUrl);
+      console.log('✅ [INSTAGRAM] Fetch do canvas concluído, status:', response.status);
+      
       const blob = await response.blob();
-      console.log('✅ Canvas convertido para blob:', blob.size, 'bytes');
+      console.log('✅ [INSTAGRAM] Canvas convertido para blob:', blob.size, 'bytes', 'type:', blob.type);
 
       // Upload to Supabase storage
       const fileName = `instagram-post-${Date.now()}.jpg`;
@@ -173,9 +187,20 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
       onComplete();
       
     } catch (error) {
-      console.error('Erro ao enviar post:', error);
-      toast.error('Erro ao enviar post. Tente novamente.');
+      console.error('❌ [INSTAGRAM] ERRO CAPTURADO:', error);
+      console.error('❌ [INSTAGRAM] Error type:', typeof error);
+      console.error('❌ [INSTAGRAM] Error message:', error?.message);
+      console.error('❌ [INSTAGRAM] Error stack:', error?.stack);
+      
+      // Detailed error logging
+      if (error instanceof Error) {
+        console.error('❌ [INSTAGRAM] Instance of Error - Name:', error.name);
+        console.error('❌ [INSTAGRAM] Instance of Error - Message:', error.message);
+      }
+      
+      toast.error(`Erro ao enviar post: ${error?.message || 'Erro desconhecido'}. Tente novamente.`);
     } finally {
+      console.log('🔄 [INSTAGRAM] setIsSubmitting(false) - Finalizando processo...');
       setIsSubmitting(false);
     }
   };
