@@ -76,12 +76,18 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
     setIsSubmitting(true);
 
     try {
+      console.log('🚀 Iniciando processo de envio do Instagram...');
+      
       // Convert canvas data URL to blob
+      console.log('📊 Convertendo canvas para blob...');
       const response = await fetch(postData.canvasDataUrl);
       const blob = await response.blob();
+      console.log('✅ Canvas convertido para blob:', blob.size, 'bytes');
 
       // Upload to Supabase storage
       const fileName = `instagram-post-${Date.now()}.jpg`;
+      console.log('📤 Fazendo upload para storage:', fileName);
+      
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from('social-posts')
         .upload(fileName, blob, {
@@ -89,8 +95,11 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
         });
 
       if (uploadError) {
+        console.error('❌ Erro no upload para storage:', uploadError);
         throw new Error(`Erro no upload: ${uploadError.message}`);
       }
+
+      console.log('✅ Upload realizado com sucesso:', uploadData);
 
       // Get public URL
       const { data: urlData } = supabase.storage
@@ -98,6 +107,7 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
         .getPublicUrl(uploadData.path);
 
       const imageUrl = urlData.publicUrl;
+      console.log('🔗 URL pública gerada:', imageUrl);
 
       // Prepare timestamp
       let timestamp = new Date().toISOString();
@@ -136,6 +146,9 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
         }
       };
 
+      console.log('📨 Enviando payload para webhook:', JSON.stringify(payload, null, 2));
+      console.log('🔗 URL do webhook:', socialWebhookUrl);
+
       const webhookResponse = await fetch(socialWebhookUrl, {
         method: 'POST',
         headers: {
@@ -144,9 +157,16 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
         body: JSON.stringify(payload),
       });
 
+      console.log('📊 Resposta do webhook - Status:', webhookResponse.status);
+      
       if (!webhookResponse.ok) {
-        throw new Error(`HTTP error! status: ${webhookResponse.status}`);
+        const errorText = await webhookResponse.text();
+        console.error('❌ Erro na resposta do webhook:', errorText);
+        throw new Error(`HTTP error! status: ${webhookResponse.status} - ${errorText}`);
       }
+
+      const responseData = await webhookResponse.text();
+      console.log('✅ Resposta do webhook:', responseData);
 
       const action = isScheduled ? 'agendado' : 'enviado';
       toast.success(`Post ${action} com sucesso!`);
