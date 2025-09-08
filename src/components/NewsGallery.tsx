@@ -15,6 +15,7 @@ import {
   StarOff, 
   GripVertical, 
   RotateCcw, 
+  RotateCw,
   ImageIcon,
   Loader2
 } from 'lucide-react';
@@ -64,7 +65,8 @@ const SortableGalleryItem = ({
   isEditor, 
   onCaptionChange, 
   onSetCover, 
-  onRemove 
+  onRemove,
+  onRotate 
 }: {
   image: NewsImage;
   index: number;
@@ -72,6 +74,7 @@ const SortableGalleryItem = ({
   onCaptionChange: (index: number, caption: string) => void;
   onSetCover: (index: number) => void;
   onRemove: (index: number) => void;
+  onRotate: (index: number) => void;
 }) => {
   const {
     attributes,
@@ -152,6 +155,15 @@ const SortableGalleryItem = ({
               title={image.is_cover ? "Remover da capa" : "Definir como capa"}
             >
               {image.is_cover ? <StarOff className="w-4 h-4" /> : <Star className="w-4 h-4" />}
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onRotate(index)}
+              title="Rotacionar imagem 90°"
+            >
+              <RotateCw className="w-4 h-4" />
             </Button>
             
             <Button
@@ -508,6 +520,144 @@ export const NewsGallery = ({
     }
   };
 
+  // Rotacionar imagem 90 graus no sentido horário
+  const handleRotateImage = async (index: number) => {
+    const imageToRotate = images[index];
+    
+    if (!imageToRotate.image_url && !imageToRotate.public_url) {
+      toast({
+        title: "Erro",
+        description: "Não foi possível rotacionar a imagem.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const imageUrl = imageToRotate.public_url || imageToRotate.image_url;
+      
+      // Criar canvas para rotacionar a imagem
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.crossOrigin = 'anonymous';
+      
+      img.onload = async () => {
+        // Configurar canvas com dimensões rotacionadas
+        canvas.width = img.height;
+        canvas.height = img.width;
+        
+        // Rotacionar 90 graus no sentido horário
+        ctx?.translate(canvas.width / 2, canvas.height / 2);
+        ctx?.rotate(Math.PI / 2);
+        ctx?.drawImage(img, -img.width / 2, -img.height / 2);
+        
+        // Converter para blob
+        canvas.toBlob(async (blob) => {
+          if (!blob) {
+            toast({
+              title: "Erro",
+              description: "Falha ao processar a rotação da imagem.",
+              variant: "destructive",
+            });
+            return;
+          }
+          
+          try {
+            // Criar novo arquivo com nome único
+            const fileExtension = 'jpg';
+            const uuid = crypto.randomUUID();
+            const fileName = `rotated-${uuid}.${fileExtension}`;
+            const filePath = newsId ? `${newsId}/${fileName}` : fileName;
+            
+            // Upload da imagem rotacionada
+            const { error: uploadError } = await supabase.storage
+              .from('news-images')
+              .upload(filePath, blob);
+            
+            if (uploadError) {
+              throw new Error(`Erro no upload: ${uploadError.message}`);
+            }
+            
+            // Obter nova URL pública
+            const { data: { publicUrl } } = supabase.storage
+              .from('news-images')
+              .getPublicUrl(filePath);
+            
+            // Atualizar a imagem no estado
+            const updatedImages = images.map((img, i) => 
+              i === index ? {
+                ...img,
+                image_url: publicUrl,
+                public_url: publicUrl,
+                path: filePath
+              } : img
+            );
+            
+            setImages(updatedImages);
+            onImagesChange?.(updatedImages);
+            
+            // Se a imagem já está salva no banco, atualizar
+            if (imageToRotate.id && newsId) {
+              const { error: updateError } = await supabase
+                .from('news_images')
+                .update({
+                  image_url: publicUrl,
+                  public_url: publicUrl,
+                  path: filePath,
+                  updated_at: new Date().toISOString()
+                })
+                .eq('id', imageToRotate.id);
+              
+              if (updateError) {
+                console.error('Erro ao atualizar imagem no banco:', updateError);
+              }
+            }
+            
+            // Remover imagem antiga do storage se for diferente
+            if (imageToRotate.path && imageToRotate.path !== filePath) {
+              await supabase.storage
+                .from('news-images')
+                .remove([imageToRotate.path]);
+            }
+            
+            toast({
+              title: "Imagem rotacionada",
+              description: "A imagem foi rotacionada com sucesso.",
+            });
+            
+          } catch (error) {
+            console.error('Erro ao salvar imagem rotacionada:', error);
+            toast({
+              title: "Erro",
+              description: "Não foi possível salvar a imagem rotacionada.",
+              variant: "destructive",
+            });
+          }
+        }, 'image/jpeg', 0.85);
+      };
+      
+      img.onerror = () => {
+        toast({
+          title: "Erro",
+          description: "Não foi possível carregar a imagem para rotação.",
+          variant: "destructive",
+        });
+      };
+      
+      img.src = imageUrl;
+      
+    } catch (error) {
+      console.error('Error rotating image:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível rotacionar a imagem.",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Remover imagem
   const handleRemoveImage = async (index: number) => {
     const imageToRemove = images[index];
@@ -729,15 +879,16 @@ export const NewsGallery = ({
                   strategy={verticalListSortingStrategy}
                 >
                   {images.map((image, index) => (
-                    <SortableGalleryItem
-                      key={image.id || `temp-${index}`}
-                      image={image}
-                      index={index}
-                      isEditor={canEdit}
-                      onCaptionChange={handleCaptionChange}
-                      onSetCover={handleSetCover}
-                      onRemove={handleRemoveImage}
-                    />
+                     <SortableGalleryItem
+                       key={image.id || `temp-${index}`}
+                       image={image}
+                       index={index}
+                       isEditor={canEdit}
+                       onCaptionChange={handleCaptionChange}
+                       onSetCover={handleSetCover}
+                       onRemove={handleRemoveImage}
+                       onRotate={handleRotateImage}
+                     />
                   ))}
                 </SortableContext>
               </DndContext>
@@ -752,6 +903,7 @@ export const NewsGallery = ({
                   onCaptionChange={() => {}}
                   onSetCover={() => {}}
                   onRemove={() => {}}
+                  onRotate={() => {}}
                 />
               ))
             )}
