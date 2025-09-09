@@ -205,14 +205,27 @@ export const NewsGallery = ({
   // Verificar se o usuário tem permissão para editar
   const canEdit = isEditor && user && isOtpVerified && (userRole === 'admin' || userRole === 'redator');
   
-  // Debug das permissões
-  console.log('NewsGallery permissions:', {
+  // Debug das permissões - DETALHADO
+  console.log('🔍 NewsGallery DEBUG - Permissions Check:', {
     isEditor,
-    user: !!user,
+    user: user ? { id: user.id, email: user.email } : null,
     isOtpVerified,
     userRole,
-    canEdit
+    canEdit,
+    newsId,
+    timestamp: new Date().toISOString()
   });
+
+  // Loading state para aguardar carregamento das permissões
+  const [permissionsLoaded, setPermissionsLoaded] = useState(false);
+  
+  useEffect(() => {
+    // Aguarda o carregamento das informações do usuário
+    if (user !== undefined && userRole !== undefined && isOtpVerified !== undefined) {
+      setPermissionsLoaded(true);
+      console.log('✅ Permissions loaded:', { userRole, isOtpVerified, canEdit });
+    }
+  }, [user, userRole, isOtpVerified, canEdit]);
 
   useEffect(() => {
     if (newsId) {
@@ -308,65 +321,104 @@ export const NewsGallery = ({
 
   // Upload de arquivo individual
   const uploadFile = async (file: File): Promise<NewsImage> => {
-    // Validar tipo de arquivo
-    if (!file.type.startsWith('image/')) {
-      throw new Error('Por favor, selecione apenas arquivos de imagem.');
-    }
+    console.log('🚀 Iniciando uploadFile para:', file.name, 'Tamanho:', file.size);
     
-    // Validar tamanho (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      throw new Error('O arquivo deve ter no máximo 10MB.');
+    try {
+      // Validar tipo de arquivo
+      if (!file.type.startsWith('image/')) {
+        console.error('❌ Tipo de arquivo inválido:', file.type);
+        throw new Error('Por favor, selecione apenas arquivos de imagem.');
+      }
+      console.log('✅ Tipo de arquivo válido:', file.type);
+      
+      // Validar tamanho (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        console.error('❌ Arquivo muito grande:', file.size);
+        throw new Error('O arquivo deve ter no máximo 10MB.');
+      }
+      console.log('✅ Tamanho do arquivo OK:', file.size);
+
+      // Otimizar imagem
+      console.log('🔄 Otimizando imagem...');
+      const optimizedFile = await optimizeImage(file);
+      console.log('✅ Imagem otimizada. Tamanho original:', file.size, 'Otimizado:', optimizedFile.size);
+      
+      // Gerar caminho estruturado: newsId/uuid-filename
+      const fileExtension = optimizedFile.name.split('.').pop();
+      const uuid = crypto.randomUUID();
+      const sanitizedName = sanitizeFileName(optimizedFile.name);
+      const fileName = `${uuid}-${sanitizedName}`;
+      const filePath = newsId ? `${newsId}/${fileName}` : fileName;
+      console.log('📁 Caminho do arquivo:', filePath);
+
+      // Upload para o bucket
+      console.log('☁️ Fazendo upload para storage...');
+      const { error: uploadError } = await supabase.storage
+        .from('news-images')
+        .upload(filePath, optimizedFile);
+
+      if (uploadError) {
+        console.error('❌ Erro no upload para storage:', uploadError);
+        throw new Error(`Erro no upload: ${uploadError.message}`);
+      }
+      console.log('✅ Upload para storage concluído');
+
+      // Obter URL pública
+      console.log('🔗 Obtendo URL pública...');
+      const { data: { publicUrl } } = supabase.storage
+        .from('news-images')
+        .getPublicUrl(filePath);
+      console.log('✅ URL pública obtida:', publicUrl);
+
+      // Criar objeto NewsImage
+      const newImage: NewsImage = {
+        news_id: newsId,
+        image_url: publicUrl,
+        path: filePath,
+        public_url: publicUrl,
+        caption: '',
+        is_cover: images.length === 0, // Primeira imagem é capa automaticamente
+        sort_order: images.length,
+      };
+      console.log('✅ Objeto NewsImage criado:', newImage);
+
+      return newImage;
+    } catch (error) {
+      console.error('💥 Erro em uploadFile:', error);
+      throw error;
     }
-
-    // Otimizar imagem
-    const optimizedFile = await optimizeImage(file);
-    
-    // Gerar caminho estruturado: newsId/uuid-filename
-    const fileExtension = optimizedFile.name.split('.').pop();
-    const uuid = crypto.randomUUID();
-    const sanitizedName = sanitizeFileName(optimizedFile.name);
-    const fileName = `${uuid}-${sanitizedName}`;
-    const filePath = newsId ? `${newsId}/${fileName}` : fileName;
-
-    // Upload para o bucket
-    const { error: uploadError } = await supabase.storage
-      .from('news-images')
-      .upload(filePath, optimizedFile);
-
-    if (uploadError) {
-      throw new Error(`Erro no upload: ${uploadError.message}`);
-    }
-
-    // Obter URL pública
-    const { data: { publicUrl } } = supabase.storage
-      .from('news-images')
-      .getPublicUrl(filePath);
-
-    // Criar objeto NewsImage
-    const newImage: NewsImage = {
-      news_id: newsId,
-      image_url: publicUrl,
-      path: filePath,
-      public_url: publicUrl,
-      caption: '',
-      is_cover: images.length === 0, // Primeira imagem é capa automaticamente
-      sort_order: images.length,
-    };
-
-    return newImage;
   };
 
   // Upload de múltiplos arquivos
   const handleFileUpload = async (files: File[]) => {
-    console.log('Tentando upload:', { canEdit, files: files.length });
+    console.log('🚀 handleFileUpload chamado:', { 
+      canEdit, 
+      files: files.length, 
+      permissionsLoaded,
+      isEditor,
+      user: !!user,
+      isOtpVerified,
+      userRole 
+    });
+    
+    // Aguardar carregamento das permissões se necessário
+    if (!permissionsLoaded) {
+      console.log('⏳ Aguardando carregamento das permissões...');
+      toast({
+        title: "Aguarde",
+        description: "Carregando permissões de usuário...",
+        variant: "default",
+      });
+      return;
+    }
     
     if (!canEdit) {
       const reason = !isEditor ? 'Não está no modo editor' :
                      !user ? 'Usuário não autenticado' :
                      !isOtpVerified ? 'OTP não verificado' :
-                     !(userRole === 'admin' || userRole === 'redator') ? 'Permissão insuficiente' : 'Motivo desconhecido';
+                     !(userRole === 'admin' || userRole === 'redator') ? `Permissão insuficiente (role: ${userRole})` : 'Motivo desconhecido';
                      
-      console.error('Upload negado:', reason);
+      console.error('❌ Upload negado:', reason);
       toast({
         title: "Acesso negado",
         description: `Você não tem permissão para fazer upload de imagens. Motivo: ${reason}`,
@@ -378,19 +430,21 @@ export const NewsGallery = ({
     setUploading(true);
     
     try {
-      console.log('Iniciando upload de', files.length, 'arquivos');
+      console.log('📁 Iniciando upload de', files.length, 'arquivos para newsId:', newsId);
       
       // Upload todos os arquivos em paralelo
       const uploadPromises = files.map((file, index) => {
-        console.log(`Iniciando upload do arquivo ${index + 1}:`, file.name);
+        console.log(`📤 Iniciando upload do arquivo ${index + 1}:`, file.name);
         return uploadFile(file);
       });
-      const uploadedImages = await Promise.all(uploadPromises);
       
-      console.log('Upload concluído, salvando no banco:', uploadedImages);
+      console.log('⏳ Aguardando conclusão de todos os uploads...');
+      const uploadedImages = await Promise.all(uploadPromises);
+      console.log('✅ Todos os uploads concluídos:', uploadedImages);
       
       // Se temos newsId, salvar diretamente no banco
       if (newsId && uploadedImages.length > 0) {
+        console.log('💾 Salvando imagens no banco de dados...');
         const imagesToSave = uploadedImages.map((img, index) => ({
           news_id: newsId,
           image_url: img.image_url,
@@ -400,6 +454,8 @@ export const NewsGallery = ({
           is_cover: img.is_cover,
           sort_order: images.length + index
         }));
+        
+        console.log('📝 Dados para inserir no banco:', imagesToSave);
 
         const { data: savedImages, error: saveError } = await supabase
           .from('news_images')
@@ -407,11 +463,11 @@ export const NewsGallery = ({
           .select();
 
         if (saveError) {
-          console.error('Erro ao salvar imagens no banco:', saveError);
+          console.error('💥 Erro ao salvar imagens no banco:', saveError);
           throw new Error(`Erro ao salvar no banco: ${saveError.message}`);
         }
         
-        console.log('Imagens salvas no banco:', savedImages);
+        console.log('✅ Imagens salvas no banco:', savedImages);
         
         // Atualizar estado com dados salvos (incluindo IDs)
         const updatedImages = [...images, ...(savedImages || [])];
@@ -814,7 +870,7 @@ export const NewsGallery = ({
       
       <CardContent className="space-y-4">
         {/* Área de upload (apenas no modo editor) */}
-        {canEdit && (
+        {canEdit && permissionsLoaded && (
           <div 
             className={`border-2 border-dashed rounded-lg p-6 transition-colors ${
               dragOver 
@@ -862,6 +918,16 @@ export const NewsGallery = ({
                 <span className="text-sm text-muted-foreground">Fazendo upload...</span>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Loading state para permissões */}
+        {isEditor && !permissionsLoaded && (
+          <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
+            <div className="flex items-center justify-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span className="text-sm text-muted-foreground">Carregando permissões...</span>
+            </div>
           </div>
         )}
 
