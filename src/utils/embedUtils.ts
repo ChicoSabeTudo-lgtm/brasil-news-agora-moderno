@@ -3,8 +3,8 @@ import { z } from 'zod';
 // Validation schemas for embed URLs
 export const youtubeUrlSchema = z.string().refine((url) => {
   const patterns = [
-    /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/,
-    /(?:youtube\.com\/shorts\/)([^"&?\/\s]{11})/
+    /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/,
+    /(?:youtube\.com\/shorts\/)([^"&?/\s]{11})/
   ];
   return patterns.some(pattern => pattern.test(url));
 }, "URL do YouTube inválida");
@@ -41,8 +41,8 @@ export const embedUrlSchema = z.union([
 // Extract IDs from URLs
 export function extractYouTubeId(url: string): string | null {
   const patterns = [
-    /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/,
-    /(?:youtube\.com\/shorts\/)([^"&?\/\s]{11})/
+    /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/,
+    /(?:youtube\.com\/shorts\/)([^"&?/\s]{11})/
   ];
   
   for (const pattern of patterns) {

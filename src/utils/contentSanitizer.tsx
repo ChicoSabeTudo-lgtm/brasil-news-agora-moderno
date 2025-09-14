@@ -68,7 +68,7 @@ export const sanitizeHtml = (html: string): string => {
   }
   
   // Remove manual bullets first
-  let processedHtml = removeManualBullets(html);
+  const processedHtml = removeManualBullets(html);
   
   // Debug: Log processed HTML if it was changed
   if (process.env.NODE_ENV === 'development' && processedHtml !== html && html.includes('<li>')) {
@@ -152,7 +152,7 @@ export const sanitizeEmbedCode = (embedCode: string): string => {
     console.log('Detectado embed do Instagram:', embedCode);
     
     // Remove o script do Instagram pois será carregado globalmente
-    let instagramEmbed = embedCode.replace(/<script[^>]*src=[^>]*instagram\.com\/embed\.js[^>]*><\/script>/gi, '');
+    const instagramEmbed = embedCode.replace(/<script[^>]*src=[^>]*instagram\.com\/embed\.js[^>]*><\/script>/gi, '');
     
     // Configuração específica para Instagram preservando todos os estilos e atributos necessários
     const instagramConfig = {
