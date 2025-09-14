@@ -203,13 +203,12 @@ export const NewsGallery = ({
   );
 
   // Verificar se o usuário tem permissão para editar
-  const canEdit = isEditor && user && isOtpVerified && (userRole === 'admin' || userRole === 'redator');
+  const canEdit = isEditor && user && (userRole === 'admin' || userRole === 'redator');
   
-  // Debug das permissões - DETALHADO
+  // Debug das permissões - SIMPLIFICADO
   console.log('🔍 NewsGallery DEBUG - Permissions Check:', {
     isEditor,
     user: user ? { id: user.id, email: user.email } : null,
-    isOtpVerified,
     userRole,
     canEdit,
     newsId,
@@ -221,11 +220,11 @@ export const NewsGallery = ({
   
   useEffect(() => {
     // Aguarda o carregamento das informações do usuário
-    if (user !== undefined && userRole !== undefined && isOtpVerified !== undefined) {
+    if (user !== undefined && userRole !== undefined) {
       setPermissionsLoaded(true);
-      console.log('✅ Permissions loaded:', { userRole, isOtpVerified, canEdit });
+      console.log('✅ Permissions loaded:', { userRole, canEdit });
     }
-  }, [user, userRole, isOtpVerified, canEdit]);
+  }, [user, userRole, canEdit]);
 
   useEffect(() => {
     if (newsId) {
@@ -415,7 +414,6 @@ export const NewsGallery = ({
     if (!canEdit) {
       const reason = !isEditor ? 'Não está no modo editor' :
                      !user ? 'Usuário não autenticado' :
-                     !isOtpVerified ? 'OTP não verificado' :
                      !(userRole === 'admin' || userRole === 'redator') ? `Permissão insuficiente (role: ${userRole})` : 'Motivo desconhecido';
                      
       console.error('❌ Upload negado:', reason);
