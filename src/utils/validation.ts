@@ -5,7 +5,7 @@ export const userInputSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório').max(100, 'Nome muito longo'),
   email: z.string().email('E-mail inválido').max(255, 'E-mail muito longo'),
   phone: z.string().optional().refine(
-    (phone) => !phone || /^\+?[\d\s\-\(\)]+$/.test(phone),
+    (phone) => !phone || /^\+?[\d\s\-()]+$/.test(phone),
     'Telefone inválido'
   ),
   message: z.string().min(10, 'Mensagem muito curta').max(5000, 'Mensagem muito longa'),
