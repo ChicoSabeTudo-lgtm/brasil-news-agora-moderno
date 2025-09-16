@@ -288,8 +288,9 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
         description: "As imagens foram salvas com sucesso.",
       });
 
-      // Recarregar para obter IDs
-      await fetchImages();
+      // Limpar o input file para permitir upload da mesma imagem novamente
+      event.target.value = '';
+      
     } catch (error) {
       console.error('Erro saving images:', error);
       toast({
@@ -297,9 +298,13 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
         description: "Não foi possível salvar as imagens.",
         variant: "destructive",
       });
+    } finally {
+      // CORREÇÃO: Sempre definir uploading como false no final
+      setUploading(false);
     }
   };
 
+  // CORREÇÃO: Mostrar galeria mesmo quando há imagens e não é modo editor
   if (!canEdit && images.length === 0) {
     return null; // Não mostrar nada se não há imagens e não é modo editor
   }
