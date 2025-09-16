@@ -178,10 +178,10 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
   const [images, setImages] = useState<NewsImage[]>(initialImages);
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
-  const { user, userRole } = useAuth();
+  const { user, role } = useAuth();
 
   // Verificar se o usuário pode editar
-  const canEdit = isEditor && user && (userRole === 'admin' || userRole === 'redator');
+  const canEdit = isEditor && user && (role === 'admin' || role === 'redator');
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -262,7 +262,7 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
           caption: '',
           is_cover: images.length === 0 && i === 0, // Primeira imagem como capa se não houver outras
           sort_order: images.length + i,
-          news_id: newsId || '',
+          news_id: newsId,
         };
 
         imagesToSave.push(newImage);
@@ -270,20 +270,9 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
 
       // Salvar no banco de dados se temos newsId
       if (newsId && imagesToSave.length > 0) {
-        // Preparar dados para o banco, garantindo que news_id esteja presente
-        const dataToInsert = imagesToSave.map(img => ({
-          news_id: newsId,
-          image_url: img.image_url,
-          path: img.path,
-          public_url: img.public_url,
-          caption: img.caption || '',
-          is_cover: img.is_cover,
-          sort_order: img.sort_order
-        }));
-
         const { error } = await supabase
           .from('news_images')
-          .insert(dataToInsert);
+          .insert(imagesToSave);
 
         if (error) throw error;
 
@@ -348,47 +337,30 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
 
         {/* Exibição das imagens */}
         {images.length > 0 ? (
-          // Layout de galeria - com ou sem drag & drop baseado na quantidade
-          images.length === 1 ? (
-            // Uma única imagem - layout tradicional sem drag & drop e sem thumbnail
-            <div className="space-y-3">
-              <SortableGalleryItem
-                image={images[0]}
-                index={0}
-                isEditor={canEdit}
-                onCaptionChange={handleCaptionChange}
-                onSetCover={handleSetCover}
-                onRemove={handleRemoveImage}
-                onRotate={handleRotateImage}
-                showThumbnail={false}
-              />
-            </div>
-          ) : (
-            // Múltiplas imagens - layout tradicional com drag & drop e thumbnails
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext items={images.map(img => img.id || `temp-${images.indexOf(img)}`)} strategy={verticalListSortingStrategy}>
-                <div className="space-y-3">
-                  {images.map((image, index) => (
-                    <SortableGalleryItem
-                      key={image.id || `temp-${index}`}
-                      image={image}
-                      index={index}
-                      isEditor={canEdit}
-                      onCaptionChange={handleCaptionChange}
-                      onSetCover={handleSetCover}
-                      onRemove={handleRemoveImage}
-                      onRotate={handleRotateImage}
-                      showThumbnail={true}
-                    />
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
-          )
+          // SEMPRE usar o mesmo container da galeria - DndContext
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={images.map(img => img.id || `temp-${images.indexOf(img)}`)} strategy={verticalListSortingStrategy}>
+              <div className="space-y-3">
+                {images.map((image, index) => (
+                  <SortableGalleryItem
+                    key={image.id || `temp-${index}`}
+                    image={image}
+                    index={index}
+                    isEditor={canEdit}
+                    onCaptionChange={handleCaptionChange}
+                    onSetCover={handleSetCover}
+                    onRemove={handleRemoveImage}
+                    onRotate={handleRotateImage}
+                    showThumbnail={images.length > 1} // Só mostra thumbnail se há múltiplas imagens
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
         ) : (
           // Mensagem quando não há imagens (apenas no modo editor)
           canEdit && (
