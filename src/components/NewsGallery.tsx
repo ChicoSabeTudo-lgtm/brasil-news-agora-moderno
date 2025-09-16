@@ -180,7 +180,7 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
   const { toast } = useToast();
   const { user, role } = useAuth();
 
-  // Verificar se o usuário pode editar
+  // CORREÇÃO: Simplificar lógica de permissões - sempre mostrar no modo editor
   const canEdit = isEditor && user && (role === 'admin' || role === 'redator');
 
   const sensors = useSensors(
@@ -304,9 +304,10 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
     }
   };
 
-  // CORREÇÃO: Mostrar galeria mesmo quando há imagens e não é modo editor
-  if (!canEdit && images.length === 0) {
-    return null; // Não mostrar nada se não há imagens e não é modo editor
+  // CORREÇÃO: SEMPRE mostrar a galeria no modo editor, independente de ter imagens ou não
+  // Só esconder se não for modo editor E não houver imagens
+  if (!isEditor && images.length === 0) {
+    return null;
   }
 
   return (
@@ -316,10 +317,15 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
           <ImageIcon className="w-5 h-5" />
           Galeria de Imagens
         </CardTitle>
+        {isEditor && (
+          <CardDescription>
+            Adicione e gerencie as imagens da notícia. A primeira imagem será usada como capa.
+          </CardDescription>
+        )}
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Upload de arquivos (apenas no modo editor) */}
-        {canEdit && (
+        {/* Upload de arquivos (sempre mostrar no modo editor) */}
+        {isEditor && (
           <div>
             <Label htmlFor="image-upload">Adicionar Imagens</Label>
             <Input
@@ -337,6 +343,9 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
                 <span className="text-sm text-muted-foreground">Fazendo upload...</span>
               </div>
             )}
+            <p className="text-xs text-muted-foreground mt-1">
+              Formatos aceitos: JPG, PNG, GIF. Tamanho máximo: 10MB por imagem.
+            </p>
           </div>
         )}
 
@@ -367,12 +376,12 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
             </SortableContext>
           </DndContext>
         ) : (
-          // Mensagem quando não há imagens (apenas no modo editor)
-          canEdit && (
-            <div className="text-center py-8 text-muted-foreground">
+          // Mensagem quando não há imagens (sempre mostrar no modo editor)
+          isEditor && (
+            <div className="text-center py-8 text-muted-foreground border-2 border-dashed border-muted rounded-lg">
               <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-50" />
-              <p>Nenhuma imagem adicionada ainda.</p>
-              <p className="text-sm">Use o campo acima para fazer upload de imagens.</p>
+              <p className="font-medium">Nenhuma imagem adicionada ainda</p>
+              <p className="text-sm">Use o campo acima para fazer upload de imagens para a galeria</p>
             </div>
           )
         )}
