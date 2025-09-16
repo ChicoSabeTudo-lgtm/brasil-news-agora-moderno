@@ -19,7 +19,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Save, Eye, Send, Clock, Calendar as CalendarIcon } from 'lucide-react';
 import { NewsDownloadManager } from './NewsDownloadManager';
-import { NewsGallery } from '@/components/NewsGallery';
+import NewsGallery from '@/components/NewsGallery';
 import { NewsImageGallery } from '@/components/NewsImageGallery';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { MediaManager } from '@/components/MediaManager';
