@@ -66,7 +66,8 @@ const SortableGalleryItem = ({
   onCaptionChange,
   onSetCover,
   onRemove,
-  onRotate
+  onRotate,
+  showThumbnail = true
 }: {
   image: NewsImage;
   index: number;
@@ -75,6 +76,7 @@ const SortableGalleryItem = ({
   onSetCover: (index: number) => void;
   onRemove: (index: number) => void;
   onRotate: (index: number) => void;
+  showThumbnail?: boolean;
 }) => {
   const {
     attributes,
@@ -97,9 +99,9 @@ const SortableGalleryItem = ({
       style={style}
       className={`border rounded-lg p-4 bg-card ${isDragging ? 'opacity-50' : ''}`}
     >
-      <div className="flex gap-4">
-        {/* Handle para arrastar (apenas no modo editor) */}
-        {isEditor && (
+      <div className={`flex gap-4 ${!showThumbnail ? 'flex-col' : ''}`}>
+        {/* Handle para arrastar (apenas no modo editor e com múltiplas imagens) */}
+        {isEditor && showThumbnail && (
           <div
             {...attributes}
             {...listeners}
@@ -109,17 +111,21 @@ const SortableGalleryItem = ({
           </div>
         )}
 
-        {/* Thumbnail */}
-        <div className="flex-shrink-0">
+        {/* Imagem - thumbnail pequeno ou imagem grande */}
+        <div className={showThumbnail ? "flex-shrink-0" : "w-full"}>
           <img
             src={image.public_url || image.image_url}
             alt={image.caption || ''}
-            className="w-20 h-20 object-cover rounded"
+            className={
+              showThumbnail 
+                ? "w-20 h-20 object-cover rounded" 
+                : "w-full h-auto max-h-96 object-cover rounded-lg"
+            }
           />
         </div>
 
         {/* Conteúdo */}
-        <div className="flex-1 space-y-2">
+        <div className={`flex-1 space-y-2 ${!showThumbnail ? 'mt-4' : ''}`}>
           {isEditor ? (
             <Textarea
               value={image.caption || ''}
@@ -129,14 +135,16 @@ const SortableGalleryItem = ({
             />
           ) : (
             image.caption && (
-              <p className="text-sm text-muted-foreground">{image.caption}</p>
+              <p className={`text-sm text-muted-foreground ${!showThumbnail ? 'text-center italic' : ''}`}>
+                {image.caption}
+              </p>
             )
           )}
         </div>
 
         {/* Ações (apenas no modo editor) */}
         {isEditor && (
-          <div className="flex flex-col gap-1">
+          <div className={`flex gap-1 ${!showThumbnail ? 'justify-center mt-2' : 'flex-col'}`}>
             <Button
               variant="outline"
               size="sm"
@@ -160,84 +168,6 @@ const SortableGalleryItem = ({
               <X className="w-4 h-4" />
             </Button>
           </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Componente para exibir uma única imagem em destaque
-const SingleImageDisplay = ({
-  image,
-  isEditor,
-  onCaptionChange,
-  onSetCover,
-  onRemove,
-  onRotate
-}: {
-  image: NewsImage;
-  isEditor: boolean;
-  onCaptionChange: (index: number, caption: string) => void;
-  onSetCover: (index: number) => void;
-  onRemove: (index: number) => void;
-  onRotate: (index: number) => void;
-}) => {
-  return (
-    <div className="space-y-4">
-      {/* Imagem em destaque */}
-      <div className="relative">
-        <img
-          src={image.public_url || image.image_url}
-          alt={image.caption || ''}
-          className="w-full h-auto max-h-96 object-cover rounded-lg"
-        />
-        
-        {/* Ações flutuantes (apenas no modo editor) */}
-        {isEditor && (
-          <div className="absolute top-2 right-2 flex gap-1">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => onSetCover(0)}
-              className={`${image.is_cover ? 'bg-yellow-100' : ''} backdrop-blur-sm`}
-            >
-              {image.is_cover ? <Star className="w-4 h-4" /> : <StarOff className="w-4 h-4" />}
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => onRotate(0)}
-              className="backdrop-blur-sm"
-            >
-              <RotateCw className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => onRemove(0)}
-              className="backdrop-blur-sm"
-            >
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-        )}
-      </div>
-
-      {/* Legenda */}
-      <div>
-        {isEditor ? (
-          <Textarea
-            value={image.caption || ''}
-            onChange={(e) => onCaptionChange(0, e.target.value)}
-            placeholder="Legenda da imagem..."
-            className="min-h-[80px]"
-          />
-        ) : (
-          image.caption && (
-            <p className="text-sm text-muted-foreground text-center italic">
-              {image.caption}
-            </p>
-          )
         )}
       </div>
     </div>
@@ -406,40 +336,48 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
         )}
 
         {/* Exibição das imagens */}
-        {images.length === 1 ? (
-          // Layout especial para uma única imagem
-          <SingleImageDisplay
-            image={images[0]}
-            isEditor={canEdit}
-            onCaptionChange={handleCaptionChange}
-            onSetCover={handleSetCover}
-            onRemove={handleRemoveImage}
-            onRotate={handleRotateImage}
-          />
-        ) : images.length > 1 ? (
-          // Layout de galeria para múltiplas imagens
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext items={images.map(img => img.id || `temp-${images.indexOf(img)}`)} strategy={verticalListSortingStrategy}>
-              <div className="space-y-3">
-                {images.map((image, index) => (
-                  <SortableGalleryItem
-                    key={image.id || `temp-${index}`}
-                    image={image}
-                    index={index}
-                    isEditor={canEdit}
-                    onCaptionChange={handleCaptionChange}
-                    onSetCover={handleSetCover}
-                    onRemove={handleRemoveImage}
-                    onRotate={handleRotateImage}
-                  />
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
+        {images.length > 0 ? (
+          // Layout de galeria - com ou sem drag & drop baseado na quantidade
+          images.length === 1 ? (
+            // Uma única imagem - layout tradicional sem drag & drop e sem thumbnail
+            <div className="space-y-3">
+              <SortableGalleryItem
+                image={images[0]}
+                index={0}
+                isEditor={canEdit}
+                onCaptionChange={handleCaptionChange}
+                onSetCover={handleSetCover}
+                onRemove={handleRemoveImage}
+                onRotate={handleRotateImage}
+                showThumbnail={false}
+              />
+            </div>
+          ) : (
+            // Múltiplas imagens - layout tradicional com drag & drop e thumbnails
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext items={images.map(img => img.id || `temp-${images.indexOf(img)}`)} strategy={verticalListSortingStrategy}>
+                <div className="space-y-3">
+                  {images.map((image, index) => (
+                    <SortableGalleryItem
+                      key={image.id || `temp-${index}`}
+                      image={image}
+                      index={index}
+                      isEditor={canEdit}
+                      onCaptionChange={handleCaptionChange}
+                      onSetCover={handleSetCover}
+                      onRemove={handleRemoveImage}
+                      onRotate={handleRotateImage}
+                      showThumbnail={true}
+                    />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
+          )
         ) : (
           // Mensagem quando não há imagens (apenas no modo editor)
           canEdit && (
