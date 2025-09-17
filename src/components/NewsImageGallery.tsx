@@ -324,10 +324,13 @@ export const NewsImageGallery = ({ images, newsTitle }: NewsImageGalleryProps) =
                 </button>
                 
                 {/* Counter in Fullscreen */}
-                {/* Counter in Fullscreen */}
-<div className="absolute top-4 left-4 px-4 py-2 bg-red-600 text-white rounded-full text-lg font-medium">
-  {currentIndex + 1} de {images.length}
-</div>
+                <div className="absolute top-4 left-4 px-4 py-2 bg-muted rounded-full text-lg font-medium">
+                  {currentIndex + 1} / {images.length}
+                </div>
+              </>
+            )}
+          </div>
+
           {/* Caption in Fullscreen */}
           {showCaptions && currentImage.caption && (
             <div className="absolute bottom-4 left-4 right-4 text-center">
