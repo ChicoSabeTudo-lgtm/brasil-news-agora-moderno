@@ -178,10 +178,10 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
   const [images, setImages] = useState<NewsImage[]>(initialImages);
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
-  const { user, role } = useAuth();
+  const { user, userRole } = useAuth();
 
   // CORREÇÃO: Simplificar lógica de permissões - sempre mostrar no modo editor
-  const canEdit = isEditor && user && (role === 'admin' || role === 'redator');
+  const canEdit = isEditor && user && (userRole === 'admin' || userRole === 'redator');
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -270,9 +270,14 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
 
       // Salvar no banco de dados se temos newsId
       if (newsId && imagesToSave.length > 0) {
+        const validImages = imagesToSave.map(img => ({
+          ...img,
+          news_id: newsId // Garantir que news_id sempre esteja presente
+        }));
+        
         const { error } = await supabase
           .from('news_images')
-          .insert(imagesToSave);
+          .insert(validImages);
 
         if (error) throw error;
 
