@@ -151,11 +151,11 @@ export const NewsImageGallery = ({ images, newsTitle }: NewsImageGalleryProps) =
   }, [currentIndex, isFullscreen]);
 
   return (
-    <div className="mb-6">
-      {/* Main Gallery Container */}
+    <div className="mb-8">
+      {/* Modern Gallery Container */}
       <div 
         ref={galleryRef}
-        className="relative rounded-xl overflow-hidden bg-muted focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+        className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl overflow-hidden shadow-2xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 group"
         tabIndex={0}
         role="img"
         aria-label={`Galeria de imagens: ${newsTitle}. Imagem ${currentIndex + 1} de ${images.length}`}
@@ -163,127 +163,159 @@ export const NewsImageGallery = ({ images, newsTitle }: NewsImageGalleryProps) =
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
       >
-        {/* Main Image Display Area - Fixed 4:3 Aspect Ratio */}
-        <div className="relative aspect-[4/3] bg-muted flex items-center justify-center overflow-hidden">
+        {/* Main Image Display Area - Enhanced Height */}
+        <div className="relative h-[500px] lg:h-[600px] bg-slate-900 flex items-center justify-center overflow-hidden">
           {/* Loading Spinner */}
           {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-muted/50 z-10">
-              <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+            <div className="absolute inset-0 flex items-center justify-center bg-slate-900/50 z-10">
+              <div className="w-10 h-10 border-3 border-orange-500 border-t-transparent rounded-full animate-spin" />
             </div>
           )}
 
-          {/* Main Image with Letterboxing */}
+          {/* Main Image with Better Scaling */}
           <img
             ref={mainImageRef}
             src={getImageUrl(currentImage)}
             alt={currentImage.caption || `${newsTitle} - Imagem ${currentIndex + 1}`}
-            className="max-w-full max-h-full object-contain transition-opacity duration-300"
+            className="max-w-full max-h-full object-contain transition-all duration-500 ease-out"
             style={{ opacity: isLoading ? 0 : 1 }}
             onLoad={handleImageLoad}
             onError={() => setIsLoading(false)}
             loading="lazy"
           />
 
-          {/* Navigation Arrows - Only for multiple images */}
+          {/* Navigation Arrows - Modern Design */}
           {hasMultipleImages && (
             <>
               <button
                 onClick={prevImage}
-                className="absolute left-4 top-1/2 -translate-y-1/2 p-3 bg-background/80 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 hover:bg-background/90 transition-all duration-200 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary"
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-4 bg-white/10 backdrop-blur-md rounded-full opacity-0 group-hover:opacity-100 hover:bg-white/20 transition-all duration-300 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-lg"
                 aria-label="Imagem anterior"
                 tabIndex={0}
               >
-                <ChevronLeft className="w-6 h-6" />
+                <ChevronLeft className="w-6 h-6 text-white" />
               </button>
               <button
                 onClick={nextImage}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-3 bg-background/80 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 hover:bg-background/90 transition-all duration-200 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary"
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-4 bg-white/10 backdrop-blur-md rounded-full opacity-0 group-hover:opacity-100 hover:bg-white/20 transition-all duration-300 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-lg"
                 aria-label="Próxima imagem"
                 tabIndex={0}
               >
-                <ChevronRight className="w-6 h-6" />
+                <ChevronRight className="w-6 h-6 text-white" />
               </button>
             </>
           )}
 
-          {/* Image Counter - Only for multiple images */}
+          {/* Modern Colorful Counter */}
           {hasMultipleImages && (
-            <div className="absolute top-4 left-4 px-3 py-1 bg-background/80 backdrop-blur-sm rounded-full text-sm font-medium">
+            <div className="absolute top-6 left-6 px-4 py-2 bg-gradient-to-r from-red-500 to-orange-500 rounded-full text-white font-bold text-sm shadow-lg">
               {currentIndex + 1} / {images.length}
             </div>
           )}
 
-          {/* Control Buttons */}
-          <div className="absolute top-4 right-4 flex gap-2">
+          {/* Control Buttons - Top Right */}
+          <div className="absolute top-6 right-6 flex gap-3">
             {/* Caption Toggle */}
             {currentImage.caption && (
               <button
                 onClick={toggleCaptions}
-                className="p-2 bg-background/80 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 hover:bg-background/90 transition-all duration-200 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary"
+                className="p-3 bg-white/10 backdrop-blur-md rounded-full opacity-0 group-hover:opacity-100 hover:bg-white/20 transition-all duration-300 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-lg"
                 aria-label={showCaptions ? "Ocultar legendas" : "Mostrar legendas"}
                 tabIndex={0}
               >
-                {showCaptions ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                {showCaptions ? <Eye className="w-5 h-5 text-white" /> : <EyeOff className="w-5 h-5 text-white" />}
               </button>
             )}
 
             {/* Fullscreen Button */}
             <button
               onClick={toggleFullscreen}
-              className="p-2 bg-background/80 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 hover:bg-background/90 transition-all duration-200 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-primary"
+              className="p-3 bg-white/10 backdrop-blur-md rounded-full opacity-0 group-hover:opacity-100 hover:bg-white/20 transition-all duration-300 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-lg"
               aria-label="Tela cheia"
               tabIndex={0}
             >
-              <Maximize2 className="w-4 h-4" />
+              <Maximize2 className="w-5 h-5 text-white" />
             </button>
           </div>
 
-          {/* Hover overlay for better UX */}
-          <div className="absolute inset-0 group" />
+          {/* Bottom Gradient Overlay for Info */}
+          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none" />
+          
+          {/* Image Info Overlay */}
+          {showCaptions && currentImage.caption && (
+            <div className="absolute bottom-6 left-6 right-6 text-white">
+              <p className="text-lg font-medium leading-relaxed drop-shadow-lg">
+                {currentImage.caption}
+              </p>
+            </div>
+          )}
         </div>
 
-        {/* Thumbnails - Only for multiple images */}
+        {/* Enhanced Thumbnails Strip */}
         {hasMultipleImages && (
-          <div className="p-4 bg-background/30 backdrop-blur-sm">
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-              {images.map((image, index) => (
-                <button
-                  key={index}
-                  onClick={() => goToImage(index)}
-                  className={`flex-shrink-0 w-16 h-12 rounded-lg overflow-hidden border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
-                    index === currentIndex 
-                      ? 'border-primary ring-2 ring-primary/20 scale-105' 
-                      : 'border-muted hover:border-muted-foreground/50 hover:scale-105'
-                  }`}
-                  aria-label={`Ver imagem ${index + 1}`}
-                  tabIndex={0}
-                >
-                  <img 
-                    src={getImageUrl(image)} 
-                    alt={`Miniatura ${index + 1}`}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                </button>
-              ))}
+          <div className="bg-slate-800/80 backdrop-blur-sm border-t border-slate-700/50">
+            <div className="p-6">
+              {/* Thumbnails Navigation */}
+              <div className="relative">
+                <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+                  {images.map((image, index) => (
+                    <button
+                      key={index}
+                      onClick={() => goToImage(index)}
+                      className={`flex-shrink-0 w-20 h-16 lg:w-24 lg:h-18 rounded-xl overflow-hidden border-3 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-slate-800 ${
+                        index === currentIndex 
+                          ? 'border-orange-500 ring-2 ring-orange-500/30 scale-110 shadow-lg shadow-orange-500/25' 
+                          : 'border-slate-600 hover:border-slate-400 hover:scale-105 opacity-70 hover:opacity-100'
+                      }`}
+                      aria-label={`Ver imagem ${index + 1}`}
+                      tabIndex={0}
+                    >
+                      <img 
+                        src={getImageUrl(image)} 
+                        alt={`Miniatura ${index + 1}`}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    </button>
+                  ))}
+                </div>
+                
+                {/* Thumbnail Navigation Arrows */}
+                {images.length > 4 && (
+                  <>
+                    <button
+                      onClick={() => {
+                        const container = document.querySelector('.overflow-x-auto');
+                        if (container) container.scrollBy({ left: -200, behavior: 'smooth' });
+                      }}
+                      className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 p-2 bg-slate-700/80 backdrop-blur-sm rounded-full hover:bg-slate-600/80 transition-colors shadow-lg"
+                      aria-label="Rolar miniaturas para esquerda"
+                    >
+                      <ChevronLeft className="w-4 h-4 text-white" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        const container = document.querySelector('.overflow-x-auto');
+                        if (container) container.scrollBy({ left: 200, behavior: 'smooth' });
+                      }}
+                      className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 p-2 bg-slate-700/80 backdrop-blur-sm rounded-full hover:bg-slate-600/80 transition-colors shadow-lg"
+                      aria-label="Rolar miniaturas para direita"
+                    >
+                      <ChevronRight className="w-4 h-4 text-white" />
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Caption - Only show if enabled and caption exists */}
-      {showCaptions && currentImage.caption && (
-        <div className="mt-3 px-1">
-          <p className="text-sm text-muted-foreground italic leading-relaxed">
-            {currentImage.caption}
-          </p>
-        </div>
-      )}
 
-      {/* Fullscreen Modal */}
+      {/* Enhanced Fullscreen Modal */}
       {isFullscreen && (
         <div 
-          className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-slate-900/95 backdrop-blur-lg flex items-center justify-center p-4"
           role="dialog"
           aria-modal="true"
           aria-label="Visualização em tela cheia"
@@ -291,10 +323,10 @@ export const NewsImageGallery = ({ images, newsTitle }: NewsImageGalleryProps) =
           {/* Close Button */}
           <button
             onClick={toggleFullscreen}
-            className="absolute top-4 right-4 p-3 bg-muted rounded-full hover:bg-muted/80 transition-colors z-10 focus:outline-none focus:ring-2 focus:ring-primary"
+            className="absolute top-6 right-6 p-4 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20 transition-all duration-300 z-10 focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-lg"
             aria-label="Fechar tela cheia"
           >
-            <X className="w-6 h-6" />
+            <X className="w-6 h-6 text-white" />
           </button>
           
           {/* Fullscreen Image Container */}
@@ -302,7 +334,7 @@ export const NewsImageGallery = ({ images, newsTitle }: NewsImageGalleryProps) =
             <img 
               src={getImageUrl(currentImage)} 
               alt={currentImage.caption || `${newsTitle} - Imagem ${currentIndex + 1}`}
-              className="max-w-full max-h-full object-contain"
+              className="max-w-full max-h-full object-contain shadow-2xl"
             />
             
             {/* Navigation in Fullscreen - Only for multiple images */}
@@ -310,31 +342,31 @@ export const NewsImageGallery = ({ images, newsTitle }: NewsImageGalleryProps) =
               <>
                 <button
                   onClick={prevImage}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 p-4 bg-muted rounded-full hover:bg-muted/80 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="absolute left-6 top-1/2 -translate-y-1/2 p-5 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-lg"
                   aria-label="Imagem anterior"
                 >
-                  <ChevronLeft className="w-8 h-8" />
+                  <ChevronLeft className="w-8 h-8 text-white" />
                 </button>
                 <button
                   onClick={nextImage}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 p-4 bg-muted rounded-full hover:bg-muted/80 transition-colors focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="absolute right-6 top-1/2 -translate-y-1/2 p-5 bg-white/10 backdrop-blur-md rounded-full hover:bg-white/20 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-lg"
                   aria-label="Próxima imagem"
                 >
-                  <ChevronRight className="w-8 h-8" />
+                  <ChevronRight className="w-8 h-8 text-white" />
                 </button>
                 
-                {/* Counter in Fullscreen */}
-                <div className="absolute top-4 left-4 px-4 py-2 bg-muted rounded-full text-lg font-medium">
+                {/* Enhanced Counter in Fullscreen */}
+                <div className="absolute top-6 left-6 px-5 py-3 bg-gradient-to-r from-red-500 to-orange-500 rounded-full text-white font-bold text-lg shadow-lg">
                   {currentIndex + 1} / {images.length}
                 </div>
               </>
             )}
           </div>
 
-          {/* Caption in Fullscreen */}
+          {/* Enhanced Caption in Fullscreen */}
           {showCaptions && currentImage.caption && (
-            <div className="absolute bottom-4 left-4 right-4 text-center">
-              <p className="text-foreground/90 bg-background/80 backdrop-blur-sm rounded-lg p-4 inline-block max-w-2xl">
+            <div className="absolute bottom-6 left-6 right-6 text-center">
+              <p className="text-white bg-black/60 backdrop-blur-md rounded-2xl p-6 inline-block max-w-3xl text-lg leading-relaxed shadow-xl">
                 {currentImage.caption}
               </p>
             </div>
