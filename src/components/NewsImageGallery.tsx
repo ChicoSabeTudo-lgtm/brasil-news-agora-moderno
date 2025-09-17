@@ -155,7 +155,7 @@ export const NewsImageGallery = ({ images, newsTitle }: NewsImageGalleryProps) =
       {/* Modern Gallery Container */}
       <div 
         ref={galleryRef}
-        className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl overflow-hidden shadow-2xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 group"
+        className="relative bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl overflow-hidden shadow-2xl focus:outline-none group"
         tabIndex={0}
         role="img"
         aria-label={`Galeria de imagens: ${newsTitle}. Imagem ${currentIndex + 1} de ${images.length}`}
