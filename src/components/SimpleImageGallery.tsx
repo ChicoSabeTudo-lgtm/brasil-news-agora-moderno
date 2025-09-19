@@ -42,16 +42,22 @@ export const SimpleImageGallery = ({ images, newsTitle }: SimpleImageGalleryProp
   const currentImage = images[currentIndex];
 
   return (
-    <div className="mb-6">
+    <div className="mb-6" style={{ display: 'block' }}>
       {/* Galeria principal */}
-      <div className="relative bg-gray-50 rounded-lg overflow-hidden" style={{ boxShadow: 'none' }}>
+      <div className="relative bg-gray-50 rounded-lg overflow-hidden" style={{ boxShadow: 'none', display: 'block' }}>
         {/* Container da imagem */}
-        <div className="relative bg-gray-50 flex items-center justify-center" style={{ height: '500px' }}>
-          <ImageWithFallback 
+        <div className="relative bg-gray-50 flex items-center justify-center" style={{ height: '500px', display: 'flex' }}>
+          <img 
             src={getImageUrl(currentImage)} 
             alt={newsTitle}
             className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
             onClick={toggleFullscreen}
+            style={{ 
+              width: '100%', 
+              height: '100%', 
+              objectFit: 'cover',
+              objectPosition: 'center'
+            }}
           />
           
           {/* Contador de imagens */}
