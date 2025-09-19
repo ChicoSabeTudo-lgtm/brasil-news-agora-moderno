@@ -114,7 +114,7 @@ export const SimpleImageGallery = ({ images, newsTitle }: SimpleImageGalleryProp
             <button
               key={index}
               onClick={() => goToImage(index)}
-              className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+              className={`flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${
                 index === currentIndex
                   ? "border-red-500 scale-105"
                   : "border-gray-300 hover:border-gray-400"
@@ -123,22 +123,33 @@ export const SimpleImageGallery = ({ images, newsTitle }: SimpleImageGalleryProp
                 boxShadow: 'none',
                 padding: 0,
                 margin: 0,
-                display: 'block'
+                display: 'block',
+                width: '64px',
+                height: '64px',
+                position: 'relative'
               }}
             >
-                      <img
-                        src={getImageUrl(image)}
-                        alt={`Thumbnail ${index + 1}`}
-                        className="w-full h-full"
-                        style={{
-                          boxShadow: 'none',
-                          objectFit: 'cover',
-                          objectPosition: 'center',
-                          width: '100%',
-                          height: '100%',
-                          display: 'block'
-                        }}
-                      />
+              <img
+                src={getImageUrl(image)}
+                alt={`Thumbnail ${index + 1}`}
+                style={{
+                  boxShadow: 'none',
+                  objectFit: 'cover',
+                  objectPosition: 'center',
+                  width: '100%',
+                  height: '100%',
+                  display: 'block',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  margin: 0,
+                  padding: 0,
+                  border: 'none',
+                  outline: 'none'
+                }}
+              />
             </button>
           ))}
         </div>
