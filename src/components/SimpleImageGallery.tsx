@@ -50,7 +50,7 @@ export const SimpleImageGallery = ({ images, newsTitle }: SimpleImageGalleryProp
           <ImageWithFallback 
             src={getImageUrl(currentImage)} 
             alt={newsTitle}
-            className="max-w-full max-h-full object-contain cursor-pointer hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
             onClick={toggleFullscreen}
           />
           
