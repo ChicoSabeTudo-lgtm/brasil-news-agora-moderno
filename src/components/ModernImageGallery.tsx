@@ -140,7 +140,7 @@ export const ModernImageGallery = ({
             <ImageWithFallback 
               src={getImageUrl(image)} 
               alt={newsTitle}
-              className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
+              className="w-full h-full object-contain cursor-pointer hover:scale-105 transition-transform duration-300"
               onClick={toggleFullscreen}
               onLoad={handleImageLoad}
             />
@@ -173,10 +173,10 @@ export const ModernImageGallery = ({
                   ? 'opacity-100 translate-y-0' 
                   : 'opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0'
               }`}>
-                <div className="bg-gradient-to-t from-black/90 via-black/60 to-transparent p-6">
+                <div className="bg-gradient-to-t from-black/90 via-black/60 to-transparent p-4">
                   <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                      <Info className="w-4 h-4 text-white" />
+                    <div className="flex-shrink-0 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                      <Info className="w-3 h-3 text-white" />
                     </div>
                     <div className="flex-1">
                       <p 
@@ -242,7 +242,7 @@ export const ModernImageGallery = ({
           <ImageWithFallback 
             src={getImageUrl(currentImage)} 
             alt={newsTitle}
-            className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-contain cursor-pointer hover:scale-105 transition-transform duration-300"
             onClick={toggleFullscreen}
             onLoad={handleImageLoad}
           />
@@ -297,10 +297,10 @@ export const ModernImageGallery = ({
                 ? 'opacity-100 translate-y-0' 
                 : 'opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0'
             }`}>
-              <div className="bg-gradient-to-t from-black/90 via-black/60 to-transparent p-6">
+              <div className="bg-gradient-to-t from-black/90 via-black/60 to-transparent p-4">
                 <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                    <Info className="w-4 h-4 text-white" />
+                  <div className="flex-shrink-0 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                    <Info className="w-3 h-3 text-white" />
                   </div>
                   <div className="flex-1">
                     <p 
@@ -335,7 +335,7 @@ export const ModernImageGallery = ({
             <img 
               src={getImageUrl(image)} 
               alt={`Thumbnail ${index + 1}`}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover object-center"
             />
           </button>
         ))}

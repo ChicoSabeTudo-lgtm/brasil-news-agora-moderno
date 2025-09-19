@@ -655,7 +655,7 @@ const NewsArticle = () => {
               images={news.news_images || []}
               newsTitle={news.title}
               variant="marinho"
-              showCaption="hover"
+              showCaption="always"
             />
 
             {/* Advertisement */}

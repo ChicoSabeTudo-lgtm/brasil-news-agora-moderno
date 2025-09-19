@@ -564,7 +564,7 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
                     images={newsImages}
                     newsTitle={article.title || 'Título da notícia'}
                     variant="marinho"
-                    showCaption="hover"
+                    showCaption="always"
                   />
                 )}
 
