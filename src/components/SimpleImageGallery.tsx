@@ -44,9 +44,9 @@ export const SimpleImageGallery = ({ images, newsTitle }: SimpleImageGalleryProp
   return (
     <div className="mb-6">
       {/* Galeria principal */}
-      <div className="relative bg-gray-100 rounded-lg overflow-hidden" style={{ boxShadow: 'none' }}>
+      <div className="relative bg-gray-50 rounded-lg overflow-hidden" style={{ boxShadow: 'none' }}>
         {/* Container da imagem */}
-        <div className="relative bg-gray-100 flex items-center justify-center" style={{ height: '500px' }}>
+        <div className="relative bg-gray-50 flex items-center justify-center" style={{ height: '500px' }}>
           <ImageWithFallback 
             src={getImageUrl(currentImage)} 
             alt={newsTitle}
@@ -93,7 +93,7 @@ export const SimpleImageGallery = ({ images, newsTitle }: SimpleImageGalleryProp
           {/* Legenda */}
           {currentImage.caption && (
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-4" style={{ boxShadow: 'none' }}>
-              <p className="text-white text-xs leading-relaxed" style={{ color: 'white', textShadow: 'none' }}>
+              <p className="text-white text-xs leading-relaxed" style={{ color: 'white', textShadow: 'none', fontSize: '0.75rem' }}>
                 {currentImage.caption}
               </p>
             </div>
@@ -118,7 +118,7 @@ export const SimpleImageGallery = ({ images, newsTitle }: SimpleImageGalleryProp
               <img 
                 src={getImageUrl(image)} 
                 alt={`Thumbnail ${index + 1}`}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover object-center"
                 style={{ boxShadow: 'none' }}
               />
             </button>
@@ -166,7 +166,7 @@ export const SimpleImageGallery = ({ images, newsTitle }: SimpleImageGalleryProp
           {currentImage.caption && (
             <div className="absolute bottom-4 left-4 right-4 text-center">
               <div className="bg-black/80 rounded-lg p-4 inline-block max-w-2xl" style={{ boxShadow: 'none' }}>
-                <p className="text-white text-sm" style={{ color: 'white', textShadow: 'none' }}>
+                <p className="text-white text-xs" style={{ color: 'white', textShadow: 'none', fontSize: '0.75rem' }}>
                   {currentImage.caption}
                 </p>
               </div>
