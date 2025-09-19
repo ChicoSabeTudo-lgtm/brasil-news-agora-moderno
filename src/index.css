@@ -311,6 +311,17 @@ All colors MUST be HSL.
   @apply relative overflow-hidden rounded-lg shadow-lg;
 }
 
+/* Galeria moderna sem sombras */
+.modern-gallery-no-shadow,
+.modern-gallery-no-shadow *,
+.modern-gallery-no-shadow img,
+.modern-gallery-no-shadow button,
+.modern-gallery-no-shadow div {
+  box-shadow: none !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
+
 .main-image img {
   @apply w-full h-96 object-cover transition-transform duration-500 hover:scale-105;
 }

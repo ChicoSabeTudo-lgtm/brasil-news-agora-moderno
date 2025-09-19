@@ -126,8 +126,8 @@ export const ModernImageGallery = ({
   if (images.length === 1) {
     const image = images[0];
     return (
-      <div className="mb-6" style={{ boxShadow: 'none !important' }}>
-        <div className="relative group bg-black rounded-lg overflow-hidden" style={{ boxShadow: 'none !important' }}>
+      <div className="mb-6 modern-gallery-no-shadow" style={{ boxShadow: 'none !important', filter: 'none !important' }}>
+        <div className="relative group bg-black rounded-lg overflow-hidden modern-gallery-no-shadow" style={{ boxShadow: 'none !important', filter: 'none !important' }}>
           {/* Container principal - altura fixa para consistência */}
           <div 
             ref={containerRef}
@@ -151,6 +151,7 @@ export const ModernImageGallery = ({
                 <button
                   onClick={toggleCaption}
                   className="p-2 bg-white/90 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
+                  style={{ boxShadow: 'none !important', filter: 'none !important' }}
                 >
                   <Info className="w-4 h-4" />
                 </button>
@@ -220,9 +221,9 @@ export const ModernImageGallery = ({
 
   // Galeria com múltiplas imagens
   return (
-    <div className="mb-6" style={{ boxShadow: 'none !important' }}>
+    <div className="mb-6 modern-gallery-no-shadow" style={{ boxShadow: 'none !important', filter: 'none !important' }}>
       {/* Galeria principal */}
-      <div className="relative group bg-black rounded-lg overflow-hidden" style={{ boxShadow: 'none !important' }}>
+      <div className="relative group bg-black rounded-lg overflow-hidden modern-gallery-no-shadow" style={{ boxShadow: 'none !important', filter: 'none !important' }}>
         {/* Container principal - altura fixa para consistência */}
         <div 
           ref={containerRef}
@@ -242,7 +243,7 @@ export const ModernImageGallery = ({
           {/* Contador de imagens */}
           <div 
             className="absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-medium text-white"
-            style={{ backgroundColor: theme.accent }}
+            style={{ backgroundColor: theme.accent, boxShadow: 'none !important', filter: 'none !important' }}
           >
             {currentIndex + 1} de {images.length}
           </div>
@@ -272,12 +273,14 @@ export const ModernImageGallery = ({
           <button
             onClick={prevImage}
             className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/90 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
+            style={{ boxShadow: 'none !important', filter: 'none !important' }}
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button
             onClick={nextImage}
             className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/90 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
+            style={{ boxShadow: 'none !important', filter: 'none !important' }}
           >
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -315,7 +318,9 @@ export const ModernImageGallery = ({
                 : "border-gray-300 hover:border-gray-400"
             }`}
             style={{
-              borderColor: index === currentIndex ? theme.accent : undefined
+              borderColor: index === currentIndex ? theme.accent : undefined,
+              boxShadow: 'none !important',
+              filter: 'none !important'
             }}
           >
             <img 
