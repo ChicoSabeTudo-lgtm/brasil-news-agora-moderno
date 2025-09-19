@@ -168,18 +168,23 @@ export const ModernImageGallery = ({
 
             {/* Legenda moderna dentro da galeria */}
             {image.caption && showCaption !== 'never' && (
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-white/95 via-white/80 to-transparent p-4" style={{ boxShadow: 'none !important', filter: 'none !important' }}>
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-4" style={{ boxShadow: 'none !important', filter: 'none !important' }}>
               <div className="flex items-start gap-3" style={{ boxShadow: 'none !important', filter: 'none !important' }}>
-                <div className="flex-shrink-0 w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center" style={{ boxShadow: 'none !important', filter: 'none !important' }}>
-                  <Info className="w-3 h-3 text-gray-600" style={{ boxShadow: 'none !important', filter: 'none !important' }} />
+                <div className="flex-shrink-0 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center" style={{ boxShadow: 'none !important', filter: 'none !important' }}>
+                  <Info className="w-3 h-3 text-white" style={{ boxShadow: 'none !important', filter: 'none !important' }} />
                 </div>
                 <div className="flex-1" style={{ boxShadow: 'none !important', filter: 'none !important' }}>
                   <p 
                     dangerouslySetInnerHTML={{ 
                       __html: processCaption(image.caption) 
                     }}
-                    className="text-gray-800 text-xs leading-relaxed font-normal"
-                    style={{ boxShadow: 'none !important', filter: 'none !important', textShadow: 'none !important' }}
+                    className="text-white text-xs leading-relaxed font-normal"
+                    style={{ 
+                      boxShadow: 'none !important', 
+                      filter: 'none !important', 
+                      textShadow: 'none !important',
+                      color: 'white !important'
+                    }}
                   />
                 </div>
               </div>
@@ -288,18 +293,23 @@ export const ModernImageGallery = ({
 
           {/* Legenda moderna dentro da galeria */}
           {currentImage.caption && showCaption !== 'never' && (
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-white/95 via-white/80 to-transparent p-4" style={{ boxShadow: 'none !important', filter: 'none !important' }}>
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-4" style={{ boxShadow: 'none !important', filter: 'none !important' }}>
               <div className="flex items-start gap-3" style={{ boxShadow: 'none !important', filter: 'none !important' }}>
-                <div className="flex-shrink-0 w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center" style={{ boxShadow: 'none !important', filter: 'none !important' }}>
-                  <Info className="w-3 h-3 text-gray-600" style={{ boxShadow: 'none !important', filter: 'none !important' }} />
+                <div className="flex-shrink-0 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center" style={{ boxShadow: 'none !important', filter: 'none !important' }}>
+                  <Info className="w-3 h-3 text-white" style={{ boxShadow: 'none !important', filter: 'none !important' }} />
                 </div>
                 <div className="flex-1" style={{ boxShadow: 'none !important', filter: 'none !important' }}>
                   <p 
                     dangerouslySetInnerHTML={{ 
                       __html: processCaption(currentImage.caption) 
                     }}
-                    className="text-gray-800 text-xs leading-relaxed font-normal"
-                    style={{ boxShadow: 'none !important', filter: 'none !important', textShadow: 'none !important' }}
+                    className="text-white text-xs leading-relaxed font-normal"
+                    style={{ 
+                      boxShadow: 'none !important', 
+                      filter: 'none !important', 
+                      textShadow: 'none !important',
+                      color: 'white !important'
+                    }}
                   />
                 </div>
               </div>

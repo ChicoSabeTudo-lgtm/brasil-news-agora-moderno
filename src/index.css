@@ -337,6 +337,19 @@ All colors MUST be HSL.
   text-shadow: none !important;
 }
 
+/* Forçar remoção de sombras com CSS mais específico */
+.modern-gallery-no-shadow,
+.modern-gallery-no-shadow *,
+.modern-gallery-no-shadow div,
+.modern-gallery-no-shadow p,
+.modern-gallery-no-shadow span {
+  box-shadow: none !important;
+  filter: none !important;
+  text-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+}
+
 .main-image img {
   @apply w-full h-96 object-cover transition-transform duration-500 hover:scale-105;
 }
