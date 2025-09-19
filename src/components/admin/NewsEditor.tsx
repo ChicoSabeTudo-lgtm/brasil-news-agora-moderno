@@ -20,7 +20,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Save, Eye, Send, Clock, Calendar as CalendarIcon } from 'lucide-react';
 import { NewsDownloadManager } from './NewsDownloadManager';
 import NewsGallery from '@/components/NewsGallery';
-import { NewsImageGallery } from '@/components/NewsImageGallery';
+import { ModernImageGallery } from '@/components/ModernImageGallery';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { MediaManager } from '@/components/MediaManager';
 import { format } from 'date-fns';
@@ -560,9 +560,11 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
 
                 {/* Images Gallery */}
                 {newsImages.length > 0 && (
-                  <NewsImageGallery 
+                  <ModernImageGallery 
                     images={newsImages}
                     newsTitle={article.title || 'Título da notícia'}
+                    variant="marinho"
+                    showCaption="hover"
                   />
                 )}
 
