@@ -115,24 +115,30 @@ export const SimpleImageGallery = ({ images, newsTitle }: SimpleImageGalleryProp
               key={index}
               onClick={() => goToImage(index)}
               className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
-                index === currentIndex 
-                  ? "border-red-500 scale-105" 
+                index === currentIndex
+                  ? "border-red-500 scale-105"
                   : "border-gray-300 hover:border-gray-400"
               }`}
-              style={{ boxShadow: 'none' }}
+              style={{ 
+                boxShadow: 'none',
+                padding: 0,
+                margin: 0,
+                display: 'block'
+              }}
             >
-              <img 
-                src={getImageUrl(image)} 
-                alt={`Thumbnail ${index + 1}`}
-                className="w-full h-full"
-                style={{ 
-                  boxShadow: 'none',
-                  objectFit: 'cover',
-                  objectPosition: 'center',
-                  width: '100%',
-                  height: '100%'
-                }}
-              />
+                      <img
+                        src={getImageUrl(image)}
+                        alt={`Thumbnail ${index + 1}`}
+                        className="w-full h-full"
+                        style={{
+                          boxShadow: 'none',
+                          objectFit: 'cover',
+                          objectPosition: 'center',
+                          width: '100%',
+                          height: '100%',
+                          display: 'block'
+                        }}
+                      />
             </button>
           ))}
         </div>
