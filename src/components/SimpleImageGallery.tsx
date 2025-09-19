@@ -92,8 +92,8 @@ export const SimpleImageGallery = ({ images, newsTitle }: SimpleImageGalleryProp
 
           {/* Legenda */}
           {currentImage.caption && (
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-4" style={{ boxShadow: 'none' }}>
-              <p className="text-white text-xs leading-relaxed" style={{ color: 'white', textShadow: 'none', fontSize: '0.75rem' }}>
+            <div className="absolute bottom-0 left-0 right-0 bg-gray-50 p-4" style={{ boxShadow: 'none' }}>
+              <p className="text-gray-800 text-xs leading-relaxed" style={{ color: '#374151', textShadow: 'none', fontSize: '0.75rem' }}>
                 {currentImage.caption}
               </p>
             </div>
@@ -118,8 +118,14 @@ export const SimpleImageGallery = ({ images, newsTitle }: SimpleImageGalleryProp
               <img 
                 src={getImageUrl(image)} 
                 alt={`Thumbnail ${index + 1}`}
-                className="w-full h-full object-cover object-center"
-                style={{ boxShadow: 'none' }}
+                className="w-full h-full"
+                style={{ 
+                  boxShadow: 'none',
+                  objectFit: 'cover',
+                  objectPosition: 'center',
+                  width: '100%',
+                  height: '100%'
+                }}
               />
             </button>
           ))}
