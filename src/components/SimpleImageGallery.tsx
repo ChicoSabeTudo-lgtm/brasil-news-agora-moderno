@@ -42,7 +42,7 @@ export const SimpleImageGallery = ({ images, newsTitle }: SimpleImageGalleryProp
   const currentImage = images[currentIndex];
 
   return (
-    <div className="mb-6" style={{ display: 'block' }}>
+    <div className="mb-6 simple-image-gallery" style={{ display: 'block' }}>
       {/* Galeria principal */}
       <div className="relative bg-gray-50 rounded-lg overflow-hidden" style={{ boxShadow: 'none', display: 'block' }}>
         {/* Container da imagem */}
@@ -109,7 +109,7 @@ export const SimpleImageGallery = ({ images, newsTitle }: SimpleImageGalleryProp
 
       {/* Miniaturas */}
       {images.length > 1 && (
-        <div className="flex gap-2 mt-3 overflow-x-auto pb-2">
+        <div className="gallery-thumbnails">
           {images.map((image, index) => (
             <button
               key={index}

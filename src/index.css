@@ -350,6 +350,40 @@ All colors MUST be HSL.
   -moz-box-shadow: none !important;
 }
 
+/* SimpleImageGallery - CSS específico para evitar conflitos */
+.simple-image-gallery {
+  display: block !important;
+}
+
+.simple-image-gallery .gallery-thumbnails {
+  display: flex !important;
+  gap: 8px !important;
+  margin-top: 12px !important;
+  overflow-x: auto !important;
+  padding-bottom: 8px !important;
+  grid: none !important;
+}
+
+.simple-image-gallery .gallery-thumbnails img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  border-radius: 0 !important;
+  cursor: pointer !important;
+  transition: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  outline: none !important;
+}
+
 .main-image img {
   @apply w-full h-96 object-cover transition-transform duration-500 hover:scale-105;
 }
