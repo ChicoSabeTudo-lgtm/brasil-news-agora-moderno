@@ -150,7 +150,7 @@ export const ModernImageGallery = ({
               {image.caption && showCaption !== 'never' && (
                 <button
                   onClick={toggleCaption}
-                  className="p-2 bg-white/90 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg hover:bg-white"
+                  className="p-2 bg-white/90 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
                 >
                   <Info className="w-4 h-4" />
                 </button>
@@ -241,7 +241,7 @@ export const ModernImageGallery = ({
           
           {/* Contador de imagens */}
           <div 
-            className="absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-medium text-white shadow-lg"
+            className="absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-medium text-white"
             style={{ backgroundColor: theme.accent }}
           >
             {currentIndex + 1} de {images.length}
@@ -271,13 +271,13 @@ export const ModernImageGallery = ({
           {/* Setas de navegação */}
           <button
             onClick={prevImage}
-            className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/90 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white shadow-lg"
+            className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-white/90 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button
             onClick={nextImage}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/90 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white shadow-lg"
+            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-white/90 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -311,7 +311,7 @@ export const ModernImageGallery = ({
             onClick={() => goToImage(index)}
             className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
               index === currentIndex 
-                ? "border-2 shadow-lg scale-105" 
+                ? "border-2 scale-105" 
                 : "border-gray-300 hover:border-gray-400"
             }`}
             style={{
