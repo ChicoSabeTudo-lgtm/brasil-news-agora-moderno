@@ -127,7 +127,7 @@ export const ModernImageGallery = ({
     const image = images[0];
     return (
       <div className="mb-6">
-        <div className="relative group bg-black rounded-lg overflow-hidden shadow-2xl">
+        <div className="relative group bg-black rounded-lg overflow-hidden">
           {/* Container principal - altura fixa para consistência */}
           <div 
             ref={containerRef}
@@ -222,7 +222,7 @@ export const ModernImageGallery = ({
   return (
     <div className="mb-6">
       {/* Galeria principal */}
-      <div className="relative group bg-black rounded-lg overflow-hidden shadow-2xl">
+      <div className="relative group bg-black rounded-lg overflow-hidden">
         {/* Container principal - altura fixa para consistência */}
         <div 
           ref={containerRef}
