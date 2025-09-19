@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Layout } from "@/components/Layout";
 import { Advertisement } from "@/components/Advertisement";
 import { InContentAd } from "@/components/InContentAd";
-import { ModernImageGallery } from "@/components/ModernImageGallery";
+import { SimpleImageGallery } from "@/components/SimpleImageGallery";
 import { ShareButtons } from "@/components/ShareButtons";
 import { NewsDownloads } from "@/components/NewsDownloads";
 import { useBacklinks } from "@/hooks/useBacklinks";
@@ -651,11 +651,9 @@ const NewsArticle = () => {
             </div>
 
             {/* Image Gallery */}
-            <ModernImageGallery 
+            <SimpleImageGallery 
               images={news.news_images || []}
               newsTitle={news.title}
-              variant="marinho"
-              showCaption="always"
             />
 
             {/* Advertisement */}
