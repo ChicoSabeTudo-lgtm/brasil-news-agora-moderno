@@ -327,6 +327,16 @@ All colors MUST be HSL.
   text-shadow: none !important;
 }
 
+/* Remoção específica de sombras para legendas */
+.modern-gallery-no-shadow .bg-gradient-to-t,
+.modern-gallery-no-shadow .bg-gradient-to-t *,
+.modern-gallery-no-shadow .absolute.bottom-0,
+.modern-gallery-no-shadow .absolute.bottom-0 * {
+  box-shadow: none !important;
+  filter: none !important;
+  text-shadow: none !important;
+}
+
 .main-image img {
   @apply w-full h-96 object-cover transition-transform duration-500 hover:scale-105;
 }
