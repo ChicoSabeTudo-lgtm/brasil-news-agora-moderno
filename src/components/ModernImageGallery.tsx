@@ -126,8 +126,8 @@ export const ModernImageGallery = ({
   if (images.length === 1) {
     const image = images[0];
     return (
-      <div className="mb-6">
-        <div className="relative group bg-black rounded-lg overflow-hidden">
+      <div className="mb-6" style={{ boxShadow: 'none !important' }}>
+        <div className="relative group bg-black rounded-lg overflow-hidden" style={{ boxShadow: 'none !important' }}>
           {/* Container principal - altura fixa para consistência */}
           <div 
             ref={containerRef}
@@ -220,9 +220,9 @@ export const ModernImageGallery = ({
 
   // Galeria com múltiplas imagens
   return (
-    <div className="mb-6">
+    <div className="mb-6" style={{ boxShadow: 'none !important' }}>
       {/* Galeria principal */}
-      <div className="relative group bg-black rounded-lg overflow-hidden">
+      <div className="relative group bg-black rounded-lg overflow-hidden" style={{ boxShadow: 'none !important' }}>
         {/* Container principal - altura fixa para consistência */}
         <div 
           ref={containerRef}
@@ -322,6 +322,7 @@ export const ModernImageGallery = ({
               src={getImageUrl(image)} 
               alt={`Thumbnail ${index + 1}`}
               className="w-full h-full object-cover object-center"
+              style={{ boxShadow: 'none' }}
             />
           </button>
         ))}
