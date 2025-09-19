@@ -178,7 +178,7 @@ export const ModernImageGallery = ({
                     dangerouslySetInnerHTML={{ 
                       __html: processCaption(image.caption) 
                     }}
-                    className="text-white text-sm leading-relaxed font-medium"
+                    className="text-white text-xs leading-relaxed font-normal"
                     style={{ boxShadow: 'none !important', filter: 'none !important', textShadow: 'none !important' }}
                   />
                 </div>
@@ -298,7 +298,7 @@ export const ModernImageGallery = ({
                     dangerouslySetInnerHTML={{ 
                       __html: processCaption(currentImage.caption) 
                     }}
-                    className="text-white text-sm leading-relaxed font-medium"
+                    className="text-white text-xs leading-relaxed font-normal"
                     style={{ boxShadow: 'none !important', filter: 'none !important', textShadow: 'none !important' }}
                   />
                 </div>
