@@ -316,7 +316,12 @@ All colors MUST be HSL.
 .modern-gallery-no-shadow *,
 .modern-gallery-no-shadow img,
 .modern-gallery-no-shadow button,
-.modern-gallery-no-shadow div {
+.modern-gallery-no-shadow div,
+.modern-gallery-no-shadow .image-container,
+.modern-gallery-no-shadow .image-caption,
+.modern-gallery-no-shadow .main-image,
+.modern-gallery-no-shadow .gallery-thumbnails,
+.modern-gallery-no-shadow .gallery-thumbnails img {
   box-shadow: none !important;
   filter: none !important;
   text-shadow: none !important;

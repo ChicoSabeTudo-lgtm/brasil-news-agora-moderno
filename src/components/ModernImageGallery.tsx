@@ -168,7 +168,7 @@ export const ModernImageGallery = ({
 
             {/* Legenda moderna dentro da galeria */}
             {image.caption && showCaption !== 'never' && (
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-4">
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-4" style={{ boxShadow: 'none !important', filter: 'none !important' }}>
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
                     <Info className="w-3 h-3 text-white" />
@@ -287,7 +287,7 @@ export const ModernImageGallery = ({
 
           {/* Legenda moderna dentro da galeria */}
           {currentImage.caption && showCaption !== 'never' && (
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-4">
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-4" style={{ boxShadow: 'none !important', filter: 'none !important' }}>
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
                   <Info className="w-3 h-3 text-white" />
