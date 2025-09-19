@@ -127,20 +127,19 @@ export const ModernImageGallery = ({
     const image = images[0];
     return (
       <div className="mb-6">
-        <div className="relative group bg-gray-200 rounded-lg overflow-hidden">
-          {/* Container adaptativo baseado na proporção da imagem */}
+        <div className="relative group bg-black rounded-lg overflow-hidden shadow-2xl">
+          {/* Container principal - altura fixa para consistência */}
           <div 
             ref={containerRef}
-            className="relative bg-gray-200 flex items-center justify-center"
+            className="relative bg-black flex items-center justify-center"
             style={{
-              height: isVerticalImage() ? '600px' : '400px',
-              aspectRatio: imageDimensions ? `${imageDimensions.width}/${imageDimensions.height}` : '16/9'
+              height: '500px'
             }}
           >
             <ImageWithFallback 
               src={getImageUrl(image)} 
               alt={newsTitle}
-              className="w-full h-full object-contain cursor-pointer hover:scale-105 transition-transform duration-300"
+              className="max-w-full max-h-full object-contain cursor-pointer hover:scale-105 transition-transform duration-300"
               onClick={toggleFullscreen}
               onLoad={handleImageLoad}
             />
@@ -168,24 +167,18 @@ export const ModernImageGallery = ({
 
             {/* Legenda moderna dentro da galeria */}
             {image.caption && showCaption !== 'never' && (
-              <div className={`absolute bottom-0 left-0 right-0 transition-all duration-300 ${
-                showCaption === 'always' || showCaptionOverlay 
-                  ? 'opacity-100 translate-y-0' 
-                  : 'opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0'
-              }`}>
-                <div className="bg-gradient-to-t from-black/90 via-black/60 to-transparent p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
-                      <Info className="w-3 h-3 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <p 
-                        dangerouslySetInnerHTML={{ 
-                          __html: processCaption(image.caption) 
-                        }}
-                        className="text-white text-sm leading-relaxed font-medium"
-                      />
-                    </div>
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                    <Info className="w-3 h-3 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <p 
+                      dangerouslySetInnerHTML={{ 
+                        __html: processCaption(image.caption) 
+                      }}
+                      className="text-white text-sm leading-relaxed font-medium"
+                    />
                   </div>
                 </div>
               </div>
@@ -229,20 +222,19 @@ export const ModernImageGallery = ({
   return (
     <div className="mb-6">
       {/* Galeria principal */}
-      <div className="relative group bg-gray-200 rounded-lg overflow-hidden">
-        {/* Container adaptativo baseado na proporção da imagem */}
+      <div className="relative group bg-black rounded-lg overflow-hidden shadow-2xl">
+        {/* Container principal - altura fixa para consistência */}
         <div 
           ref={containerRef}
-          className="relative bg-gray-200 flex items-center justify-center"
+          className="relative bg-black flex items-center justify-center"
           style={{
-            height: isVerticalImage() ? '600px' : '400px',
-            aspectRatio: imageDimensions ? `${imageDimensions.width}/${imageDimensions.height}` : '16/9'
+            height: '500px'
           }}
         >
           <ImageWithFallback 
             src={getImageUrl(currentImage)} 
             alt={newsTitle}
-            className="w-full h-full object-contain cursor-pointer hover:scale-105 transition-transform duration-300"
+            className="max-w-full max-h-full object-contain cursor-pointer hover:scale-105 transition-transform duration-300"
             onClick={toggleFullscreen}
             onLoad={handleImageLoad}
           />
@@ -292,24 +284,18 @@ export const ModernImageGallery = ({
 
           {/* Legenda moderna dentro da galeria */}
           {currentImage.caption && showCaption !== 'never' && (
-            <div className={`absolute bottom-0 left-0 right-0 transition-all duration-300 ${
-              showCaption === 'always' || showCaptionOverlay 
-                ? 'opacity-100 translate-y-0' 
-                : 'opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0'
-            }`}>
-              <div className="bg-gradient-to-t from-black/90 via-black/60 to-transparent p-4">
-                <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
-                    <Info className="w-3 h-3 text-white" />
-                  </div>
-                  <div className="flex-1">
-                    <p 
-                      dangerouslySetInnerHTML={{ 
-                        __html: processCaption(currentImage.caption) 
-                      }}
-                      className="text-white text-sm leading-relaxed font-medium"
-                    />
-                  </div>
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                  <Info className="w-3 h-3 text-white" />
+                </div>
+                <div className="flex-1">
+                  <p 
+                    dangerouslySetInnerHTML={{ 
+                      __html: processCaption(currentImage.caption) 
+                    }}
+                    className="text-white text-sm leading-relaxed font-medium"
+                  />
                 </div>
               </div>
             </div>
