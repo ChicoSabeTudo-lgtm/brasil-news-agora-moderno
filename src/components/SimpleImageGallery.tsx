@@ -42,7 +42,7 @@ export const SimpleImageGallery = ({ images, newsTitle }: SimpleImageGalleryProp
   const currentImage = images[currentIndex];
 
   return (
-    <div className="mb-6 simple-image-gallery" style={{ display: 'block' }}>
+    <div className="mb-2 simple-image-gallery" style={{ display: 'block' }}>
       {/* Galeria principal */}
       <div className="relative bg-gray-50 rounded-lg overflow-hidden" style={{ boxShadow: 'none', display: 'block' }}>
         {/* Container da imagem */}

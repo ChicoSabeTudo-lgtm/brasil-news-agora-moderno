@@ -353,6 +353,7 @@ All colors MUST be HSL.
 /* SimpleImageGallery - CSS específico para evitar conflitos */
 .simple-image-gallery {
   display: block !important;
+  margin-bottom: 8px !important;
 }
 
 .simple-image-gallery .gallery-thumbnails {
