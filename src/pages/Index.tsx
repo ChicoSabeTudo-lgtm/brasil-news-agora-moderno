@@ -407,25 +407,66 @@ const Index = () => {
                 Trending Topics
               </h3>
               <div className="flex flex-wrap gap-2">
-                {["#ReformaTributária", "#Copa2024", "#InteligênciaArtificial", "#Economia", "#PIB", "#Eleições2024", "#Tecnologia", "#Esportes"].map((tag, index) => <span key={index} className="bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground px-3 py-1 rounded-full text-sm cursor-pointer transition-colors">
-                    {tag}
-                  </span>)}
+                {(() => {
+                  // Gerar trending topics baseados nas notícias mais visualizadas e recentes
+                  const topNews = [...news].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 15);
+                  const allTags = topNews.flatMap(item => item.tags || []);
+                  const recentCategories = news.slice(0, 8).map(item => item.categories?.name).filter(Boolean);
+                  
+                  // Combinar tags e categorias para criar trending topics
+                  const allTopics = [...allTags, ...recentCategories];
+                  const uniqueTopics = [...new Set(allTopics)].slice(0, 8);
+                  
+                  // Se não há dados suficientes, usar tópicos atuais relevantes
+                  const fallbackTopics = [
+                    "Política Bahia", "Economia", "Tecnologia", "Esportes", 
+                    "Municípios", "Saúde", "Entretenimento", "Polícia"
+                  ];
+                  
+                  const trendingTopics = uniqueTopics.length >= 6 
+                    ? uniqueTopics 
+                    : [...uniqueTopics, ...fallbackTopics].slice(0, 8);
+                    
+                  return trendingTopics.map((tag, index) => (
+                    <Link 
+                      key={index}
+                      to={`/search?q=${encodeURIComponent(tag)}`}
+                      className="bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground px-3 py-1 rounded-full text-sm cursor-pointer transition-colors"
+                    >
+                      #{tag}
+                    </Link>
+                  ));
+                })()}
               </div>
               <div className="mt-6 space-y-3">
                 <h4 className="font-semibold text-foreground">Assuntos em Alta</h4>
-                {[{
-                    topic: "Reforma Tributária",
-                    posts: "2.5k posts"
-                  }, {
-                    topic: "Copa América",
-                    posts: "1.8k posts"
-                  }, {
-                    topic: "Inteligência Artificial",
-                    posts: "1.2k posts"
-                  }].map((item, index) => <div key={index} className="flex justify-between items-center p-2 hover:bg-muted rounded cursor-pointer transition-colors">
-                    <span className="text-sm font-medium">{item.topic}</span>
-                    <span className="text-xs text-muted-foreground">{item.posts}</span>
-                  </div>)}
+                {(() => {
+                  // Gerar assuntos em alta baseados nas categorias com mais notícias
+                  const categoryStats = categories.map(cat => {
+                    const categoryNews = getNewsByCategory(cat.slug);
+                    return {
+                      name: cat.name,
+                      slug: cat.slug,
+                      count: categoryNews.length,
+                      color: cat.color
+                    };
+                  }).sort((a, b) => b.count - a.count).slice(0, 4);
+                  
+                  return categoryStats.map((item, index) => (
+                    <Link 
+                      key={index}
+                      to={`/${item.slug}`}
+                      className="flex justify-between items-center p-2 hover:bg-muted rounded cursor-pointer transition-colors group"
+                    >
+                      <span className="text-sm font-medium group-hover:text-primary transition-colors" style={{ '--hover-color': item.color } as any}>
+                        {item.name}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {item.count} notícias
+                      </span>
+                    </Link>
+                  ));
+                })()}
               </div>
             </div>
           </div>
