@@ -62,6 +62,7 @@ const App = () => (
                 <SiteConfigurations />
               </ProtectedRoute>
             } />
+            <Route path="/search" element={<Search />} />
             <Route path="/busca" element={<Search />} />
             <Route path="/ao-vivo" element={<AoVivo />} />
             <Route path="/videos" element={<Videos />} />
