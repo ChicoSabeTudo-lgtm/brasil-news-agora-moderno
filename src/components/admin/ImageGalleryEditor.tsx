@@ -1,4 +1,4 @@
-import { NewsGallery } from '@/components/NewsGallery';
+import NewsGallery from '@/components/NewsGallery';
 
 interface NewsImage {
   id?: string;

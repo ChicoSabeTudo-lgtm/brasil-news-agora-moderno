@@ -379,7 +379,12 @@ const Index = () => {
             {/* Lista Mais Lidas */}
             <div className="bg-card rounded-lg p-6 shadow-card">
               <div className="space-y-4">
-                {news.slice(0, 5).map((newsItem, index) => <div key={newsItem.id} className="flex items-start gap-4 p-3 hover:bg-muted rounded-lg cursor-pointer group transition-colors">
+                {news.slice(0, 5).map((newsItem, index) => (
+                  <Link 
+                    key={newsItem.id} 
+                    to={`/${newsItem.categories?.slug}/${newsItem.slug}`}
+                    className="flex items-start gap-4 p-3 hover:bg-muted rounded-lg cursor-pointer group transition-colors"
+                  >
                     <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm bg-slate-950">
                       {index + 1}
                     </div>
@@ -391,7 +396,8 @@ const Index = () => {
                         {newsItem.views}k visualizações
                       </p>
                     </div>
-                  </div>)}
+                  </Link>
+                ))}
               </div>
             </div>
 
