@@ -356,6 +356,12 @@ All colors MUST be HSL.
   margin-bottom: 8px !important;
 }
 
+/* NewsCard hover effect - garantir que funcione */
+.news-card-hover:hover {
+  transform: scale(1.05) !important;
+  box-shadow: var(--shadow-card) !important;
+}
+
 .simple-image-gallery .gallery-thumbnails {
   display: flex !important;
   gap: 8px !important;

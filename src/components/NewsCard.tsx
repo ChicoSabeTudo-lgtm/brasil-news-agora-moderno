@@ -49,7 +49,7 @@ export const NewsCard = ({
         <img
           src={imageUrl}
           alt={title}
-          className={`w-full object-cover transition-transform duration-300 group-hover:scale-105 ${getSizeClasses()}`}
+          className={`w-full object-cover transition-transform duration-300 ${getSizeClasses()}`}
         />
         
 
@@ -94,7 +94,7 @@ export const NewsCard = ({
   if (slug && categorySlug) {
     return (
       <Link to={newsLink}>
-        <Card className="group overflow-hidden hover:shadow-card hover:scale-105 transition-all duration-300 cursor-pointer animate-slide-up">
+        <Card className="group overflow-hidden hover:shadow-card hover:scale-105 transition-all duration-300 cursor-pointer animate-slide-up news-card-hover">
           {cardContent}
         </Card>
       </Link>
@@ -102,7 +102,7 @@ export const NewsCard = ({
   }
 
   return (
-    <Card className="group overflow-hidden hover:shadow-card hover:scale-105 transition-all duration-300 cursor-pointer animate-slide-up">
+    <Card className="group overflow-hidden hover:shadow-card hover:scale-105 transition-all duration-300 cursor-pointer animate-slide-up news-card-hover">
       {cardContent}
     </Card>
   );
