@@ -408,13 +408,25 @@ const Index = () => {
               </h3>
               <div className="flex flex-wrap gap-2">
                 {(() => {
-                  // Gerar trending topics baseados nas notícias mais visualizadas e recentes
-                  const topNews = [...news].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 15);
+                  // Gerar trending topics baseados nas notícias mais visualizadas e tags mais utilizadas
+                  const topNews = [...news].sort((a, b) => (b.views || 0) - (a.views || 0)).slice(0, 20);
                   const allTags = topNews.flatMap(item => item.tags || []);
-                  const recentCategories = news.slice(0, 8).map(item => item.categories?.name).filter(Boolean);
+                  const recentCategories = news.slice(0, 10).map(item => item.categories?.name).filter(Boolean);
                   
-                  // Combinar tags e categorias para criar trending topics
-                  const allTopics = [...allTags, ...recentCategories];
+                  // Contar frequência das tags
+                  const tagFrequency: Record<string, number> = {};
+                  allTags.forEach(tag => {
+                    tagFrequency[tag] = (tagFrequency[tag] || 0) + 1;
+                  });
+                  
+                  // Pegar as tags mais frequentes
+                  const trendingTags = Object.entries(tagFrequency)
+                    .sort(([,a], [,b]) => b - a)
+                    .slice(0, 4)
+                    .map(([tag]) => tag);
+                  
+                  // Combinar tags frequentes com categorias recentes
+                  const allTopics = [...trendingTags, ...recentCategories];
                   const uniqueTopics = [...new Set(allTopics)].slice(0, 8);
                   
                   // Se não há dados suficientes, usar tópicos atuais relevantes
@@ -423,11 +435,11 @@ const Index = () => {
                     "Municípios", "Saúde", "Entretenimento", "Polícia"
                   ];
                   
-                  const trendingTopics = uniqueTopics.length >= 6 
+                  const finalTopics = uniqueTopics.length >= 6 
                     ? uniqueTopics 
                     : [...uniqueTopics, ...fallbackTopics].slice(0, 8);
                     
-                  return trendingTopics.map((tag, index) => (
+                  return finalTopics.map((tag, index) => (
                     <Link 
                       key={index}
                       to={`/search?q=${encodeURIComponent(tag)}`}
@@ -441,16 +453,27 @@ const Index = () => {
               <div className="mt-6 space-y-3">
                 <h4 className="font-semibold text-foreground">Assuntos em Alta</h4>
                 {(() => {
-                  // Gerar assuntos em alta baseados nas categorias com mais notícias
+                  // Gerar assuntos em alta baseados nas categorias com mais notícias e visualizações
                   const categoryStats = categories.map(cat => {
                     const categoryNews = getNewsByCategory(cat.slug);
+                    const totalViews = categoryNews.reduce((sum, item) => sum + (item.views || 0), 0);
+                    const recentNews = categoryNews.filter(item => {
+                      const publishedDate = new Date(item.published_at);
+                      const daysDiff = Math.floor((Date.now() - publishedDate.getTime()) / (1000 * 60 * 60 * 24));
+                      return daysDiff <= 7; // Notícias dos últimos 7 dias
+                    });
+                    
                     return {
                       name: cat.name,
                       slug: cat.slug,
                       count: categoryNews.length,
-                      color: cat.color
+                      recentCount: recentNews.length,
+                      totalViews,
+                      color: cat.color,
+                      // Score baseado em número de notícias recentes + visualizações
+                      hotScore: (recentNews.length * 10) + (totalViews / 100)
                     };
-                  }).sort((a, b) => b.count - a.count).slice(0, 4);
+                  }).sort((a, b) => b.hotScore - a.hotScore).slice(0, 5);
                   
                   return categoryStats.map((item, index) => (
                     <Link 
@@ -458,12 +481,28 @@ const Index = () => {
                       to={`/${item.slug}`}
                       className="flex justify-between items-center p-2 hover:bg-muted rounded cursor-pointer transition-colors group"
                     >
-                      <span className="text-sm font-medium group-hover:text-primary transition-colors" style={{ '--hover-color': item.color } as any}>
-                        {item.name}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {item.count} notícias
-                      </span>
+                      <div className="flex-1">
+                        <span className="text-sm font-medium group-hover:text-primary transition-colors" style={{ '--hover-color': item.color } as any}>
+                          {item.name}
+                        </span>
+                        {item.recentCount > 0 && (
+                          <div className="flex items-center gap-1 mt-1">
+                            <span className="text-xs px-2 py-0.5 bg-red-500 text-white rounded-full animate-pulse">
+                              {item.recentCount} nova{item.recentCount !== 1 ? 's' : ''}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <span className="text-xs text-muted-foreground block">
+                          {item.count} notícias
+                        </span>
+                        {item.totalViews > 0 && (
+                          <span className="text-xs text-green-600 font-medium">
+                            {(item.totalViews / 1000).toFixed(1)}k views
+                          </span>
+                        )}
+                      </div>
                     </Link>
                   ));
                 })()}
