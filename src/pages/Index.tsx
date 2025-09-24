@@ -392,9 +392,6 @@ const Index = () => {
                       <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors">
                         {newsItem.title}
                       </h3>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {newsItem.views}k visualizações
-                      </p>
                     </div>
                   </Link>
                 ))}
@@ -497,11 +494,6 @@ const Index = () => {
                         <span className="text-xs text-muted-foreground block">
                           {item.count} notícias
                         </span>
-                        {item.totalViews > 0 && (
-                          <span className="text-xs text-green-600 font-medium">
-                            {(item.totalViews / 1000).toFixed(1)}k views
-                          </span>
-                        )}
                       </div>
                     </Link>
                   ));
