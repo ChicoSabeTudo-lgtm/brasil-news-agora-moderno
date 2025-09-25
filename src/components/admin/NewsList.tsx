@@ -474,7 +474,7 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
                             </Button>
                           </>
                         )}
-                        {userRole === 'admin' && (
+                        {(userRole === 'admin' || userRole === 'redator') && (
                           <Button 
                             variant="outline" 
                             size="sm"
