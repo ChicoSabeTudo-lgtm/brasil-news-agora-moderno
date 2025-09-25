@@ -8,6 +8,7 @@ interface ImageWithFallbackProps {
   fallbackSrc?: string;
   onError?: () => void;
   onClick?: () => void;
+  onLoad?: (event: React.SyntheticEvent<HTMLImageElement, Event>) => void;
 }
 
 export function ImageWithFallback({ 
@@ -16,7 +17,8 @@ export function ImageWithFallback({
   className = '', 
   fallbackSrc,
   onError,
-  onClick 
+  onClick,
+  onLoad: onLoadProp
 }: ImageWithFallbackProps) {
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -27,8 +29,9 @@ export function ImageWithFallback({
     onError?.();
   };
 
-  const handleLoad = () => {
+  const handleLoad = (event: React.SyntheticEvent<HTMLImageElement, Event>) => {
     setIsLoading(false);
+    onLoadProp?.(event);
   };
 
   // Se não há src ou houve erro e não há fallback

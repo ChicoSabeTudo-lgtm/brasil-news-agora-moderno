@@ -52,6 +52,25 @@ const Search = () => {
     }
   }, [searchParams]);
 
+  // Gerar sugestões relacionadas para trending topics
+  const getRelatedSuggestions = (searchTerm: string) => {
+    const suggestions = {
+      'Política': ['Eleições', 'Governo', 'Congresso', 'Ministério'],
+      'Economia': ['PIB', 'Inflação', 'Mercado', 'Investimentos'],
+      'Tecnologia': ['IA', 'Startups', 'Inovação', 'Digital'],
+      'Esportes': ['Futebol', 'Olimpíadas', 'Campeonato', 'Atletas'],
+      'Saúde': ['Medicina', 'Prevenção', 'Tratamento', 'Pesquisa'],
+      'Municípios': ['Prefeitura', 'Obras', 'Serviços', 'Desenvolvimento']
+    };
+    
+    const related = Object.keys(suggestions).find(key => 
+      searchTerm.toLowerCase().includes(key.toLowerCase()) ||
+      key.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    
+    return related ? suggestions[related as keyof typeof suggestions] : [];
+  };
+
   const fetchNews = async (query: string) => {
     setLoading(true);
     try {
@@ -76,7 +95,7 @@ const Search = () => {
           )
         `)
         .eq('is_published', true)
-        .or(`title.ilike.%${query}%,meta_description.ilike.%${query}%,subtitle.ilike.%${query}%`)
+        .or(`title.ilike.%${query}%,meta_description.ilike.%${query}%,subtitle.ilike.%${query}%,tags.cs.{${query}}`)
         .order('published_at', { ascending: false });
 
       if (error) throw error;
@@ -163,8 +182,16 @@ const Search = () => {
         {/* Search Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-4">
-            {searchParams.get("q") ? `Resultados para "${searchParams.get("q")}"` : "Buscar Notícias"}
+            {searchParams.get("q") ? 
+              `Trending: "${searchParams.get("q")}"` : 
+              "Buscar Notícias"
+            }
           </h1>
+          {searchParams.get("q") && (
+            <p className="text-muted-foreground mb-4">
+              Explore as notícias mais relevantes sobre este tópico em alta
+            </p>
+          )}
           
           {/* Search Form */}
           <form onSubmit={handleSearch} className="mb-6">
@@ -225,6 +252,26 @@ const Search = () => {
           </div>
         </div>
 
+        {/* Trending Suggestions */}
+        {searchParams.get("q") && (
+          <div className="mb-6">
+            <div className="bg-card rounded-lg p-4 border">
+              <h3 className="font-semibold text-foreground mb-3">Sugestões relacionadas:</h3>
+              <div className="flex flex-wrap gap-2">
+                {getRelatedSuggestions(searchParams.get("q") || "").map((suggestion, index) => (
+                  <Link
+                    key={index}
+                    to={`/search?q=${encodeURIComponent(suggestion)}`}
+                    className="bg-muted text-muted-foreground hover:bg-primary hover:text-primary-foreground px-3 py-1 rounded-full text-sm transition-colors"
+                  >
+                    {suggestion}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Results */}
         <div className="mb-6">
           <p className="text-muted-foreground">
@@ -249,17 +296,18 @@ const Search = () => {
         ) : sortedNews.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedNews.map((newsItem) => (
-              <Link key={newsItem.id} to={`/noticia/${newsItem.slug || newsItem.id}`}>
-                <NewsCard
-                  title={newsItem.title}
-                  metaDescription={newsItem.subtitle || newsItem.meta_description}
-                  imageUrl={getImageUrl(newsItem)}
-                  category={newsItem.categories.name}
-                  author="Portal ChicoSabeTudo"
-                  publishedAt={format(new Date(newsItem.published_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
-                  isBreaking={newsItem.is_breaking}
-                />
-              </Link>
+              <NewsCard
+                key={newsItem.id}
+                title={newsItem.title}
+                metaDescription={newsItem.subtitle || newsItem.meta_description}
+                imageUrl={getImageUrl(newsItem)}
+                category={newsItem.categories.name}
+                author="Portal ChicoSabeTudo"
+                publishedAt={format(new Date(newsItem.published_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                isBreaking={newsItem.is_breaking}
+                slug={newsItem.slug}
+                categorySlug={newsItem.categories.slug}
+              />
             ))}
           </div>
         ) : (
