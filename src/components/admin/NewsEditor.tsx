@@ -164,6 +164,33 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
           .single();
         savedNewsId = result.data?.id;
         console.log('Created new news:', result);
+
+        // Vincular imagens já enviadas ao storage à nova notícia
+        try {
+          if (savedNewsId && newsImages && newsImages.length > 0) {
+            const imagesToInsert = newsImages.map((img, idx) => ({
+              news_id: savedNewsId,
+              image_url: img.public_url || img.image_url,
+              public_url: img.public_url || img.image_url,
+              path: img.path || null,
+              caption: img.caption || '',
+              is_cover: typeof img.is_cover === 'boolean' ? img.is_cover : idx === 0,
+              sort_order: typeof img.sort_order === 'number' ? img.sort_order : idx,
+            }));
+
+            const { error: imgInsertError } = await supabase
+              .from('news_images')
+              .insert(imagesToInsert);
+
+            if (imgInsertError) {
+              console.error('Erro ao vincular imagens à notícia recém-criada:', imgInsertError);
+            } else {
+              console.log('Imagens vinculadas com sucesso à notícia:', savedNewsId);
+            }
+          }
+        } catch (imgLinkError) {
+          console.error('Exceção ao vincular imagens à notícia recém-criada:', imgLinkError);
+        }
       }
 
       if (result.error) {
