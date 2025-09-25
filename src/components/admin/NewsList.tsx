@@ -113,23 +113,38 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
 
       if (error) throw error;
 
-      // Buscar perfis dos autores separadamente
+      // Buscar perfis dos autores separadamente (incluindo notícias sem author_id)
       const userIds = newsData?.map(news => news.author_id).filter(Boolean) || [];
       let profilesData: any[] = [];
       
       if (userIds.length > 0) {
-        const { data: profiles } = await supabase
+        const { data: profiles, error: profilesError } = await supabase
           .from('profiles')
           .select('user_id, full_name')
           .in('user_id', userIds);
-        profilesData = profiles || [];
+        
+        if (profilesError) {
+          console.error('Error fetching profiles:', profilesError);
+        } else {
+          profilesData = profiles || [];
+        }
       }
 
       // Combinar dados
-      const newsWithProfiles = newsData?.map(news => ({
-        ...news,
-        profiles: profilesData.find(p => p.user_id === news.author_id) || null
-      })) || [];
+      const newsWithProfiles = newsData?.map(news => {
+        if (!news.author_id) {
+          return {
+            ...news,
+            profiles: { full_name: 'Sistema' }
+          };
+        }
+        
+        const profile = profilesData.find(p => p.user_id === news.author_id);
+        return {
+          ...news,
+          profiles: profile || { full_name: 'Usuário Removido' }
+        };
+      }) || [];
 
       setNews(newsWithProfiles as any);
     } catch (error) {
@@ -422,7 +437,15 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
                       <Badge variant="outline">{newsItem.categories?.name || 'Sem categoria'}</Badge>
                     </TableCell>
                     <TableCell>{getStatusBadge(newsItem)}</TableCell>
-                    <TableCell>{newsItem.profiles?.full_name || 'Desconhecido'}</TableCell>
+                    <TableCell>
+                      <span className={`text-sm ${
+                        newsItem.profiles?.full_name === 'Sistema' ? 'text-blue-600' :
+                        newsItem.profiles?.full_name === 'Usuário Removido' ? 'text-red-600' :
+                        'text-foreground'
+                      }`}>
+                        {newsItem.profiles?.full_name || 'Sem autor'}
+                      </span>
+                    </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {formatDate(newsItem.published_at)}
                     </TableCell>
