@@ -55,6 +55,7 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
   const [previewOpen, setPreviewOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [publishedNewsData, setPublishedNewsData] = useState<{ title: string; url: string } | null>(null);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -99,6 +100,16 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
   const handleSave = async (status: 'draft' | 'published' | 'scheduled') => {
     try {
       setLoading(true);
+
+      if (isUploadingImages) {
+        toast({
+          title: "Aguarde uploads terminarem",
+          description: "Conclua o envio das imagens antes de salvar a notícia.",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
 
       if (!user?.id) {
         toast({
@@ -374,6 +385,7 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
             setNewsImages(images);
           }}
           initialImages={newsImages}
+          onUploadingChange={setIsUploadingImages}
         />
 
         {/* Downloads Manager */}
@@ -623,7 +635,7 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
           <Button 
             variant="outline"
             onClick={() => handleSave('draft')}
-            disabled={loading}
+            disabled={loading || isUploadingImages}
           >
             <Save className="w-4 h-4 mr-2" />
             Salvar Rascunho
@@ -632,7 +644,7 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
             <Button
               variant="outline"
               onClick={() => handleSave('scheduled')}
-              disabled={loading || !article.title || !article.metaDescription || !article.content || !article.categoryId}
+              disabled={loading || isUploadingImages || !article.title || !article.metaDescription || !article.content || !article.categoryId}
               className="bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100"
             >
               <Clock className="w-4 h-4 mr-2" />
@@ -641,7 +653,7 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
           )}
           <Button 
             onClick={() => handleSave('published')}
-            disabled={loading || !article.title || !article.metaDescription || !article.content || !article.categoryId}
+            disabled={loading || isUploadingImages || !article.title || !article.metaDescription || !article.content || !article.categoryId}
           >
             <Send className="w-4 h-4 mr-2" />
             {loading ? 'Publicando...' : editingNews ? 'Atualizar' : 'Publicar'}

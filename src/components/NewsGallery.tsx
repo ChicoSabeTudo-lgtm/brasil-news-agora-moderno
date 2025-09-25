@@ -56,6 +56,7 @@ interface NewsGalleryProps {
   isEditor?: boolean;
   onImagesChange?: (images: NewsImage[]) => void;
   initialImages?: NewsImage[];
+  onUploadingChange?: (uploading: boolean) => void;
 }
 
 // Componente para item arrastável da galeria
@@ -174,7 +175,7 @@ const SortableGalleryItem = ({
   );
 };
 
-export default function NewsGallery({ newsId, isEditor = false, onImagesChange, initialImages = [] }: NewsGalleryProps) {
+export default function NewsGallery({ newsId, isEditor = false, onImagesChange, initialImages = [], onUploadingChange }: NewsGalleryProps) {
   const [images, setImages] = useState<NewsImage[]>(initialImages);
   const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
@@ -234,6 +235,7 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
     }
 
     setUploading(true);
+    try { onUploadingChange && onUploadingChange(true); } catch {}
 
     try {
       const imagesToSave: NewsImage[] = [];
@@ -288,10 +290,17 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
         setImages(prev => [...prev, ...imagesToSave]);
       }
 
-      toast({
-        title: "Galeria salva",
-        description: "As imagens foram salvas com sucesso.",
-      });
+      if (newsId) {
+        toast({
+          title: "Galeria salva",
+          description: "As imagens foram salvas com sucesso.",
+        });
+      } else {
+        toast({
+          title: "Imagens enviadas",
+          description: "As imagens serão vinculadas quando você salvar a notícia.",
+        });
+      }
 
       // Limpar o input file para permitir upload da mesma imagem novamente
       event.target.value = '';
@@ -306,6 +315,7 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
     } finally {
       // CORREÇÃO: Sempre definir uploading como false no final
       setUploading(false);
+      try { onUploadingChange && onUploadingChange(false); } catch {}
     }
   };
 
