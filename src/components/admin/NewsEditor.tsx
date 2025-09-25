@@ -130,7 +130,8 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
         is_breaking: article.isBreaking,
         is_featured: article.isFeatured,
         tags: article.tags ? article.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [],
-        author_id: user?.id,
+        // Manter o author_id original se estiver editando, ou usar o usuário atual se for nova notícia
+        author_id: editingNews?.author_id || user?.id,
         // Para publicação direta
         is_published: status === 'published',
         published_at: status === 'published' ? new Date().toISOString() : null,

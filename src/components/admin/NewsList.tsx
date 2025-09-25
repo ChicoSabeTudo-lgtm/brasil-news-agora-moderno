@@ -118,6 +118,7 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
       let profilesData: any[] = [];
       
       if (userIds.length > 0) {
+        // Buscar perfis
         const { data: profiles } = await supabase
           .from('profiles')
           .select('user_id, full_name')
@@ -126,10 +127,16 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
       }
 
       // Combinar dados
-      const newsWithProfiles = newsData?.map(news => ({
-        ...news,
-        profiles: profilesData.find(p => p.user_id === news.author_id) || null
-      })) || [];
+      const newsWithProfiles = newsData?.map(news => {
+        const profile = profilesData.find(p => p.user_id === news.author_id);
+        return {
+          ...news,
+          profiles: profile || {
+            user_id: news.author_id,
+            full_name: news.author_id ? `Usuário ${news.author_id.slice(0, 8)}` : 'Desconhecido'
+          }
+        };
+      }) || [];
 
       setNews(newsWithProfiles as any);
     } catch (error) {
