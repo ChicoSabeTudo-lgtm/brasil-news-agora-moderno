@@ -27,6 +27,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { NewsEditor } from './NewsEditor';
 
@@ -72,6 +73,7 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
   const [editingNews, setEditingNews] = useState<any>(null);
   const [showEditor, setShowEditor] = useState(false);
   const { toast } = useToast();
+  const { userRole } = useAuth();
 
   useEffect(() => {
     fetchNews();
@@ -452,28 +454,37 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
                     <TableCell>{newsItem.views.toLocaleString()}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleEdit(newsItem)}
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleView(newsItem)}
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleDelete(newsItem.id)}
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        {(userRole === 'admin' || userRole === 'redator') && (
+                          <>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleEdit(newsItem)}
+                              title="Editar notícia"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => handleView(newsItem)}
+                              title="Visualizar notícia"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                          </>
+                        )}
+                        {userRole === 'admin' && (
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleDelete(newsItem.id)}
+                            className="text-destructive hover:text-destructive"
+                            title="Excluir notícia"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
