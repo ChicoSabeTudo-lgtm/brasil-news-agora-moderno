@@ -17,7 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Save, Eye, Send, Clock, Calendar as CalendarIcon } from 'lucide-react';
+import { Save, Eye, Send, Clock, Calendar as CalendarIcon, Loader2 } from 'lucide-react';
 import { NewsDownloadManager } from './NewsDownloadManager';
 import NewsGallery from '@/components/NewsGallery';
 import { SimpleImageGallery } from '@/components/SimpleImageGallery';
@@ -549,7 +549,17 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
           </div>
         </div>
 
-        <div className="flex justify-end gap-2 pt-4 border-t">
+        <div className="flex items-center justify-between gap-2 pt-4 border-t">
+          {isUploadingImages ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Enviando imagens...</span>
+            </div>
+          ) : (
+            <div />
+          )}
+          
+          <div className="flex justify-end gap-2">
           <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" disabled={loading}>
@@ -658,6 +668,7 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
             <Send className="w-4 h-4 mr-2" />
             {loading ? 'Publicando...' : editingNews ? 'Atualizar' : 'Publicar'}
           </Button>
+          </div>
         </div>
       </CardContent>
     </Card>
