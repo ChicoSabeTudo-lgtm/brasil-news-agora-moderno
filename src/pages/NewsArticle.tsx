@@ -115,15 +115,14 @@ const NewsArticle = () => {
           throw newsError;
         }
 
-        // Buscar perfil do autor
+        // Buscar perfil do autor via RPC (para contornar RLS)
         let profileData = null;
         if (newsData.author_id) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('full_name')
-            .eq('user_id', newsData.author_id)
-            .single();
-          profileData = profile;
+          const { data: profilesRpc, error: profilesError } = await supabase
+            .rpc('get_public_profiles', { p_user_ids: [newsData.author_id] });
+          if (!profilesError && profilesRpc && profilesRpc.length > 0) {
+            profileData = profilesRpc[0];
+          }
         }
 
         const newsWithProfile = {

@@ -120,16 +120,13 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
       let profilesData: any[] = [];
       
       if (userIds.length > 0) {
-        // Buscar perfis
-        const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('user_id, full_name')
-          .in('user_id', userIds);
-        
-        if (profilesError) {
-          console.error('Error fetching profiles:', profilesError);
+        // Buscar perfis via RPC com SECURITY DEFINER (evita bloqueio de RLS)
+        const { data: profilesRpc, error: rpcError } = await supabase
+          .rpc('get_public_profiles', { p_user_ids: userIds });
+        if (!rpcError) {
+          profilesData = profilesRpc || [];
         } else {
-          profilesData = profiles || [];
+          console.error('Erro ao buscar perfis via RPC:', rpcError);
         }
       }
 
@@ -145,10 +142,7 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
         const profile = profilesData.find(p => p.user_id === news.author_id);
         return {
           ...news,
-          profiles: profile || {
-            user_id: news.author_id,
-            full_name: news.author_id ? `Usuário ${news.author_id.slice(0, 8)}` : 'Desconhecido'
-          }
+          profiles: profile || null
         };
       }) || [];
 

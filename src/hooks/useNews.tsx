@@ -68,16 +68,20 @@ export const useNews = () => {
 
       if (newsError) throw newsError;
 
-      // Buscar perfis dos autores separadamente
+      // Buscar perfis dos autores via RPC (bypass RLS de leitura limitada)
       const userIds = newsData?.map(news => news.author_id).filter(Boolean) || [];
       let profilesData: any[] = [];
-      
+
       if (userIds.length > 0) {
-        const { data: profiles } = await supabase
-          .from('profiles')
-          .select('user_id, full_name')
-          .in('user_id', userIds);
-        profilesData = profiles || [];
+        const { data: profilesRpc, error: profilesError } = await supabase.rpc(
+          'get_public_profiles',
+          { p_user_ids: userIds }
+        );
+        if (!profilesError) {
+          profilesData = profilesRpc || [];
+        } else {
+          console.warn('Falha ao buscar perfis via RPC:', profilesError);
+        }
       }
 
       // Combinar dados
