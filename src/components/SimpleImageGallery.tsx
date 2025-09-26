@@ -100,7 +100,7 @@ export const SimpleImageGallery = ({ images, newsTitle }: SimpleImageGalleryProp
           {currentImage.caption && (
             <div className="absolute inset-x-0 bottom-0" style={{ pointerEvents: 'none' }}>
               <div className="bg-gradient-to-t from-black/60 via-black/30 to-transparent px-4 pt-8 pb-2">
-                <p className="text-white/95 text-xs leading-snug drop-shadow-sm">
+                <p className="text-white text-xs leading-snug drop-shadow-sm" style={{ color: '#ffffff' }}>
                   {currentImage.caption}
                 </p>
               </div>
