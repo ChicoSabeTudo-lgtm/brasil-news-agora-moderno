@@ -173,13 +173,15 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
       let profilesData: any[] = [];
       
       if (userIds.length > 0) {
-        // Buscar perfis via RPC com SECURITY DEFINER (evita bloqueio de RLS)
+        // Buscar perfis dos autores
         const { data: profilesRpc, error: rpcError } = await supabase
-          .rpc('get_public_profiles', { p_user_ids: userIds });
+          .from('profiles')
+          .select('user_id, full_name')
+          .in('user_id', userIds);
         if (!rpcError) {
           profilesData = profilesRpc || [];
         } else {
-          console.error('Erro ao buscar perfis via RPC:', rpcError);
+          console.error('Erro ao buscar perfis:', rpcError);
         }
       }
 

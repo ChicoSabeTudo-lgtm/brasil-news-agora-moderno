@@ -19,7 +19,7 @@ const Internacional = lazy(() => import("./pages/Internacional"));
 const Nacional = lazy(() => import("./pages/Nacional"));
 const Entretenimento = lazy(() => import("./pages/Entretenimento"));
 const Saude = lazy(() => import("./pages/Saude"));
-const DynamicCategoryRoute = lazy(() => import("./components/DynamicCategoryRoute")).then(m => ({ default: m.DynamicCategoryRoute }));
+const DynamicCategoryRoute = lazy(() => import("./components/DynamicCategoryRoute"));
 const NewsArticle = lazy(() => import("./pages/NewsArticle"));
 const Search = lazy(() => import("./pages/Search"));
 const AoVivo = lazy(() => import("./pages/AoVivo"));
