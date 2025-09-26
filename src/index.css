@@ -848,7 +848,8 @@ article .twitter-tweet {
 
 /* Use only one bullet style - the custom one from above */
 .prose .rich-text-content ul:not([class]) li:not([class])::before,
-.prose ul:not([class]) li:not([class])::before {
+.prose ul:not([class]) li:not([class])::before,
+.prose ul li::before {
   content: "";
   @apply absolute left-0 top-2 w-2 h-2 rounded-full;
   background: var(--category-color, hsl(var(--primary)));
@@ -878,6 +879,21 @@ article .twitter-tweet {
 .prose .rich-text-content pre code:not([class]),
 .prose pre code:not([class]) {
   @apply bg-transparent p-0;
+}
+
+/* Forçar remoção de marcadores nativos em qualquer lista dentro de .prose (evita duplicidade) */
+.prose ul,
+.prose ol {
+  list-style: none !important;
+  padding-left: 0;
+}
+
+.prose li {
+  list-style: none !important;
+}
+
+.prose li::marker {
+  content: '' !important;
 }
 
 /* ===================================================================
