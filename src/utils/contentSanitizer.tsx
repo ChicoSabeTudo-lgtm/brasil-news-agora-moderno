@@ -55,6 +55,9 @@ const removeManualBullets = (html: string): string => {
 
   // 3) Remover entidades HTML de bullet (&bull;, &middot;, &deg;) no início do <li>
   cleaned = cleaned.replace(/(<li[^>]*>)\s*(?:&bull;|&middot;|&deg;|&#8226;|&#183;|&#176;)\s*/gi, '$1');
+  
+  // 3.1) Remover indicador ordinal usado como marcador no início (º, ª)
+  cleaned = cleaned.replace(/(<li[^>]*>)\s*[ºª]\s*/gi, '$1');
 
   // 4) Casos em que o glifo aparece como primeiro caractere de texto dentro do <li>
   cleaned = cleaned.replace(new RegExp(`(<li[^>]*>)(?:\\s|&nbsp;)*${bulletClass}\\s*`, 'gi'), '$1');
@@ -71,6 +74,8 @@ const removeManualBullets = (html: string): string => {
   // 7) <li><p>° ...</p></li> e variantes com entidades
   cleaned = cleaned.replace(new RegExp(`(<li[^>]*>\\s*<p[^>]*>)\\s*${bulletClass}\\s*`, 'gi'), '$1');
   cleaned = cleaned.replace(/(<li[^>]*>\s*<p[^>]*>)\s*(?:&deg;|&bull;|&middot;|&#8226;|&#183;|&#176;)\s*/gi, '$1');
+  // 7.1) Versão com indicador ordinal dentro do <p>
+  cleaned = cleaned.replace(/(<li[^>]*>\s*<p[^>]*>)\s*[ºª]\s*/gi, '$1');
 
   return cleaned;
 };
