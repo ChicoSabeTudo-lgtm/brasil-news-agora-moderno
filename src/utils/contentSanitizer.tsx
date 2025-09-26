@@ -39,22 +39,22 @@ const removeManualBullets = (html: string): string => {
 
   let cleaned = html;
 
-  // Lista de glifos de marcadores comuns (inclui &bull;)
-  const bullets = '•◦▪▫·‣⁃●○◘◙•';
+  // Lista de glifos de marcadores comuns (inclui &bull; e símbolo de grau)
+  const bullets = '•◦▪▫·‣⁃●○◘◙°';
   const bulletClass = `[${bullets}]`;
 
   // 1) <li> com glifo logo no início (com ou sem espaços)
   cleaned = cleaned.replace(new RegExp(`<li[^>]*>\\s*${bulletClass}\\s*`, 'gi'), '<li>');
 
-  // 2) <li> com glifo após tags inline (span/strong/em/b/i/u)
+  // 2) <li> com glifo após tags inline (p/span/strong/em/b/i/u)
   //    Ex.: <li><span>•</span> Texto
   cleaned = cleaned.replace(
-    new RegExp(`(<li[^>]*>)(?:\\s*<(?:span|strong|em|b|i|u)[^>]*>\\s*)*${bulletClass}\\s*`, 'gi'),
+    new RegExp(`(<li[^>]*>)(?:\\s*<(?:p|span|strong|em|b|i|u)[^>]*>\\s*)*${bulletClass}\\s*`, 'gi'),
     '$1'
   );
 
-  // 3) Remover entidades HTML de bullet (&bull;, &middot;) no início do <li>
-  cleaned = cleaned.replace(/(<li[^>]*>)\s*(?:&bull;|&middot;|&#8226;|&#183;)\s*/gi, '$1');
+  // 3) Remover entidades HTML de bullet (&bull;, &middot;, &deg;) no início do <li>
+  cleaned = cleaned.replace(/(<li[^>]*>)\s*(?:&bull;|&middot;|&deg;|&#8226;|&#183;|&#176;)\s*/gi, '$1');
 
   // 4) Casos em que o glifo aparece como primeiro caractere de texto dentro do <li>
   cleaned = cleaned.replace(new RegExp(`(<li[^>]*>)(?:\\s|&nbsp;)*${bulletClass}\\s*`, 'gi'), '$1');
@@ -64,9 +64,13 @@ const removeManualBullets = (html: string): string => {
 
   // 6) Se por algum motivo um glifo ainda sobrar no começo de um nó de texto após tags inline
   cleaned = cleaned.replace(
-    new RegExp(`(<li[^>]*>(?:\\s*<(?:span|strong|em|b|i|u)[^>]*>)*)(?:\\s|&nbsp;)*${bulletClass}\\s*`, 'gi'),
+    new RegExp(`(<li[^>]*>(?:\\s*<(?:p|span|strong|em|b|i|u)[^>]*>)*)(?:\\s|&nbsp;)*${bulletClass}\\s*`, 'gi'),
     '$1'
   );
+
+  // 7) <li><p>° ...</p></li> e variantes com entidades
+  cleaned = cleaned.replace(new RegExp(`(<li[^>]*>\\s*<p[^>]*>)\\s*${bulletClass}\\s*`, 'gi'), '$1');
+  cleaned = cleaned.replace(/(<li[^>]*>\s*<p[^>]*>)\s*(?:&deg;|&bull;|&middot;|&#8226;|&#183;|&#176;)\s*/gi, '$1');
 
   return cleaned;
 };
