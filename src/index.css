@@ -1277,6 +1277,11 @@ article .twitter-tweet {
 /* Quando há bloco de anúncio entre galeria e conteúdo, reduzir o espaçamento acumulado */
 .news-content .simple-image-gallery + .no-print { margin-top: 0.25rem !important; }
 .news-content .no-print + .processed-content { margin-top: 0.5rem !important; }
+/* Reduzir margens internas do contêiner de anúncios no fluxo do artigo */
+.news-content .advertisement-space { 
+  margin-top: 0.5rem !important; 
+  margin-bottom: 0.75rem !important; 
+}
 
 /* Evitar que parágrafos vazios criem espaçamento extra */
 .news-content p:empty { display: none; margin: 0; padding: 0; }
