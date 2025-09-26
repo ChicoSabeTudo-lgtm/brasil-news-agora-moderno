@@ -130,6 +130,38 @@ export const RichTextEditor = ({
           });
           return clean;
         }],
+        // Remover iframes colados (evita criar blots de vídeo automáticos)
+        ['iframe', () => {
+          const Delta = QuillRef.import('delta');
+          return new Delta();
+        }],
+        // Remover scripts/estilos/noscript
+        ['script', () => {
+          const Delta = QuillRef.import('delta');
+          return new Delta();
+        }],
+        ['style', () => {
+          const Delta = QuillRef.import('delta');
+          return new Delta();
+        }],
+        ['noscript', () => {
+          const Delta = QuillRef.import('delta');
+          return new Delta();
+        }],
+        // Remover blocos de compartilhamento/redes sociais comuns ao colar
+        ['div', (node: HTMLElement, delta: any) => {
+          const className = (node.getAttribute('class') || '').toLowerCase();
+          const id = (node.getAttribute('id') || '').toLowerCase();
+          const text = (node.textContent || '').trim().toLowerCase();
+          const looksLikeShare = /share|social|compartilh|wp-block-embed|instagram|twitter|facebook|tiktok|player|youtube/.test(className + ' ' + id);
+          const containsIframe = !!node.querySelector?.('iframe');
+          const isShareHeading = ['compartilhar', 'compartilhe'].includes(text);
+          if (looksLikeShare || containsIframe || isShareHeading) {
+            const Delta = QuillRef.import('delta');
+            return new Delta();
+          }
+          return delta;
+        }],
         // Remover parágrafos completamente vazios
         ['p', (node: HTMLElement, delta: any) => {
           const html = node.innerHTML || '';
