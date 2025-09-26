@@ -73,6 +73,7 @@ const App = () => (
             <Route path="/sitemap.xml" element={<Sitemap />} />
             <Route path="/noticia/:id" element={<NewsArticle />} />
             <Route path="/:categorySlug/:slug" element={<NewsArticle />} />
+            <Route path="/:categorySlug/:slug/:id" element={<NewsArticle />} />
             {/* Rota dinâmica para todas as categorias */}
             <Route path="/:categorySlug" element={<DynamicCategoryRoute />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

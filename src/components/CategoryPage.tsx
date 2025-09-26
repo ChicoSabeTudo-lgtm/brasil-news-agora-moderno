@@ -257,7 +257,7 @@ export const CategoryPage = ({ category, categoryColor = "#0066cc", description 
                     {breakingNews.slice(0, 3).map((news) => (
                       <Link 
                         key={news.id}
-                        to={`/${news.categories?.slug}/${news.slug}`}
+                        to={news.slug && news.categories?.slug ? `/${news.categories?.slug}/${news.slug}` : `/noticia/${news.id}`}
                         className="block p-3 hover:bg-muted rounded-lg transition-colors"
                       >
                         <h4 className="font-semibold text-sm line-clamp-2 mb-1">

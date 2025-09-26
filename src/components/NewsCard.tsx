@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 
 interface NewsCardProps {
+  id?: string;
   title: string;
   metaDescription: string;
   imageUrl: string;
@@ -17,6 +18,7 @@ interface NewsCardProps {
 }
 
 export const NewsCard = ({
+  id,
   title,
   metaDescription,
   imageUrl,
@@ -41,7 +43,7 @@ export const NewsCard = ({
   };
 
   // Gerar link no formato: /categoria/titulo-da-noticia
-  const newsLink = slug && categorySlug ? `/${categorySlug}/${slug}` : '#';
+  const newsLink = slug && categorySlug ? `/${categorySlug}/${slug}` : (id ? `/noticia/${id}` : '#');
 
   const cardContent = (
     <>
@@ -91,7 +93,7 @@ export const NewsCard = ({
     </>
   );
 
-  if (slug && categorySlug) {
+  if (newsLink !== '#') {
     return (
       <Link to={newsLink}>
         <Card className="group overflow-hidden hover:shadow-card hover:scale-105 transition-all duration-300 cursor-pointer animate-slide-up news-card-hover">
