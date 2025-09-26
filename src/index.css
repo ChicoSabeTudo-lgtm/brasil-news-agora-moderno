@@ -1269,7 +1269,7 @@ article .twitter-tweet {
 }
 
 /* Reduzir espaço após imagens com legenda (galeria simples e container com legenda) */
-.news-content .simple-image-gallery { margin-bottom: 0.5rem; }
+.news-content .simple-image-gallery { margin-bottom: 0.25rem; }
 .news-content .simple-image-gallery + * { margin-top: 0.25rem; }
 .news-content .image-container { margin-bottom: 0.75rem; }
 .news-content .image-container + * { margin-top: 0.5rem; }

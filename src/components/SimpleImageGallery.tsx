@@ -96,12 +96,14 @@ export const SimpleImageGallery = ({ images, newsTitle }: SimpleImageGalleryProp
             </>
           )}
 
-          {/* Legenda */}
+          {/* Legenda sobreposta (overlay) na base da imagem */}
           {currentImage.caption && (
-            <div className="absolute bottom-0 left-0 right-0 bg-gray-50 p-4" style={{ boxShadow: 'none' }}>
-              <p className="text-gray-800 text-xs leading-relaxed" style={{ color: '#374151', textShadow: 'none', fontSize: '0.75rem' }}>
-                {currentImage.caption}
-              </p>
+            <div className="absolute inset-x-0 bottom-0" style={{ pointerEvents: 'none' }}>
+              <div className="bg-gradient-to-t from-black/60 via-black/30 to-transparent px-4 pt-8 pb-2">
+                <p className="text-white/95 text-xs leading-snug drop-shadow-sm">
+                  {currentImage.caption}
+                </p>
+              </div>
             </div>
           )}
         </div>
