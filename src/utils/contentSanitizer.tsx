@@ -40,7 +40,7 @@ const removeManualBullets = (html: string): string => {
   let cleaned = html;
 
   // Lista de glifos de marcadores comuns (inclui &bull; e símbolo de grau)
-  const bullets = '•◦▪▫·‣⁃●○◘◙°';
+  const bullets = '•◦▪▫·‣⁃●○◘◙°˚∘';
   const bulletClass = `[${bullets}]`;
 
   // 1) <li> com glifo logo no início (com ou sem espaços)
