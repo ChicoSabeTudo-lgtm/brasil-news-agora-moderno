@@ -171,6 +171,38 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
         throw result.error;
       }
       
+      // Persist pending images uploaded before the news existed (no image.id yet)
+      if (savedNewsId && newsImages && newsImages.length > 0) {
+        try {
+          const pending = newsImages.filter((img: any) => !img.id);
+          if (pending.length > 0) {
+            const rows = pending.map((img: any, idx: number) => ({
+              news_id: savedNewsId,
+              image_url: img.public_url || img.image_url,
+              path: img.path || null,
+              caption: img.caption || null,
+              is_cover: !!img.is_cover,
+              sort_order: typeof img.sort_order === 'number' ? img.sort_order : idx,
+            }));
+            const { error: imgsError } = await supabase
+              .from('news_images')
+              .insert(rows);
+            if (imgsError) {
+              console.error('Erro ao salvar imagens pendentes:', imgsError);
+              toast({
+                title: 'Imagens não salvas',
+                description: 'As imagens não puderam ser vinculadas à notícia. Tente editar a notícia e reenviar as imagens.',
+                variant: 'destructive',
+              });
+            } else {
+              console.log('Imagens pendentes salvas para a notícia:', savedNewsId);
+            }
+          }
+        } catch (e) {
+          console.error('Exceção ao salvar imagens pendentes:', e);
+        }
+      }
+      
       // Handle scheduling with pg_cron if status is 'scheduled'
       if (status === 'scheduled' && article.scheduledPublishAt && savedNewsId) {
         try {
