@@ -1269,14 +1269,14 @@ article .twitter-tweet {
 }
 
 /* Reduzir espaço após imagens com legenda (galeria simples e container com legenda) */
-.news-content .simple-image-gallery { margin-bottom: 0.75rem; }
-.news-content .simple-image-gallery + * { margin-top: 0.75rem; }
+.news-content .simple-image-gallery { margin-bottom: 1rem; }
+.news-content .simple-image-gallery + * { margin-top: 1rem; }
 .news-content .image-container { margin-bottom: 0.75rem; }
 .news-content .image-container + * { margin-top: 0.5rem; }
 
 /* Quando há bloco de anúncio entre galeria e conteúdo, reduzir o espaçamento acumulado */
-.news-content .simple-image-gallery + .no-print { margin-top: 0.25rem !important; }
-.news-content .no-print + .processed-content { margin-top: 0.5rem !important; }
+.news-content .simple-image-gallery + .no-print { margin-top: 0.5rem !important; }
+.news-content .no-print + .processed-content { margin-top: 0.75rem !important; }
 /* Reduzir margens internas do contêiner de anúncios no fluxo do artigo */
 .news-content .advertisement-space { 
   margin-top: 0.5rem !important; 
