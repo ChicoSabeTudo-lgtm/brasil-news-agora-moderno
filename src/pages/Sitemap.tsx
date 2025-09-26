@@ -7,7 +7,8 @@ const Sitemap = () => {
   useEffect(() => {
     const fetchSitemap = async () => {
       try {
-        const response = await fetch('https://spgusjrjrhfychhdwixn.supabase.co/functions/v1/sitemap');
+      const base = (import.meta.env.VITE_SUPABASE_URL || '').replace(/\/$/, '');
+      const response = await fetch(`${base}/functions/v1/sitemap`);
         const content = await response.text();
         setSitemapContent(content);
       } catch (error) {

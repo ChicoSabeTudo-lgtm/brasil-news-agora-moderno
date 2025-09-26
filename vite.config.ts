@@ -19,4 +19,22 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react-router')) return 'router';
+            if (id.includes('@radix-ui') || id.includes('lucide-react')) return 'ui';
+            if (id.includes('react-quill')) return 'editor';
+            if (id.includes('@supabase')) return 'supabase';
+            return 'vendor';
+          }
+          if (id.includes('/src/pages/ModernAdmin') || id.includes('/src/components/admin/')) return 'admin';
+          return undefined;
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1200,
+  },
 }));
