@@ -289,11 +289,24 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
           news_id: newsId // Garantir que news_id sempre esteja presente
         }));
         
-        const { error } = await supabase
-          .from('news_images')
-          .insert(validImages);
+        let error: any = null;
+        try {
+          const res = await supabase.from('news_images').insert(validImages);
+          error = res.error;
+        } catch (e) {
+          error = e;
+        }
 
-        if (error) throw error;
+        if (error) {
+          const msg = String(error?.message || error);
+          if (msg.includes('column') && msg.includes('credit')) {
+            const withoutCredit = validImages.map(({ credit, ...rest }) => rest);
+            const { error: retryErr } = await supabase.from('news_images').insert(withoutCredit);
+            if (retryErr) throw retryErr;
+          } else {
+            throw error;
+          }
+        }
 
         // Recarregar para obter IDs
         await fetchImages();

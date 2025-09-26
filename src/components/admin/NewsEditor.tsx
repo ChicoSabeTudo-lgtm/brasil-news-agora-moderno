@@ -185,16 +185,38 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
               is_cover: !!img.is_cover,
               sort_order: typeof img.sort_order === 'number' ? img.sort_order : idx,
             }));
-            const { error: imgsError } = await supabase
-              .from('news_images')
-              .insert(rows);
+            let imgsError: any = null;
+            try {
+              const res = await supabase.from('news_images').insert(rows);
+              imgsError = res.error;
+            } catch (e) {
+              imgsError = e;
+            }
+
             if (imgsError) {
-              console.error('Erro ao salvar imagens pendentes:', imgsError);
-              toast({
-                title: 'Imagens não salvas',
-                description: 'As imagens não puderam ser vinculadas à notícia. Tente editar a notícia e reenviar as imagens.',
-                variant: 'destructive',
-              });
+              const msg = String(imgsError?.message || imgsError);
+              // Fallback: backend sem coluna credit
+              if (msg.includes('column') && msg.includes('credit')) {
+                const rowsNoCredit = rows.map(({ credit, ...rest }) => rest);
+                const { error: retryErr } = await supabase.from('news_images').insert(rowsNoCredit);
+                if (retryErr) {
+                  console.error('Falha no fallback de imagens pendentes:', retryErr);
+                  toast({
+                    title: 'Imagens não salvas',
+                    description: 'As imagens não puderam ser vinculadas à notícia. Tente editar a notícia e reenviar as imagens.',
+                    variant: 'destructive',
+                  });
+                } else {
+                  console.log('Imagens pendentes salvas (sem crédito) para a notícia:', savedNewsId);
+                }
+              } else {
+                console.error('Erro ao salvar imagens pendentes:', imgsError);
+                toast({
+                  title: 'Imagens não salvas',
+                  description: 'As imagens não puderam ser vinculadas à notícia. Tente editar a notícia e reenviar as imagens.',
+                  variant: 'destructive',
+                });
+              }
             } else {
               console.log('Imagens pendentes salvas para a notícia:', savedNewsId);
             }

@@ -89,6 +89,7 @@ const NewsArticle = () => {
               path,
               is_cover,
               caption,
+              credit,
               sort_order
             )
           `)
