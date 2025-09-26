@@ -1268,6 +1268,16 @@ article .twitter-tweet {
   margin-top: 1.5rem;
 }
 
+/* Reduzir espaço após imagens com legenda (galeria simples e container com legenda) */
+.news-content .simple-image-gallery { margin-bottom: 0.75rem; }
+.news-content .simple-image-gallery + * { margin-top: 0.5rem; }
+.news-content .image-container { margin-bottom: 0.75rem; }
+.news-content .image-container + * { margin-top: 0.5rem; }
+
+/* Evitar que parágrafos vazios criem espaçamento extra */
+.news-content p:empty { display: none; margin: 0; padding: 0; }
+.news-content p:has(br:only-child) { display: none; }
+
 .news-content > h2 + * {
   margin-top: 1rem;
 }

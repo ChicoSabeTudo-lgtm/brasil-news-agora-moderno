@@ -94,7 +94,10 @@ export const sanitizeHtml = (html: string): string => {
   }
   
   // Remove manual bullets first
-  const processedHtml = removeManualBullets(html);
+  let processedHtml = removeManualBullets(html);
+
+  // Remover parágrafos vazios ou com apenas espaços/&nbsp;/<br>
+  processedHtml = processedHtml.replace(/<p>(?:\s|&nbsp;|<br\s*\/?>)*<\/p>/gi, '');
   
   // Debug: Log processed HTML if it was changed
   if (process.env.NODE_ENV === 'development' && processedHtml !== html && html.includes('<li>')) {
