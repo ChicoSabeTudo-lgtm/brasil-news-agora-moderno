@@ -181,6 +181,7 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
               image_url: img.public_url || img.image_url,
               path: img.path || null,
               caption: img.caption || null,
+              credit: img.credit || null,
               is_cover: !!img.is_cover,
               sort_order: typeof img.sort_order === 'number' ? img.sort_order : idx,
             }));

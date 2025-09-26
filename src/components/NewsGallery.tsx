@@ -45,6 +45,7 @@ interface NewsImage {
   path?: string;
   public_url?: string;
   caption?: string;
+  credit?: string;
   is_cover: boolean;
   sort_order: number;
   created_at?: string;
@@ -65,6 +66,7 @@ const SortableGalleryItem = ({
   index,
   isEditor,
   onCaptionChange,
+  onCreditChange,
   onSetCover,
   onRemove,
   onRotate,
@@ -74,6 +76,7 @@ const SortableGalleryItem = ({
   index: number;
   isEditor: boolean;
   onCaptionChange: (index: number, caption: string) => void;
+  onCreditChange: (index: number, credit: string) => void;
   onSetCover: (index: number) => void;
   onRemove: (index: number) => void;
   onRotate: (index: number) => void;
@@ -140,6 +143,14 @@ const SortableGalleryItem = ({
                 {image.caption}
               </p>
             )
+          )}
+          {isEditor && (
+            <Input
+              value={image.credit || ''}
+              onChange={(e) => onCreditChange(index, e.target.value)}
+              placeholder="Créditos da imagem (opcional)"
+              className="mt-2"
+            />
           )}
         </div>
 
@@ -262,6 +273,7 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
           path: uploadData.path,
           public_url: publicUrl,
           caption: '',
+          credit: '',
           is_cover: images.length === 0 && i === 0, // Primeira imagem como capa se não houver outras
           sort_order: images.length + i,
           news_id: newsId,
@@ -381,6 +393,7 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
                     index={index}
                     isEditor={canEdit}
                     onCaptionChange={handleCaptionChange}
+                    onCreditChange={handleCreditChange}
                     onSetCover={handleSetCover}
                     onRemove={handleRemoveImage}
                     onRotate={handleRotateImage}
@@ -459,6 +472,23 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
         .eq('id', image.id)
         .then(({ error }) => {
           if (error) console.error('Erro ao salvar legenda:', error);
+        });
+    }
+  }
+
+  function handleCreditChange(index: number, credit: string) {
+    setImages(prev => prev.map((img, i) => 
+      i === index ? { ...img, credit } : img
+    ));
+
+    const image = images[index];
+    if (image?.id) {
+      supabase
+        .from('news_images')
+        .update({ credit })
+        .eq('id', image.id)
+        .then(({ error }) => {
+          if (error) console.error('Erro ao salvar créditos da imagem:', error);
         });
     }
   }

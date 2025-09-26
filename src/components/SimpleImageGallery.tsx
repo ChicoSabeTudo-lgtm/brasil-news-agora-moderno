@@ -8,6 +8,7 @@ interface NewsImage {
   public_url?: string;
   path?: string;
   caption?: string;
+  credit?: string;
   is_cover: boolean;
   sort_order: number;
 }
