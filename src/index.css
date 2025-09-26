@@ -743,7 +743,8 @@ article .twitter-tweet {
 .prose h5:not([class]),
 .prose .rich-text-content h6,
 .prose h6:not([class]) {
-  @apply text-foreground font-bold mt-8 mb-4 leading-tight;
+  @apply font-bold mt-8 mb-4 leading-tight;
+  color: hsl(var(--foreground));
 }
 
 .prose .rich-text-content h1,
@@ -776,6 +777,21 @@ article .twitter-tweet {
   @apply text-base;
 }
 
+/* Títulos em artigos: h2–h6 alinhados à esquerda e com cor da categoria */
+.prose .rich-text-content h2,
+.prose h2:not([class]),
+.prose .rich-text-content h3,
+.prose h3:not([class]),
+.prose .rich-text-content h4,
+.prose h4:not([class]),
+.prose .rich-text-content h5,
+.prose h5:not([class]),
+.prose .rich-text-content h6,
+.prose h6:not([class]) {
+  text-align: left;
+  color: var(--category-color, hsl(var(--primary)));
+}
+
 .prose .rich-text-content p,
 .prose p:not([class]) {
   @apply mb-4 leading-relaxed text-foreground;
@@ -805,7 +821,9 @@ article .twitter-tweet {
 
 .prose .rich-text-content blockquote,
 .prose blockquote:not([class]) {
-  @apply border-l-4 border-primary pl-4 my-6 italic text-muted-foreground bg-muted/20 py-4 rounded-r;
+  @apply border-l-4 pl-4 my-6 italic bg-muted/20 py-4 rounded-r;
+  border-color: var(--category-color, hsl(var(--primary)));
+  color: var(--category-color, hsl(var(--primary)));
 }
 
 .prose .rich-text-content ul:not([class]),
@@ -830,12 +848,19 @@ article .twitter-tweet {
 .prose .rich-text-content ul:not([class]) li:not([class])::before,
 .prose ul:not([class]) li:not([class])::before {
   content: "";
-  @apply absolute left-0 top-2 w-2 h-2 bg-primary rounded-full;
+  @apply absolute left-0 top-2 w-2 h-2 rounded-full;
+  background: var(--category-color, hsl(var(--primary)));
 }
 
 .prose .rich-text-content a:not([class]),
 .prose a:not([class]) {
-  @apply text-primary underline hover:text-primary/80 transition-colors duration-200;
+  @apply underline transition-colors duration-200;
+  color: var(--category-color, hsl(var(--primary)));
+}
+
+.prose .rich-text-content a:not([class]):hover,
+.prose a:not([class]):hover {
+  color: color-mix(in oklab, var(--category-color, hsl(var(--primary))) 80%, black 20%);
 }
 
 .prose .rich-text-content code:not([class]),
@@ -901,7 +926,8 @@ article .twitter-tweet {
   line-height: 1.4;
   margin-top: 2.5rem;
   margin-bottom: 1rem;
-  color: hsl(var(--foreground));
+  color: var(--category-color, hsl(var(--primary)));
+  text-align: left;
   border-left: 4px solid var(--category-color, hsl(var(--primary)));
   padding-left: 1rem;
 }
@@ -918,7 +944,8 @@ article .twitter-tweet {
   line-height: 1.4;
   margin-top: 2rem;
   margin-bottom: 0.8rem;
-  color: hsl(var(--foreground));
+  color: var(--category-color, hsl(var(--primary)));
+  text-align: left;
   border-left: 3px solid var(--category-color, hsl(var(--primary)));
   padding-left: 1rem;
 }
@@ -929,9 +956,17 @@ article .twitter-tweet {
   line-height: 1.4;
   margin-top: 1.5rem;
   margin-bottom: 0.8rem;
-  color: hsl(var(--foreground));
+  color: var(--category-color, hsl(var(--primary)));
+  text-align: left;
   border-left: 2px solid var(--category-color, hsl(var(--primary)));
   padding-left: 1rem;
+}
+
+/* Estender para h5/h6 */
+.news-content h5,
+.news-content h6 {
+  color: var(--category-color, hsl(var(--primary)));
+  text-align: left;
 }
 
 /* Parágrafos - Formatação principal */
@@ -962,9 +997,9 @@ article .twitter-tweet {
   margin: 2rem 0;
   padding: 1.5rem 2rem;
   background: hsl(var(--muted) / 0.3);
-  border-left: 5px solid hsl(var(--primary));
+  border-left: 5px solid var(--category-color, hsl(var(--primary)));
   border-radius: 0 8px 8px 0;
-  color: hsl(var(--muted-foreground));
+  color: var(--category-color, hsl(var(--primary)));
 }
 
 .news-content blockquote p {
@@ -990,6 +1025,12 @@ article .twitter-tweet {
 .news-content li {
   margin-bottom: 0.8rem;
   line-height: 1.7;
+}
+
+/* Cor dos marcadores conforme a categoria */
+.news-content ul li::marker,
+.news-content ol li::marker {
+  color: var(--category-color, hsl(var(--primary)));
 }
 
 /* Links com estilo profissional - usando cor da categoria */
