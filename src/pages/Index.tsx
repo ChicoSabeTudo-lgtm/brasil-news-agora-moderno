@@ -238,7 +238,7 @@ const Index = () => {
         {newsItems.map(news => <div key={news.id} className="flex gap-4 p-4 bg-card rounded-lg hover:shadow-card transition-shadow cursor-pointer group">
             <img src={news.imageUrl} alt={news.title} className="w-24 h-24 object-cover rounded flex-shrink-0" />
             <div className="flex-1">
-              <Link to={`/${news.categorySlug}/${news.slug}`}>
+              <Link to={news.slug && news.categorySlug ? `/${news.categorySlug}/${news.slug}` : `/noticia/${news.id}`}>
                 <h3 className="font-semibold text-lg line-clamp-2 transition-colors mb-2 hover:opacity-80" style={{
               "--hover-color": category.color
             } as any} onMouseEnter={e => e.currentTarget.style.color = category.color} onMouseLeave={e => e.currentTarget.style.color = ''}>
@@ -286,7 +286,7 @@ const Index = () => {
             {newsItems.slice(1).map(news => <div key={news.id} className="flex gap-4 p-4 bg-card rounded-lg hover:shadow-card transition-shadow cursor-pointer group">
                 <img src={news.imageUrl} alt={news.title} className="w-20 h-20 object-cover rounded flex-shrink-0" />
                 <div className="flex-1">
-                  <Link to={`/${news.categorySlug}/${news.slug}`}>
+                  <Link to={news.slug && news.categorySlug ? `/${news.categorySlug}/${news.slug}` : `/noticia/${news.id}`}>
                     <h3 className="font-semibold text-sm line-clamp-2 transition-colors mb-1" onMouseEnter={e => e.currentTarget.style.color = category.color} onMouseLeave={e => e.currentTarget.style.color = ''}>
                       {news.title}
                     </h3>

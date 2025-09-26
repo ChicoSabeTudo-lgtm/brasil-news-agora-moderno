@@ -75,24 +75,26 @@ const NewsArticle = () => {
           pathname: window.location.pathname 
         });
         
+        const selectClause = `
+          *,
+          categories (
+            name,
+            slug
+          ),
+          news_images (
+            image_url,
+            public_url,
+            path,
+            is_cover,
+            caption,
+            credit,
+            sort_order
+          )
+        `;
+
         let query = supabase
           .from('news')
-          .select(`
-            *,
-            categories!inner (
-              name,
-              slug
-            ),
-            news_images (
-              image_url,
-              public_url,
-              path,
-              is_cover,
-              caption,
-              credit,
-              sort_order
-            )
-          `)
+          .select(selectClause)
           .eq('is_published', true);
 
         // Buscar por slug ou por ID (compatibilidade com rotas antigas)
@@ -107,7 +109,21 @@ const NewsArticle = () => {
           throw new Error('Parâmetros inválidos');
         }
 
-        const { data: newsData, error: newsError } = await query.single();
+        let { data: newsData, error: newsError } = await query.single();
+
+        // Fallback: if not found by slug (e.g., missing slug), try by id if available
+        if ((newsError || !newsData) && slug && id) {
+          const { data: byId, error: byIdErr } = await supabase
+            .from('news')
+            .select(selectClause)
+            .eq('is_published', true)
+            .eq('id', id)
+            .single();
+          if (!byIdErr && byId) {
+            newsData = byId;
+            newsError = null as any;
+          }
+        }
 
         console.log('🔍 Resultado da consulta:', { newsData, newsError });
 
@@ -756,9 +772,9 @@ const NewsArticle = () => {
               <div className="space-y-4">
                 {relatedNews.length > 0 ? (
                   relatedNews.map((relatedItem) => (
-                    <Link 
+                  <Link 
                       key={relatedItem.id}
-                      to={`/${relatedItem.categories.slug}/${relatedItem.slug}`}
+                      to={relatedItem.slug && relatedItem.categories?.slug ? `/${relatedItem.categories.slug}/${relatedItem.slug}` : `/noticia/${relatedItem.id}`}
                       className="flex gap-3 p-3 hover:bg-muted rounded-lg cursor-pointer group transition-colors"
                     >
                       {relatedItem.news_images?.[0] && (
