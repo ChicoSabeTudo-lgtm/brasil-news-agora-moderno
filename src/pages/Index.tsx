@@ -12,6 +12,7 @@ import { useVideos } from "@/hooks/useVideos";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { getBestVideoThumbnail } from "@/utils/videoUtils";
+import { publicStorageUrl } from "@/utils/imageUtils";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 
 // Import default images
@@ -92,7 +93,7 @@ const Index = () => {
       
       // Fallback to path construction
       if (firstImage.path) {
-        return `https://spgusjrjrhfychhdwixn.supabase.co/storage/v1/object/public/news-images/${firstImage.path}`;
+        return publicStorageUrl(`news-images/${firstImage.path}`);
       }
       
       return imageUrl;

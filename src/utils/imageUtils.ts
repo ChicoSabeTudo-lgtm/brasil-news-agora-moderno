@@ -17,7 +17,7 @@ export function getImageUrl(image: NewsImage): string {
   }
   
   if (image.path && image.path.trim() !== '') {
-    return `https://spgusjrjrhfychhdwixn.supabase.co/storage/v1/object/public/news-images/${image.path}`;
+    return publicStorageUrl(`news-images/${image.path}`);
   }
   
   return '';
@@ -29,4 +29,10 @@ export function getCoverImage(images: NewsImage[]): NewsImage | undefined {
 
 export function getNonCoverImages(images: NewsImage[]): NewsImage[] {
   return images.filter(img => !img.is_cover).sort((a, b) => a.sort_order - b.sort_order);
+}
+export function publicStorageUrl(path: string): string {
+  const base = (import.meta.env.VITE_SUPABASE_URL || '').replace(/\/$/, '');
+  const clean = (path || '').replace(/^\//, '');
+  if (!base) return `/${clean}`;
+  return `${base}/storage/v1/object/public/${clean}`;
 }

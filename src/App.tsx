@@ -3,35 +3,36 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Suspense, lazy } from "react";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { SiteCodeInjector } from "@/components/SiteCodeInjector";
 import { EmbedBridge } from "@/components/EmbedBridge";
 
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import Politica from "./pages/Politica";
-import Economia from "./pages/Economia";
-import Esportes from "./pages/Esportes";
-import Tecnologia from "./pages/Tecnologia";
-import Internacional from "./pages/Internacional";
-import Nacional from "./pages/Nacional";
-import Entretenimento from "./pages/Entretenimento";
-import Saude from "./pages/Saude";
-import { DynamicCategoryRoute } from "./components/DynamicCategoryRoute";
-import NewsArticle from "./pages/NewsArticle";
-import Search from "./pages/Search";
-import AoVivo from "./pages/AoVivo";
-import Auth from "./pages/Auth";
-import ModernAdmin from "./pages/ModernAdmin";
-import Contact from "./pages/Contact";
-import Advertise from "./pages/Advertise";
-import Videos from "./pages/Videos";
-import SiteConfigurations from "./pages/SiteConfigurations";
-import AdsTxt from "./pages/AdsTxt";
-import Profile from "./pages/Profile";
-import Sitemap from "./pages/Sitemap";
-import RobotsTxt from "./pages/RobotsTxt";
+const Index = lazy(() => import("./pages/Index"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const Politica = lazy(() => import("./pages/Politica"));
+const Economia = lazy(() => import("./pages/Economia"));
+const Esportes = lazy(() => import("./pages/Esportes"));
+const Tecnologia = lazy(() => import("./pages/Tecnologia"));
+const Internacional = lazy(() => import("./pages/Internacional"));
+const Nacional = lazy(() => import("./pages/Nacional"));
+const Entretenimento = lazy(() => import("./pages/Entretenimento"));
+const Saude = lazy(() => import("./pages/Saude"));
+const DynamicCategoryRoute = lazy(() => import("./components/DynamicCategoryRoute")).then(m => ({ default: m.DynamicCategoryRoute }));
+const NewsArticle = lazy(() => import("./pages/NewsArticle"));
+const Search = lazy(() => import("./pages/Search"));
+const AoVivo = lazy(() => import("./pages/AoVivo"));
+const Auth = lazy(() => import("./pages/Auth"));
+const ModernAdmin = lazy(() => import("./pages/ModernAdmin"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Advertise = lazy(() => import("./pages/Advertise"));
+const Videos = lazy(() => import("./pages/Videos"));
+const SiteConfigurations = lazy(() => import("./pages/SiteConfigurations"));
+const AdsTxt = lazy(() => import("./pages/AdsTxt"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Sitemap = lazy(() => import("./pages/Sitemap"));
+const RobotsTxt = lazy(() => import("./pages/RobotsTxt"));
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
         <SiteCodeInjector />
         <EmbedBridge />
         <BrowserRouter>
+          <Suspense fallback={<div className="p-6">Carregando...</div>}>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
@@ -79,6 +81,7 @@ const App = () => (
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
         </BrowserRouter>
       </AuthProvider>
     </TooltipProvider>

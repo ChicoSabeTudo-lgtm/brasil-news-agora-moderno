@@ -273,14 +273,9 @@ const NewsArticle = () => {
 
   const getImageUrl = (imageItem: any) => {
     if (!imageItem?.image_url) return null;
-    
-    // Garantir URL absoluta para Open Graph (necessário para link previews)
-    if (imageItem.image_url.startsWith('http')) {
-      return imageItem.image_url;
-    }
-    
-    // Construir URL absoluta do Supabase Storage
-    return `https://spgusjrjrhfychhdwixn.supabase.co/storage/v1/object/public/${imageItem.image_url}`;
+    if (imageItem.image_url.startsWith('http')) return imageItem.image_url;
+    const base = (import.meta.env.VITE_SUPABASE_URL || '').replace(/\/$/, '');
+    return `${base}/storage/v1/object/public/${imageItem.image_url}`;
   };
 
   const getFeaturedImage = () => {

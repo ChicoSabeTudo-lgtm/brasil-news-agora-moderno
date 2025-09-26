@@ -161,7 +161,8 @@ const Search = () => {
     if (featuredImage.image_url.startsWith('http')) {
       return featuredImage.image_url;
     }
-    return `https://spgusjrjrhfychhdwixn.supabase.co/storage/v1/object/public/${featuredImage.image_url}`;
+    const base = (import.meta.env.VITE_SUPABASE_URL || '').replace(/\/$/, '');
+    return `${base}/storage/v1/object/public/${featuredImage.image_url}`;
   };
 
   const filteredNews = news.filter(newsItem => {

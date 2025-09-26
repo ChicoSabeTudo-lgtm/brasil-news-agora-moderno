@@ -86,7 +86,8 @@ export const CategoryPage = ({ category, categoryColor = "#0066cc", description 
       
       // Se é uma URL do Supabase Storage, construir a URL completa
       if (imageUrl && imageUrl.startsWith('news-images/')) {
-        return `https://spgusjrjrhfychhdwixn.supabase.co/storage/v1/object/public/${imageUrl}`;
+        const base = (import.meta.env.VITE_SUPABASE_URL || '').replace(/\/$/, '');
+        return `${base}/storage/v1/object/public/${imageUrl}`;
       }
       
       return imageUrl;
