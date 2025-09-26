@@ -835,7 +835,9 @@ article .twitter-tweet {
 
 .prose .rich-text-content ol:not([class]),
 .prose ol:not([class]) {
-  @apply list-decimal ml-6 mb-4 space-y-2;
+  /* Evitar marcadores nativos para não duplicar com o estilo customizado */
+  @apply list-none ml-0 mb-4 space-y-2;
+  padding-left: 0;
 }
 
 .prose .rich-text-content li:not([class]),
@@ -1028,10 +1030,7 @@ article .twitter-tweet {
 }
 
 /* Cor dos marcadores conforme a categoria */
-.news-content ul li::marker,
-.news-content ol li::marker {
-  color: var(--category-color, hsl(var(--primary)));
-}
+/* Removido ::marker para evitar duplicidade com marcadores customizados */
 
 /* Links com estilo profissional - usando cor da categoria */
 .news-content a {
