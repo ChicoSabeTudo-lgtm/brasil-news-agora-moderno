@@ -26,6 +26,7 @@ import {
   Filter,
   AlertCircle
 } from 'lucide-react';
+import { Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -36,6 +37,7 @@ interface News {
   title: string;
   summary: string;
   slug: string | null;
+  meta_description?: string | null;
   is_published: boolean;
   is_breaking: boolean;
   is_featured: boolean;
@@ -63,7 +65,7 @@ interface Category {
   name: string;
 }
 
-export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData: { title: string; url: string }) => void }) => {
+export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData: { title: string; url: string; summary?: string }) => void }) => {
   const [news, setNews] = useState<News[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -92,6 +94,57 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
       setCategories(data || []);
     } catch (error) {
       console.error('Error fetching categories:', error);
+    }
+  };
+
+  const handleShare = async (newsItem: News) => {
+    // Permitir compartilhar publicados ou agendados; bloquear rascunhos
+    if (!newsItem.is_published && newsItem.status !== 'scheduled') {
+      toast({
+        title: "Não é possível compartilhar",
+        description: "A notícia precisa estar publicada ou agendada.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // Buscar dados completos para URL amigável
+      const { data, error } = await supabase
+        .from('news')
+        .select(`
+          id,
+          title,
+          meta_description,
+          slug,
+          categories (
+            slug
+          )
+        `)
+        .eq('id', newsItem.id)
+        .single();
+
+      if (error) throw error;
+
+      let url = `${window.location.origin}/noticia/${newsItem.id}`;
+      if (data?.slug && data?.categories?.slug) {
+        url = `${window.location.origin}/${data.categories.slug}/${data.slug}`;
+      }
+
+      const sharePayload = {
+        title: data?.title || newsItem.title,
+        url,
+        summary: (data?.meta_description || newsItem.meta_description || newsItem.summary || newsItem.title) as string,
+      };
+
+      onNavigateToShare?.(sharePayload);
+    } catch (error) {
+      console.error('Error preparing share payload:', error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível preparar o compartilhamento da notícia.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -469,6 +522,14 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
                               title="Visualizar notícia"
                             >
                               <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleShare(newsItem)}
+                              title="Compartilhar notícia"
+                            >
+                              <Share2 className="w-4 h-4" />
                             </Button>
                           </>
                         )}

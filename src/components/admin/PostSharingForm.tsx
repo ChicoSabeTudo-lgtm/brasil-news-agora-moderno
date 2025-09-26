@@ -36,7 +36,7 @@ interface PostData {
   instagramTime: string;
 }
 
-export default function PostSharingForm({ prefilledData, onDataUsed }: { prefilledData?: { title: string; url: string } | null; onDataUsed?: () => void }) {
+export default function PostSharingForm({ prefilledData, onDataUsed }: { prefilledData?: { title: string; url: string; summary?: string } | null; onDataUsed?: () => void }) {
   const { user } = useAuth();
   const { configuration } = useSiteConfigurations();
   const { schedulePost } = useSocialScheduledPosts();
@@ -47,7 +47,7 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
   
   const [postData, setPostData] = useState<PostData>({
     title: prefilledData?.title || '',
-    summary: prefilledData?.title || '',
+    summary: prefilledData?.summary ?? prefilledData?.title ?? '',
     link: prefilledData?.url || '',
     platforms: [],
     schedulePost: false,
@@ -70,7 +70,7 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
       setPostData(prev => ({
         ...prev,
         title: prefilledData.title,
-        summary: prefilledData.title,
+        summary: prefilledData.summary ?? prefilledData.title,
         link: prefilledData.url
       }));
       // Mark data as used

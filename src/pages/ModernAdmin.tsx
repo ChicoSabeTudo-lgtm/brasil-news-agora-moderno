@@ -31,7 +31,7 @@ export default function ModernAdmin() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [shareFormData, setShareFormData] = useState<{ title: string; url: string } | null>(null);
+  const [shareFormData, setShareFormData] = useState<{ title: string; url: string; summary?: string } | null>(null);
 
   // Set initial tab based on URL parameters
   useEffect(() => {
@@ -56,7 +56,7 @@ export default function ModernAdmin() {
     }
   }, [userRole, activeTab]);
 
-  const handleNavigateToShare = (newsData: { title: string; url: string }) => {
+  const handleNavigateToShare = (newsData: { title: string; url: string; summary?: string }) => {
     setShareFormData(newsData);
     setActiveTab("post-sharing");
   };

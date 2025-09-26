@@ -8,13 +8,15 @@ import { SocialScheduler } from './SocialScheduler';
 interface SocialShareModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onCancel?: () => void;
   onShare: () => void;
   newsTitle: string;
   newsId: string;
   newsImage?: string;
+  mode?: 'published' | 'scheduled';
 }
 
-export const SocialShareModal = ({ isOpen, onClose, onShare, newsTitle, newsId, newsImage }: SocialShareModalProps) => {
+export const SocialShareModal = ({ isOpen, onClose, onCancel, onShare, newsTitle, newsId, newsImage, mode = 'published' }: SocialShareModalProps) => {
   const handleShare = () => {
     onShare();
     onClose();
@@ -49,13 +51,13 @@ export const SocialShareModal = ({ isOpen, onClose, onShare, newsTitle, newsId, 
           
           <TabsContent value="immediate" className="space-y-4">
             <p className="text-muted-foreground">
-              A notícia <strong>"{newsTitle}"</strong> foi publicada com sucesso!
+              A notícia <strong>"{newsTitle}"</strong> foi {mode === 'scheduled' ? 'agendada' : 'publicada'} com sucesso!
             </p>
             <p className="text-sm text-muted-foreground">
               Deseja compartilhar esta notícia nas redes sociais agora?
             </p>
             <div className="flex gap-3 justify-end">
-              <Button variant="outline" onClick={onClose}>
+              <Button variant="outline" onClick={onCancel ?? onClose}>
                 <X className="w-4 h-4 mr-2" />
                 Não, obrigado
               </Button>

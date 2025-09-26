@@ -17,7 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Save, Eye, Send, Clock, Calendar as CalendarIcon, Loader2 } from 'lucide-react';
+import { Save, Eye, Send, Clock, Calendar as CalendarIcon } from 'lucide-react';
 import { NewsDownloadManager } from './NewsDownloadManager';
 import NewsGallery from '@/components/NewsGallery';
 import { SimpleImageGallery } from '@/components/SimpleImageGallery';
@@ -36,7 +36,7 @@ interface Category {
   slug: string;
 }
 
-export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editingNews?: any, onSave?: () => void, onNavigateToShare?: (newsData: { title: string; url: string }) => void }) => {
+export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editingNews?: any, onSave?: () => void, onNavigateToShare?: (newsData: { title: string; url: string; summary?: string }) => void }) => {
   const [article, setArticle] = useState({
     title: '',
     subtitle: '',
@@ -54,8 +54,8 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
   const [loading, setLoading] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
-  const [publishedNewsData, setPublishedNewsData] = useState<{ title: string; url: string } | null>(null);
-  const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const [shareMode, setShareMode] = useState<'published' | 'scheduled'>('published');
+  const [publishedNewsData, setPublishedNewsData] = useState<{ title: string; url: string; summary?: string } | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -101,16 +101,6 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
     try {
       setLoading(true);
 
-      if (isUploadingImages) {
-        toast({
-          title: "Aguarde uploads terminarem",
-          description: "Conclua o envio das imagens antes de salvar a notícia.",
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
-      }
-
       if (!user?.id) {
         toast({
           title: "Erro",
@@ -141,8 +131,7 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
         is_breaking: article.isBreaking,
         is_featured: article.isFeatured,
         tags: article.tags ? article.tags.split(',').map(tag => tag.trim()).filter(Boolean) : [],
-        // Manter o author_id original se estiver editando, ou usar o usuário atual se for nova notícia
-        author_id: editingNews?.author_id || user?.id,
+        author_id: user?.id,
         // Para publicação direta
         is_published: status === 'published',
         published_at: status === 'published' ? new Date().toISOString() : null,
@@ -175,33 +164,6 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
           .single();
         savedNewsId = result.data?.id;
         console.log('Created new news:', result);
-
-        // Vincular imagens já enviadas ao storage à nova notícia
-        try {
-          if (savedNewsId && newsImages && newsImages.length > 0) {
-            const imagesToInsert = newsImages.map((img, idx) => ({
-              news_id: savedNewsId,
-              image_url: img.public_url || img.image_url,
-              public_url: img.public_url || img.image_url,
-              path: img.path || null,
-              caption: img.caption || '',
-              is_cover: typeof img.is_cover === 'boolean' ? img.is_cover : idx === 0,
-              sort_order: typeof img.sort_order === 'number' ? img.sort_order : idx,
-            }));
-
-            const { error: imgInsertError } = await supabase
-              .from('news_images')
-              .insert(imagesToInsert);
-
-            if (imgInsertError) {
-              console.error('Erro ao vincular imagens à notícia recém-criada:', imgInsertError);
-            } else {
-              console.log('Imagens vinculadas com sucesso à notícia:', savedNewsId);
-            }
-          }
-        } catch (imgLinkError) {
-          console.error('Exceção ao vincular imagens à notícia recém-criada:', imgLinkError);
-        }
       }
 
       if (result.error) {
@@ -260,13 +222,33 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
           : "A notícia foi publicada e está disponível no site.",
       });
 
-      // Show share modal for published articles
-      if (status === 'published' && !editingNews) {
-        console.log('Modal should show - conditions met:', { status, editingNews, onNavigateToShare: !!onNavigateToShare });
-        const newsUrl = `${window.location.origin}/noticia/${savedNewsId}`;
-        setPublishedNewsData({ title: article.title, url: newsUrl });
+      // Build best URL (prefer slug/category) and open share modal for published or scheduled new articles
+      if ((status === 'published' || status === 'scheduled') && !editingNews) {
+        let newsUrl = `${window.location.origin}/noticia/${savedNewsId}`;
+        try {
+          const { data: urlData, error: urlError } = await supabase
+            .from('news')
+            .select(`
+              id,
+              slug,
+              categories (
+                slug
+              )
+            `)
+            .eq('id', savedNewsId)
+            .single();
+          if (!urlError && urlData) {
+            if (urlData.slug && urlData.categories?.slug) {
+              newsUrl = `${window.location.origin}/${urlData.categories.slug}/${urlData.slug}`;
+            }
+          }
+        } catch (e) {
+          console.warn('Falha ao obter slug para URL amigável, usando fallback.', e);
+        }
+
+        setPublishedNewsData({ title: article.title, url: newsUrl, summary: article.metaDescription });
+        setShareMode(status);
         setShareModalOpen(true);
-        console.log('Share modal opened:', { shareModalOpen: true, publishedNewsData: { title: article.title, url: newsUrl } });
       }
 
       if ((status === 'published' || status === 'scheduled') && !editingNews) {
@@ -286,7 +268,12 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
         setNewsImages([]);
       }
 
-      onSave?.();
+      // For 'draft', close the editor immediately.
+      // If editing an existing news, close immediately for any status.
+      // For new published/scheduled, wait for modal choice.
+      if (status === 'draft' || editingNews) {
+        onSave?.();
+      }
     } catch (error) {
       console.error('Error saving news:', error);
       toast({
@@ -303,6 +290,13 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
     if (publishedNewsData && onNavigateToShare) {
       onNavigateToShare(publishedNewsData);
     }
+    // Close editor and return to either post-sharing (active tab changes in parent) or list
+    onSave?.();
+  };
+
+  const handleCancelShare = () => {
+    // User chose not to share; go back to news list
+    onSave?.();
   };
 
   return (
@@ -385,7 +379,6 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
             setNewsImages(images);
           }}
           initialImages={newsImages}
-          onUploadingChange={setIsUploadingImages}
         />
 
         {/* Downloads Manager */}
@@ -549,17 +542,7 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-2 pt-4 border-t">
-          {isUploadingImages ? (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Enviando imagens...</span>
-            </div>
-          ) : (
-            <div />
-          )}
-          
-          <div className="flex justify-end gap-2">
+        <div className="flex justify-end gap-2 pt-4 border-t">
           <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" disabled={loading}>
@@ -645,7 +628,7 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
           <Button 
             variant="outline"
             onClick={() => handleSave('draft')}
-            disabled={loading || isUploadingImages}
+            disabled={loading}
           >
             <Save className="w-4 h-4 mr-2" />
             Salvar Rascunho
@@ -654,7 +637,7 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
             <Button
               variant="outline"
               onClick={() => handleSave('scheduled')}
-              disabled={loading || isUploadingImages || !article.title || !article.metaDescription || !article.content || !article.categoryId}
+              disabled={loading || !article.title || !article.metaDescription || !article.content || !article.categoryId}
               className="bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100"
             >
               <Clock className="w-4 h-4 mr-2" />
@@ -663,12 +646,11 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
           )}
           <Button 
             onClick={() => handleSave('published')}
-            disabled={loading || isUploadingImages || !article.title || !article.metaDescription || !article.content || !article.categoryId}
+            disabled={loading || !article.title || !article.metaDescription || !article.content || !article.categoryId}
           >
             <Send className="w-4 h-4 mr-2" />
             {loading ? 'Publicando...' : editingNews ? 'Atualizar' : 'Publicar'}
           </Button>
-          </div>
         </div>
       </CardContent>
     </Card>
@@ -676,10 +658,12 @@ export const NewsEditor = ({ editingNews, onSave, onNavigateToShare }: { editing
     <SocialShareModal
       isOpen={shareModalOpen}
       onClose={() => setShareModalOpen(false)}
+      onCancel={handleCancelShare}
       onShare={handleShareNews}
       newsTitle={publishedNewsData?.title || ''}
       newsId={editingNews?.id || ''}
       newsImage={newsImages.find(img => img.is_featured)?.image_url}
+      mode={shareMode}
     />
     </>
   );
