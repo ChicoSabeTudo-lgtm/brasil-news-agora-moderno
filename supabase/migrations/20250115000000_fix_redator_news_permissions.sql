@@ -24,3 +24,4 @@ USING (
   has_role(auth.uid(), 'redator'::app_role)
 );
 
+

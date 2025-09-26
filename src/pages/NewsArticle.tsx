@@ -81,15 +81,14 @@ const NewsArticle = () => {
             name,
             slug
           ),
-          news_images (
-            image_url,
-            public_url,
-            path,
-            is_cover,
-            caption,
-            credit,
-            sort_order
-          )
+            news_images (
+              image_url,
+              public_url,
+              path,
+              is_cover,
+              caption,
+              sort_order
+            )
         `;
 
         let query = supabase

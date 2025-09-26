@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { ChevronLeft, ChevronRight, X, Maximize2, Info, Camera } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, Maximize2, Info } from "lucide-react";
 import { ImageWithFallback } from './ImageWithFallback';
 import { getImageUrl } from '@/utils/imageUtils';
 
@@ -8,7 +8,6 @@ interface NewsImage {
   public_url?: string;
   path?: string;
   caption?: string;
-  credit?: string;
   is_cover: boolean;
   sort_order: number;
 }
@@ -109,16 +108,7 @@ export const ModernImageGallery = ({
     return processedCaption;
   };
 
-  // Separar legenda e crédito (preferindo campo dedicado se existir)
-  const parseCaption = (img: NewsImage) => {
-    if (img?.credit) return { text: img.caption || '', credit: img.credit };
-    const raw = img?.caption || '';
-    const parts = raw.split('|');
-    if (parts.length < 2) return { text: raw.trim() };
-    const credit = parts.pop();
-    const text = parts.join('|');
-    return { text: text.trim(), credit: credit?.trim() };
-  };
+  // Sem créditos — apenas legenda com formatação especial
 
   // Keyboard navigation
   useEffect(() => {
@@ -222,21 +212,12 @@ export const ModernImageGallery = ({
               {image.caption && (
                 <div className="absolute bottom-4 left-4 right-4 text-center">
                   <div className="bg-black/80 backdrop-blur-sm rounded-lg p-4 inline-block max-w-2xl">
-                    {(() => {
-                      const { text, credit } = parseCaption(image);
-                      return (
-                        <div className="text-white/90 text-sm flex items-center justify-center gap-2">
-                          <span dangerouslySetInnerHTML={{ __html: processCaption(text) }} />
-                          {credit && (
-                            <span className="opacity-90 inline-flex items-center gap-1 font-normal">
-                              |
-                              <Camera className="w-4 h-4" />
-                              <span>{credit}</span>
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })()}
+                    <p 
+                      className="text-white/90"
+                      dangerouslySetInnerHTML={{ 
+                        __html: processCaption(image.caption) 
+                      }}
+                    />
                   </div>
                 </div>
               )}
@@ -319,22 +300,19 @@ export const ModernImageGallery = ({
                 <div className="flex-shrink-0 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center" style={{ boxShadow: 'none !important', filter: 'none !important' }}>
                   <Info className="w-3 h-3 text-white" style={{ boxShadow: 'none !important', filter: 'none !important' }} />
                 </div>
-                <div className="flex-1 text-white text-xs leading-relaxed font-normal" style={{ boxShadow: 'none !important', filter: 'none !important', textShadow: 'none !important', color: 'white !important' }}>
-                  {(() => {
-                    const { text, credit } = parseCaption(currentImage);
-                    return (
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span dangerouslySetInnerHTML={{ __html: processCaption(text) }} />
-                        {credit && (
-                          <span className="opacity-90 inline-flex items-center gap-1 font-normal">
-                            |
-                            <Camera className="w-4 h-4" />
-                            <span>{credit}</span>
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })()}
+                <div className="flex-1" style={{ boxShadow: 'none !important', filter: 'none !important' }}>
+                  <p 
+                    dangerouslySetInnerHTML={{ 
+                      __html: processCaption(currentImage.caption) 
+                    }}
+                    className="text-white text-xs leading-relaxed font-normal"
+                    style={{ 
+                      boxShadow: 'none !important', 
+                      filter: 'none !important', 
+                      textShadow: 'none !important',
+                      color: 'white !important'
+                    }}
+                  />
                 </div>
               </div>
             </div>
@@ -413,21 +391,12 @@ export const ModernImageGallery = ({
           {currentImage.caption && (
             <div className="absolute bottom-4 left-4 right-4 text-center">
               <div className="bg-black/80 backdrop-blur-sm rounded-lg p-4 inline-block max-w-2xl">
-                {(() => {
-                  const { text, credit } = parseCaption(currentImage);
-                  return (
-                    <div className="text-white/90 text-sm flex items-center justify-center gap-2">
-                      <span dangerouslySetInnerHTML={{ __html: processCaption(text) }} />
-                      {credit && (
-                        <span className="opacity-90 inline-flex items-center gap-1 font-normal">
-                          |
-                          <Camera className="w-4 h-4" />
-                          <span>{credit}</span>
-                        </span>
-                      )}
-                    </div>
-                  );
-                })()}
+                <p 
+                  className="text-white/90"
+                  dangerouslySetInnerHTML={{ 
+                    __html: processCaption(currentImage.caption) 
+                  }}
+                />
               </div>
             </div>
           )}
@@ -436,5 +405,4 @@ export const ModernImageGallery = ({
     </div>
   );
 };
-
 

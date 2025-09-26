@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, X, Maximize2, Camera } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, Maximize2 } from "lucide-react";
 import { ImageWithFallback } from './ImageWithFallback';
 import { getImageUrl } from '@/utils/imageUtils';
 
@@ -8,7 +8,6 @@ interface NewsImage {
   public_url?: string;
   path?: string;
   caption?: string;
-  credit?: string;
   is_cover: boolean;
   sort_order: number;
 }
@@ -42,14 +41,7 @@ export const SimpleImageGallery = ({ images, newsTitle }: SimpleImageGalleryProp
 
   const currentImage = images[currentIndex];
 
-  const parseCaption = (raw?: string) => {
-    if (!raw) return { text: "" };
-    const parts = raw.split('|');
-    if (parts.length < 2) return { text: raw.trim() };
-    const credit = parts.pop();
-    const text = parts.join('|');
-    return { text: text.trim(), credit: credit?.trim() };
-  };
+  
 
   return (
     <div className="mb-2 simple-image-gallery" style={{ display: 'block' }}>
@@ -110,29 +102,17 @@ export const SimpleImageGallery = ({ images, newsTitle }: SimpleImageGalleryProp
           {currentImage.caption && (
             <div className="absolute inset-x-0 bottom-0" style={{ pointerEvents: 'none' }}>
               <div className="bg-gradient-to-t from-black/60 via-black/30 to-transparent px-4 pt-6 pb-0 flex items-end">
-                {(() => {
-                  const { text, credit } = parseCaption(currentImage.caption);
-                  return (
-                    <p
-                      className="text-white italic leading-snug"
-                      style={{
-                        color: '#ffffff',
-                        fontSize: '0.7rem',
-                        textShadow: '0 1px 2px rgba(0,0,0,0.85), 0 0 4px rgba(0,0,0,0.5)',
-                        marginBottom: '2px'
-                      }}
-                    >
-                      {text}
-                      {credit && (
-                        <span className="not-italic opacity-90 ml-2 inline-flex items-center gap-1">
-                          |
-                          <Camera className="w-3 h-3" />
-                          <span>{credit}</span>
-                        </span>
-                      )}
-                    </p>
-                  );
-                })()}
+                <p
+                  className="text-white italic leading-snug"
+                  style={{
+                    color: '#ffffff',
+                    fontSize: '0.7rem',
+                    textShadow: '0 1px 2px rgba(0,0,0,0.85), 0 0 4px rgba(0,0,0,0.5)',
+                    marginBottom: '2px'
+                  }}
+                >
+                  {currentImage.caption}
+                </p>
               </div>
             </div>
           )}
@@ -227,21 +207,9 @@ export const SimpleImageGallery = ({ images, newsTitle }: SimpleImageGalleryProp
           {currentImage.caption && (
             <div className="absolute bottom-4 left-4 right-4 text-center">
               <div className="bg-black/80 rounded-lg p-4 inline-block max-w-2xl" style={{ boxShadow: 'none' }}>
-                {(() => {
-                  const { text, credit } = parseCaption(currentImage.caption);
-                  return (
-                    <p className="text-white text-xs" style={{ color: 'white', textShadow: 'none', fontSize: '0.75rem' }}>
-                      {text}
-                      {credit && (
-                        <span className="opacity-90 ml-2 inline-flex items-center gap-1">
-                          |
-                          <Camera className="w-3 h-3" />
-                          <span>{credit}</span>
-                        </span>
-                      )}
-                    </p>
-                  );
-                })()}
+                <p className="text-white text-xs" style={{ color: 'white', textShadow: 'none', fontSize: '0.75rem' }}>
+                  {currentImage.caption}
+                </p>
               </div>
             </div>
           )}
