@@ -4,6 +4,7 @@ import { EmbedModal } from './embed-modal';
 
 // Lazy load ReactQuill to avoid SSR issues
 let ReactQuill: any = null;
+let QuillRef: any = null;
 
 interface RichTextEditorProps {
   value: string;
@@ -37,6 +38,7 @@ export const RichTextEditor = ({
           
           // Registrar blot personalizado para embeds
           const Quill = RQ.Quill;
+          QuillRef = Quill;
           const BlockEmbed = Quill.import('blots/block/embed');
           
           class VideoBlot extends BlockEmbed {
@@ -115,13 +117,62 @@ export const RichTextEditor = ({
       }
     },
     clipboard: {
-      // Enable paste functionality
-      allowed: {
-        tags: ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'strike', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'a'],
-        attributes: ['href', 'target', 'class']
-      },
-      matchers: [],
-      matchVisual: false
+      // Configurações de colagem: tente preservar aparência sem adicionar espaços extras
+      matchVisual: true,
+      // Matchers para limpar estilos indesejados e remover parágrafos vazios
+      matchers: QuillRef ? [
+        // Remover atributos/estilos de spans colados (mantém apenas o texto)
+        ['span', (node: any, delta: any) => {
+          const Delta = QuillRef.import('delta');
+          const clean = new Delta();
+          (delta.ops || []).forEach((op: any) => {
+            clean.insert(op.insert); // descarta attributes vindos de SPAN
+          });
+          return clean;
+        }],
+        // Remover parágrafos completamente vazios
+        ['p', (node: HTMLElement, delta: any) => {
+          const html = node.innerHTML || '';
+          const isEmpty = html
+            .replace(/<br\s*\/?>/gi, '')
+            .replace(/&nbsp;/gi, '')
+            .replace(/\s+/g, '')
+            .length === 0;
+          if (isEmpty) {
+            const Delta = QuillRef.import('delta');
+            return new Delta();
+          }
+          return delta;
+        }],
+        // Normalizar elementos DIV como simples blocos sem estilos
+        ['div', (node: any, delta: any) => {
+          const Delta = QuillRef.import('delta');
+          const clean = new Delta();
+          (delta.ops || []).forEach((op: any) => {
+            clean.insert(op.insert, op.attributes);
+          });
+          return clean;
+        }],
+        // Limpar classes/estilos genéricos de elementos (mantém links)
+        ['font', (node: any, delta: any) => {
+          const Delta = QuillRef.import('delta');
+          const clean = new Delta();
+          (delta.ops || []).forEach((op: any) => clean.insert(op.insert));
+          return clean;
+        }],
+        ['section', (node: any, delta: any) => {
+          const Delta = QuillRef.import('delta');
+          const clean = new Delta();
+          (delta.ops || []).forEach((op: any) => clean.insert(op.insert, op.attributes));
+          return clean;
+        }],
+        ['article', (node: any, delta: any) => {
+          const Delta = QuillRef.import('delta');
+          const clean = new Delta();
+          (delta.ops || []).forEach((op: any) => clean.insert(op.insert, op.attributes));
+          return clean;
+        }]
+      ] : []
     },
     keyboard: {
       bindings: {
@@ -135,7 +186,7 @@ export const RichTextEditor = ({
         }
       }
     }
-  }), []);
+  }), [isLoaded]);
 
   const formats = useMemo(() => [
     'header', 'font', 'size',

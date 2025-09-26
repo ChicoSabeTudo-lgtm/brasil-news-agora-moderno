@@ -621,6 +621,15 @@ article .twitter-tweet {
   line-height: 1.5 !important;
 }
 
+/* Ajuste de espaçamento entre parágrafos no editor (sem excesso) */
+.rich-text-editor .ql-editor p {
+  margin: 0 0 0.75em !important;
+}
+
+.rich-text-editor .ql-editor p:last-child {
+  margin-bottom: 0 !important;
+}
+
 .rich-text-editor .ql-editor.ql-blank::before {
   @apply text-muted-foreground;
   font-style: normal !important;
