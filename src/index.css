@@ -944,7 +944,7 @@ article .twitter-tweet {
   line-height: 1.4;
   margin-top: 2.5rem;
   margin-bottom: 1rem;
-  color: var(--category-color, hsl(var(--primary)));
+  color: hsl(var(--foreground));
   text-align: left;
   border-left: 4px solid var(--category-color, hsl(var(--primary)));
   padding-left: 1rem;
