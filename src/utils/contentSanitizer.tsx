@@ -36,21 +36,38 @@ const purifyConfig = {
  */
 const removeManualBullets = (html: string): string => {
   if (!html) return '';
-  
+
   let cleaned = html;
-  
-  // Remove bullets at the start of <li> elements (with possible whitespace)
-  cleaned = cleaned.replace(/<li[^>]*>\s*[•◦▪▫·‣⁃]\s*/gi, '<li>');
-  
-  // Remove bullets that appear after opening li tag and before any other content
-  cleaned = cleaned.replace(/(<li[^>]*>)\s*[•◦▪▫·‣⁃]\s*([^<]+)/gi, '$1$2');
-  
-  // Remove standalone bullet characters followed by text within list items
-  cleaned = cleaned.replace(/(<li[^>]*>[^<]*?)\s+[•◦▪▫·‣⁃]\s+/gi, '$1 ');
-  
-  // Remove bullets at the very beginning of text content in li
-  cleaned = cleaned.replace(/(<li[^>]*>)\s*[•◦▪▫·‣⁃]([^<]+)/gi, '$1$2');
-  
+
+  // Lista de glifos de marcadores comuns (inclui &bull;)
+  const bullets = '•◦▪▫·‣⁃●○◘◙•';
+  const bulletClass = `[${bullets}]`;
+
+  // 1) <li> com glifo logo no início (com ou sem espaços)
+  cleaned = cleaned.replace(new RegExp(`<li[^>]*>\\s*${bulletClass}\\s*`, 'gi'), '<li>');
+
+  // 2) <li> com glifo após tags inline (span/strong/em/b/i/u)
+  //    Ex.: <li><span>•</span> Texto
+  cleaned = cleaned.replace(
+    new RegExp(`(<li[^>]*>)(?:\\s*<(?:span|strong|em|b|i|u)[^>]*>\\s*)*${bulletClass}\\s*`, 'gi'),
+    '$1'
+  );
+
+  // 3) Remover entidades HTML de bullet (&bull;, &middot;) no início do <li>
+  cleaned = cleaned.replace(/(<li[^>]*>)\s*(?:&bull;|&middot;|&#8226;|&#183;)\s*/gi, '$1');
+
+  // 4) Casos em que o glifo aparece como primeiro caractere de texto dentro do <li>
+  cleaned = cleaned.replace(new RegExp(`(<li[^>]*>)(?:\\s|&nbsp;)*${bulletClass}\\s*`, 'gi'), '$1');
+
+  // 5) Casos raros: glifo precedido de <br> no início do item
+  cleaned = cleaned.replace(new RegExp(`(<li[^>]*>)(?:\\s*<br\\s*\\/?>\\s*)*${bulletClass}\\s*`, 'gi'), '$1');
+
+  // 6) Se por algum motivo um glifo ainda sobrar no começo de um nó de texto após tags inline
+  cleaned = cleaned.replace(
+    new RegExp(`(<li[^>]*>(?:\\s*<(?:span|strong|em|b|i|u)[^>]*>)*)(?:\\s|&nbsp;)*${bulletClass}\\s*`, 'gi'),
+    '$1'
+  );
+
   return cleaned;
 };
 
