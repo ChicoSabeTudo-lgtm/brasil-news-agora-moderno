@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { ChevronLeft, ChevronRight, X, Maximize2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, Maximize2, Camera } from "lucide-react";
 import { ImageWithFallback } from './ImageWithFallback';
 import { getImageUrl } from '@/utils/imageUtils';
 
@@ -33,6 +33,15 @@ export const NewsImageGallery = ({ images, newsTitle }: NewsImageGalleryProps) =
 
   const currentImage = images[currentIndex];
   const hasMultipleImages = images.length > 1;
+
+  const parseCaption = (raw?: string) => {
+    if (!raw) return { text: '' };
+    const parts = raw.split('|');
+    if (parts.length < 2) return { text: raw.trim() };
+    const credit = parts.pop();
+    const text = parts.join('|');
+    return { text: text.trim(), credit: credit?.trim() };
+  };
 
   // Initialize image load states
   useEffect(() => {
@@ -306,9 +315,21 @@ export const NewsImageGallery = ({ images, newsTitle }: NewsImageGalleryProps) =
           {/* Bottom Overlay - Caption */}
           {currentImage.caption && (
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-6 z-20">
-              <p className="text-white text-sm leading-relaxed font-medium">
-                {currentImage.caption}
-              </p>
+              {(() => {
+                const { text, credit } = parseCaption(currentImage.caption);
+                return (
+                  <p className="text-white text-sm leading-relaxed font-medium">
+                    {text}
+                    {credit && (
+                      <span className="opacity-90 ml-2 inline-flex items-center gap-1 font-normal">
+                        |
+                        <Camera className="w-4 h-4" />
+                        <span>{credit}</span>
+                      </span>
+                    )}
+                  </p>
+                );
+              })()}
             </div>
           )}
 
@@ -437,9 +458,21 @@ export const NewsImageGallery = ({ images, newsTitle }: NewsImageGalleryProps) =
           {/* Caption in Fullscreen */}
           {currentImage.caption && (
             <div className="absolute bottom-4 left-4 right-4 text-center">
-              <p className="text-white bg-black/70 backdrop-blur-sm rounded-lg p-4 inline-block max-w-2xl shadow-lg">
-                {currentImage.caption}
-              </p>
+              {(() => {
+                const { text, credit } = parseCaption(currentImage.caption);
+                return (
+                  <p className="text-white bg-black/70 backdrop-blur-sm rounded-lg p-4 inline-block max-w-2xl shadow-lg text-base">
+                    {text}
+                    {credit && (
+                      <span className="opacity-90 ml-2 inline-flex items-center gap-1 font-normal">
+                        |
+                        <Camera className="w-4 h-4" />
+                        <span>{credit}</span>
+                      </span>
+                    )}
+                  </p>
+                );
+              })()}
             </div>
           )}
 
