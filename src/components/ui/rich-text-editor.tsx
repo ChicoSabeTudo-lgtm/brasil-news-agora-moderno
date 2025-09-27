@@ -33,8 +33,8 @@ export const RichTextEditor = ({
           const { default: RQ } = await import('react-quill');
           ReactQuill = RQ;
           
-          // Import Quill CSS
-          await import('react-quill/dist/quill.snow.css');
+          // CSS do Quill removido do bundle para evitar pré-carregamento do chunk do editor
+          // A estilização necessária já está coberta em `src/index.css` (classes .ql-*)
           
           // Registrar blot personalizado para embeds
           const Quill = RQ.Quill;

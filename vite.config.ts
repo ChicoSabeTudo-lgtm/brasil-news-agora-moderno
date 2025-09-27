@@ -22,21 +22,8 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('react-router')) return 'router';
-            if (id.includes('@radix-ui') || id.includes('lucide-react')) return 'ui';
-            if (id.includes('react-quill')) return 'editor';
-            if (id.includes('@supabase')) return 'supabase';
-            return 'vendor';
-          }
-          if (id.includes('/src/pages/ModernAdmin') || id.includes('/src/components/admin/')) return 'admin';
-          return undefined;
-        },
-      },
-    },
+    // Deixe o Vite decidir a divisão de chunks para evitar
+    // que o bundle principal carregue o editor/admin desnecessariamente
     chunkSizeWarningLimit: 1200,
   },
 }));
