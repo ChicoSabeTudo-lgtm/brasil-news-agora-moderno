@@ -5,8 +5,8 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  // Use relative asset paths in production to support subfolder hosting
-  base: mode === 'development' ? '/' : './',
+  // Always use absolute paths for production
+  base: '/',
   server: {
     host: "::",
     port: 8080,
