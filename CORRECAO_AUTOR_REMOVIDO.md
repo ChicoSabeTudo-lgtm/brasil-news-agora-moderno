@@ -71,3 +71,4 @@ Após aplicar as correções:
 - `src/components/admin/NewsList.tsx` - Correção do frontend
 - `fix_user_profiles.sql` - Script SQL para criar perfis
 - `debug_author_issue.sql` - Script para investigar o problema
+

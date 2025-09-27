@@ -47,7 +47,7 @@ const App = () => (
         <SiteCodeInjector />
         <EmbedBridge />
         <BrowserRouter>
-          <Suspense fallback={<div className="p-6">Carregando...</div>}>
+          <Suspense fallback={null}>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />

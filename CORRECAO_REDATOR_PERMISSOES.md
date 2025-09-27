@@ -74,3 +74,4 @@ Você deve ver as políticas:
 - `"Redators and admins can update all news"`
 - `"Redators and admins can delete news"`
 
+

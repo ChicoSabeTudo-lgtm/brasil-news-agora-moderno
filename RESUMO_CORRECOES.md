@@ -77,3 +77,4 @@ Após aplicar ambas as correções:
 - `APLICAR_CORRECOES.sql` - Script SQL para o banco
 - `CORRECAO_REDATOR_PERMISSOES.md` - Documentação detalhada
 
+
