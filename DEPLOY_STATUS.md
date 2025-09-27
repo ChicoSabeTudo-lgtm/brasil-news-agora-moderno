@@ -47,7 +47,7 @@ A aplicação Portal ChicoSabeTudo está **100% funcional** e **online**!
 - **📁 Tamanho Total:** 2.5MB otimizado
 - **⏱️ Tempo de Build:** ~4.5 segundos
 - **🚀 Status:** Online e funcional
-- **🔄 Última Atualização:** $(date)
+- **🔄 Última Atualização:** Redeploy trigger: 2025-09-27T09:00:00Z
 
 ### 🎨 **Recursos Visuais:**
 
