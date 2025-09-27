@@ -7,7 +7,12 @@ const DynamicCategoryRoute = () => {
   const { categories, loading } = useCategories();
 
   if (loading) {
-    return <div>Carregando...</div>;
+    return (
+      <div className="p-6 flex items-center justify-center">
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <span className="sr-only">Carregando...</span>
+      </div>
+    );
   }
 
   const category = categories.find(cat => cat.slug === categorySlug);

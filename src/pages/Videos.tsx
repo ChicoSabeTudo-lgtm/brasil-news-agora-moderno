@@ -37,7 +37,10 @@ const Videos = () => {
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="flex items-center gap-2">
               <Loader2 className="w-6 h-6 animate-spin" />
-              <p className="text-lg text-muted-foreground">Carregando vídeos...</p>
+          <div className="flex items-center gap-3 text-muted-foreground">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <span className="sr-only">Carregando...</span>
+          </div>
             </div>
           </div>
         </div>
