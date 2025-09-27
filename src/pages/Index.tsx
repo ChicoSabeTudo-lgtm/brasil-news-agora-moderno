@@ -383,22 +383,36 @@ const Index = () => {
             {/* Lista Mais Lidas */}
             <div className="bg-card rounded-lg p-6 shadow-card">
               <div className="space-y-4">
-                {news.slice(0, 5).map((newsItem, index) => (
-                  <Link 
-                    key={newsItem.id} 
-                    to={`/${newsItem.categories?.slug}/${newsItem.slug}`}
-                    className="flex items-start gap-4 p-3 hover:bg-muted rounded-lg cursor-pointer group transition-colors"
-                  >
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm bg-slate-950">
-                      {index + 1}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors">
-                        {newsItem.title}
-                      </h3>
-                    </div>
-                  </Link>
-                ))}
+                {news.slice(0, 5).map((newsItem, index) => {
+                  const link = newsItem.slug && newsItem.categories?.slug 
+                    ? `/${newsItem.categories.slug}/${newsItem.slug}`
+                    : `/noticia/${newsItem.id}`;
+                  const thumb = getImageUrl(newsItem);
+                  return (
+                    <Link 
+                      key={newsItem.id} 
+                      to={link}
+                      className="flex items-start gap-4 p-3 hover:bg-muted rounded-lg cursor-pointer group transition-colors"
+                    >
+                      <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm bg-slate-950">
+                        {index + 1}
+                      </div>
+                      {thumb && (
+                        <img 
+                          src={thumb}
+                          alt={newsItem.title}
+                          className="w-14 h-14 object-cover rounded-md flex-shrink-0"
+                          loading="lazy"
+                        />
+                      )}
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-primary transition-colors">
+                          {newsItem.title}
+                        </h3>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
 
