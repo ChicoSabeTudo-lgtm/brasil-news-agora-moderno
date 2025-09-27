@@ -2,7 +2,7 @@ import { useParams, Navigate } from "react-router-dom";
 import { useCategories } from "@/hooks/useCategories";
 import { CategoryPage } from "@/components/CategoryPage";
 
-export const DynamicCategoryRoute = () => {
+const DynamicCategoryRoute = () => {
   const { categorySlug } = useParams<{ categorySlug: string }>();
   const { categories, loading } = useCategories();
 
@@ -24,3 +24,5 @@ export const DynamicCategoryRoute = () => {
     />
   );
 };
+
+export default DynamicCategoryRoute;

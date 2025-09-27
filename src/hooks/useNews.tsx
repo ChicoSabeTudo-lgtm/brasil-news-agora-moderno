@@ -73,14 +73,14 @@ export const useNews = () => {
       let profilesData: any[] = [];
 
       if (userIds.length > 0) {
-        const { data: profilesRpc, error: profilesError } = await supabase.rpc(
-          'get_public_profiles',
-          { p_user_ids: userIds }
-        );
+        const { data: profilesRpc, error: profilesError } = await supabase
+          .from('profiles')
+          .select('user_id, full_name')
+          .in('user_id', userIds);
         if (!profilesError) {
           profilesData = profilesRpc || [];
         } else {
-          console.warn('Falha ao buscar perfis via RPC:', profilesError);
+          console.warn('Falha ao buscar perfis:', profilesError);
         }
       }
 
