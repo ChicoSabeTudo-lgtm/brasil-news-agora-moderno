@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
+import RouteLoader from "@/components/RouteLoader";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { SiteCodeInjector } from "@/components/SiteCodeInjector";
@@ -45,8 +46,8 @@ const App = () => (
         <SiteCodeInjector />
         <EmbedBridge />
         <BrowserRouter>
-          <Suspense fallback={null}>
-          <Routes>
+          <Suspense fallback={<RouteLoader /> }>
+            <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/perfil" element={
