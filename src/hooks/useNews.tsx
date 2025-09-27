@@ -114,20 +114,15 @@ export const useNews = () => {
     return news.filter(item => item.is_breaking);
   };
 
-  const getFeaturedNews = () => {
-    // Primeiro, pegar notícias marcadas como destaque
-    const featuredNews = news.filter(item => item.is_featured);
-    
-    // Se não há destaques suficientes, complementar com as mais recentes
-    if (featuredNews.length < 3) {
-      const remainingSlots = 3 - featuredNews.length;
-      const nonFeaturedNews = news.filter(item => !item.is_featured);
-      const additionalNews = nonFeaturedNews.slice(0, remainingSlots);
-      return [...featuredNews, ...additionalNews];
-    }
-    
-    // Se há mais de 3 destaques, pegar apenas os 3 mais recentes
-    return featuredNews.slice(0, 3);
+  const getFeaturedNews = (count: number = 5) => {
+    // Notícias já chegam ordenadas por published_at desc
+    const featured = news.filter(item => item.is_featured);
+    if (featured.length >= count) return featured.slice(0, count);
+
+    const remaining = count - featured.length;
+    const nonFeatured = news.filter(item => !item.is_featured);
+    const fillers = nonFeatured.slice(0, remaining);
+    return [...featured, ...fillers].slice(0, count);
   };
 
   return {

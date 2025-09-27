@@ -134,7 +134,7 @@ const Index = () => {
         </div>
       </div>;
   }
-  const featuredNews = getFeaturedNews();
+  const featuredNews = getFeaturedNews(5);
   const mainNews = featuredNews[0] ? transformNewsItem(featuredNews[0], "large") : null;
   const secondaryNews = featuredNews.slice(1, 5).map(item => transformNewsItem(item, "medium"));
   const otherNews = featuredNews.slice(5).map(item => transformNewsItem(item, "small"));
