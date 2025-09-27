@@ -55,7 +55,7 @@ Certifique-se de configurar as seguintes variáveis no seu provedor de deploy:
 
 ```env
 VITE_SUPABASE_URL=sua_url_supabase
-VITE_SUPABASE_ANON_KEY=sua_chave_anonima
+VITE_SUPABASE_PUBLISHABLE_KEY=sua_chave_anonima
 ```
 
 ### Domínio Personalizado

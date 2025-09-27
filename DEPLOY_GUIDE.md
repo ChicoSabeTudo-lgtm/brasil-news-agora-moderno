@@ -78,7 +78,7 @@ Certifique-se de que as seguintes variáveis estão configuradas:
 
 ```env
 VITE_SUPABASE_URL=sua_url_supabase
-VITE_SUPABASE_ANON_KEY=sua_chave_anonima
+VITE_SUPABASE_PUBLISHABLE_KEY=sua_chave_anonima
 ```
 
 ### Domínio Personalizado
@@ -136,5 +136,4 @@ Se precisar de ajuda com o deploy:
 ---
 
 **🎯 Recomendação**: Use o Lovable para deploy automático e fácil gerenciamento!
-
 
