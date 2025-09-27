@@ -136,8 +136,8 @@ const Index = () => {
   }
   const featuredNews = getFeaturedNews();
   const mainNews = featuredNews[0] ? transformNewsItem(featuredNews[0], "large") : null;
-  const secondaryNews = featuredNews.slice(1, 3).map(item => transformNewsItem(item, "medium"));
-  const otherNews = featuredNews.slice(3).map(item => transformNewsItem(item, "small"));
+  const secondaryNews = featuredNews.slice(1, 5).map(item => transformNewsItem(item, "medium"));
+  const otherNews = featuredNews.slice(5).map(item => transformNewsItem(item, "small"));
 
   // IDs das notícias em destaque para excluir das seções
   const featuredNewsIds = featuredNews.map(item => item.id);
