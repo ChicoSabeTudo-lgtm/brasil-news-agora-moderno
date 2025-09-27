@@ -354,17 +354,34 @@ const Index = () => {
             if (templateType === 'grid') newsCount = 6;else if (templateType === 'magazine') newsCount = 5;
             const categoryNews = getNewsByCategory(category.slug, featuredNewsIds).slice(0, newsCount).map(item => transformNewsItem(item, "medium"));
             if (categoryNews.length === 0) return null;
+            // Render section based on template
+            let section: JSX.Element;
             switch (templateType) {
               case 'grid':
-                return renderGridTemplate(category, categoryNews);
+                section = renderGridTemplate(category, categoryNews);
+                break;
               case 'list':
-                return renderListTemplate(category, categoryNews);
+                section = renderListTemplate(category, categoryNews);
+                break;
               case 'magazine':
-                return renderMagazineTemplate(category, categoryNews);
+                section = renderMagazineTemplate(category, categoryNews);
+                break;
               case 'standard':
               default:
-                return renderStandardTemplate(category, categoryNews);
+                section = renderStandardTemplate(category, categoryNews);
+                break;
             }
+
+            // Special background band for Polícia block
+            if (category.slug === 'policia') {
+              return (
+                <div key={`policia-band-${category.slug}`} className="-mx-4 rounded-lg bg-red-700/90 py-8 px-4 text-white">
+                  {section}
+                </div>
+              );
+            }
+
+            return section;
           })}
 
         {/* Advertisement Space - Bottom */}
