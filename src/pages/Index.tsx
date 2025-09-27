@@ -392,7 +392,7 @@ const Index = () => {
                     <Link 
                       key={newsItem.id} 
                       to={link}
-                      className="flex items-start gap-4 p-3 hover:bg-muted rounded-lg cursor-pointer group transition-colors"
+                      className="flex items-center gap-4 p-3 hover:bg-muted rounded-lg cursor-pointer group transition-colors"
                     >
                       <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm bg-slate-950">
                         {index + 1}
