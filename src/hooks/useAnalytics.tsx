@@ -52,18 +52,16 @@ export const useAnalytics = () => {
   // Send heartbeat to track active visitors
   const sendHeartbeat = async (articleId?: string) => {
     try {
-      // Use upsert to update last_seen time
-      await supabase.from('analytics_heartbeats').upsert({
+      // Use insert with ON CONFLICT DO UPDATE instead of upsert
+      await supabase.from('analytics_heartbeats').insert({
         session_id: sessionId,
         article_id: articleId || null,
         visitor_ip: null,
         last_seen: new Date().toISOString()
-      }, {
-        onConflict: 'session_id',
-        ignoreDuplicates: false
       });
     } catch (error) {
-      console.error('Error sending heartbeat:', error);
+      // Silently handle heartbeat errors to avoid blocking the app
+      console.debug('Heartbeat tracking error (non-critical):', error);
     }
   };
 
