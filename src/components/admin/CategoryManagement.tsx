@@ -240,7 +240,10 @@ export const CategoryManagement = () => {
     return (
       <Card>
         <CardContent className="pt-6">
-          <p className="text-center">Carregando categorias...</p>
+          <div className="p-6 flex items-center justify-center text-muted-foreground">
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <span className="sr-only">Carregando...</span>
+          </div>
         </CardContent>
       </Card>
     );

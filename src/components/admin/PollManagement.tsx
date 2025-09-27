@@ -285,7 +285,12 @@ export const PollManagement = () => {
   };
 
   if (loading) {
-    return <div className="p-6">Carregando...</div>;
+    return (
+      <div className="p-6 flex items-center justify-center text-muted-foreground">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <span className="sr-only">Carregando...</span>
+      </div>
+    );
   }
 
   return (

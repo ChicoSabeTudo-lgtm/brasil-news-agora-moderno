@@ -8,7 +8,12 @@ export const BlocksConfigManagement = () => {
   const { config, isLoading, updateBlocksConfig } = useBlocksConfig();
 
   if (isLoading) {
-    return <div className="p-6">Carregando configurações...</div>;
+    return (
+      <div className="p-6 flex items-center justify-center text-muted-foreground">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <span className="sr-only">Carregando...</span>
+      </div>
+    );
   }
 
   const handleToggleLiveStream = (enabled: boolean) => {

@@ -431,8 +431,11 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center">
-                    Carregando notícias...
+                  <TableCell colSpan={8} className="py-10">
+                    <div className="flex items-center justify-center gap-3 text-muted-foreground">
+                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                      <span className="sr-only">Carregando...</span>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : filteredNews.length === 0 ? (

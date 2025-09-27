@@ -230,7 +230,10 @@ export const UserManagement = () => {
     return (
       <Card>
         <CardContent className="pt-6">
-          <p className="text-center">Carregando usuários...</p>
+          <div className="flex items-center justify-center gap-3 text-muted-foreground">
+            <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+            <span className="sr-only">Carregando...</span>
+          </div>
         </CardContent>
       </Card>
     );

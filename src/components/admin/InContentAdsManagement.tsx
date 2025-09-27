@@ -413,7 +413,12 @@ export function InContentAdsManagement() {
   };
 
   if (loading) {
-    return <div>Carregando anúncios in-content...</div>;
+    return (
+      <div className="p-6 flex items-center justify-center text-muted-foreground">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        <span className="sr-only">Carregando...</span>
+      </div>
+    );
   }
 
   return (
