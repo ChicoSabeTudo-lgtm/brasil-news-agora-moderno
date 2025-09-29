@@ -1,6 +1,4 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-// Import Quill Snow theme CSS to ensure proper toolbar/icon rendering
-import 'react-quill/dist/quill.snow.css';
 import { cn } from '@/lib/utils';
 import { EmbedModal } from './embed-modal';
 
@@ -33,6 +31,12 @@ export const RichTextEditor = ({
       if (typeof window !== 'undefined') {
         if (!ReactQuill) {
           const { default: RQ } = await import('react-quill');
+          // Load Quill Snow theme CSS only when editor is actually used
+          try {
+            await import('react-quill/dist/quill.snow.css');
+          } catch (_) {
+            // ignore if dynamic CSS import is not supported at build time
+          }
           ReactQuill = RQ;
           
           // CSS do Quill removido do bundle para evitar pré-carregamento do chunk do editor
