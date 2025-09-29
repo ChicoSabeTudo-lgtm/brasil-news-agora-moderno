@@ -38,7 +38,8 @@ export const ShareButtons = ({ title, description, url }: ShareButtonsProps) => 
   const sharePreview = {
     facebook: withUTM(previewUrl, 'facebook'),
     twitter: withUTM(previewUrl, 'twitter'),
-    whatsapp: withUTM(previewUrl, 'whatsapp'),
+    // Para WhatsApp, priorizamos mostrar a URL canônica visível ao usuário
+    whatsapp: withUTM(url, 'whatsapp'),
     linkedin: withUTM(previewUrl, 'linkedin'),
     telegram: withUTM(previewUrl, 'telegram'),
   };
@@ -49,7 +50,8 @@ export const ShareButtons = ({ title, description, url }: ShareButtonsProps) => 
   const shareLinks = {
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedPreview.facebook}&quote=${encodedTitle}`,
     twitter: `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedPreview.twitter}&via=chicosabetudo`,
-    whatsapp: `https://wa.me/?text=${encodedTitle}%20${encodedPreview.whatsapp}`,
+    // WhatsApp usa o texto; aqui mostramos o link canônico (mais "bonito")
+    whatsapp: `https://wa.me/?text=${encodedTitle}%0A${encodeURIComponent(sharePreview.whatsapp)}`,
     linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedPreview.linkedin}`,
     telegram: `https://t.me/share/url?url=${encodedPreview.telegram}&text=${encodedTitle}`,
   };
@@ -72,16 +74,17 @@ export const ShareButtons = ({ title, description, url }: ShareButtonsProps) => 
         await navigator.share({
           title,
           text: description,
-          url: previewUrl,
+          // No compartilhamento nativo, use a URL canônica (melhor UX)
+          url,
         });
       } catch (error) {
         // Se o compartilhamento nativo falhar, copia o link
-        navigator.clipboard.writeText(previewUrl);
+        navigator.clipboard.writeText(url);
         alert('Link copiado para a área de transferência!');
       }
     } else {
       // Fallback: copia o link
-      navigator.clipboard.writeText(previewUrl);
+      navigator.clipboard.writeText(url);
       alert('Link copiado para a área de transferência!');
     }
   };
@@ -119,7 +122,7 @@ export const ShareButtons = ({ title, description, url }: ShareButtonsProps) => 
           <Send className="w-4 h-4 mr-2 text-[#0088cc]" />
           Telegram
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => { navigator.clipboard.writeText(previewUrl); }} className="cursor-pointer">
+        <DropdownMenuItem onClick={() => { navigator.clipboard.writeText(url); }} className="cursor-pointer">
           <Copy className="w-4 h-4 mr-2" />
           Copiar link
         </DropdownMenuItem>
