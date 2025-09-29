@@ -26,7 +26,7 @@ serve(async (req) => {
   }
 
   try {
-    const { searchParams, pathname } = new URL(req.url);
+    const { searchParams, pathname, href: selfUrl } = new URL(req.url);
 
     // Accept either ?url=fullArticleUrl or path /functions/v1/share-preview/<anything>
     const articleUrl = searchParams.get("url") || "";
@@ -134,8 +134,11 @@ serve(async (req) => {
   <meta property="og:site_name" content="${escapeHtml(siteName)}" />
   <meta property="og:title" content="${escapeHtml(title)}" />
   <meta property="og:description" content="${escapeHtml(description)}" />
-  <meta property="og:url" content="${originalUrl}" />
+  <!-- Importante: usar a própria URL da função em og:url para evitar colisão com cache do Facebook na URL canônica -->
+  <meta property="og:url" content="${selfUrl}" />
   <meta property="og:image" content="${ogImage}" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="${escapeHtml(title)}" />
 
   <!-- Article meta -->
@@ -149,6 +152,7 @@ serve(async (req) => {
   <meta name="twitter:title" content="${escapeHtml(title)}" />
   <meta name="twitter:description" content="${escapeHtml(description)}" />
   <meta name="twitter:image" content="${ogImage}" />
+  <meta name="twitter:url" content="${selfUrl}" />
 
   <!-- JSON-LD -->
   <script type="application/ld+json">${JSON.stringify({
