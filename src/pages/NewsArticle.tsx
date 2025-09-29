@@ -24,6 +24,7 @@ import { useCategories } from '@/hooks/useCategories';
 
 interface NewsData {
   id: string;
+  slug?: string | null;
   title: string;
   subtitle: string;
   content: string;
@@ -287,11 +288,18 @@ const NewsArticle = () => {
   };
 
   const configureSEO = (newsData: NewsData) => {
-    const currentUrl = window.location.href;
+    const origin = window.location.origin;
+    const canonicalUrl = (newsData.slug && newsData.categories?.slug)
+      ? `${origin}/${newsData.categories.slug}/${newsData.slug}`
+      : window.location.href;
     const featuredImage = newsData.news_images?.find(img => img.is_cover) || newsData.news_images?.[0];
-    const imageUrl = featuredImage ? getImageUrl(featuredImage) : null;
+    const defaultOg = `${origin}/lovable-uploads/aac6981c-a63e-4b99-a9d1-5be26ea5ad4a.png`;
+    const imageUrl = featuredImage ? getImageUrl(featuredImage) : defaultOg;
     const siteName = "ChicoSabeTudo";
-    const excerpt = newsData.subtitle || newsData.meta_description;
+    const rawExcerpt = newsData.subtitle || newsData.meta_description || '';
+    const excerpt = rawExcerpt.length > 160
+      ? `${rawExcerpt.substring(0, rawExcerpt.lastIndexOf(' ', 160) > 100 ? rawExcerpt.lastIndexOf(' ', 160) : 160).trim()}…`
+      : rawExcerpt;
     
     // Limpar meta tags existentes
     const existingMetas = document.querySelectorAll('meta[data-dynamic-seo]');
@@ -312,31 +320,47 @@ const NewsArticle = () => {
       document.head.appendChild(meta);
     };
 
+    // Criar/atualizar link tag (canonical)
+    const createOrUpdateLinkTag = (rel: string, href: string) => {
+      const existing = document.querySelector(`link[rel="${rel}"]`);
+      if (existing) existing.remove();
+      const link = document.createElement('link');
+      link.setAttribute('rel', rel);
+      link.setAttribute('href', href);
+      link.setAttribute('data-dynamic-seo', 'true');
+      document.head.appendChild(link);
+    };
+
     // Atualizar título da página
     document.title = `${newsData.title} | ${siteName}`;
+
+    // Canonical
+    createOrUpdateLinkTag('canonical', canonicalUrl);
 
     // Meta tags básicas
     createOrUpdateMetaTag('meta[name="description"]', excerpt, { name: 'description' });
     createOrUpdateMetaTag('meta[name="keywords"]', newsData.tags?.join(', ') || '', { name: 'keywords' });
     createOrUpdateMetaTag('meta[name="author"]', newsData.profiles?.full_name || 'Redação', { name: 'author' });
     createOrUpdateMetaTag('meta[name="robots"]', 'index, follow', { name: 'robots' });
+    createOrUpdateMetaTag('meta[name="theme-color"]', '#0ea5e9', { name: 'theme-color' });
     
     // Open Graph tags (Facebook, LinkedIn, etc.)
     createOrUpdateMetaTag('meta[property="og:type"]', 'article', { property: 'og:type' });
     createOrUpdateMetaTag('meta[property="og:title"]', newsData.title, { property: 'og:title' });
     createOrUpdateMetaTag('meta[property="og:description"]', excerpt, { property: 'og:description' });
-    createOrUpdateMetaTag('meta[property="og:url"]', currentUrl, { property: 'og:url' });
+    createOrUpdateMetaTag('meta[property="og:url"]', canonicalUrl, { property: 'og:url' });
     createOrUpdateMetaTag('meta[property="og:site_name"]', siteName, { property: 'og:site_name' });
     createOrUpdateMetaTag('meta[property="og:locale"]', 'pt_BR', { property: 'og:locale' });
+    createOrUpdateMetaTag('meta[property="og:updated_time"]', newsData.updated_at, { property: 'og:updated_time' });
     
-    if (imageUrl) {
-      createOrUpdateMetaTag('meta[property="og:image"]', imageUrl, { property: 'og:image' });
-      createOrUpdateMetaTag('meta[property="og:image:width"]', '1200', { property: 'og:image:width' });
-      createOrUpdateMetaTag('meta[property="og:image:height"]', '630', { property: 'og:image:height' });
-      createOrUpdateMetaTag('meta[property="og:image:alt"]', newsData.title, { property: 'og:image:alt' });
-      createOrUpdateMetaTag('meta[property="og:image:type"]', 'image/jpeg', { property: 'og:image:type' });
-      createOrUpdateMetaTag('meta[property="og:image:secure_url"]', imageUrl, { property: 'og:image:secure_url' });
-    }
+    const lower = (imageUrl || '').toLowerCase();
+    const imageType = lower.endsWith('.png') ? 'image/png' : lower.endsWith('.webp') ? 'image/webp' : 'image/jpeg';
+    createOrUpdateMetaTag('meta[property="og:image"]', imageUrl, { property: 'og:image' });
+    createOrUpdateMetaTag('meta[property="og:image:width"]', '1200', { property: 'og:image:width' });
+    createOrUpdateMetaTag('meta[property="og:image:height"]', '630', { property: 'og:image:height' });
+    createOrUpdateMetaTag('meta[property="og:image:alt"]', newsData.title, { property: 'og:image:alt' });
+    createOrUpdateMetaTag('meta[property="og:image:type"]', imageType, { property: 'og:image:type' });
+    createOrUpdateMetaTag('meta[property="og:image:secure_url"]', imageUrl, { property: 'og:image:secure_url' });
 
     // Dados específicos para artigos
     createOrUpdateMetaTag('meta[property="article:author"]', newsData.profiles?.full_name || 'Redação', { property: 'article:author' });
@@ -354,13 +378,46 @@ const NewsArticle = () => {
     createOrUpdateMetaTag('meta[name="twitter:card"]', 'summary_large_image', { name: 'twitter:card' });
     createOrUpdateMetaTag('meta[name="twitter:title"]', newsData.title, { name: 'twitter:title' });
     createOrUpdateMetaTag('meta[name="twitter:description"]', excerpt, { name: 'twitter:description' });
-    createOrUpdateMetaTag('meta[name="twitter:url"]', currentUrl, { name: 'twitter:url' });
+    createOrUpdateMetaTag('meta[name="twitter:url"]', canonicalUrl, { name: 'twitter:url' });
     createOrUpdateMetaTag('meta[name="twitter:site"]', '@chicosabetudo', { name: 'twitter:site' });
-    
+    createOrUpdateMetaTag('meta[name="twitter:image"]', imageUrl, { name: 'twitter:image' });
+    createOrUpdateMetaTag('meta[name="twitter:image:alt"]', newsData.title, { name: 'twitter:image:alt' });
+
+    // Structured Data (JSON-LD) for NewsArticle
+    const existingJsonLd = document.querySelector('script[data-dynamic-seo="json-ld"]');
+    if (existingJsonLd) existingJsonLd.remove();
+    const jsonLd: any = {
+      '@context': 'https://schema.org',
+      '@type': 'NewsArticle',
+      mainEntityOfPage: {
+        '@type': 'WebPage',
+        '@id': canonicalUrl,
+      },
+      headline: newsData.title?.substring(0, 110),
+      description: excerpt,
+      datePublished: newsData.published_at,
+      dateModified: newsData.updated_at,
+      author: {
+        '@type': 'Person',
+        name: newsData.profiles?.full_name || 'Redação',
+      },
+      publisher: {
+        '@type': 'Organization',
+        name: siteName,
+        logo: {
+          '@type': 'ImageObject',
+          url: defaultOg,
+        }
+      },
+    };
     if (imageUrl) {
-      createOrUpdateMetaTag('meta[name="twitter:image"]', imageUrl, { name: 'twitter:image' });
-      createOrUpdateMetaTag('meta[name="twitter:image:alt"]', newsData.title, { name: 'twitter:image:alt' });
+      jsonLd.image = [imageUrl];
     }
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.setAttribute('data-dynamic-seo', 'json-ld');
+    script.textContent = JSON.stringify(jsonLd);
+    document.head.appendChild(script);
 
     // Schema.org JSON-LD
     const existingJsonLd = document.querySelector('script[data-dynamic-seo]');
