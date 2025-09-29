@@ -718,8 +718,13 @@ const NewsArticle = () => {
               
               <ShareButtons
                 title={news.title}
-                description={news.meta_description}
-                url={window.location.href}
+                description={(news.subtitle || news.meta_description || '').slice(0, 160)}
+                url={(() => {
+                  const origin = window.location.origin;
+                  return (news.slug && news.categories?.slug)
+                    ? `${origin}/${news.categories.slug}/${news.slug}`
+                    : `${origin}/noticia/${news.id}`;
+                })()}
               />
             </div>
 
