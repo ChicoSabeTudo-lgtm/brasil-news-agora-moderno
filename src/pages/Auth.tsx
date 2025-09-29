@@ -27,6 +27,7 @@ export default function Auth() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isReset = searchParams.get('reset') === 'true';
+  const [showReset, setShowReset] = useState<boolean>(isReset);
 
   useEffect(() => {
     // Não redireciona automaticamente após login
@@ -188,30 +189,47 @@ export default function Auth() {
                 </div>
                 
                 <Separator className="my-4" />
-                
-                <form onSubmit={handleResetPassword} className="space-y-4">
+
+                {!showReset ? (
                   <div className="text-center">
-                    <p className="text-sm text-muted-foreground mb-2">
+                    <Button
+                      type="button"
+                      variant="link"
+                      className="text-sm"
+                      onClick={() => setShowReset(true)}
+                    >
                       Esqueceu sua senha?
-                    </p>
+                    </Button>
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="reset-email">Email para recuperação</Label>
-                    <Input
-                      id="reset-email"
-                      type="email"
-                      placeholder="seu@email.com"
-                      value={resetEmail}
-                      onChange={(e) => setResetEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <Button type="submit" variant="outline" className="w-full" disabled={isLoading}>
-                    {isLoading ? 'Enviando...' : 'Redefinir Senha'}
-                  </Button>
-                </form>
+                ) : (
+                  <form onSubmit={handleResetPassword} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="reset-email">Email para recuperação</Label>
+                      <Input
+                        id="reset-email"
+                        type="email"
+                        placeholder="seu@email.com"
+                        value={resetEmail}
+                        onChange={(e) => setResetEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="flex-1"
+                        onClick={() => setShowReset(false)}
+                        disabled={isLoading}
+                      >
+                        Cancelar
+                      </Button>
+                      <Button type="submit" variant="outline" className="flex-1" disabled={isLoading}>
+                        {isLoading ? 'Enviando...' : 'Redefinir Senha'}
+                      </Button>
+                    </div>
+                  </form>
+                )}
               </TabsContent>
               
               <TabsContent value="signup">
