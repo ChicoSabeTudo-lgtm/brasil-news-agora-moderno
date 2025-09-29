@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
+// Import Quill Snow theme CSS to ensure proper toolbar/icon rendering
+import 'react-quill/dist/quill.snow.css';
 import { cn } from '@/lib/utils';
 import { EmbedModal } from './embed-modal';
 
