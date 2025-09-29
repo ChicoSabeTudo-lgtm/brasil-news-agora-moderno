@@ -384,9 +384,10 @@ const NewsArticle = () => {
     createOrUpdateMetaTag('meta[name="twitter:image:alt"]', newsData.title, { name: 'twitter:image:alt' });
 
     // Structured Data (JSON-LD) for NewsArticle
-    const existingJsonLd = document.querySelector('script[data-dynamic-seo="json-ld"]');
-    if (existingJsonLd) existingJsonLd.remove();
-    const jsonLd: any = {
+    const existingJsonLdScript = document.querySelector('script[data-dynamic-seo="json-ld"]');
+    if (existingJsonLdScript) existingJsonLdScript.remove();
+    
+    const structuredData = {
       '@context': 'https://schema.org',
       '@type': 'NewsArticle',
       mainEntityOfPage: {
@@ -409,53 +410,20 @@ const NewsArticle = () => {
           url: defaultOg,
         }
       },
+      articleSection: newsData.categories.name,
+      keywords: newsData.tags?.join(', ') || '',
+      url: canonicalUrl
     };
+    
     if (imageUrl) {
-      jsonLd.image = [imageUrl];
+      (structuredData as any).image = [imageUrl];
     }
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.setAttribute('data-dynamic-seo', 'json-ld');
-    script.textContent = JSON.stringify(jsonLd);
-    document.head.appendChild(script);
-
-    // Schema.org JSON-LD
-    const existingJsonLd = document.querySelector('script[data-dynamic-seo]');
-    if (existingJsonLd) {
-      existingJsonLd.remove();
-    }
-
-    const jsonLd = {
-      "@context": "https://schema.org",
-      "@type": "NewsArticle",
-      "headline": newsData.title,
-      "description": excerpt,
-      "image": imageUrl ? [imageUrl] : [],
-      "datePublished": newsData.published_at,
-      "dateModified": newsData.updated_at,
-      "author": {
-        "@type": "Person",
-        "name": newsData.profiles?.full_name || "Redação"
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": siteName,
-        "url": window.location.origin
-      },
-      "mainEntityOfPage": {
-        "@type": "WebPage",
-        "@id": currentUrl
-      },
-      "articleSection": newsData.categories.name,
-      "keywords": newsData.tags?.join(', ') || '',
-      "url": currentUrl
-    };
-
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.setAttribute('data-dynamic-seo', 'true');
-    script.textContent = JSON.stringify(jsonLd);
-    document.head.appendChild(script);
+    
+    const jsonLdScript = document.createElement('script');
+    jsonLdScript.type = 'application/ld+json';
+    jsonLdScript.setAttribute('data-dynamic-seo', 'json-ld');
+    jsonLdScript.textContent = JSON.stringify(structuredData);
+    document.head.appendChild(jsonLdScript);
 
     // Forçar atualização do cache do Facebook (apenas para desenvolvimento)
     if (window.location.hostname === 'localhost' || window.location.hostname.includes('lovable')) {
@@ -463,7 +431,7 @@ const NewsArticle = () => {
         title: newsData.title,
         description: excerpt,
         image: imageUrl,
-        url: currentUrl
+        url: canonicalUrl
       });
     }
   };
