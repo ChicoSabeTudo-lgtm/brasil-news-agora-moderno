@@ -12,6 +12,7 @@ import { Calendar as DayPicker } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import type { DateRange } from 'react-day-picker';
 import { useFinanceData, type FinanceTransaction, type TxStatus, type TxType } from '@/hooks/useFinance';
+import NewTransactionModal from './NewTransactionModal';
 
 const currency = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
 
@@ -26,31 +27,7 @@ export function FinancialEntries() {
   const [projectFilter, setProjectFilter] = useState<'all' | string>('all');
   const [range, setRange] = useState<DateRange | undefined>();
 
-  const [form, setForm] = useState<{
-    type: TxType;
-    description: string;
-    value: number;
-    dueDate: string;
-    status: TxStatus;
-    supplier?: string;
-    project?: string;
-    method?: string;
-    category?: string;
-    payDate?: string;
-    receiptUrl?: string;
-  }>({
-    type: 'receita',
-    description: '',
-    value: 0,
-    dueDate: '',
-    status: 'Pendente',
-    supplier: '',
-    project: '',
-    method: '',
-    category: '',
-    payDate: '',
-    receiptUrl: '',
-  });
+  // Local form removed; handled by modal component
 
   const filtered = useMemo(() => {
     return transactions.filter((t) => {
@@ -83,24 +60,7 @@ export function FinancialEntries() {
     return { received, paid, receivable, payable };
   }, [transactions]);
 
-  const handleCreate = async () => {
-    await addTransaction({
-      type: form.type,
-      description: form.description,
-      value: Number(form.value),
-      due_date: form.dueDate,
-      pay_date: form.payDate || null,
-      status: form.status,
-      supplier: form.supplier,
-      project_id: form.project || null,
-      category_id: form.category || null,
-      method: form.method,
-      receipt_url: form.receiptUrl,
-      id: '' as any,
-    } as any);
-    setOpen(false);
-    setForm({ type: 'receita', description: '', value: 0, dueDate: '', status: 'Pendente', supplier: '', project: '', method: '', category: '', payDate: '', receiptUrl: '' });
-  };
+  const handleCreated = () => setOpen(false);
 
   const StatusBadge = ({ status }: { status: TxStatus }) => (
     <Badge variant={status === 'Pago' ? 'secondary' : status === 'Pendente' ? 'default' : 'destructive'}>
@@ -112,140 +72,15 @@ export function FinancialEntries() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Lançamentos</h2>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">+ Nova Transação</Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-3xl">
-            <DialogHeader>
-              <DialogTitle>Nova Transação</DialogTitle>
-            </DialogHeader>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="col-span-2 flex gap-2">
-                <Button
-                  variant={form.type === 'receita' ? 'default' : 'outline'}
-                  onClick={() => setForm((f) => ({ ...f, type: 'receita' }))}
-                  className="flex-1"
-                >
-                  $ Receita
-                </Button>
-                <Button
-                  variant={form.type === 'despesa' ? 'destructive' : 'outline'}
-                  onClick={() => setForm((f) => ({ ...f, type: 'despesa' }))}
-                  className="flex-1"
-                >
-                  $ Despesa
-                </Button>
-              </div>
-
-              <div className="col-span-2">
-                <Label>Descrição</Label>
-                <Input
-                  placeholder="Descrição da transação"
-                  value={form.description}
-                  onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                />
-              </div>
-
-              <div>
-                <Label>Valor</Label>
-                <Input
-                  type="number"
-                  value={form.value}
-                  onChange={(e) => setForm((f) => ({ ...f, value: Number(e.target.value) }))}
-                />
-              </div>
-              <div>
-                <Label>Data de Vencimento</Label>
-                <Input type="date" value={form.dueDate} onChange={(e) => setForm((f) => ({ ...f, dueDate: e.target.value }))} />
-              </div>
-
-              <div>
-                <Label>Status</Label>
-                <Select value={form.status} onValueChange={(v: TxStatus) => setForm((f) => ({ ...f, status: v }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Pendente">Pendente</SelectItem>
-                    <SelectItem value="Pago">Pago</SelectItem>
-                    <SelectItem value="Atrasado">Atrasado</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Data de Pagamento</Label>
-                <Input type="date" value={form.payDate} onChange={(e) => setForm((f) => ({ ...f, payDate: e.target.value }))} />
-              </div>
-
-              <div>
-                <Label>Fornecedor/Despesa</Label>
-                <Input value={form.supplier} onChange={(e) => setForm((f) => ({ ...f, supplier: e.target.value }))} />
-              </div>
-              <div>
-                <Label>Projeto</Label>
-                <Select value={form.project} onValueChange={(v) => setForm((f) => ({ ...f, project: v }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecionar projeto" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">Nenhum</SelectItem>
-                    {projects.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label>Método de Pagamento</Label>
-                <Select value={form.method} onValueChange={(v) => setForm((f) => ({ ...f, method: v }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecionar método" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Boleto">Boleto</SelectItem>
-                    <SelectItem value="Cartão">Cartão</SelectItem>
-                    <SelectItem value="PIX">PIX</SelectItem>
-                    <SelectItem value="Dinheiro">Dinheiro</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Categoria</Label>
-                <Select value={form.category} onValueChange={(v) => setForm((f) => ({ ...f, category: v }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecionar categoria" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="col-span-2">
-                <Label>Comprovantes e Documentos</Label>
-                <div className="mt-2 rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">
-                  Clique para selecionar ou arraste arquivos aqui
-                  <Input type="file" multiple className="mt-3" />
-                </div>
-              </div>
-
-              <div className="col-span-2">
-                <Label>URL do Comprovante (opcional)</Label>
-                <Input placeholder="https://exemplo.com/comprovante.pdf" value={form.receiptUrl} onChange={(e) => setForm((f) => ({ ...f, receiptUrl: e.target.value }))} />
-              </div>
-            </div>
-
-            <DialogFooter className="mt-4">
-              <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-              <Button onClick={handleCreate}>Criar Transação</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <Button className="gap-2" onClick={() => setOpen(true)}>+ Nova Transação</Button>
+        <NewTransactionModal 
+          open={open}
+          onOpenChange={setOpen}
+          projects={projects}
+          categories={categories}
+          createTransaction={addTransaction as any}
+          onCreated={handleCreated}
+        />
       </div>
 
       {/* Summary cards */}
