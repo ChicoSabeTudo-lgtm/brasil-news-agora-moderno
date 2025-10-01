@@ -1,0 +1,82 @@
+import { useEffect, useState, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+
+export type TxType = 'receita' | 'despesa';
+export type TxStatus = 'Pendente' | 'Pago' | 'Atrasado';
+
+export interface FinanceProject { id: string; name: string }
+export interface FinanceCategory { id: string; name: string; type: TxType }
+export interface FinanceTransaction {
+  id: string;
+  type: TxType;
+  description: string;
+  value: number;
+  due_date: string; // yyyy-mm-dd
+  pay_date: string | null;
+  status: TxStatus;
+  supplier?: string | null;
+  project_id?: string | null;
+  category_id?: string | null;
+  method?: string | null;
+  receipt_url?: string | null;
+}
+
+export function useFinanceData() {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [projects, setProjects] = useState<FinanceProject[]>([]);
+  const [categories, setCategories] = useState<FinanceCategory[]>([]);
+  const [transactions, setTransactions] = useState<FinanceTransaction[]>([]);
+
+  const fetchAll = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [{ data: proj }, { data: cat }, { data: tx }] = await Promise.all([
+        supabase.from('finance_projects').select('id,name').order('name'),
+        supabase.from('finance_categories').select('id,name,type').order('name'),
+        supabase.from('finance_transactions').select('*').order('due_date', { ascending: false }),
+      ]);
+      setProjects(proj || []);
+      setCategories(cat || []);
+      setTransactions((tx || []).map((t: any) => ({ ...t })));
+    } catch (e: any) {
+      setError(e.message || 'Erro ao carregar dados financeiros');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchAll(); }, [fetchAll]);
+
+  const addTransaction = async (payload: Omit<FinanceTransaction, 'id'>) => {
+    const { data, error } = await supabase.from('finance_transactions').insert({
+      type: payload.type,
+      description: payload.description,
+      value: payload.value,
+      due_date: payload.due_date,
+      pay_date: payload.pay_date,
+      status: payload.status,
+      supplier: payload.supplier,
+      project_id: payload.project_id,
+      category_id: payload.category_id,
+      method: payload.method,
+      receipt_url: payload.receipt_url,
+    }).select('*').single();
+    if (error) throw error;
+    setTransactions((prev) => [data as any, ...prev]);
+    return data as any as FinanceTransaction;
+  };
+
+  const updateTransaction = async (id: string, updates: Partial<FinanceTransaction>) => {
+    const { data, error } = await supabase.from('finance_transactions').update({
+      ...updates,
+    }).eq('id', id).select('*').single();
+    if (error) throw error;
+    setTransactions((prev) => prev.map((t) => (t.id === id ? (data as any) : t)));
+    return data as any as FinanceTransaction;
+  };
+
+  return { loading, error, projects, categories, transactions, fetchAll, addTransaction, updateTransaction };
+}
+

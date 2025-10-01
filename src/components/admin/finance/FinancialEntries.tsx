@@ -8,48 +8,37 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { DollarSign, TrendingDown, TrendingUp, Calendar, Eye, Edit } from 'lucide-react';
-
-type TxType = 'receita' | 'despesa';
-type TxStatus = 'Pendente' | 'Pago' | 'Atrasado';
-
-interface Transaction {
-  id: number;
-  type: TxType;
-  description: string;
-  value: number;
-  dueDate: string; // ISO date
-  payDate?: string;
-  status: TxStatus;
-  supplier?: string;
-  project?: string;
-  method?: string;
-  category?: string;
-  receiptUrl?: string;
-}
+import { Calendar as DayPicker } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import type { DateRange } from 'react-day-picker';
+import { useFinanceData, type FinanceTransaction, type TxStatus, type TxType } from '@/hooks/useFinance';
 
 const currency = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
 
 export function FinancialEntries() {
+  const { transactions, addTransaction, updateTransaction, projects, categories } = useFinanceData();
   const [open, setOpen] = useState(false);
+  const [viewing, setViewing] = useState<FinanceTransaction | null>(null);
+  const [editing, setEditing] = useState<FinanceTransaction | null>(null);
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState<'all' | TxType>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | TxStatus>('all');
   const [projectFilter, setProjectFilter] = useState<'all' | string>('all');
+  const [range, setRange] = useState<DateRange | undefined>();
 
-  const [transactions, setTransactions] = useState<Transaction[]>([
-    {
-      id: 1,
-      type: 'despesa',
-      description: 'CONSELHO REGIONAL DE ENGENHARIA',
-      value: 308.58,
-      dueDate: new Date().toISOString().slice(0, 10),
-      status: 'Pago',
-      project: 'Portal',
-      category: 'Outras Despesas',
-    },
-  ]);
-
-  const [form, setForm] = useState<Omit<Transaction, 'id'>>({
+  const [form, setForm] = useState<{
+    type: TxType;
+    description: string;
+    value: number;
+    dueDate: string;
+    status: TxStatus;
+    supplier?: string;
+    project?: string;
+    method?: string;
+    category?: string;
+    payDate?: string;
+    receiptUrl?: string;
+  }>({
     type: 'receita',
     description: '',
     value: 0,
@@ -67,7 +56,12 @@ export function FinancialEntries() {
     return transactions.filter((t) => {
       if (typeFilter !== 'all' && t.type !== typeFilter) return false;
       if (statusFilter !== 'all' && t.status !== statusFilter) return false;
-      if (projectFilter !== 'all' && (t.project || '') !== projectFilter) return false;
+      if (projectFilter !== 'all' && (t.project_id || '') !== projectFilter) return false;
+      if (range?.from || range?.to) {
+        const d = new Date(t.due_date);
+        if (range?.from && d < new Date(range.from.setHours(0,0,0,0))) return false;
+        if (range?.to && d > new Date(range.to.setHours(23,59,59,999))) return false;
+      }
       if (search && !`${t.description}`.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
@@ -76,36 +70,36 @@ export function FinancialEntries() {
   const summary = useMemo(() => {
     const received = transactions
       .filter((t) => t.type === 'receita' && t.status === 'Pago')
-      .reduce((acc, t) => acc + t.value, 0);
+      .reduce((acc, t) => acc + (Number(t.value) || 0), 0);
     const paid = transactions
       .filter((t) => t.type === 'despesa' && t.status === 'Pago')
-      .reduce((acc, t) => acc + t.value, 0);
+      .reduce((acc, t) => acc + (Number(t.value) || 0), 0);
     const receivable = transactions
       .filter((t) => t.type === 'receita' && t.status !== 'Pago')
-      .reduce((acc, t) => acc + t.value, 0);
+      .reduce((acc, t) => acc + (Number(t.value) || 0), 0);
     const payable = transactions
       .filter((t) => t.type === 'despesa' && t.status !== 'Pago')
-      .reduce((acc, t) => acc + t.value, 0);
+      .reduce((acc, t) => acc + (Number(t.value) || 0), 0);
     return { received, paid, receivable, payable };
   }, [transactions]);
 
-  const addTransaction = () => {
-    const next: Transaction = { id: Date.now(), ...form, value: Number(form.value) } as Transaction;
-    setTransactions((prev) => [next, ...prev]);
+  const handleCreate = async () => {
+    await addTransaction({
+      type: form.type,
+      description: form.description,
+      value: Number(form.value),
+      due_date: form.dueDate,
+      pay_date: form.payDate || null,
+      status: form.status,
+      supplier: form.supplier,
+      project_id: form.project || null,
+      category_id: form.category || null,
+      method: form.method,
+      receipt_url: form.receiptUrl,
+      id: '' as any,
+    } as any);
     setOpen(false);
-    setForm({
-      type: 'receita',
-      description: '',
-      value: 0,
-      dueDate: '',
-      status: 'Pendente',
-      supplier: '',
-      project: '',
-      method: '',
-      category: '',
-      payDate: '',
-      receiptUrl: '',
-    });
+    setForm({ type: 'receita', description: '', value: 0, dueDate: '', status: 'Pendente', supplier: '', project: '', method: '', category: '', payDate: '', receiptUrl: '' });
   };
 
   const StatusBadge = ({ status }: { status: TxStatus }) => (
@@ -197,8 +191,9 @@ export function FinancialEntries() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">Nenhum</SelectItem>
-                    <SelectItem value="Portal">Portal</SelectItem>
-                    <SelectItem value="Marketing">Marketing</SelectItem>
+                    {projects.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -224,10 +219,9 @@ export function FinancialEntries() {
                     <SelectValue placeholder="Selecionar categoria" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Outras Despesas">Outras Despesas</SelectItem>
-                    <SelectItem value="Serviços">Serviços</SelectItem>
-                    <SelectItem value="Assinaturas">Assinaturas</SelectItem>
-                    <SelectItem value="Publicidade">Publicidade</SelectItem>
+                    {categories.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -248,7 +242,7 @@ export function FinancialEntries() {
 
             <DialogFooter className="mt-4">
               <Button variant="outline" onClick={() => setOpen(false)}>Cancelar</Button>
-              <Button onClick={addTransaction}>Criar Transação</Button>
+              <Button onClick={handleCreate}>Criar Transação</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -299,14 +293,21 @@ export function FinancialEntries() {
         <CardContent className="pt-6 space-y-4">
           <Input placeholder="Buscar transações..." value={search} onChange={(e) => setSearch(e.target.value)} />
           <div className="flex flex-wrap gap-3">
-            <Select defaultValue="mes">
-              <SelectTrigger className="w-[160px]"><SelectValue placeholder="Período" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="mes">Mês atual</SelectItem>
-                <SelectItem value="30">Últimos 30 dias</SelectItem>
-                <SelectItem value="90">Últimos 90 dias</SelectItem>
-              </SelectContent>
-            </Select>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-[220px] justify-start">
+                  <Calendar className="mr-2 h-4 w-4" />
+                  {range?.from ? (
+                    range.to ? `${range.from.toLocaleDateString('pt-BR')} - ${range.to.toLocaleDateString('pt-BR')}` : `${range.from.toLocaleDateString('pt-BR')}`
+                  ) : (
+                    <span>Selecionar período</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <DayPicker mode="range" selected={range} onSelect={setRange} numberOfMonths={2} />
+              </PopoverContent>
+            </Popover>
 
             <Select value={typeFilter} onValueChange={(v: 'all' | TxType) => setTypeFilter(v)}>
               <SelectTrigger className="w-[160px]"><SelectValue placeholder="Tipo" /></SelectTrigger>
@@ -331,8 +332,9 @@ export function FinancialEntries() {
               <SelectTrigger className="w-[200px]"><SelectValue placeholder="Projeto" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todos os projetos</SelectItem>
-                <SelectItem value="Portal">Portal</SelectItem>
-                <SelectItem value="Marketing">Marketing</SelectItem>
+                {projects.map((p) => (
+                  <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -372,18 +374,18 @@ export function FinancialEntries() {
                   </TableCell>
                   <TableCell>
                     <div className="font-medium">{t.description}</div>
-                    <div className="text-xs text-muted-foreground">Categoria: {t.category || '-'}</div>
+                    <div className="text-xs text-muted-foreground">Categoria: {t.category_id || '-'}</div>
                   </TableCell>
                   <TableCell className={t.type === 'despesa' ? 'text-red-600' : ''}>
                     {t.type === 'despesa' ? '-' : ''}
-                    {currency(t.value)}
+                    {currency(Number(t.value))}
                   </TableCell>
-                  <TableCell>{new Date(t.dueDate).toLocaleDateString('pt-BR')}</TableCell>
-                  <TableCell><StatusBadge status={t.status} /></TableCell>
-                  <TableCell>{t.project || '-'}</TableCell>
+                  <TableCell>{new Date(t.due_date).toLocaleDateString('pt-BR')}</TableCell>
+                  <TableCell><StatusBadge status={t.status as TxStatus} /></TableCell>
+                  <TableCell>{t.project_id || '-'}</TableCell>
                   <TableCell className="flex gap-2">
-                    <Button variant="ghost" size="icon"><Eye className="w-4 h-4" /></Button>
-                    <Button variant="ghost" size="icon"><Edit className="w-4 h-4" /></Button>
+                    <Button variant="ghost" size="icon" onClick={() => setViewing(t)}><Eye className="w-4 h-4" /></Button>
+                    <Button variant="ghost" size="icon" onClick={() => setEditing(t)}><Edit className="w-4 h-4" /></Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -391,7 +393,63 @@ export function FinancialEntries() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* View dialog */}
+      <Dialog open={!!viewing} onOpenChange={(o) => !o && setViewing(null)}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Detalhes da Transação</DialogTitle></DialogHeader>
+          {viewing && (
+            <div className="space-y-2 text-sm">
+              <div><b>Tipo:</b> {viewing.type}</div>
+              <div><b>Descrição:</b> {viewing.description}</div>
+              <div><b>Valor:</b> {currency(Number(viewing.value))}</div>
+              <div><b>Vencimento:</b> {new Date(viewing.due_date).toLocaleDateString('pt-BR')}</div>
+              <div><b>Status:</b> {viewing.status}</div>
+              <div><b>Projeto:</b> {viewing.project_id || '-'}</div>
+              <div><b>Categoria:</b> {viewing.category_id || '-'}</div>
+              <div><b>Método:</b> {viewing.method || '-'}</div>
+              <div><b>Comprovante:</b> {viewing.receipt_url ? <a className="text-primary underline" href={viewing.receipt_url} target="_blank" rel="noreferrer">Abrir</a> : '-'}</div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setViewing(null)}>Fechar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit dialog */}
+      <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader><DialogTitle>Editar Transação</DialogTitle></DialogHeader>
+          {editing && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="col-span-2">
+                <Label>Descrição</Label>
+                <Input value={editing.description} onChange={(e) => setEditing({ ...editing, description: e.target.value })} />
+              </div>
+              <div>
+                <Label>Valor</Label>
+                <Input type="number" value={editing.value} onChange={(e) => setEditing({ ...editing, value: Number(e.target.value) } as any)} />
+              </div>
+              <div>
+                <Label>Status</Label>
+                <Select value={editing.status} onValueChange={(v: TxStatus) => setEditing({ ...editing, status: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Pendente">Pendente</SelectItem>
+                    <SelectItem value="Pago">Pago</SelectItem>
+                    <SelectItem value="Atrasado">Atrasado</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditing(null)}>Cancelar</Button>
+            <Button onClick={async () => { if (editing) { await updateTransaction(editing.id, { description: editing.description, value: editing.value, status: editing.status }); setEditing(null); } }}>Salvar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
-
