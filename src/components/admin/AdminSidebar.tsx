@@ -139,7 +139,7 @@ const generalItems = [
 
 const financialItems = [
   {
-    title: 'Visão Financeira',
+    title: 'Lançamentos',
     url: '/admin?tab=finance',
     icon: DollarSign,
     roles: ['admin', 'redator'],

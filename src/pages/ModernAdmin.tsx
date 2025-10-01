@@ -25,7 +25,7 @@ import { BlocksConfigManagement } from '@/components/admin/BlocksConfigManagemen
 import PostSharingForm from '@/components/admin/PostSharingForm';
 import { AnalyticsPage } from '@/components/admin/analytics/AnalyticsPage';
 import { SocialPostsManagement } from '@/components/admin/SocialPostsManagement';
-import { FinanceDashboard } from '@/components/admin/finance/FinanceDashboard';
+import { FinancialEntries } from '@/components/admin/finance/FinancialEntries';
 import { OrdersManagement } from '@/components/admin/finance/OrdersManagement';
 import { InvoicesManagement } from '@/components/admin/finance/InvoicesManagement';
 import { PaymentsManagement } from '@/components/admin/finance/PaymentsManagement';
@@ -247,7 +247,7 @@ export default function ModernAdmin() {
 
                   {(userRole === 'admin' || userRole === 'redator') && (
                     <TabsContent value="finance" className="mt-0 h-full p-6">
-                      <FinanceDashboard />
+                      <FinancialEntries />
                     </TabsContent>
                   )}
 
