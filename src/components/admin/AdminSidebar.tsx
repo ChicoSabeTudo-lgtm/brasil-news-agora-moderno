@@ -35,6 +35,12 @@ import {
   UserCircle,
   Menu,
 } from 'lucide-react';
+import {
+  DollarSign,
+  CreditCard,
+  Receipt,
+  ShoppingCart,
+} from 'lucide-react';
 
 const adminMenuItems = [
   {
@@ -131,6 +137,33 @@ const generalItems = [
   },
 ];
 
+const financialItems = [
+  {
+    title: 'Visão Financeira',
+    url: '/admin?tab=finance',
+    icon: DollarSign,
+    roles: ['admin', 'redator'],
+  },
+  {
+    title: 'Pedidos',
+    url: '/admin?tab=orders',
+    icon: ShoppingCart,
+    roles: ['admin', 'redator'],
+  },
+  {
+    title: 'Faturas',
+    url: '/admin?tab=invoices',
+    icon: Receipt,
+    roles: ['admin', 'redator'],
+  },
+  {
+    title: 'Pagamentos',
+    url: '/admin?tab=payments',
+    icon: CreditCard,
+    roles: ['admin', 'redator'],
+  },
+];
+
 export const AdminSidebar = () => {
   const { userRole, signOut, user } = useAuth();
   const location = useLocation();
@@ -216,6 +249,26 @@ export const AdminSidebar = () => {
             <SidebarGroupContent>
               <SidebarMenu>
                 {adminOnlyItems.filter(item => canAccess(item.roles)).map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink to={item.url} className={getNavClassName(item.url)}>
+                        <item.icon className="w-4 h-4" />
+                        {!collapsed && <span>{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
+        {(userRole === 'admin' || userRole === 'redator') && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Financeiro</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {financialItems.filter(item => canAccess(item.roles)).map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
                       <NavLink to={item.url} className={getNavClassName(item.url)}>

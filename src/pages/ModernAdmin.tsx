@@ -25,6 +25,10 @@ import { BlocksConfigManagement } from '@/components/admin/BlocksConfigManagemen
 import PostSharingForm from '@/components/admin/PostSharingForm';
 import { AnalyticsPage } from '@/components/admin/analytics/AnalyticsPage';
 import { SocialPostsManagement } from '@/components/admin/SocialPostsManagement';
+import { FinanceDashboard } from '@/components/admin/finance/FinanceDashboard';
+import { OrdersManagement } from '@/components/admin/finance/OrdersManagement';
+import { InvoicesManagement } from '@/components/admin/finance/InvoicesManagement';
+import { PaymentsManagement } from '@/components/admin/finance/PaymentsManagement';
 
 export default function ModernAdmin() {
   const { userRole } = useAuth();
@@ -87,6 +91,11 @@ export default function ModernAdmin() {
                     <TabsTrigger value="live">Ao Vivo</TabsTrigger>
                     <TabsTrigger value="polls">Enquetes</TabsTrigger>
                     <TabsTrigger value="blocks-config">Blocos</TabsTrigger>
+                    {/* Financeiro visível para admin e redator */}
+                    <TabsTrigger value="finance">Financeiro</TabsTrigger>
+                    <TabsTrigger value="orders">Pedidos</TabsTrigger>
+                    <TabsTrigger value="invoices">Faturas</TabsTrigger>
+                    <TabsTrigger value="payments">Pagamentos</TabsTrigger>
                     {userRole === 'admin' && (
                       <>
                         <TabsTrigger value="categories">Categorias</TabsTrigger>
@@ -233,6 +242,30 @@ export default function ModernAdmin() {
                   {(userRole === 'admin' || userRole === 'redator') && (
                     <TabsContent value="analytics" className="mt-0 h-full">
                       <AnalyticsPage />
+                    </TabsContent>
+                  )}
+
+                  {(userRole === 'admin' || userRole === 'redator') && (
+                    <TabsContent value="finance" className="mt-0 h-full p-6">
+                      <FinanceDashboard />
+                    </TabsContent>
+                  )}
+
+                  {(userRole === 'admin' || userRole === 'redator') && (
+                    <TabsContent value="orders" className="mt-0 h-full p-6">
+                      <OrdersManagement />
+                    </TabsContent>
+                  )}
+
+                  {(userRole === 'admin' || userRole === 'redator') && (
+                    <TabsContent value="invoices" className="mt-0 h-full p-6">
+                      <InvoicesManagement />
+                    </TabsContent>
+                  )}
+
+                  {(userRole === 'admin' || userRole === 'redator') && (
+                    <TabsContent value="payments" className="mt-0 h-full p-6">
+                      <PaymentsManagement />
                     </TabsContent>
                   )}
                 </Tabs>
