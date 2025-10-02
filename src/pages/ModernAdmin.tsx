@@ -29,7 +29,7 @@ import { FinancialEntries } from '@/components/admin/finance/FinancialEntries';
 import { OrdersManagement } from '@/components/admin/finance/OrdersManagement';
 import { ClientsManagement } from '@/components/admin/finance/ClientsManagement';
 import { SuppliersManagement } from '@/components/admin/finance/SuppliersManagement';
-import { InvoicesManagement } from '@/components/admin/finance/InvoicesManagement';
+import { AdvertisementsManagement } from '@/components/admin/finance/AdvertisementsManagement';
 import { PaymentsManagement } from '@/components/admin/finance/PaymentsManagement';
 
 export default function ModernAdmin() {
@@ -97,7 +97,7 @@ export default function ModernAdmin() {
                     <TabsTrigger value="finance">Financeiro</TabsTrigger>
                     <TabsTrigger value="clients">Clientes</TabsTrigger>
                     <TabsTrigger value="suppliers">Fornecedores</TabsTrigger>
-                    <TabsTrigger value="invoices">Faturas</TabsTrigger>
+                    <TabsTrigger value="ads-finance">Propagandas</TabsTrigger>
                     <TabsTrigger value="payments">Pagamentos</TabsTrigger>
                     {userRole === 'admin' && (
                       <>
@@ -267,8 +267,8 @@ export default function ModernAdmin() {
                   )}
 
                   {(userRole === 'admin' || userRole === 'redator') && (
-                    <TabsContent value="invoices" className="mt-0 h-full p-6">
-                      <InvoicesManagement />
+                    <TabsContent value="ads-finance" className="mt-0 h-full p-6">
+                      <AdvertisementsManagement />
                     </TabsContent>
                   )}
 

@@ -385,6 +385,53 @@ export type Database = {
           },
         ]
       }
+      finance_advertisements: {
+        Row: {
+          ad_type: string
+          client_name: string
+          contact_id: string | null
+          created_at: string
+          end_date: string
+          id: string
+          notes: string | null
+          start_date: string
+          updated_at: string
+          value: number | null
+        }
+        Insert: {
+          ad_type: string
+          client_name: string
+          contact_id?: string | null
+          created_at?: string
+          end_date: string
+          id?: string
+          notes?: string | null
+          start_date: string
+          updated_at?: string
+          value?: number | null
+        }
+        Update: {
+          ad_type?: string
+          client_name?: string
+          contact_id?: string | null
+          created_at?: string
+          end_date?: string
+          id?: string
+          notes?: string | null
+          start_date?: string
+          updated_at?: string
+          value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_advertisements_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "finance_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       finance_attachments: {
         Row: {
           created_at: string
