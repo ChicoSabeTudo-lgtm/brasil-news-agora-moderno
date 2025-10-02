@@ -385,6 +385,204 @@ export type Database = {
           },
         ]
       }
+      finance_attachments: {
+        Row: {
+          created_at: string
+          id: string
+          mime_type: string | null
+          name: string
+          path: string
+          size_bytes: number | null
+          transaction_id: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mime_type?: string | null
+          name: string
+          path: string
+          size_bytes?: number | null
+          transaction_id: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mime_type?: string | null
+          name?: string
+          path?: string
+          size_bytes?: number | null
+          transaction_id?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_attachments_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "finance_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      finance_contacts: {
+        Row: {
+          company: string | null
+          contact_person: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          company?: string | null
+          contact_person?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          company?: string | null
+          contact_person?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      finance_projects: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      finance_transactions: {
+        Row: {
+          category_id: string | null
+          contact_id: string | null
+          created_at: string
+          description: string
+          due_date: string
+          id: string
+          method: string | null
+          pay_date: string | null
+          project_id: string | null
+          receipt_url: string | null
+          status: string
+          supplier: string | null
+          type: string
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          category_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          description: string
+          due_date: string
+          id?: string
+          method?: string | null
+          pay_date?: string | null
+          project_id?: string | null
+          receipt_url?: string | null
+          status: string
+          supplier?: string | null
+          type: string
+          updated_at?: string
+          value: number
+        }
+        Update: {
+          category_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          description?: string
+          due_date?: string
+          id?: string
+          method?: string | null
+          pay_date?: string | null
+          project_id?: string | null
+          receipt_url?: string | null
+          status?: string
+          supplier?: string | null
+          type?: string
+          updated_at?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finance_transactions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "finance_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "finance_transactions_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "finance_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "finance_transactions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "finance_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       instagram_images: {
         Row: {
           created_at: string
@@ -1237,6 +1435,13 @@ export type Database = {
       get_online_visitors_count: {
         Args: Record<PropertyKey, never>
         Returns: number
+      }
+      get_public_profiles: {
+        Args: { p_user_ids: string[] }
+        Returns: {
+          full_name: string
+          user_id: string
+        }[]
       }
       get_todays_peak_audience: {
         Args: Record<PropertyKey, never>
