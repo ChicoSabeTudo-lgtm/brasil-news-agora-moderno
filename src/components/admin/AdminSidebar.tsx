@@ -204,6 +204,12 @@ const companyItems = [
     icon: Receipt,
     roles: ['admin', 'redator'],
   },
+  {
+    title: 'Pagamentos DAS',
+    url: '/admin?tab=das-payments',
+    icon: FileText,
+    roles: ['admin', 'redator'],
+  },
 ];
 
 export const AdminSidebar = () => {

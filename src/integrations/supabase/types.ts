@@ -535,6 +535,57 @@ export type Database = {
           },
         ]
       }
+      das_payments: {
+        Row: {
+          created_at: string
+          das_boleto_path: string | null
+          das_boleto_url: string | null
+          due_date: string
+          id: string
+          observations: string | null
+          payment_date: string | null
+          payment_proof_path: string | null
+          payment_proof_url: string | null
+          reference_month: string
+          status: string
+          updated_at: string
+          uploaded_by: string | null
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          das_boleto_path?: string | null
+          das_boleto_url?: string | null
+          due_date: string
+          id?: string
+          observations?: string | null
+          payment_date?: string | null
+          payment_proof_path?: string | null
+          payment_proof_url?: string | null
+          reference_month: string
+          status?: string
+          updated_at?: string
+          uploaded_by?: string | null
+          value: number
+        }
+        Update: {
+          created_at?: string
+          das_boleto_path?: string | null
+          das_boleto_url?: string | null
+          due_date?: string
+          id?: string
+          observations?: string | null
+          payment_date?: string | null
+          payment_proof_path?: string | null
+          payment_proof_url?: string | null
+          reference_month?: string
+          status?: string
+          updated_at?: string
+          uploaded_by?: string | null
+          value?: number
+        }
+        Relationships: []
+      }
       finance_advertisements: {
         Row: {
           ad_type: string
@@ -1885,6 +1936,10 @@ export type Database = {
         Returns: undefined
       }
       update_certification_status: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      update_das_status: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }

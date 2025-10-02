@@ -1,0 +1,222 @@
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+
+export interface DasPayment {
+  id: string;
+  reference_month: string;
+  due_date: string;
+  value: number;
+  payment_date: string | null;
+  observations: string | null;
+  das_boleto_path: string | null;
+  das_boleto_url: string | null;
+  payment_proof_path: string | null;
+  payment_proof_url: string | null;
+  status: 'pending' | 'paid' | 'overdue';
+  uploaded_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export const useDasPayments = () => {
+  const queryClient = useQueryClient();
+
+  const { data: payments, isLoading } = useQuery({
+    queryKey: ['das_payments'],
+    queryFn: async () => {
+      // Update statuses first
+      await supabase.rpc('update_das_status');
+      
+      const { data, error } = await supabase
+        .from('das_payments')
+        .select('*')
+        .order('reference_month', { ascending: false });
+
+      if (error) throw error;
+      return data as DasPayment[];
+    },
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async (payment: Partial<DasPayment> & { 
+      boletoFile?: File; 
+      proofFile?: File;
+    }) => {
+      const { boletoFile, proofFile, ...paymentData } = payment;
+      
+      let boletoPath = null, boletoUrl = null;
+      let proofPath = null, proofUrl = null;
+
+      // Upload DAS boleto if provided
+      if (boletoFile) {
+        const fileName = `das-boleto-${Date.now()}.pdf`;
+        const { error: uploadError } = await supabase.storage
+          .from('company-documents')
+          .upload(fileName, boletoFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('company-documents')
+          .getPublicUrl(fileName);
+
+        boletoPath = fileName;
+        boletoUrl = publicUrl;
+      }
+
+      // Upload payment proof if provided
+      if (proofFile) {
+        const fileName = `das-proof-${Date.now()}.pdf`;
+        const { error: uploadError } = await supabase.storage
+          .from('company-documents')
+          .upload(fileName, proofFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('company-documents')
+          .getPublicUrl(fileName);
+
+        proofPath = fileName;
+        proofUrl = publicUrl;
+      }
+
+      const { error } = await supabase
+        .from('das_payments')
+        .insert([{
+          reference_month: paymentData.reference_month,
+          due_date: paymentData.due_date,
+          value: paymentData.value,
+          payment_date: paymentData.payment_date,
+          observations: paymentData.observations,
+          das_boleto_path: boletoPath,
+          das_boleto_url: boletoUrl,
+          payment_proof_path: proofPath,
+          payment_proof_url: proofUrl,
+          status: paymentData.status || 'pending',
+        }]);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['das_payments'] });
+      toast.success('Pagamento DAS registrado com sucesso!');
+    },
+    onError: (error: Error) => {
+      toast.error('Erro ao registrar pagamento DAS');
+      console.error('Error creating DAS payment:', error);
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, ...updates }: Partial<DasPayment> & { 
+      id: string;
+      boletoFile?: File;
+      proofFile?: File;
+    }) => {
+      const { boletoFile, proofFile, ...paymentData } = updates as any;
+      
+      let updateData = { ...paymentData };
+
+      // Upload new boleto if provided
+      if (boletoFile) {
+        const fileName = `das-boleto-${Date.now()}.pdf`;
+        const { error: uploadError } = await supabase.storage
+          .from('company-documents')
+          .upload(fileName, boletoFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('company-documents')
+          .getPublicUrl(fileName);
+
+        updateData.das_boleto_path = fileName;
+        updateData.das_boleto_url = publicUrl;
+      }
+
+      // Upload new payment proof if provided
+      if (proofFile) {
+        const fileName = `das-proof-${Date.now()}.pdf`;
+        const { error: uploadError } = await supabase.storage
+          .from('company-documents')
+          .upload(fileName, proofFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('company-documents')
+          .getPublicUrl(fileName);
+
+        updateData.payment_proof_path = fileName;
+        updateData.payment_proof_url = publicUrl;
+      }
+
+      const { error } = await supabase
+        .from('das_payments')
+        .update(updateData)
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['das_payments'] });
+      toast.success('Pagamento DAS atualizado com sucesso!');
+    },
+    onError: (error: Error) => {
+      toast.error('Erro ao atualizar pagamento DAS');
+      console.error('Error updating DAS payment:', error);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (payment: DasPayment) => {
+      // Delete files from storage
+      const filesToDelete = [
+        payment.das_boleto_path,
+        payment.payment_proof_path,
+      ].filter(Boolean) as string[];
+
+      if (filesToDelete.length > 0) {
+        await supabase.storage
+          .from('company-documents')
+          .remove(filesToDelete);
+      }
+
+      const { error } = await supabase
+        .from('das_payments')
+        .delete()
+        .eq('id', payment.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['das_payments'] });
+      toast.success('Pagamento DAS excluído com sucesso!');
+    },
+    onError: (error: Error) => {
+      toast.error('Erro ao excluir pagamento DAS');
+      console.error('Error deleting DAS payment:', error);
+    },
+  });
+
+  const downloadFile = (url: string, filename: string) => {
+    const link = window.document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+  };
+
+  return {
+    payments,
+    isLoading,
+    createPayment: createMutation.mutate,
+    isCreating: createMutation.isPending,
+    updatePayment: updateMutation.mutate,
+    isUpdating: updateMutation.isPending,
+    deletePayment: deleteMutation.mutate,
+    isDeleting: deleteMutation.isPending,
+    downloadFile,
+  };
+};
