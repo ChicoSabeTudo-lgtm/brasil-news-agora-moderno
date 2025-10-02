@@ -4,11 +4,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useFinanceData } from '@/hooks/useFinance';
+import { Button as ShButton } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 
 export function ClientsManagement() {
-  const { contacts, transactions, createContact } = useFinanceData();
+  const { contacts, transactions, createContact, updateContact, deleteContact } = useFinanceData();
   const [name, setName] = useState('');
   const [selected, setSelected] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState('');
 
   const clients = contacts.filter(c => c.type === 'cliente');
   const selectedTx = useMemo(() => transactions.filter(t => t.contact_id === selected), [transactions, selected]);
@@ -34,14 +39,31 @@ export function ClientsManagement() {
           <CardHeader><CardTitle>Clientes</CardTitle></CardHeader>
           <CardContent>
             <Table>
-              <TableHeader><TableRow><TableHead>Nome</TableHead><TableHead>Receitas</TableHead></TableRow></TableHeader>
+              <TableHeader><TableRow><TableHead>Nome</TableHead><TableHead>Receitas</TableHead><TableHead>Ações</TableHead></TableRow></TableHeader>
               <TableBody>
                 {clients.map(c => {
                   const total = transactions.filter(t => t.contact_id === c.id && t.type === 'receita').reduce((a, t) => a + Number(t.value || 0), 0);
                   return (
-                    <TableRow key={c.id} className={selected===c.id? 'bg-accent' : ''} onClick={() => setSelected(c.id)}>
-                      <TableCell>{c.name}</TableCell>
-                      <TableCell>{currency(total)}</TableCell>
+                    <TableRow key={c.id} className={selected===c.id? 'bg-accent' : ''}>
+                      <TableCell onClick={() => setSelected(c.id)} className="cursor-pointer">{c.name}</TableCell>
+                      <TableCell onClick={() => setSelected(c.id)} className="cursor-pointer">{currency(total)}</TableCell>
+                      <TableCell className="space-x-2">
+                        <ShButton size="sm" variant="outline" onClick={() => { setEditingId(c.id); setEditingName(c.name); }}>Editar</ShButton>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <ShButton size="sm" variant="destructive">Excluir</ShButton>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Excluir cliente?</AlertDialogTitle>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                              <AlertDialogAction onClick={async () => { await deleteContact(c.id); if (selected===c.id) setSelected(null); }}>Excluir</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </TableCell>
                     </TableRow>
                   );
                 })}
@@ -72,9 +94,20 @@ export function ClientsManagement() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Edit dialog */}
+      <Dialog open={!!editingId} onOpenChange={(o) => !o && setEditingId(null)}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Editar Cliente</DialogTitle></DialogHeader>
+          <Input value={editingName} onChange={(e) => setEditingName(e.target.value)} />
+          <DialogFooter>
+            <ShButton variant="outline" onClick={() => setEditingId(null)}>Cancelar</ShButton>
+            <ShButton onClick={async () => { if (editingId) { await updateContact(editingId, { name: editingName }); setEditingId(null); } }}>Salvar</ShButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
 
 export default ClientsManagement;
-

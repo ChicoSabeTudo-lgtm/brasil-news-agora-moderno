@@ -97,5 +97,18 @@ export function useFinanceData() {
     return data as any as FinanceContact;
   };
 
-  return { loading, error, projects, categories, contacts, transactions, fetchAll, addTransaction, updateTransaction, createCategory, createContact };
+  const updateContact = async (id: string, updates: Partial<FinanceContact>) => {
+    const { data, error } = await supabase.from('finance_contacts').update(updates).eq('id', id).select('*').single();
+    if (error) throw error;
+    setContacts((prev) => prev.map(c => c.id === id ? (data as any) : c));
+    return data as any as FinanceContact;
+  };
+
+  const deleteContact = async (id: string) => {
+    const { error } = await supabase.from('finance_contacts').delete().eq('id', id);
+    if (error) throw error;
+    setContacts((prev) => prev.filter(c => c.id !== id));
+  };
+
+  return { loading, error, projects, categories, contacts, transactions, fetchAll, addTransaction, updateTransaction, createCategory, createContact, updateContact, deleteContact };
 }
