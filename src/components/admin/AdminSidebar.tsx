@@ -120,7 +120,7 @@ const adminOnlyItems = [
     title: 'Análises',
     url: '/admin?tab=analytics',
     icon: TrendingUp,
-    roles: ['admin', 'redator'],
+    roles: ['admin'],
   },
 ];
 
@@ -129,14 +129,14 @@ const generalItems = [
     title: 'Contato',
     url: '/admin?tab=contact',
     icon: Mail,
-    roles: ['admin', 'redator'],
+    roles: ['admin'],
     badgeType: 'contact',
   },
   {
     title: 'Anunciantes',
     url: '/admin?tab=advertising',
     icon: Building,
-    roles: ['admin', 'redator'],
+    roles: ['admin'],
     badgeType: 'advertising',
   },
 ];
@@ -146,37 +146,37 @@ const financialItems = [
     title: 'Lançamentos',
     url: '/admin?tab=finance',
     icon: DollarSign,
-    roles: ['admin', 'redator'],
+    roles: ['admin'],
   },
   {
     title: 'Clientes/Receita',
     url: '/admin?tab=clients',
     icon: ShoppingCart,
-    roles: ['admin', 'redator'],
+    roles: ['admin'],
   },
   {
     title: 'Fornecedores/Despesa',
     url: '/admin?tab=suppliers',
     icon: Receipt,
-    roles: ['admin', 'redator'],
+    roles: ['admin'],
   },
   {
     title: 'Propagandas',
     url: '/admin?tab=ads-finance',
     icon: Megaphone,
-    roles: ['admin', 'redator'],
+    roles: ['admin'],
   },
   {
     title: 'Gestão de PIs',
     url: '/admin?tab=insertion-orders',
     icon: CreditCard,
-    roles: ['admin', 'redator'],
+    roles: ['admin'],
   },
   {
     title: 'Calculadora RH',
     url: '/admin?tab=hr-calculator',
     icon: Calculator,
-    roles: ['admin', 'redator'],
+    roles: ['admin'],
   },
 ];
 
@@ -185,37 +185,37 @@ const companyItems = [
     title: 'Dados da Empresa',
     url: '/admin?tab=company-data',
     icon: Building2,
-    roles: ['admin', 'redator'],
+    roles: ['admin'],
   },
   {
     title: 'Documentos',
     url: '/admin?tab=company-documents',
     icon: FileText,
-    roles: ['admin', 'redator'],
+    roles: ['admin'],
   },
   {
     title: 'Certidões',
     url: '/admin?tab=company-certifications',
     icon: Shield,
-    roles: ['admin', 'redator'],
+    roles: ['admin'],
   },
   {
     title: 'Notas Fiscais',
     url: '/admin?tab=invoices',
     icon: Receipt,
-    roles: ['admin', 'redator'],
+    roles: ['admin'],
   },
   {
     title: 'Pagamentos DAS',
     url: '/admin?tab=das-payments',
     icon: FileText,
-    roles: ['admin', 'redator'],
+    roles: ['admin'],
   },
   {
     title: 'Processos Judiciais',
     url: '/admin?tab=legal-cases',
     icon: Scale,
-    roles: ['admin', 'redator'],
+    roles: ['admin'],
   },
 ];
 
@@ -296,11 +296,9 @@ export const AdminSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {(userRole === 'admin' || userRole === 'redator') && (
+        {userRole === 'admin' && (
           <SidebarGroup>
-            <SidebarGroupLabel>
-              {userRole === 'admin' ? 'Administração' : 'Ferramentas'}
-            </SidebarGroupLabel>
+            <SidebarGroupLabel>Administração</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {adminOnlyItems.filter(item => canAccess(item.roles)).map((item) => (
@@ -318,7 +316,7 @@ export const AdminSidebar = () => {
           </SidebarGroup>
         )}
 
-        {(userRole === 'admin' || userRole === 'redator') && (
+        {userRole === 'admin' && (
           <SidebarGroup>
             <SidebarGroupLabel>Financeiro</SidebarGroupLabel>
             <SidebarGroupContent>
@@ -338,34 +336,36 @@ export const AdminSidebar = () => {
           </SidebarGroup>
         )}
 
-        <SidebarGroup>
-          <SidebarGroupLabel>Geral</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {generalItems.filter(item => canAccess(item.roles)).map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink to={item.url} className={getNavClassName(item.url)}>
-                      <item.icon className="w-4 h-4" />
-                       {!collapsed && (
-                         <div className="flex items-center justify-between flex-1">
-                           <span>{item.title}</span>
-                           {item.badgeType && getBadgeCount(item.badgeType) > 0 && (
-                             <Badge variant="secondary" className="text-xs admin-badge-pulse">
-                               {getBadgeCount(item.badgeType)}
-                             </Badge>
-                           )}
-                         </div>
-                       )}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {userRole === 'admin' && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Geral</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {generalItems.filter(item => canAccess(item.roles)).map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink to={item.url} className={getNavClassName(item.url)}>
+                        <item.icon className="w-4 h-4" />
+                         {!collapsed && (
+                           <div className="flex items-center justify-between flex-1">
+                             <span>{item.title}</span>
+                             {item.badgeType && getBadgeCount(item.badgeType) > 0 && (
+                               <Badge variant="secondary" className="text-xs admin-badge-pulse">
+                                 {getBadgeCount(item.badgeType)}
+                               </Badge>
+                             )}
+                           </div>
+                         )}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
-        {(userRole === 'admin' || userRole === 'redator') && (
+        {userRole === 'admin' && (
           <SidebarGroup>
             <SidebarGroupLabel>Empresa</SidebarGroupLabel>
             <SidebarGroupContent>
