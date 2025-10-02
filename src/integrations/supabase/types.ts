@@ -630,6 +630,53 @@ export type Database = {
           },
         ]
       }
+      insertion_order_attachments: {
+        Row: {
+          attachment_type: string
+          created_at: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          file_url: string
+          id: string
+          insertion_order_id: string
+          mime_type: string | null
+          updated_at: string
+        }
+        Insert: {
+          attachment_type: string
+          created_at?: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          file_url: string
+          id?: string
+          insertion_order_id: string
+          mime_type?: string | null
+          updated_at?: string
+        }
+        Update: {
+          attachment_type?: string
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          insertion_order_id?: string
+          mime_type?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "insertion_order_attachments_insertion_order_id_fkey"
+            columns: ["insertion_order_id"]
+            isOneToOne: false
+            referencedRelation: "insertion_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       insertion_orders: {
         Row: {
           contact_id: string | null
