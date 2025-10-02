@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { startOfMonth, endOfMonth } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,7 +26,12 @@ export function FinancialEntries() {
   const [typeFilter, setTypeFilter] = useState<'all' | TxType>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | TxStatus>('all');
   const [projectFilter, setProjectFilter] = useState<'all' | string>('all');
-  const [range, setRange] = useState<DateRange | undefined>();
+  
+  // Define o período padrão como o mês atual
+  const [range, setRange] = useState<DateRange | undefined>({
+    from: startOfMonth(new Date()),
+    to: endOfMonth(new Date())
+  });
 
   // Local form removed; handled by modal component
 
