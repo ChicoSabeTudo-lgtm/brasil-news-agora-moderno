@@ -393,10 +393,10 @@ export type Database = {
           created_at: string
           end_date: string
           id: string
+          link: string | null
           notes: string | null
           start_date: string
           updated_at: string
-          value: number | null
         }
         Insert: {
           ad_type: string
@@ -405,10 +405,10 @@ export type Database = {
           created_at?: string
           end_date: string
           id?: string
+          link?: string | null
           notes?: string | null
           start_date: string
           updated_at?: string
-          value?: number | null
         }
         Update: {
           ad_type?: string
@@ -417,10 +417,10 @@ export type Database = {
           created_at?: string
           end_date?: string
           id?: string
+          link?: string | null
           notes?: string | null
           start_date?: string
           updated_at?: string
-          value?: number | null
         }
         Relationships: [
           {

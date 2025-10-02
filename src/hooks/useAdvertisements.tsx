@@ -10,7 +10,7 @@ export interface FinanceAdvertisement {
   ad_type: AdType;
   start_date: string;
   end_date: string;
-  value?: number | null;
+  link?: string | null;
   notes?: string | null;
   created_at?: string;
   updated_at?: string;

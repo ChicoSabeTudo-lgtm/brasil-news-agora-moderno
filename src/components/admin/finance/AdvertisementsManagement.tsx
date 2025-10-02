@@ -33,7 +33,7 @@ export function AdvertisementsManagement() {
     ad_type: 'banner' as 'banner' | 'reportagem' | 'rede_social',
     start_date: new Date(),
     end_date: new Date(),
-    value: '',
+    link: '',
     notes: '',
   });
   const [searchQuery, setSearchQuery] = useState('');
@@ -57,7 +57,7 @@ export function AdvertisementsManagement() {
       ad_type: ad.ad_type,
       start_date: new Date(ad.start_date),
       end_date: new Date(ad.end_date),
-      value: ad.value?.toString() || '',
+      link: ad.link || '',
       notes: ad.notes || '',
     });
   };
@@ -69,14 +69,20 @@ export function AdvertisementsManagement() {
         ad_type: editForm.ad_type,
         start_date: format(editForm.start_date, 'yyyy-MM-dd'),
         end_date: format(editForm.end_date, 'yyyy-MM-dd'),
-        value: editForm.value ? parseFloat(editForm.value) : null,
+        link: editForm.link || null,
         notes: editForm.notes || null,
       });
       setEditingId(null);
     }
   };
 
-  const totalValue = filteredAds.reduce((sum, ad) => sum + (ad.value || 0), 0);
+  const totalAds = filteredAds.length;
+  const activeAds = filteredAds.filter(ad => {
+    const now = new Date();
+    const start = new Date(ad.start_date);
+    const end = new Date(ad.end_date);
+    return start <= now && end >= now;
+  }).length;
 
   return (
     <div className="space-y-6">
@@ -85,30 +91,17 @@ export function AdvertisementsManagement() {
         <Button onClick={() => setOpenNew(true)}>+ Nova Propaganda</Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardContent className="pt-6">
             <div className="text-sm text-muted-foreground">Total de Propagandas</div>
-            <div className="text-2xl font-bold">{filteredAds.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-sm text-muted-foreground">Valor Total</div>
-            <div className="text-2xl font-bold text-primary">{currency(totalValue)}</div>
+            <div className="text-2xl font-bold">{totalAds}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
             <div className="text-sm text-muted-foreground">Ativas Este Mês</div>
-            <div className="text-2xl font-bold text-green-600">
-              {filteredAds.filter(ad => {
-                const now = new Date();
-                const start = new Date(ad.start_date);
-                const end = new Date(ad.end_date);
-                return start <= now && end >= now;
-              }).length}
-            </div>
+            <div className="text-2xl font-bold text-green-600">{activeAds}</div>
           </CardContent>
         </Card>
       </div>
@@ -145,7 +138,7 @@ export function AdvertisementsManagement() {
                 <TableHead>Tipo</TableHead>
                 <TableHead>Início</TableHead>
                 <TableHead>Fim</TableHead>
-                <TableHead>Valor</TableHead>
+                <TableHead>Link</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
@@ -173,7 +166,13 @@ export function AdvertisementsManagement() {
                       </TableCell>
                       <TableCell className="text-sm">{formatDate(ad.start_date)}</TableCell>
                       <TableCell className="text-sm">{formatDate(ad.end_date)}</TableCell>
-                      <TableCell className="font-semibold">{ad.value ? currency(ad.value) : '-'}</TableCell>
+                      <TableCell className="max-w-xs truncate">
+                        {ad.link ? (
+                          <a href={ad.link} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                            {ad.link}
+                          </a>
+                        ) : '-'}
+                      </TableCell>
                       <TableCell>
                         <Badge variant={isActive ? 'default' : isPending ? 'secondary' : 'outline'}>
                           {isActive ? 'Ativa' : isPending ? 'Pendente' : 'Finalizada'}
@@ -289,12 +288,11 @@ export function AdvertisementsManagement() {
             </div>
 
             <div className="space-y-1.5">
-              <Label>Valor (R$)</Label>
+              <Label>Link da Propaganda</Label>
               <Input 
-                type="number" 
-                step="0.01"
-                value={editForm.value} 
-                onChange={(e) => setEditForm({ ...editForm, value: e.target.value })} 
+                type="url"
+                value={editForm.link} 
+                onChange={(e) => setEditForm({ ...editForm, link: e.target.value })} 
               />
             </div>
 

@@ -27,7 +27,7 @@ export default function NewAdvertisementModal({ open, onOpenChange }: Props) {
     ad_type: 'banner' as 'banner' | 'reportagem' | 'rede_social',
     start_date: new Date(),
     end_date: new Date(),
-    value: '',
+    link: '',
     notes: '',
   });
 
@@ -42,7 +42,7 @@ export default function NewAdvertisementModal({ open, onOpenChange }: Props) {
         ad_type: form.ad_type,
         start_date: format(form.start_date, 'yyyy-MM-dd'),
         end_date: format(form.end_date, 'yyyy-MM-dd'),
-        value: form.value ? parseFloat(form.value) : null,
+        link: form.link || null,
         notes: form.notes || null,
       });
       toast({ title: 'Propaganda criada', description: `${form.client_name} adicionado com sucesso.` });
@@ -52,7 +52,7 @@ export default function NewAdvertisementModal({ open, onOpenChange }: Props) {
         ad_type: 'banner',
         start_date: new Date(),
         end_date: new Date(),
-        value: '',
+        link: '',
         notes: '',
       });
     } catch (e: any) {
@@ -151,13 +151,12 @@ export default function NewAdvertisementModal({ open, onOpenChange }: Props) {
           </div>
 
           <div className="space-y-1.5">
-            <Label>Valor (R$)</Label>
+            <Label>Link da Propaganda</Label>
             <Input 
-              type="number" 
-              step="0.01"
-              placeholder="0.00" 
-              value={form.value} 
-              onChange={(e) => setForm({ ...form, value: e.target.value })} 
+              type="url"
+              placeholder="https://exemplo.com/propaganda" 
+              value={form.link} 
+              onChange={(e) => setForm({ ...form, link: e.target.value })} 
             />
           </div>
 
