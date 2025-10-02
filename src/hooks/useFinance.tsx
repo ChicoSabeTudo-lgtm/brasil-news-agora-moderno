@@ -112,5 +112,11 @@ export function useFinanceData() {
     setContacts((prev) => prev.filter(c => c.id !== id));
   };
 
-  return { loading, error, projects, categories, contacts, transactions, fetchAll, addTransaction, updateTransaction, createCategory, createContact, updateContact, deleteContact };
+  const deleteTransaction = async (id: string) => {
+    const { error } = await supabase.from('finance_transactions').delete().eq('id', id);
+    if (error) throw error;
+    setTransactions((prev) => prev.filter(t => t.id !== id));
+  };
+
+  return { loading, error, projects, categories, contacts, transactions, fetchAll, addTransaction, updateTransaction, deleteTransaction, createCategory, createContact, updateContact, deleteContact };
 }

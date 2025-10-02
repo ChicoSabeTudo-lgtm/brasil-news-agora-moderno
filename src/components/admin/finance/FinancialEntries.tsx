@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { DollarSign, TrendingDown, TrendingUp, Calendar, Eye, Edit } from 'lucide-react';
+import { DollarSign, TrendingDown, TrendingUp, Calendar, Eye, Edit, Trash2, FileText, Building2, CreditCard, User } from 'lucide-react';
 import { Calendar as DayPicker } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import type { DateRange } from 'react-day-picker';
@@ -17,7 +17,7 @@ import NewTransactionModal from './NewTransactionModal';
 const currency = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
 
 export function FinancialEntries() {
-  const { transactions, addTransaction, updateTransaction, projects, categories, contacts } = useFinanceData();
+  const { transactions, addTransaction, updateTransaction, deleteTransaction, projects, categories, contacts } = useFinanceData();
   const [open, setOpen] = useState(false);
   const [viewing, setViewing] = useState<FinanceTransaction | null>(null);
   const [editing, setEditing] = useState<FinanceTransaction | null>(null);
@@ -222,6 +222,17 @@ export function FinancialEntries() {
                   <TableCell className="flex gap-2">
                     <Button variant="ghost" size="icon" onClick={() => setViewing(t)}><Eye className="w-4 h-4" /></Button>
                     <Button variant="ghost" size="icon" onClick={() => setEditing(t)}><Edit className="w-4 h-4" /></Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={async () => {
+                        if (confirm('Tem certeza que deseja excluir esta transação?')) {
+                          await deleteTransaction(t.id);
+                        }
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4 text-destructive" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -232,19 +243,118 @@ export function FinancialEntries() {
 
       {/* View dialog */}
       <Dialog open={!!viewing} onOpenChange={(o) => !o && setViewing(null)}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Detalhes da Transação</DialogTitle></DialogHeader>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-2xl">
+              <FileText className="w-6 h-6 text-primary" />
+              Detalhes da Transação
+            </DialogTitle>
+          </DialogHeader>
           {viewing && (
-            <div className="space-y-2 text-sm">
-              <div><b>Tipo:</b> {viewing.type}</div>
-              <div><b>Descrição:</b> {viewing.description}</div>
-              <div><b>Valor:</b> {currency(Number(viewing.value))}</div>
-              <div><b>Vencimento:</b> {new Date(viewing.due_date).toLocaleDateString('pt-BR')}</div>
-              <div><b>Status:</b> {viewing.status}</div>
-              <div><b>Projeto:</b> {viewing.project_id || '-'}</div>
-              <div><b>Categoria:</b> {viewing.category_id || '-'}</div>
-              <div><b>Método:</b> {viewing.method || '-'}</div>
-              <div><b>Comprovante:</b> {viewing.receipt_url ? <a className="text-primary underline" href={viewing.receipt_url} target="_blank" rel="noreferrer">Abrir</a> : '-'}</div>
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className={`p-2 rounded-lg ${viewing.type === 'receita' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}`}>
+                      <TrendingUp className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Tipo</p>
+                      <p className="font-semibold">{viewing.type === 'receita' ? 'Receita' : 'Despesa'}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                      <DollarSign className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Valor</p>
+                      <p className="font-semibold text-lg">{currency(Number(viewing.value))}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-blue-100 text-blue-700">
+                      <Calendar className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Vencimento</p>
+                      <p className="font-semibold">{new Date(viewing.due_date).toLocaleDateString('pt-BR')}</p>
+                      {viewing.pay_date && (
+                        <p className="text-xs text-muted-foreground mt-1">Pago em: {new Date(viewing.pay_date).toLocaleDateString('pt-BR')}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-purple-100 text-purple-700">
+                      <Badge variant={viewing.status === 'Pago' ? 'secondary' : viewing.status === 'Pendente' ? 'default' : 'destructive'}>
+                        {viewing.status}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-orange-100 text-orange-700">
+                      <Building2 className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Projeto</p>
+                      <p className="font-semibold">{projects.find(p => p.id === viewing.project_id)?.name || '-'}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-cyan-100 text-cyan-700">
+                      <FileText className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Categoria</p>
+                      <p className="font-semibold">{catMap[viewing.category_id || ''] || '-'}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-pink-100 text-pink-700">
+                      <User className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Contato</p>
+                      <p className="font-semibold">{contacts.find(c => c.id === viewing.contact_id)?.name || viewing.supplier || '-'}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="p-2 rounded-lg bg-green-100 text-green-700">
+                      <CreditCard className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Método de Pagamento</p>
+                      <p className="font-semibold">{viewing.method || '-'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t pt-4">
+                <p className="text-xs text-muted-foreground mb-2">Descrição</p>
+                <p className="text-sm bg-muted/50 p-3 rounded-lg">{viewing.description}</p>
+              </div>
+
+              {viewing.receipt_url && (
+                <div className="border-t pt-4">
+                  <p className="text-xs text-muted-foreground mb-2">Comprovante</p>
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={viewing.receipt_url} target="_blank" rel="noreferrer">
+                      <FileText className="w-4 h-4 mr-2" />
+                      Abrir Comprovante
+                    </a>
+                  </Button>
+                </div>
+              )}
             </div>
           )}
           <DialogFooter>
@@ -255,34 +365,131 @@ export function FinancialEntries() {
 
       {/* Edit dialog */}
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader><DialogTitle>Editar Transação</DialogTitle></DialogHeader>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-2xl">
+              <Edit className="w-6 h-6 text-primary" />
+              Editar Transação
+            </DialogTitle>
+          </DialogHeader>
           {editing && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="col-span-2">
-                <Label>Descrição</Label>
-                <Input value={editing.description} onChange={(e) => setEditing({ ...editing, description: e.target.value })} />
-              </div>
-              <div>
-                <Label>Valor</Label>
-                <Input type="number" value={editing.value} onChange={(e) => setEditing({ ...editing, value: Number(e.target.value) } as any)} />
-              </div>
-              <div>
-                <Label>Status</Label>
-                <Select value={editing.status} onValueChange={(v: TxStatus) => setEditing({ ...editing, status: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Pendente">Pendente</SelectItem>
-                    <SelectItem value="Pago">Pago</SelectItem>
-                    <SelectItem value="Atrasado">Atrasado</SelectItem>
-                  </SelectContent>
-                </Select>
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="col-span-2">
+                  <Label>Tipo</Label>
+                  <Select value={editing.type} onValueChange={(v: TxType) => setEditing({ ...editing, type: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="receita">Receita</SelectItem>
+                      <SelectItem value="despesa">Despesa</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="col-span-2">
+                  <Label>Descrição</Label>
+                  <Input value={editing.description} onChange={(e) => setEditing({ ...editing, description: e.target.value })} />
+                </div>
+
+                <div>
+                  <Label>Valor</Label>
+                  <Input type="number" step="0.01" value={editing.value} onChange={(e) => setEditing({ ...editing, value: Number(e.target.value) } as any)} />
+                </div>
+
+                <div>
+                  <Label>Vencimento</Label>
+                  <Input type="date" value={editing.due_date} onChange={(e) => setEditing({ ...editing, due_date: e.target.value })} />
+                </div>
+
+                <div>
+                  <Label>Data de Pagamento</Label>
+                  <Input type="date" value={editing.pay_date || ''} onChange={(e) => setEditing({ ...editing, pay_date: e.target.value || null })} />
+                </div>
+
+                <div>
+                  <Label>Status</Label>
+                  <Select value={editing.status} onValueChange={(v: TxStatus) => setEditing({ ...editing, status: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Pendente">Pendente</SelectItem>
+                      <SelectItem value="Pago">Pago</SelectItem>
+                      <SelectItem value="Atrasado">Atrasado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="col-span-2">
+                  <Label>Fornecedor (texto livre)</Label>
+                  <Input value={editing.supplier || ''} onChange={(e) => setEditing({ ...editing, supplier: e.target.value })} placeholder="Nome do fornecedor" />
+                </div>
+
+                <div>
+                  <Label>Contato</Label>
+                  <Select value={editing.contact_id || ''} onValueChange={(v) => setEditing({ ...editing, contact_id: v || null })}>
+                    <SelectTrigger><SelectValue placeholder="Selecione um contato" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Nenhum</SelectItem>
+                      {contacts.map(c => (
+                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label>Projeto</Label>
+                  <Select value={editing.project_id || ''} onValueChange={(v) => setEditing({ ...editing, project_id: v || null })}>
+                    <SelectTrigger><SelectValue placeholder="Selecione um projeto" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Nenhum</SelectItem>
+                      {projects.map(p => (
+                        <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label>Categoria</Label>
+                  <Select value={editing.category_id || ''} onValueChange={(v) => setEditing({ ...editing, category_id: v || null })}>
+                    <SelectTrigger><SelectValue placeholder="Selecione uma categoria" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Nenhuma</SelectItem>
+                      {categories.filter(cat => cat.type === editing.type).map(c => (
+                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label>Método de Pagamento</Label>
+                  <Select value={editing.method || ''} onValueChange={(v) => setEditing({ ...editing, method: v || null })}>
+                    <SelectTrigger><SelectValue placeholder="Selecione o método" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Nenhum</SelectItem>
+                      <SelectItem value="Dinheiro">Dinheiro</SelectItem>
+                      <SelectItem value="PIX">PIX</SelectItem>
+                      <SelectItem value="Débito">Débito</SelectItem>
+                      <SelectItem value="Crédito">Crédito</SelectItem>
+                      <SelectItem value="Boleto">Boleto</SelectItem>
+                      <SelectItem value="Transferência">Transferência</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
           )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditing(null)}>Cancelar</Button>
-            <Button onClick={async () => { if (editing) { await updateTransaction(editing.id, { description: editing.description, value: editing.value, status: editing.status }); setEditing(null); } }}>Salvar</Button>
+            <Button onClick={async () => { 
+              if (editing) { 
+                await updateTransaction(editing.id, editing); 
+                setEditing(null); 
+              } 
+            }}>
+              Salvar Alterações
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
