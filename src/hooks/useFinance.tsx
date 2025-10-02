@@ -16,6 +16,7 @@ export interface FinanceTransaction {
   pay_date: string | null;
   status: TxStatus;
   supplier?: string | null;
+  contact_id?: string | null;
   project_id?: string | null;
   category_id?: string | null;
   method?: string | null;

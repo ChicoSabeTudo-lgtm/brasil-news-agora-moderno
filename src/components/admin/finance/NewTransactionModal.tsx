@@ -52,7 +52,7 @@ export function NewTransactionModal({ open, onOpenChange, projects, categories, 
 
   const reset = () => {
     setFiles([]);
-    setForm({ type: 'receita', description: '', value: 0, due_date: '', pay_date: '', status: 'Pendente', supplier: '', project_id: '', method: '', category_id: '', receipt_url: '' });
+    setForm({ type: 'receita', description: '', value: 0, due_date: '', pay_date: '', status: 'Pendente', supplier: '', project_id: '', method: '', category_id: '', receipt_url: '', contact_id: '' });
   };
 
   const handleCreate = async () => {
@@ -131,10 +131,10 @@ export function NewTransactionModal({ open, onOpenChange, projects, categories, 
           <div>
             <Label>Projeto</Label>
             <div className="flex gap-2">
-              <Select value={form.project_id} onValueChange={(v) => setForm((f) => ({ ...f, project_id: v }))}>
+              <Select value={form.project_id} onValueChange={(v) => setForm((f) => ({ ...f, project_id: v === 'none' ? '' : v }))}>
                 <SelectTrigger className="flex-1"><SelectValue placeholder="Selecionar projeto" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Nenhum</SelectItem>
+                  <SelectItem value="none">Nenhum</SelectItem>
                   {projects.map((p) => (<SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>))}
                 </SelectContent>
               </Select>
