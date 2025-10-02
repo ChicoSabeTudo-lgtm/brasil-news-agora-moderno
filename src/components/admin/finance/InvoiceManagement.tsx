@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useInvoices } from '@/hooks/useInvoices';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Download, Trash2, FileText, AlertCircle, CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { Plus, Download, Trash2, FileText, AlertCircle, CheckCircle2, Clock, XCircle, Search } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -32,6 +32,8 @@ export function InvoiceManagement() {
   const { invoices, isLoading, createInvoice, isCreating, deleteInvoice, updateInvoice, downloadFile } = useInvoices();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   
   // Form state
   const [formData, setFormData] = useState({
@@ -176,6 +178,22 @@ export function InvoiceManagement() {
       </Badge>
     );
   };
+
+  const filteredInvoices = useMemo(() => {
+    if (!invoices) return [];
+    
+    return invoices.filter((invoice) => {
+      const matchesSearch = searchTerm === "" || 
+        invoice.invoice_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        invoice.client_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        invoice.client_document.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        invoice.description?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesStatus = statusFilter === "all" || invoice.status === statusFilter;
+      
+      return matchesSearch && matchesStatus;
+    });
+  }, [invoices, searchTerm, statusFilter]);
 
   if (isLoading) {
     return <div className="p-6">Carregando...</div>;
@@ -435,6 +453,30 @@ export function InvoiceManagement() {
           <CardTitle>Notas Fiscais Cadastradas</CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="flex gap-4 mb-6">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar por número, cliente, documento ou descrição..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-3 py-2 border rounded-md bg-background"
+            >
+              <option value="all">Todos os Status</option>
+              <option value="pending">Pendente</option>
+              <option value="paid">Pago</option>
+              <option value="overdue">Vencido</option>
+              <option value="cancelled">Cancelado</option>
+            </select>
+          </div>
+          
+          <div>
           <Table>
             <TableHeader>
               <TableRow>
@@ -448,7 +490,14 @@ export function InvoiceManagement() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {invoices?.map((invoice) => (
+              {filteredInvoices.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                    Nenhuma nota fiscal encontrada
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredInvoices.map((invoice) => (
                 <TableRow key={invoice.id}>
                   <TableCell className="font-medium">
                     {invoice.invoice_number}
@@ -501,9 +550,11 @@ export function InvoiceManagement() {
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+                ))
+              )}
             </TableBody>
           </Table>
+          </div>
           
           {invoices?.length === 0 && (
             <div className="py-8 text-center text-muted-foreground">

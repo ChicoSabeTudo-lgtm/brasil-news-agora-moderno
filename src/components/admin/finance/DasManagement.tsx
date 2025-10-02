@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Trash2, Download, FileText, Receipt, Edit, Plus } from "lucide-react";
+import { Trash2, Download, FileText, Receipt, Edit, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -41,6 +41,8 @@ export const DasManagement = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPayment, setEditingPayment] = useState<DasPayment | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<DasPayment | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const [formData, setFormData] = useState<{
     reference_month: string;
@@ -139,6 +141,23 @@ export const DasManagement = () => {
       </Badge>
     );
   };
+
+  const filteredPayments = useMemo(() => {
+    if (!payments) return [];
+    
+    return payments.filter((payment) => {
+      const matchesSearch = searchTerm === "" || 
+        format(new Date(payment.reference_month + "-01"), "MMMM 'de' yyyy", { locale: ptBR })
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        payment.value.toString().includes(searchTerm) ||
+        payment.observations?.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      const matchesStatus = statusFilter === "all" || payment.status === statusFilter;
+      
+      return matchesSearch && matchesStatus;
+    });
+  }, [payments, searchTerm, statusFilter]);
 
   if (isLoading) {
     return <div>Carregando...</div>;
@@ -306,6 +325,30 @@ export const DasManagement = () => {
         </Dialog>
       </div>
 
+      <Card className="p-4">
+        <div className="flex gap-4 mb-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por mês, valor ou observações..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-3 py-2 border rounded-md bg-background"
+          >
+            <option value="all">Todos os Status</option>
+            <option value="pending">Pendente</option>
+            <option value="paid">Pago</option>
+            <option value="overdue">Vencido</option>
+          </select>
+        </div>
+      </Card>
+
       <Card>
         <Table>
           <TableHeader>
@@ -320,7 +363,14 @@ export const DasManagement = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {payments?.map((payment) => (
+            {filteredPayments.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                  Nenhum pagamento encontrado
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredPayments.map((payment) => (
               <TableRow key={payment.id}>
                 <TableCell>
                   {format(new Date(payment.reference_month + "-01"), "MMMM 'de' yyyy", {
@@ -387,7 +437,8 @@ export const DasManagement = () => {
                   </div>
                 </TableCell>
               </TableRow>
-            ))}
+              ))
+            )}
           </TableBody>
         </Table>
       </Card>
