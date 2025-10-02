@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { supabase } from '@/integrations/supabase/client';
 import type { TxStatus, TxType, FinanceTransaction, FinanceProject, FinanceCategory } from '@/hooks/useFinance';
 import { Plus } from 'lucide-react';
+import { toast } from '@/components/ui/use-toast';
 import { useFinanceData } from '@/hooks/useFinance';
 
 type Props = {
@@ -56,10 +57,29 @@ export function NewTransactionModal({ open, onOpenChange, projects, categories, 
   };
 
   const handleCreate = async () => {
-    if (!form.description || !form.due_date) return;
+    if (!form.description?.trim()) {
+      toast({ title: 'Descrição obrigatória', description: 'Informe uma descrição para a transação.', variant: 'destructive' });
+      return;
+    }
+    if (!form.due_date) {
+      toast({ title: 'Data de vencimento obrigatória', description: 'Selecione a data de vencimento.', variant: 'destructive' });
+      return;
+    }
+    if (!form.value || Number(form.value) <= 0) {
+      toast({ title: 'Valor inválido', description: 'Informe um valor maior que zero.', variant: 'destructive' });
+      return;
+    }
     setSaving(true);
     try {
-      const tx = await createTransaction({ ...form, pay_date: form.pay_date || null } as any);
+      const payload: any = {
+        ...form,
+        value: Number(form.value),
+        pay_date: form.pay_date || null,
+        project_id: form.project_id || null,
+        category_id: form.category_id || null,
+        contact_id: form.contact_id || null,
+      };
+      const tx = await createTransaction(payload);
 
       // Upload attachments (if any)
       for (const file of files.slice(0, 5)) {
@@ -71,11 +91,13 @@ export function NewTransactionModal({ open, onOpenChange, projects, categories, 
         }
       }
 
+      toast({ title: 'Transação criada', description: 'A transação foi adicionada com sucesso.' });
       onCreated?.(tx);
       reset();
       onOpenChange(false);
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
+      toast({ title: 'Erro ao criar transação', description: e?.message || 'Verifique os campos e tente novamente.', variant: 'destructive' });
     } finally {
       setSaving(false);
     }
@@ -166,9 +188,10 @@ export function NewTransactionModal({ open, onOpenChange, projects, categories, 
           <div>
             <Label>Categoria</Label>
             <div className="flex gap-2">
-              <Select value={form.category_id} onValueChange={(v) => setForm((f) => ({ ...f, category_id: v }))}>
+              <Select value={form.category_id || 'none'} onValueChange={(v) => setForm((f) => ({ ...f, category_id: v === 'none' ? '' : v }))}>
                 <SelectTrigger className="flex-1"><SelectValue placeholder="Selecionar categoria" /></SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">Nenhuma</SelectItem>
                   {categories.filter(c => c.type === form.type).map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
                 </SelectContent>
               </Select>
@@ -185,9 +208,10 @@ export function NewTransactionModal({ open, onOpenChange, projects, categories, 
           <div>
             <Label>{form.type === 'receita' ? 'Cliente' : 'Fornecedor'}</Label>
             <div className="flex gap-2">
-              <Select value={form.contact_id} onValueChange={(v) => setForm((f) => ({ ...f, contact_id: v }))}>
+              <Select value={form.contact_id || 'none'} onValueChange={(v) => setForm((f) => ({ ...f, contact_id: v === 'none' ? '' : v }))}>
                 <SelectTrigger className="flex-1"><SelectValue placeholder={form.type === 'receita' ? 'Selecionar cliente' : 'Selecionar fornecedor'} /></SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">Nenhum</SelectItem>
                   {contacts.filter(c => (form.type === 'receita' ? c.type==='cliente' : c.type==='fornecedor')).map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
                 </SelectContent>
               </Select>

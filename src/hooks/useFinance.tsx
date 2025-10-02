@@ -63,9 +63,9 @@ export function useFinanceData() {
       pay_date: payload.pay_date,
       status: payload.status,
       supplier: payload.supplier,
-      contact_id: (payload as any).contact_id,
-      project_id: payload.project_id,
-      category_id: payload.category_id,
+      contact_id: (payload as any).contact_id || null,
+      project_id: payload.project_id || null,
+      category_id: payload.category_id || null,
       method: payload.method,
       receipt_url: payload.receipt_url,
     }).select('*').single();
