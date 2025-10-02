@@ -34,6 +34,7 @@ import {
   Settings,
   UserCircle,
   Menu,
+  Building2,
 } from 'lucide-react';
 import {
   DollarSign,
@@ -173,6 +174,15 @@ const financialItems = [
     title: 'Calculadora RH',
     url: '/admin?tab=hr-calculator',
     icon: Calculator,
+    roles: ['admin', 'redator'],
+  },
+];
+
+const companyItems = [
+  {
+    title: 'Dados da Empresa',
+    url: '/admin?tab=company-data',
+    icon: Building2,
     roles: ['admin', 'redator'],
   },
 ];
@@ -322,6 +332,26 @@ export const AdminSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {(userRole === 'admin' || userRole === 'redator') && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Empresa</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {companyItems.filter(item => canAccess(item.roles)).map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink to={item.url} className={getNavClassName(item.url)}>
+                        <item.icon className="w-4 h-4" />
+                        {!collapsed && <span>{item.title}</span>}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border p-4">

@@ -290,6 +290,63 @@ export type Database = {
         }
         Relationships: []
       }
+      company_data: {
+        Row: {
+          address: string
+          bank_account: string
+          bank_agency: string
+          bank_code: string
+          cnpj: string
+          created_at: string
+          email: string
+          id: string
+          legal_name: string
+          municipal_registration: string | null
+          phone: string
+          pix_key: string
+          social_network: string | null
+          state_registration: string | null
+          trade_name: string
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          bank_account: string
+          bank_agency: string
+          bank_code: string
+          cnpj: string
+          created_at?: string
+          email: string
+          id?: string
+          legal_name: string
+          municipal_registration?: string | null
+          phone: string
+          pix_key: string
+          social_network?: string | null
+          state_registration?: string | null
+          trade_name: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          bank_account?: string
+          bank_agency?: string
+          bank_code?: string
+          cnpj?: string
+          created_at?: string
+          email?: string
+          id?: string
+          legal_name?: string
+          municipal_registration?: string | null
+          phone?: string
+          pix_key?: string
+          social_network?: string | null
+          state_registration?: string | null
+          trade_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contact_messages: {
         Row: {
           created_at: string

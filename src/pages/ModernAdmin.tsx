@@ -31,6 +31,7 @@ import { ClientsManagement } from '@/components/admin/finance/ClientsManagement'
 import { SuppliersManagement } from '@/components/admin/finance/SuppliersManagement';
 import { AdvertisementsManagement } from '@/components/admin/finance/AdvertisementsManagement';
 import { HRCalculator } from '@/components/admin/finance/HRCalculator';
+import { CompanyData } from '@/components/admin/finance/CompanyData';
 
 
 export default function ModernAdmin() {
@@ -283,6 +284,12 @@ export default function ModernAdmin() {
                   {(userRole === 'admin' || userRole === 'redator') && (
                     <TabsContent value="hr-calculator" className="mt-0 h-full p-6">
                       <HRCalculator />
+                    </TabsContent>
+                  )}
+
+                  {(userRole === 'admin' || userRole === 'redator') && (
+                    <TabsContent value="company-data" className="mt-0 h-full">
+                      <CompanyData />
                     </TabsContent>
                   )}
                 </Tabs>
