@@ -27,11 +27,8 @@ export function FinancialEntries() {
   const [statusFilter, setStatusFilter] = useState<'all' | TxStatus>('all');
   const [projectFilter, setProjectFilter] = useState<'all' | string>('all');
   
-  // Define o período padrão como o mês atual
-  const [range, setRange] = useState<DateRange | undefined>({
-    from: startOfMonth(new Date()),
-    to: endOfMonth(new Date())
-  });
+  // Período de filtro começa vazio (sem filtro)
+  const [range, setRange] = useState<DateRange | undefined>();
 
   // Local form removed; handled by modal component
 
@@ -40,15 +37,16 @@ export function FinancialEntries() {
       if (typeFilter !== 'all' && t.type !== typeFilter) return false;
       if (statusFilter !== 'all' && t.status !== statusFilter) return false;
       if (projectFilter !== 'all' && (t.project_id || '') !== projectFilter) return false;
+      // Só aplica filtro de data se o range estiver definido
       if (range?.from || range?.to) {
-        const d = new Date(t.due_date);
+        const d = new Date(t.due_date + 'T00:00:00'); // Força timezone local
         if (range?.from && d < new Date(range.from.setHours(0,0,0,0))) return false;
         if (range?.to && d > new Date(range.to.setHours(23,59,59,999))) return false;
       }
       if (search && !`${t.description}`.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
-  }, [transactions, typeFilter, statusFilter, projectFilter, search]);
+  }, [transactions, typeFilter, statusFilter, projectFilter, range, search]);
 
   const catMap = useMemo(() => Object.fromEntries(categories.map(c => [c.id, c.name])), [categories]);
   const summary = useMemo(() => {
