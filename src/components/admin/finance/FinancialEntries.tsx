@@ -44,6 +44,7 @@ export function FinancialEntries() {
     });
   }, [transactions, typeFilter, statusFilter, projectFilter, search]);
 
+  const catMap = useMemo(() => Object.fromEntries(categories.map(c => [c.id, c.name])), [categories]);
   const summary = useMemo(() => {
     const received = transactions
       .filter((t) => t.type === 'receita' && t.status === 'Pago')
@@ -209,7 +210,7 @@ export function FinancialEntries() {
                   </TableCell>
                   <TableCell>
                     <div className="font-medium">{t.description}</div>
-                    <div className="text-xs text-muted-foreground">Categoria: {t.category_id || '-'}</div>
+                    <div className="text-xs text-muted-foreground">Categoria: {catMap[t.category_id || ''] || '-'}</div>
                   </TableCell>
                   <TableCell className={t.type === 'despesa' ? 'text-red-600' : ''}>
                     {t.type === 'despesa' ? '-' : ''}

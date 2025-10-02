@@ -130,13 +130,25 @@ export function NewTransactionModal({ open, onOpenChange, projects, categories, 
           </div>
           <div>
             <Label>Projeto</Label>
-            <Select value={form.project_id} onValueChange={(v) => setForm((f) => ({ ...f, project_id: v }))}>
-              <SelectTrigger><SelectValue placeholder="Selecionar projeto" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">Nenhum</SelectItem>
-                {projects.map((p) => (<SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>))}
-              </SelectContent>
-            </Select>
+            <div className="flex gap-2">
+              <Select value={form.project_id} onValueChange={(v) => setForm((f) => ({ ...f, project_id: v }))}>
+                <SelectTrigger className="flex-1"><SelectValue placeholder="Selecionar projeto" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Nenhum</SelectItem>
+                  {projects.map((p) => (<SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>))}
+                </SelectContent>
+              </Select>
+              <Button type="button" variant="outline" onClick={async () => {
+                const name = prompt('Nome do novo projeto');
+                if (name) {
+                  // Criação rápida de projeto via Supabase
+                  const { data, error } = await supabase.from('finance_projects').insert({ name }).select('id,name').single();
+                  if (!error && data) {
+                    setForm((f) => ({ ...f, project_id: data.id }));
+                  }
+                }
+              }}><Plus className="w-4 h-4" /></Button>
+            </div>
           </div>
 
           <div>
