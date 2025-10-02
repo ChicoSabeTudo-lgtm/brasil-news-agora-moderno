@@ -1,12 +1,15 @@
 import { useState, useMemo } from "react";
-import { format } from "date-fns";
+import { format, startOfMonth, endOfMonth, isWithinInterval } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Trash2, Download, FileText, Receipt, Edit, Plus, Search } from "lucide-react";
+import { Trash2, Download, FileText, Receipt, Edit, Plus, Search, Calendar as CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 import {
   Table,
   TableBody,
@@ -43,6 +46,7 @@ export const DasManagement = () => {
   const [deleteTarget, setDeleteTarget] = useState<DasPayment | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
 
   const [formData, setFormData] = useState<{
     reference_month: string;
@@ -145,6 +149,9 @@ export const DasManagement = () => {
   const filteredPayments = useMemo(() => {
     if (!payments) return [];
     
+    const monthStart = startOfMonth(selectedMonth);
+    const monthEnd = endOfMonth(selectedMonth);
+    
     return payments.filter((payment) => {
       const matchesSearch = searchTerm === "" || 
         format(new Date(payment.reference_month + "-01"), "MMMM 'de' yyyy", { locale: ptBR })
@@ -155,9 +162,12 @@ export const DasManagement = () => {
       
       const matchesStatus = statusFilter === "all" || payment.status === statusFilter;
       
-      return matchesSearch && matchesStatus;
+      const paymentDate = new Date(payment.reference_month + "-01");
+      const matchesMonth = isWithinInterval(paymentDate, { start: monthStart, end: monthEnd });
+      
+      return matchesSearch && matchesStatus && matchesMonth;
     });
-  }, [payments, searchTerm, statusFilter]);
+  }, [payments, searchTerm, statusFilter, selectedMonth]);
 
   if (isLoading) {
     return <div>Carregando...</div>;
@@ -327,6 +337,30 @@ export const DasManagement = () => {
 
       <Card className="p-4">
         <div className="flex gap-4 mb-4">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={cn(
+                  "justify-start text-left font-normal",
+                  !selectedMonth && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {format(selectedMonth, "MMMM 'de' yyyy", { locale: ptBR })}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={selectedMonth}
+                onSelect={(date) => date && setSelectedMonth(date)}
+                initialFocus
+                className={cn("p-3 pointer-events-auto")}
+              />
+            </PopoverContent>
+          </Popover>
+          
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -336,6 +370,7 @@ export const DasManagement = () => {
               className="pl-10"
             />
           </div>
+          
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}

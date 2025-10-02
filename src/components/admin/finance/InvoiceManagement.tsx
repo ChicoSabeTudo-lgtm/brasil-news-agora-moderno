@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useInvoices } from '@/hooks/useInvoices';
 import { useQuery } from '@tanstack/react-query';
+import { startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,9 +12,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Download, Trash2, FileText, AlertCircle, CheckCircle2, Clock, XCircle, Search } from 'lucide-react';
+import { Plus, Download, Trash2, FileText, AlertCircle, CheckCircle2, Clock, XCircle, Search, Calendar as CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { cn } from '@/lib/utils';
 
 const invoiceTypes = [
   { value: 'servicos', label: 'Serviços' },
@@ -34,6 +38,7 @@ export function InvoiceManagement() {
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
   
   // Form state
   const [formData, setFormData] = useState({
@@ -182,6 +187,9 @@ export function InvoiceManagement() {
   const filteredInvoices = useMemo(() => {
     if (!invoices) return [];
     
+    const monthStart = startOfMonth(selectedMonth);
+    const monthEnd = endOfMonth(selectedMonth);
+    
     return invoices.filter((invoice) => {
       const matchesSearch = searchTerm === "" || 
         invoice.invoice_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -191,9 +199,12 @@ export function InvoiceManagement() {
       
       const matchesStatus = statusFilter === "all" || invoice.status === statusFilter;
       
-      return matchesSearch && matchesStatus;
+      const invoiceDate = new Date(invoice.issue_date);
+      const matchesMonth = isWithinInterval(invoiceDate, { start: monthStart, end: monthEnd });
+      
+      return matchesSearch && matchesStatus && matchesMonth;
     });
-  }, [invoices, searchTerm, statusFilter]);
+  }, [invoices, searchTerm, statusFilter, selectedMonth]);
 
   if (isLoading) {
     return <div className="p-6">Carregando...</div>;
@@ -454,6 +465,30 @@ export function InvoiceManagement() {
         </CardHeader>
         <CardContent>
           <div className="flex gap-4 mb-6">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "justify-start text-left font-normal",
+                    !selectedMonth && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {format(selectedMonth, "MMMM 'de' yyyy", { locale: ptBR })}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={selectedMonth}
+                  onSelect={(date) => date && setSelectedMonth(date)}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+            
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -463,6 +498,7 @@ export function InvoiceManagement() {
                 className="pl-10"
               />
             </div>
+            
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
