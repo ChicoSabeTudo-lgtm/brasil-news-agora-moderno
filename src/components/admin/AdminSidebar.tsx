@@ -40,6 +40,7 @@ import {
   CreditCard,
   Receipt,
   ShoppingCart,
+  Calculator,
 } from 'lucide-react';
 
 const adminMenuItems = [
@@ -166,6 +167,12 @@ const financialItems = [
     title: 'Gestão de PIs',
     url: '/admin?tab=insertion-orders',
     icon: CreditCard,
+    roles: ['admin', 'redator'],
+  },
+  {
+    title: 'Calculadora RH',
+    url: '/admin?tab=hr-calculator',
+    icon: Calculator,
     roles: ['admin', 'redator'],
   },
 ];

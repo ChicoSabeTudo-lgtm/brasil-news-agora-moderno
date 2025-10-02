@@ -30,6 +30,7 @@ import { OrdersManagement } from '@/components/admin/finance/OrdersManagement';
 import { ClientsManagement } from '@/components/admin/finance/ClientsManagement';
 import { SuppliersManagement } from '@/components/admin/finance/SuppliersManagement';
 import { AdvertisementsManagement } from '@/components/admin/finance/AdvertisementsManagement';
+import { HRCalculator } from '@/components/admin/finance/HRCalculator';
 
 
 export default function ModernAdmin() {
@@ -99,6 +100,7 @@ export default function ModernAdmin() {
                     <TabsTrigger value="suppliers">Fornecedores</TabsTrigger>
                     <TabsTrigger value="ads-finance">Propagandas</TabsTrigger>
                     <TabsTrigger value="insertion-orders">Gestão de PIs</TabsTrigger>
+                    <TabsTrigger value="hr-calculator">Calculadora RH</TabsTrigger>
                     {userRole === 'admin' && (
                       <>
                         <TabsTrigger value="categories">Categorias</TabsTrigger>
@@ -275,6 +277,12 @@ export default function ModernAdmin() {
                   {(userRole === 'admin' || userRole === 'redator') && (
                     <TabsContent value="insertion-orders" className="mt-0 h-full p-6">
                       <OrdersManagement />
+                    </TabsContent>
+                  )}
+
+                  {(userRole === 'admin' || userRole === 'redator') && (
+                    <TabsContent value="hr-calculator" className="mt-0 h-full p-6">
+                      <HRCalculator />
                     </TabsContent>
                   )}
                 </Tabs>
