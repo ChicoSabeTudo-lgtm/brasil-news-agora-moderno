@@ -185,6 +185,12 @@ const companyItems = [
     icon: Building2,
     roles: ['admin', 'redator'],
   },
+  {
+    title: 'Documentos',
+    url: '/admin?tab=company-documents',
+    icon: FileText,
+    roles: ['admin', 'redator'],
+  },
 ];
 
 export const AdminSidebar = () => {

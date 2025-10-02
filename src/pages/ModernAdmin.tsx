@@ -32,6 +32,7 @@ import { SuppliersManagement } from '@/components/admin/finance/SuppliersManagem
 import { AdvertisementsManagement } from '@/components/admin/finance/AdvertisementsManagement';
 import { HRCalculator } from '@/components/admin/finance/HRCalculator';
 import { CompanyData } from '@/components/admin/finance/CompanyData';
+import { CompanyDocuments } from '@/components/admin/finance/CompanyDocuments';
 
 
 export default function ModernAdmin() {
@@ -115,6 +116,8 @@ export default function ModernAdmin() {
                     )}
                     <TabsTrigger value="contact">Contato</TabsTrigger>
                     <TabsTrigger value="advertising">Anunciantes</TabsTrigger>
+                    <TabsTrigger value="company-data">Dados da Empresa</TabsTrigger>
+                    <TabsTrigger value="company-documents">Documentos</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="dashboard" className="mt-0 h-full">
@@ -290,6 +293,12 @@ export default function ModernAdmin() {
                   {(userRole === 'admin' || userRole === 'redator') && (
                     <TabsContent value="company-data" className="mt-0 h-full">
                       <CompanyData />
+                    </TabsContent>
+                  )}
+
+                  {(userRole === 'admin' || userRole === 'redator') && (
+                    <TabsContent value="company-documents" className="mt-0 h-full">
+                      <CompanyDocuments />
                     </TabsContent>
                   )}
                 </Tabs>
