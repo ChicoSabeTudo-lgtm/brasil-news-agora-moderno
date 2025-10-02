@@ -19,10 +19,11 @@ import { toast } from '@/hooks/use-toast';
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  editingOrder?: any;
 };
 
-export default function NewInsertionOrderModal({ open, onOpenChange }: Props) {
-  const { addOrder } = useInsertionOrders();
+export default function NewInsertionOrderModal({ open, onOpenChange, editingOrder }: Props) {
+  const { addOrder, updateOrder } = useInsertionOrders();
   const { contacts } = useFinanceData();
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
@@ -44,7 +45,7 @@ export default function NewInsertionOrderModal({ open, onOpenChange }: Props) {
     if (!canSave) return;
     setSaving(true);
     try {
-      await addOrder({
+      const payload = {
         pi_number: form.pi_number,
         contact_id: form.contact_id || null,
         vehicle: form.vehicle,
@@ -54,8 +55,15 @@ export default function NewInsertionOrderModal({ open, onOpenChange }: Props) {
         payment_status: form.payment_status,
         email_sent: form.email_sent,
         notes: form.notes || null,
-      });
-      toast({ title: 'PI criado', description: `${form.pi_number} criado com sucesso.` });
+      };
+
+      if (editingOrder) {
+        await updateOrder(editingOrder.id, payload);
+        toast({ title: 'PI atualizado', description: `${form.pi_number} atualizado com sucesso.` });
+      } else {
+        await addOrder(payload);
+        toast({ title: 'PI criado', description: `${form.pi_number} criado com sucesso.` });
+      }
       onOpenChange(false);
       setForm({
         pi_number: '',
@@ -80,7 +88,7 @@ export default function NewInsertionOrderModal({ open, onOpenChange }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-xl">
         <DialogHeader>
-          <DialogTitle>Novo PI</DialogTitle>
+          <DialogTitle>{editingOrder ? 'Editar PI' : 'Novo PI'}</DialogTitle>
         </DialogHeader>
 
         <div className="grid grid-cols-1 gap-4">

@@ -30,7 +30,7 @@ import { OrdersManagement } from '@/components/admin/finance/OrdersManagement';
 import { ClientsManagement } from '@/components/admin/finance/ClientsManagement';
 import { SuppliersManagement } from '@/components/admin/finance/SuppliersManagement';
 import { AdvertisementsManagement } from '@/components/admin/finance/AdvertisementsManagement';
-import { PaymentsManagement } from '@/components/admin/finance/PaymentsManagement';
+
 
 export default function ModernAdmin() {
   const { userRole } = useAuth();
@@ -98,7 +98,7 @@ export default function ModernAdmin() {
                     <TabsTrigger value="clients">Clientes</TabsTrigger>
                     <TabsTrigger value="suppliers">Fornecedores</TabsTrigger>
                     <TabsTrigger value="ads-finance">Propagandas</TabsTrigger>
-                    <TabsTrigger value="payments">Pagamentos</TabsTrigger>
+                    <TabsTrigger value="insertion-orders">Gestão de PIs</TabsTrigger>
                     {userRole === 'admin' && (
                       <>
                         <TabsTrigger value="categories">Categorias</TabsTrigger>
@@ -273,8 +273,8 @@ export default function ModernAdmin() {
                   )}
 
                   {(userRole === 'admin' || userRole === 'redator') && (
-                    <TabsContent value="payments" className="mt-0 h-full p-6">
-                      <PaymentsManagement />
+                    <TabsContent value="insertion-orders" className="mt-0 h-full p-6">
+                      <OrdersManagement />
                     </TabsContent>
                   )}
                 </Tabs>

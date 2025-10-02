@@ -163,8 +163,8 @@ const financialItems = [
     roles: ['admin', 'redator'],
   },
   {
-    title: 'Pagamentos',
-    url: '/admin?tab=payments',
+    title: 'Gestão de PIs',
+    url: '/admin?tab=insertion-orders',
     icon: CreditCard,
     roles: ['admin', 'redator'],
   },
