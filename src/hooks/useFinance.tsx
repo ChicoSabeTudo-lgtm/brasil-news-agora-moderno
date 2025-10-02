@@ -6,7 +6,7 @@ export type TxStatus = 'Pendente' | 'Pago' | 'Atrasado';
 
 export interface FinanceProject { id: string; name: string }
 export interface FinanceCategory { id: string; name: string; type: TxType }
-export interface FinanceContact { id: string; name: string; type: 'cliente' | 'fornecedor' }
+export interface FinanceContact { id: string; name: string; type: 'cliente' | 'fornecedor'; email?: string | null; phone?: string | null; company?: string | null; contact_person?: string | null; created_at?: string }
 export interface FinanceTransaction {
   id: string;
   type: TxType;
@@ -39,7 +39,7 @@ export function useFinanceData() {
         supabase.from('finance_projects').select('id,name').order('name'),
         supabase.from('finance_categories').select('id,name,type').order('name'),
         supabase.from('finance_transactions').select('*').order('due_date', { ascending: false }),
-        supabase.from('finance_contacts').select('id,name,type').order('name'),
+        supabase.from('finance_contacts').select('id,name,type,email,phone,company,contact_person,created_at').order('name'),
       ]);
       setProjects(proj || []);
       setCategories(cat || []);
@@ -90,8 +90,8 @@ export function useFinanceData() {
     return data as any as FinanceCategory;
   };
 
-  const createContact = async (name: string, type: 'cliente' | 'fornecedor') => {
-    const { data, error } = await supabase.from('finance_contacts').insert({ name, type }).select('*').single();
+  const createContact = async (name: string, type: 'cliente' | 'fornecedor', extra?: Partial<FinanceContact>) => {
+    const { data, error } = await supabase.from('finance_contacts').insert({ name, type, ...extra }).select('*').single();
     if (error) throw error;
     setContacts((prev) => [...prev, data as any]);
     return data as any as FinanceContact;
