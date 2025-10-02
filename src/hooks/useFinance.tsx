@@ -57,12 +57,16 @@ export function useFinanceData() {
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
   const addTransaction = async (payload: Omit<FinanceTransaction, 'id'>) => {
+    // Ensure dates are in YYYY-MM-DD format without timezone conversion
+    const due_date = payload.due_date.split('T')[0];
+    const pay_date = payload.pay_date ? payload.pay_date.split('T')[0] : null;
+    
     const { data, error } = await supabase.from('finance_transactions').insert({
       type: payload.type,
       description: payload.description,
       value: payload.value,
-      due_date: payload.due_date,
-      pay_date: payload.pay_date,
+      due_date,
+      pay_date,
       status: payload.status,
       supplier: payload.supplier,
       contact_id: (payload as any).contact_id || null,
@@ -77,9 +81,16 @@ export function useFinanceData() {
   };
 
   const updateTransaction = async (id: string, updates: Partial<FinanceTransaction>) => {
-    const { data, error } = await supabase.from('finance_transactions').update({
-      ...updates,
-    }).eq('id', id).select('*').single();
+    // Ensure dates are in YYYY-MM-DD format without timezone conversion
+    const processedUpdates = { ...updates };
+    if (processedUpdates.due_date) {
+      processedUpdates.due_date = processedUpdates.due_date.split('T')[0];
+    }
+    if (processedUpdates.pay_date) {
+      processedUpdates.pay_date = processedUpdates.pay_date.split('T')[0];
+    }
+    
+    const { data, error } = await supabase.from('finance_transactions').update(processedUpdates).eq('id', id).select('*').single();
     if (error) throw error;
     setTransactions((prev) => prev.map((t) => (t.id === id ? (data as any) : t)));
     return data as any as FinanceTransaction;
