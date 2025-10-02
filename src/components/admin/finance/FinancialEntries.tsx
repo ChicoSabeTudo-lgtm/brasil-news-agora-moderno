@@ -220,7 +220,7 @@ export function FinancialEntries() {
                     {t.type === 'despesa' ? '-' : ''}
                     {currency(Number(t.value))}
                   </TableCell>
-                  <TableCell>{new Date(t.due_date).toLocaleDateString('pt-BR')}</TableCell>
+                  <TableCell>{new Date(t.due_date + 'T00:00:00').toLocaleDateString('pt-BR')}</TableCell>
                   <TableCell><StatusBadge status={t.status as TxStatus} /></TableCell>
                   <TableCell>{contacts.find(c => c.id === t.contact_id)?.name || '-'}</TableCell>
                   <TableCell className="flex gap-2">
@@ -284,9 +284,9 @@ export function FinancialEntries() {
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Vencimento</p>
-                      <p className="font-semibold">{new Date(viewing.due_date).toLocaleDateString('pt-BR')}</p>
+                      <p className="font-semibold">{new Date(viewing.due_date + 'T00:00:00').toLocaleDateString('pt-BR')}</p>
                       {viewing.pay_date && (
-                        <p className="text-xs text-muted-foreground mt-1">Pago em: {new Date(viewing.pay_date).toLocaleDateString('pt-BR')}</p>
+                        <p className="text-xs text-muted-foreground mt-1">Pago em: {new Date(viewing.pay_date + 'T00:00:00').toLocaleDateString('pt-BR')}</p>
                       )}
                     </div>
                   </div>
