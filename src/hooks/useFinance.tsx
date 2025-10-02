@@ -21,6 +21,8 @@ export interface FinanceTransaction {
   category_id?: string | null;
   method?: string | null;
   receipt_url?: string | null;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export function useFinanceData() {
@@ -42,9 +44,9 @@ export function useFinanceData() {
         supabase.from('finance_contacts').select('id,name,type,email,phone,company,contact_person,created_at').order('name'),
       ]);
       setProjects(proj || []);
-      setCategories(cat || []);
-      setTransactions((tx || []).map((t: any) => ({ ...t })));
-      setContacts((cts || []).map((c: any) => ({ ...c })));
+      setCategories((cat || []) as FinanceCategory[]);
+      setTransactions((tx || []) as FinanceTransaction[]);
+      setContacts((cts || []) as FinanceContact[]);
     } catch (e: any) {
       setError(e.message || 'Erro ao carregar dados financeiros');
     } finally {

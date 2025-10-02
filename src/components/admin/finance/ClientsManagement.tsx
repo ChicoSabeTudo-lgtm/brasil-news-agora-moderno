@@ -2,12 +2,14 @@ import { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 import { useFinanceData } from '@/hooks/useFinance';
 import { Button as ShButton } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Eye, Pencil, Trash2, Search, Mail, Phone, User, Building2 } from 'lucide-react';
+import { Eye, Pencil, Trash2, Search, Mail, Phone, User, Building2, X } from 'lucide-react';
 import NewClientModal from './NewClientModal';
 
 export function ClientsManagement() {
@@ -16,6 +18,10 @@ export function ClientsManagement() {
   const [selected, setSelected] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
+  const [editingEmail, setEditingEmail] = useState('');
+  const [editingPhone, setEditingPhone] = useState('');
+  const [editingCompany, setEditingCompany] = useState('');
+  const [editingContactPerson, setEditingContactPerson] = useState('');
   const [openNew, setOpenNew] = useState(false);
   const [q, setQ] = useState('');
 
@@ -32,8 +38,32 @@ export function ClientsManagement() {
       );
     });
   const selectedTx = useMemo(() => transactions.filter(t => t.contact_id === selected), [transactions, selected]);
+  const selectedClient = contacts.find(c => c.id === selected);
 
   const currency = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+  const formatDate = (d: string) => new Date(d).toLocaleDateString('pt-BR');
+
+  const handleEdit = (client: typeof contacts[0]) => {
+    setEditingId(client.id);
+    setEditingName(client.name);
+    setEditingEmail(client.email || '');
+    setEditingPhone(client.phone || '');
+    setEditingCompany(client.company || '');
+    setEditingContactPerson(client.contact_person || '');
+  };
+
+  const handleSaveEdit = async () => {
+    if (editingId) {
+      await updateContact(editingId, { 
+        name: editingName,
+        email: editingEmail || null,
+        phone: editingPhone || null,
+        company: editingCompany || null,
+        contact_person: editingContactPerson || null
+      });
+      setEditingId(null);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -60,11 +90,11 @@ export function ClientsManagement() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">{c.name}</CardTitle>
                   <div className="flex items-center gap-2 text-muted-foreground">
-                    <Eye className="w-4 h-4 cursor-pointer" onClick={() => setSelected(c.id)} />
-                    <Pencil className="w-4 h-4 cursor-pointer" onClick={() => { setEditingId(c.id); setEditingName(c.name); }} />
+                    <Eye className="w-4 h-4 cursor-pointer hover:text-primary transition" onClick={() => setSelected(c.id)} />
+                    <Pencil className="w-4 h-4 cursor-pointer hover:text-primary transition" onClick={() => handleEdit(c)} />
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Trash2 className="w-4 h-4 cursor-pointer" />
+                        <Trash2 className="w-4 h-4 cursor-pointer hover:text-destructive transition" />
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
@@ -102,13 +132,124 @@ export function ClientsManagement() {
 
       {/* Edit dialog */}
       <Dialog open={!!editingId} onOpenChange={(o) => !o && setEditingId(null)}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl">
           <DialogHeader><DialogTitle>Editar Cliente</DialogTitle></DialogHeader>
-          <Input value={editingName} onChange={(e) => setEditingName(e.target.value)} />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-2">
+              <Label>Nome do Cliente</Label>
+              <Input value={editingName} onChange={(e) => setEditingName(e.target.value)} />
+            </div>
+            <div>
+              <Label>Email</Label>
+              <Input type="email" value={editingEmail} onChange={(e) => setEditingEmail(e.target.value)} />
+            </div>
+            <div>
+              <Label>Telefone</Label>
+              <Input value={editingPhone} onChange={(e) => setEditingPhone(e.target.value)} />
+            </div>
+            <div>
+              <Label>Empresa</Label>
+              <Input value={editingCompany} onChange={(e) => setEditingCompany(e.target.value)} />
+            </div>
+            <div>
+              <Label>Pessoa de Contato</Label>
+              <Input value={editingContactPerson} onChange={(e) => setEditingContactPerson(e.target.value)} />
+            </div>
+          </div>
           <DialogFooter>
             <ShButton variant="outline" onClick={() => setEditingId(null)}>Cancelar</ShButton>
-            <ShButton onClick={async () => { if (editingId) { await updateContact(editingId, { name: editingName }); setEditingId(null); } }}>Salvar</ShButton>
+            <ShButton onClick={handleSaveEdit}>Salvar</ShButton>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* View Transactions Dialog */}
+      <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
+        <DialogContent className="max-w-5xl max-h-[80vh]">
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <DialogTitle className="text-xl">{selectedClient?.name}</DialogTitle>
+                {selectedClient?.company && <p className="text-sm text-muted-foreground mt-1">{selectedClient.company}</p>}
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => setSelected(null)}>
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Summary */}
+            <div className="grid grid-cols-3 gap-4">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-sm text-muted-foreground">Total em Receitas</div>
+                  <div className="text-2xl font-bold text-primary">
+                    {currency(selectedTx.filter(t => t.type === 'receita').reduce((a, t) => a + Number(t.value || 0), 0))}
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-sm text-muted-foreground">Total Pago</div>
+                  <div className="text-2xl font-bold text-green-600">
+                    {currency(selectedTx.filter(t => t.status === 'Pago').reduce((a, t) => a + Number(t.value || 0), 0))}
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-sm text-muted-foreground">Total Pendente</div>
+                  <div className="text-2xl font-bold text-orange-600">
+                    {currency(selectedTx.filter(t => t.status === 'Pendente').reduce((a, t) => a + Number(t.value || 0), 0))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Transactions Table */}
+            <div>
+              <h3 className="font-semibold mb-3">Histórico de Transações ({selectedTx.length})</h3>
+              <div className="border rounded-lg overflow-auto max-h-96">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Data</TableHead>
+                      <TableHead>Descrição</TableHead>
+                      <TableHead>Valor</TableHead>
+                      <TableHead>Vencimento</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Método</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {selectedTx.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                          Nenhuma transação registrada para este cliente
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      selectedTx.map((tx) => (
+                        <TableRow key={tx.id}>
+                          <TableCell className="text-sm">{tx.created_at ? formatDate(tx.created_at) : formatDate(tx.due_date)}</TableCell>
+                          <TableCell className="font-medium">{tx.description}</TableCell>
+                          <TableCell className="font-semibold text-primary">{currency(Number(tx.value))}</TableCell>
+                          <TableCell className="text-sm">{formatDate(tx.due_date)}</TableCell>
+                          <TableCell>
+                            <Badge variant={tx.status === 'Pago' ? 'default' : tx.status === 'Atrasado' ? 'destructive' : 'secondary'}>
+                              {tx.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-sm">{tx.method || '-'}</TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
