@@ -910,6 +910,101 @@ export type Database = {
         }
         Relationships: []
       }
+      invoices: {
+        Row: {
+          client_document: string
+          client_id: string | null
+          client_name: string
+          created_at: string
+          description: string | null
+          due_date: string | null
+          id: string
+          invoice_number: string
+          invoice_pdf_path: string | null
+          invoice_pdf_url: string | null
+          invoice_series: string | null
+          invoice_type: string
+          invoice_xml_path: string | null
+          invoice_xml_url: string | null
+          issue_date: string
+          net_value: number | null
+          notes: string | null
+          payment_date: string | null
+          payment_method: string | null
+          payment_proof_path: string | null
+          payment_proof_url: string | null
+          status: string
+          tax_value: number | null
+          total_value: number
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          client_document: string
+          client_id?: string | null
+          client_name: string
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_number: string
+          invoice_pdf_path?: string | null
+          invoice_pdf_url?: string | null
+          invoice_series?: string | null
+          invoice_type: string
+          invoice_xml_path?: string | null
+          invoice_xml_url?: string | null
+          issue_date: string
+          net_value?: number | null
+          notes?: string | null
+          payment_date?: string | null
+          payment_method?: string | null
+          payment_proof_path?: string | null
+          payment_proof_url?: string | null
+          status?: string
+          tax_value?: number | null
+          total_value: number
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          client_document?: string
+          client_id?: string | null
+          client_name?: string
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_number?: string
+          invoice_pdf_path?: string | null
+          invoice_pdf_url?: string | null
+          invoice_series?: string | null
+          invoice_type?: string
+          invoice_xml_path?: string | null
+          invoice_xml_url?: string | null
+          issue_date?: string
+          net_value?: number | null
+          notes?: string | null
+          payment_date?: string | null
+          payment_method?: string | null
+          payment_proof_path?: string | null
+          payment_proof_url?: string | null
+          status?: string
+          tax_value?: number | null
+          total_value?: number
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "finance_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       live_programs: {
         Row: {
           created_at: string
@@ -1790,6 +1885,10 @@ export type Database = {
         Returns: undefined
       }
       update_certification_status: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      update_invoice_status: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }

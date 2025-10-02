@@ -34,6 +34,7 @@ import { HRCalculator } from '@/components/admin/finance/HRCalculator';
 import { CompanyData } from '@/components/admin/finance/CompanyData';
 import { CompanyDocuments } from '@/components/admin/finance/CompanyDocuments';
 import { CompanyCertifications } from '@/components/admin/finance/CompanyCertifications';
+import { InvoiceManagement } from '@/components/admin/finance/InvoiceManagement';
 
 
 export default function ModernAdmin() {
@@ -120,6 +121,7 @@ export default function ModernAdmin() {
                     <TabsTrigger value="company-data">Dados da Empresa</TabsTrigger>
                     <TabsTrigger value="company-documents">Documentos</TabsTrigger>
                     <TabsTrigger value="company-certifications">Certidões</TabsTrigger>
+                    <TabsTrigger value="invoices">Notas Fiscais</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="dashboard" className="mt-0 h-full">
@@ -307,6 +309,12 @@ export default function ModernAdmin() {
                   {(userRole === 'admin' || userRole === 'redator') && (
                     <TabsContent value="company-certifications" className="mt-0 h-full">
                       <CompanyCertifications />
+                    </TabsContent>
+                  )}
+
+                  {(userRole === 'admin' || userRole === 'redator') && (
+                    <TabsContent value="invoices" className="mt-0 h-full">
+                      <InvoiceManagement />
                     </TabsContent>
                   )}
                 </Tabs>

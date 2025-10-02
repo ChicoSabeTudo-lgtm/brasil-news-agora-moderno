@@ -198,6 +198,12 @@ const companyItems = [
     icon: Shield,
     roles: ['admin', 'redator'],
   },
+  {
+    title: 'Notas Fiscais',
+    url: '/admin?tab=invoices',
+    icon: Receipt,
+    roles: ['admin', 'redator'],
+  },
 ];
 
 export const AdminSidebar = () => {
