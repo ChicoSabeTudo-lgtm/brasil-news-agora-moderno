@@ -6,6 +6,7 @@ export type TxStatus = 'Pendente' | 'Pago' | 'Atrasado';
 
 export interface FinanceProject { id: string; name: string }
 export interface FinanceCategory { id: string; name: string; type: TxType }
+export interface FinanceContact { id: string; name: string; type: 'cliente' | 'fornecedor' }
 export interface FinanceTransaction {
   id: string;
   type: TxType;
@@ -27,19 +28,22 @@ export function useFinanceData() {
   const [projects, setProjects] = useState<FinanceProject[]>([]);
   const [categories, setCategories] = useState<FinanceCategory[]>([]);
   const [transactions, setTransactions] = useState<FinanceTransaction[]>([]);
+  const [contacts, setContacts] = useState<FinanceContact[]>([]);
 
   const fetchAll = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [{ data: proj }, { data: cat }, { data: tx }] = await Promise.all([
+      const [{ data: proj }, { data: cat }, { data: tx }, { data: cts }] = await Promise.all([
         supabase.from('finance_projects').select('id,name').order('name'),
         supabase.from('finance_categories').select('id,name,type').order('name'),
         supabase.from('finance_transactions').select('*').order('due_date', { ascending: false }),
+        supabase.from('finance_contacts').select('id,name,type').order('name'),
       ]);
       setProjects(proj || []);
       setCategories(cat || []);
       setTransactions((tx || []).map((t: any) => ({ ...t })));
+      setContacts((cts || []).map((c: any) => ({ ...c })));
     } catch (e: any) {
       setError(e.message || 'Erro ao carregar dados financeiros');
     } finally {
@@ -58,6 +62,7 @@ export function useFinanceData() {
       pay_date: payload.pay_date,
       status: payload.status,
       supplier: payload.supplier,
+      contact_id: (payload as any).contact_id,
       project_id: payload.project_id,
       category_id: payload.category_id,
       method: payload.method,
@@ -77,6 +82,19 @@ export function useFinanceData() {
     return data as any as FinanceTransaction;
   };
 
-  return { loading, error, projects, categories, transactions, fetchAll, addTransaction, updateTransaction };
-}
+  const createCategory = async (name: string, type: TxType) => {
+    const { data, error } = await supabase.from('finance_categories').insert({ name, type }).select('*').single();
+    if (error) throw error;
+    setCategories((prev) => [...prev, data as any]);
+    return data as any as FinanceCategory;
+  };
 
+  const createContact = async (name: string, type: 'cliente' | 'fornecedor') => {
+    const { data, error } = await supabase.from('finance_contacts').insert({ name, type }).select('*').single();
+    if (error) throw error;
+    setContacts((prev) => [...prev, data as any]);
+    return data as any as FinanceContact;
+  };
+
+  return { loading, error, projects, categories, contacts, transactions, fetchAll, addTransaction, updateTransaction, createCategory, createContact };
+}

@@ -17,7 +17,7 @@ import NewTransactionModal from './NewTransactionModal';
 const currency = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
 
 export function FinancialEntries() {
-  const { transactions, addTransaction, updateTransaction, projects, categories } = useFinanceData();
+  const { transactions, addTransaction, updateTransaction, projects, categories, contacts } = useFinanceData();
   const [open, setOpen] = useState(false);
   const [viewing, setViewing] = useState<FinanceTransaction | null>(null);
   const [editing, setEditing] = useState<FinanceTransaction | null>(null);
@@ -217,7 +217,7 @@ export function FinancialEntries() {
                   </TableCell>
                   <TableCell>{new Date(t.due_date).toLocaleDateString('pt-BR')}</TableCell>
                   <TableCell><StatusBadge status={t.status as TxStatus} /></TableCell>
-                  <TableCell>{t.project_id || '-'}</TableCell>
+                  <TableCell>{contacts.find(c => c.id === t.contact_id)?.name || '-'}</TableCell>
                   <TableCell className="flex gap-2">
                     <Button variant="ghost" size="icon" onClick={() => setViewing(t)}><Eye className="w-4 h-4" /></Button>
                     <Button variant="ghost" size="icon" onClick={() => setEditing(t)}><Edit className="w-4 h-4" /></Button>

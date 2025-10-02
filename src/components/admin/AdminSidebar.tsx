@@ -145,9 +145,15 @@ const financialItems = [
     roles: ['admin', 'redator'],
   },
   {
-    title: 'Pedidos',
-    url: '/admin?tab=orders',
+    title: 'Clientes/Receita',
+    url: '/admin?tab=clients',
     icon: ShoppingCart,
+    roles: ['admin', 'redator'],
+  },
+  {
+    title: 'Fornecedores/Despesa',
+    url: '/admin?tab=suppliers',
+    icon: Receipt,
     roles: ['admin', 'redator'],
   },
   {

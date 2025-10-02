@@ -27,6 +27,8 @@ import { AnalyticsPage } from '@/components/admin/analytics/AnalyticsPage';
 import { SocialPostsManagement } from '@/components/admin/SocialPostsManagement';
 import { FinancialEntries } from '@/components/admin/finance/FinancialEntries';
 import { OrdersManagement } from '@/components/admin/finance/OrdersManagement';
+import { ClientsManagement } from '@/components/admin/finance/ClientsManagement';
+import { SuppliersManagement } from '@/components/admin/finance/SuppliersManagement';
 import { InvoicesManagement } from '@/components/admin/finance/InvoicesManagement';
 import { PaymentsManagement } from '@/components/admin/finance/PaymentsManagement';
 
@@ -93,7 +95,8 @@ export default function ModernAdmin() {
                     <TabsTrigger value="blocks-config">Blocos</TabsTrigger>
                     {/* Financeiro visível para admin e redator */}
                     <TabsTrigger value="finance">Financeiro</TabsTrigger>
-                    <TabsTrigger value="orders">Pedidos</TabsTrigger>
+                    <TabsTrigger value="clients">Clientes</TabsTrigger>
+                    <TabsTrigger value="suppliers">Fornecedores</TabsTrigger>
                     <TabsTrigger value="invoices">Faturas</TabsTrigger>
                     <TabsTrigger value="payments">Pagamentos</TabsTrigger>
                     {userRole === 'admin' && (
@@ -252,8 +255,14 @@ export default function ModernAdmin() {
                   )}
 
                   {(userRole === 'admin' || userRole === 'redator') && (
-                    <TabsContent value="orders" className="mt-0 h-full p-6">
-                      <OrdersManagement />
+                    <TabsContent value="clients" className="mt-0 h-full p-6">
+                      <ClientsManagement />
+                    </TabsContent>
+                  )}
+
+                  {(userRole === 'admin' || userRole === 'redator') && (
+                    <TabsContent value="suppliers" className="mt-0 h-full p-6">
+                      <SuppliersManagement />
                     </TabsContent>
                   )}
 

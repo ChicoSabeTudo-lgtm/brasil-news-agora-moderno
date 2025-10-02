@@ -6,6 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import type { TxStatus, TxType, FinanceTransaction, FinanceProject, FinanceCategory } from '@/hooks/useFinance';
+import { Plus } from 'lucide-react';
+import { useFinanceData } from '@/hooks/useFinance';
 
 type Props = {
   open: boolean;
@@ -19,6 +21,7 @@ type Props = {
 export function NewTransactionModal({ open, onOpenChange, projects, categories, createTransaction, onCreated }: Props) {
   const [saving, setSaving] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
+  const { createCategory, contacts, createContact } = useFinanceData();
   const [form, setForm] = useState<{
     type: TxType;
     description: string;
@@ -31,6 +34,7 @@ export function NewTransactionModal({ open, onOpenChange, projects, categories, 
     method: string;
     category_id: string;
     receipt_url: string;
+    contact_id: string;
   }>({
     type: 'receita',
     description: '',
@@ -43,6 +47,7 @@ export function NewTransactionModal({ open, onOpenChange, projects, categories, 
     method: '',
     category_id: '',
     receipt_url: '',
+    contact_id: '',
   });
 
   const reset = () => {
@@ -148,12 +153,40 @@ export function NewTransactionModal({ open, onOpenChange, projects, categories, 
           </div>
           <div>
             <Label>Categoria</Label>
-            <Select value={form.category_id} onValueChange={(v) => setForm((f) => ({ ...f, category_id: v }))}>
-              <SelectTrigger><SelectValue placeholder="Selecionar categoria" /></SelectTrigger>
-              <SelectContent>
-                {categories.map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
-              </SelectContent>
-            </Select>
+            <div className="flex gap-2">
+              <Select value={form.category_id} onValueChange={(v) => setForm((f) => ({ ...f, category_id: v }))}>
+                <SelectTrigger className="flex-1"><SelectValue placeholder="Selecionar categoria" /></SelectTrigger>
+                <SelectContent>
+                  {categories.filter(c => c.type === form.type).map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
+                </SelectContent>
+              </Select>
+              <Button type="button" variant="outline" onClick={async () => {
+                const name = prompt('Nome da nova categoria');
+                if (name) {
+                  const cat = await createCategory(name, form.type);
+                  setForm((f) => ({ ...f, category_id: cat.id }));
+                }
+              }}><Plus className="w-4 h-4" /></Button>
+            </div>
+          </div>
+
+          <div>
+            <Label>{form.type === 'receita' ? 'Cliente' : 'Fornecedor'}</Label>
+            <div className="flex gap-2">
+              <Select value={form.contact_id} onValueChange={(v) => setForm((f) => ({ ...f, contact_id: v }))}>
+                <SelectTrigger className="flex-1"><SelectValue placeholder={form.type === 'receita' ? 'Selecionar cliente' : 'Selecionar fornecedor'} /></SelectTrigger>
+                <SelectContent>
+                  {contacts.filter(c => (form.type === 'receita' ? c.type==='cliente' : c.type==='fornecedor')).map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
+                </SelectContent>
+              </Select>
+              <Button type="button" variant="outline" onClick={async () => {
+                const name = prompt(`Nome do ${form.type === 'receita' ? 'cliente' : 'fornecedor'}`);
+                if (name) {
+                  const cont = await createContact(name, form.type === 'receita' ? 'cliente' : 'fornecedor');
+                  setForm((f) => ({ ...f, contact_id: cont.id }));
+                }
+              }}><Plus className="w-4 h-4" /></Button>
+            </div>
           </div>
 
           <div className="col-span-2">
@@ -183,4 +216,3 @@ export function NewTransactionModal({ open, onOpenChange, projects, categories, 
 }
 
 export default NewTransactionModal;
-
