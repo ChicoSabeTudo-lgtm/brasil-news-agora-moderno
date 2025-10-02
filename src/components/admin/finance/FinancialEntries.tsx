@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import { startOfMonth, endOfMonth, format as formatDate } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -404,7 +403,7 @@ export function FinancialEntries() {
                   <Label>Vencimento</Label>
                   <Input 
                     type="date" 
-                    value={editing.due_date ? formatDate(new Date(editing.due_date), 'yyyy-MM-dd') : ''} 
+                    value={editing.due_date || ''} 
                     onChange={(e) => setEditing({ ...editing, due_date: e.target.value })} 
                   />
                 </div>
@@ -413,7 +412,7 @@ export function FinancialEntries() {
                   <Label>Data de Pagamento</Label>
                   <Input 
                     type="date" 
-                    value={editing.pay_date ? formatDate(new Date(editing.pay_date), 'yyyy-MM-dd') : ''} 
+                    value={editing.pay_date || ''} 
                     onChange={(e) => setEditing({ ...editing, pay_date: e.target.value || null })} 
                   />
                 </div>
