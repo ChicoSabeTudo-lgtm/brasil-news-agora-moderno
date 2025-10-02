@@ -425,10 +425,10 @@ export function FinancialEntries() {
 
                 <div>
                   <Label>Contato</Label>
-                  <Select value={editing.contact_id || ''} onValueChange={(v) => setEditing({ ...editing, contact_id: v || null })}>
+                  <Select value={editing.contact_id || 'none'} onValueChange={(v) => setEditing({ ...editing, contact_id: v === 'none' ? null : v })}>
                     <SelectTrigger><SelectValue placeholder="Selecione um contato" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Nenhum</SelectItem>
+                      <SelectItem value="none">Nenhum</SelectItem>
                       {contacts.map(c => (
                         <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                       ))}
@@ -438,10 +438,10 @@ export function FinancialEntries() {
 
                 <div>
                   <Label>Projeto</Label>
-                  <Select value={editing.project_id || ''} onValueChange={(v) => setEditing({ ...editing, project_id: v || null })}>
+                  <Select value={editing.project_id || 'none'} onValueChange={(v) => setEditing({ ...editing, project_id: v === 'none' ? null : v })}>
                     <SelectTrigger><SelectValue placeholder="Selecione um projeto" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Nenhum</SelectItem>
+                      <SelectItem value="none">Nenhum</SelectItem>
                       {projects.map(p => (
                         <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                       ))}
@@ -451,10 +451,10 @@ export function FinancialEntries() {
 
                 <div>
                   <Label>Categoria</Label>
-                  <Select value={editing.category_id || ''} onValueChange={(v) => setEditing({ ...editing, category_id: v || null })}>
+                  <Select value={editing.category_id || 'none'} onValueChange={(v) => setEditing({ ...editing, category_id: v === 'none' ? null : v })}>
                     <SelectTrigger><SelectValue placeholder="Selecione uma categoria" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Nenhuma</SelectItem>
+                      <SelectItem value="none">Nenhuma</SelectItem>
                       {categories.filter(cat => cat.type === editing.type).map(c => (
                         <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                       ))}
@@ -464,10 +464,10 @@ export function FinancialEntries() {
 
                 <div>
                   <Label>Método de Pagamento</Label>
-                  <Select value={editing.method || ''} onValueChange={(v) => setEditing({ ...editing, method: v || null })}>
+                  <Select value={editing.method || 'none'} onValueChange={(v) => setEditing({ ...editing, method: v === 'none' ? null : v })}>
                     <SelectTrigger><SelectValue placeholder="Selecione o método" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Nenhum</SelectItem>
+                      <SelectItem value="none">Nenhum</SelectItem>
                       <SelectItem value="Dinheiro">Dinheiro</SelectItem>
                       <SelectItem value="PIX">PIX</SelectItem>
                       <SelectItem value="Débito">Débito</SelectItem>
