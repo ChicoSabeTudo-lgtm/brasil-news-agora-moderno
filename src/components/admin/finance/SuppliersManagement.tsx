@@ -161,15 +161,8 @@ export function SuppliersManagement() {
       <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
         <DialogContent className="max-w-5xl max-h-[80vh]">
           <DialogHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <DialogTitle className="text-xl">{selectedSupplier?.name}</DialogTitle>
-                {selectedSupplier?.company && <p className="text-sm text-muted-foreground mt-1">{selectedSupplier.company}</p>}
-              </div>
-              <Button variant="ghost" size="icon" onClick={() => setSelected(null)}>
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
+            <DialogTitle className="text-xl">{selectedSupplier?.name}</DialogTitle>
+            {selectedSupplier?.company && <p className="text-sm text-muted-foreground mt-1">{selectedSupplier.company}</p>}
           </DialogHeader>
           
           <div className="space-y-4">
