@@ -364,15 +364,15 @@ export function FinancialEntries() {
       </Dialog>
 
       {/* Edit dialog */}
-      <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-2xl">
-              <Edit className="w-6 h-6 text-primary" />
-              Editar Transação
-            </DialogTitle>
-          </DialogHeader>
-          {editing && (
+      {editing && (
+        <Dialog open={true} onOpenChange={(open) => !open && setEditing(null)}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-2xl">
+                <Edit className="w-6 h-6 text-primary" />
+                Editar Transação
+              </DialogTitle>
+            </DialogHeader>
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="col-span-2">
@@ -479,20 +479,20 @@ export function FinancialEntries() {
                 </div>
               </div>
             </div>
-          )}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setEditing(null)}>Cancelar</Button>
-            <Button onClick={async () => { 
-              if (editing) { 
-                await updateTransaction(editing.id, editing); 
-                setEditing(null); 
-              } 
-            }}>
-              Salvar Alterações
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditing(null)}>Cancelar</Button>
+              <Button onClick={async () => { 
+                if (editing) { 
+                  await updateTransaction(editing.id, editing); 
+                  setEditing(null); 
+                } 
+              }}>
+                Salvar Alterações
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
