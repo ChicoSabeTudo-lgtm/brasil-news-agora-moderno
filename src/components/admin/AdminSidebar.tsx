@@ -157,9 +157,9 @@ const financialItems = [
     roles: ['admin', 'redator'],
   },
   {
-    title: 'Faturas',
-    url: '/admin?tab=invoices',
-    icon: Receipt,
+    title: 'Propagandas',
+    url: '/admin?tab=ads-finance',
+    icon: Megaphone,
     roles: ['admin', 'redator'],
   },
   {
