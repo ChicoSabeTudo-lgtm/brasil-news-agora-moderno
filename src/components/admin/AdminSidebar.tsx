@@ -35,6 +35,7 @@ import {
   UserCircle,
   Menu,
   Building2,
+  Shield,
 } from 'lucide-react';
 import {
   DollarSign,
@@ -189,6 +190,12 @@ const companyItems = [
     title: 'Documentos',
     url: '/admin?tab=company-documents',
     icon: FileText,
+    roles: ['admin', 'redator'],
+  },
+  {
+    title: 'Certidões',
+    url: '/admin?tab=company-certifications',
+    icon: Shield,
     roles: ['admin', 'redator'],
   },
 ];

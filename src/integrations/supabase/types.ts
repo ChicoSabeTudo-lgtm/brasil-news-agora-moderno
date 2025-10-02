@@ -290,6 +290,57 @@ export type Database = {
         }
         Relationships: []
       }
+      company_certifications: {
+        Row: {
+          certification_type: string
+          created_at: string
+          expiry_date: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          file_url: string
+          id: string
+          issue_date: string
+          mime_type: string | null
+          notes: string | null
+          status: string
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          certification_type: string
+          created_at?: string
+          expiry_date: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          file_url: string
+          id?: string
+          issue_date: string
+          mime_type?: string | null
+          notes?: string | null
+          status?: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          certification_type?: string
+          created_at?: string
+          expiry_date?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          issue_date?: string
+          mime_type?: string | null
+          notes?: string | null
+          status?: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
       company_data: {
         Row: {
           address: string
@@ -1736,6 +1787,10 @@ export type Database = {
       }
       set_news_cover: {
         Args: { p_image_id: string; p_news_id: string }
+        Returns: undefined
+      }
+      update_certification_status: {
+        Args: Record<PropertyKey, never>
         Returns: undefined
       }
       update_user_role: {
