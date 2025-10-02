@@ -630,6 +630,59 @@ export type Database = {
           },
         ]
       }
+      insertion_orders: {
+        Row: {
+          contact_id: string | null
+          created_at: string
+          email_sent: boolean
+          end_date: string
+          id: string
+          notes: string | null
+          payment_status: string
+          pi_number: string
+          start_date: string
+          updated_at: string
+          value: number
+          vehicle: string
+        }
+        Insert: {
+          contact_id?: string | null
+          created_at?: string
+          email_sent?: boolean
+          end_date: string
+          id?: string
+          notes?: string | null
+          payment_status?: string
+          pi_number: string
+          start_date: string
+          updated_at?: string
+          value: number
+          vehicle: string
+        }
+        Update: {
+          contact_id?: string | null
+          created_at?: string
+          email_sent?: boolean
+          end_date?: string
+          id?: string
+          notes?: string | null
+          payment_status?: string
+          pi_number?: string
+          start_date?: string
+          updated_at?: string
+          value?: number
+          vehicle?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "insertion_orders_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "finance_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       instagram_images: {
         Row: {
           created_at: string
