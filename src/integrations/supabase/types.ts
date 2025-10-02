@@ -1056,6 +1056,98 @@ export type Database = {
           },
         ]
       }
+      legal_case_documents: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_path: string
+          file_size: number | null
+          file_url: string
+          id: string
+          legal_case_id: string
+          mime_type: string | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          file_url: string
+          id?: string
+          legal_case_id: string
+          mime_type?: string | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          legal_case_id?: string
+          mime_type?: string | null
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "legal_case_documents_legal_case_id_fkey"
+            columns: ["legal_case_id"]
+            isOneToOne: false
+            referencedRelation: "legal_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      legal_cases: {
+        Row: {
+          case_number: string
+          case_type: string
+          created_at: string
+          defendant: string
+          description: string | null
+          hearing_date: string | null
+          id: string
+          lawyer_name: string
+          plaintiff: string
+          start_date: string
+          status: string
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          case_number: string
+          case_type: string
+          created_at?: string
+          defendant: string
+          description?: string | null
+          hearing_date?: string | null
+          id?: string
+          lawyer_name: string
+          plaintiff: string
+          start_date: string
+          status?: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          case_number?: string
+          case_type?: string
+          created_at?: string
+          defendant?: string
+          description?: string | null
+          hearing_date?: string | null
+          id?: string
+          lawyer_name?: string
+          plaintiff?: string
+          start_date?: string
+          status?: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
       live_programs: {
         Row: {
           created_at: string

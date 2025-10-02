@@ -36,6 +36,7 @@ import { CompanyDocuments } from '@/components/admin/finance/CompanyDocuments';
 import { CompanyCertifications } from '@/components/admin/finance/CompanyCertifications';
 import { InvoiceManagement } from '@/components/admin/finance/InvoiceManagement';
 import { DasManagement } from '@/components/admin/finance/DasManagement';
+import { LegalCaseManagement } from '@/components/admin/finance/LegalCaseManagement';
 
 
 export default function ModernAdmin() {
@@ -322,6 +323,12 @@ export default function ModernAdmin() {
                   {(userRole === 'admin' || userRole === 'redator') && (
                     <TabsContent value="das-payments" className="mt-0 h-full">
                       <DasManagement />
+                    </TabsContent>
+                  )}
+
+                  {(userRole === 'admin' || userRole === 'redator') && (
+                    <TabsContent value="legal-cases" className="mt-0 h-full">
+                      <LegalCaseManagement />
                     </TabsContent>
                   )}
                 </Tabs>

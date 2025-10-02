@@ -43,6 +43,7 @@ import {
   Receipt,
   ShoppingCart,
   Calculator,
+  Scale,
 } from 'lucide-react';
 
 const adminMenuItems = [
@@ -208,6 +209,12 @@ const companyItems = [
     title: 'Pagamentos DAS',
     url: '/admin?tab=das-payments',
     icon: FileText,
+    roles: ['admin', 'redator'],
+  },
+  {
+    title: 'Processos Judiciais',
+    url: '/admin?tab=legal-cases',
+    icon: Scale,
     roles: ['admin', 'redator'],
   },
 ];
