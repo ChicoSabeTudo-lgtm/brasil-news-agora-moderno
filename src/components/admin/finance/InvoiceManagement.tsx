@@ -541,7 +541,7 @@ export function InvoiceManagement() {
                   </TableCell>
                   <TableCell>{invoice.client_name}</TableCell>
                   <TableCell>
-                    {format(new Date(invoice.issue_date), 'dd/MM/yyyy', { locale: ptBR })}
+                    {format(new Date(invoice.issue_date + 'T00:00:00'), 'dd/MM/yyyy', { locale: ptBR })}
                   </TableCell>
                   <TableCell>
                     R$ {invoice.total_value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
