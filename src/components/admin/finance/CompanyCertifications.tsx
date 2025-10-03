@@ -29,6 +29,7 @@ export function CompanyCertifications() {
     deleteCertification,
     isDeleting,
     downloadCertification,
+    viewCertification,
     updateCertification,
     isUpdating
   } = useCompanyCertifications();
@@ -299,7 +300,7 @@ export function CompanyCertifications() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => window.open(cert.file_url, '_blank')}
+                            onClick={() => viewCertification(cert)}
                             title="Visualizar"
                           >
                             <Eye className="h-4 w-4" />

@@ -173,6 +173,22 @@ export const useCompanyCertifications = () => {
     }
   };
 
+  const viewCertification = async (certification: CompanyCertification) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('company-documents')
+        .createSignedUrl(certification.file_path, 60); // URL válida por 60 segundos
+      
+      if (error) throw error;
+      if (data?.signedUrl) {
+        window.open(data.signedUrl, '_blank');
+      }
+    } catch (error) {
+      console.error('Error viewing certification:', error);
+      toast.error('Erro ao visualizar certidão');
+    }
+  };
+
   return {
     certifications,
     isLoading,
@@ -183,5 +199,6 @@ export const useCompanyCertifications = () => {
     deleteCertification: deleteMutation.mutate,
     isDeleting: deleteMutation.isPending,
     downloadCertification,
+    viewCertification,
   };
 };
