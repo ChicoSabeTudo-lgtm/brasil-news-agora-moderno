@@ -146,23 +146,38 @@ export const LegalCaseManagement = () => {
   };
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, any> = {
-      active: "default",
-      suspended: "secondary",
-      archived: "outline",
-      concluded: "default",
+    const statusConfig: Record<string, { variant: any; className: string; label: string }> = {
+      active: {
+        variant: "default",
+        className: "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20",
+        label: "Ativo"
+      },
+      suspended: {
+        variant: "secondary",
+        className: "bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20",
+        label: "Suspenso"
+      },
+      archived: {
+        variant: "outline",
+        className: "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20",
+        label: "Arquivado"
+      },
+      concluded: {
+        variant: "default",
+        className: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
+        label: "Concluído"
+      },
     };
 
-    const labels: Record<string, string> = {
-      active: "Ativo",
-      suspended: "Suspenso",
-      archived: "Arquivado",
-      concluded: "Concluído",
+    const config = statusConfig[status] || { 
+      variant: "default", 
+      className: "", 
+      label: status 
     };
 
     return (
-      <Badge variant={variants[status] || "default"}>
-        {labels[status] || status}
+      <Badge variant={config.variant} className={config.className}>
+        {config.label}
       </Badge>
     );
   };
