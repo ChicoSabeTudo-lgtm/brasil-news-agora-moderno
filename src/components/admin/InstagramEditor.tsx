@@ -126,20 +126,41 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
 
     const { fontSize, verticalPosition, alignment, fontFamily, color } = textState;
     
-    // Wait for fonts to load before drawing (use correct weight for Archivo Black)
-    // Archivo Black from Google Fonts is a display family that commonly loads as a single weight.
-    // Using an overly heavy weight (e.g., 900) in the check can cause it to never pass.
+    // Check if font is loaded, but don't trigger infinite redraws
     if (document.fonts && !document.fonts.check(`normal ${fontSize}px "Archivo Black"`)) {
-      addDebugInfo('Fonte Archivo Black ainda não carregada, aguardando...');
+      addDebugInfo('Fonte Archivo Black ainda não carregada, usando fallback');
+      // Only request one redraw after fonts are ready
       if (!fontRedrawRequestedRef.current) {
         fontRedrawRequestedRef.current = true;
         document.fonts.ready.then(() => {
-          addDebugInfo('Fontes carregadas, redesenhando canvas');
+          addDebugInfo('Fontes carregadas');
           fontRedrawRequestedRef.current = false;
-          drawCanvas();
+          // Trigger single redraw without causing loop
+          if (canvasRef.current) {
+            const canvas = canvasRef.current;
+            const context = canvas.getContext('2d');
+            if (context) {
+              context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+              context.fillStyle = '#000000';
+              context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+              
+              if (imageState.url && baseImgRef.current) {
+                const img = baseImgRef.current;
+                const { zoom, positionX, positionY } = imageState;
+                const scaledWidth = img.width * zoom;
+                const scaledHeight = img.height * zoom;
+                const x = (CANVAS_WIDTH - scaledWidth) * (positionX / 100);
+                const y = (CANVAS_HEIGHT - scaledHeight) * (positionY / 100);
+                context.drawImage(img, x, y, scaledWidth, scaledHeight);
+              }
+              
+              drawMockupOverlay(context);
+              drawTextOverlay(context);
+            }
+          }
         });
       }
-      // Prossegue com o desenho usando fonte de fallback para não travar o preview
+      // Continue drawing with fallback font
     }
     
     // Semi-transparent overlay for text readability
@@ -235,7 +256,8 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
       mockupImgRef.current = img;
       setIsMockupLoading(false);
       addDebugInfo('Mockup pré-carregado em cache');
-      drawCanvas();
+      // Trigger canvas redraw by updating a counter instead of calling drawCanvas directly
+      setIsCanvasReady(prev => !prev);
     };
     img.onerror = () => {
       if (stableMockupUrl !== url) return;
@@ -245,7 +267,7 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
       addDebugInfo('Falha ao pré-carregar mockup');
     };
     img.src = url;
-  }, [stableMockupUrl, drawCanvas]);
+  }, [stableMockupUrl]);
 
   const addDebugInfo = (info: string) => {
     console.log(`🎨 Instagram Editor: ${info}`);
