@@ -26,6 +26,8 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const fontRedrawRequestedRef = useRef(false);
+  const baseImgRef = useRef<HTMLImageElement | null>(null);
+  const mockupImgRef = useRef<HTMLImageElement | null>(null);
 
   // Memoize mockup URL to prevent unnecessary re-renders
   const stableMockupUrl = useMemo(() => mockupUrl, [mockupUrl]);
@@ -76,7 +78,7 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
       return;
     }
 
-    addDebugInfo('Iniciando renderização do canvas');
+    addDebugInfo('Renderização do canvas (cache-aware)');
 
     // Clear canvas
     ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -85,105 +87,38 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
 
     setIsCanvasReady(false);
 
-    // Draw image if exists
-    if (imageState.url) {
-      addDebugInfo(`Tentando carregar imagem: ${imageState.url.substring(0, 50)}...`);
-      
-      const loadImageWithRetry = (attempts = 0) => {
-        const img = new Image();
-        
-        // Validate URL before loading
-        if (!imageState.url || (!imageState.url.startsWith('blob:') && !imageState.url.startsWith('data:'))) {
-          addDebugInfo(`URL da imagem inválida: ${imageState.url}`);
-          setIsCanvasReady(true);
-          return;
-        }
-        
-        addDebugInfo(`Tentativa ${attempts + 1}: Carregando URL ${imageState.url.substring(0, 50)}...`);
-        
-        // Add timeout for image loading
-        const timeout = setTimeout(() => {
-          addDebugInfo(`Timeout ao carregar imagem (tentativa ${attempts + 1})`);
-          if (attempts < 1) {
-            addDebugInfo('Tentando novamente sem crossOrigin...');
-            setTimeout(() => loadImageWithRetry(attempts + 1), 500);
-          } else {
-            addDebugInfo('Falha definitiva no carregamento da imagem');
-            setIsCanvasReady(true);
-            toast.error('Falha ao carregar imagem após tentativas');
-          }
-        }, 10000);
-        
-        img.onload = () => {
-          try {
-            clearTimeout(timeout);
-            const { zoom, positionX, positionY } = imageState;
-            
-            addDebugInfo(`Imagem carregada com sucesso: ${img.width}x${img.height}, zoom=${zoom}, pos=(${positionX}%, ${positionY}%)`);
-            
-            // Calculate scaled dimensions
-            const scaledWidth = img.width * zoom;
-            const scaledHeight = img.height * zoom;
-            
-            // Calculate position based on percentage
-            const x = (CANVAS_WIDTH - scaledWidth) * (positionX / 100);
-            const y = (CANVAS_HEIGHT - scaledHeight) * (positionY / 100);
-            
-            ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
-            addDebugInfo('Imagem renderizada com sucesso no canvas');
-            
-            // Draw Instagram mockup and text
-            drawMockupOverlay(ctx, () => {
-              drawTextOverlay(ctx);
-              setIsCanvasReady(true);
-              addDebugInfo('Canvas pronto com imagem, mockup e texto');
-            });
-          } catch (error) {
-            clearTimeout(timeout);
-            addDebugInfo(`Erro ao renderizar imagem no canvas: ${error instanceof Error ? error.message : String(error)}`);
-            setIsCanvasReady(true);
-          }
-        };
-        
-        img.onerror = (event) => {
-          clearTimeout(timeout);
-          const errorDetails = event instanceof Event && event.target instanceof HTMLImageElement 
-            ? `src: ${event.target.src}, naturalWidth: ${event.target.naturalWidth}` 
-            : String(event);
-          addDebugInfo(`Erro detalhado ao carregar imagem (tentativa ${attempts + 1}): ${errorDetails}`);
-          
-          if (attempts < 1) {
-            addDebugInfo('Tentando novamente sem crossOrigin...');
-            setTimeout(() => loadImageWithRetry(attempts + 1), 500);
-          } else {
-            addDebugInfo('Falha definitiva no carregamento da imagem');
-            setIsCanvasReady(true);
-            toast.error('Erro ao carregar imagem no preview');
-          }
-        };
-        
-        // Only set crossOrigin for first attempt with external URLs
-        // Blob URLs are same-origin and don't need CORS
-        if (attempts === 0 && !imageState.url.startsWith('blob:') && !imageState.url.startsWith('data:')) {
-          img.crossOrigin = 'anonymous';
-          addDebugInfo('Configurando crossOrigin=anonymous para URL externa');
-        } else {
-          addDebugInfo('Carregando sem crossOrigin (blob/data URL ou retry)');
-        }
-        
-        img.src = imageState.url;
+    // Draw base image from cache if available
+    if (imageState.url && baseImgRef.current) {
+      const img = baseImgRef.current;
+      const { zoom, positionX, positionY } = imageState;
+      const scaledWidth = img.width * zoom;
+      const scaledHeight = img.height * zoom;
+      const x = (CANVAS_WIDTH - scaledWidth) * (positionX / 100);
+      const y = (CANVAS_HEIGHT - scaledHeight) * (positionY / 100);
+      ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
+      addDebugInfo('Imagem base (cache) renderizada');
+    } else if (imageState.url && !baseImgRef.current) {
+      // Lazy-load once if needed
+      const img = new Image();
+      if (!imageState.url.startsWith('blob:') && !imageState.url.startsWith('data:')) {
+        img.crossOrigin = 'anonymous';
+      }
+      img.onload = () => {
+        baseImgRef.current = img;
+        addDebugInfo('Imagem base carregada (lazy)');
+        drawCanvas();
       };
-      
-      loadImageWithRetry();
-    } else {
-      addDebugInfo('Renderizando apenas mockup e texto');
-      // Draw Instagram mockup and text
-      drawMockupOverlay(ctx, () => {
-        drawTextOverlay(ctx);
-        setIsCanvasReady(true);
-        addDebugInfo('Canvas pronto sem imagem');
-      });
+      img.onerror = () => {
+        addDebugInfo('Falha ao carregar imagem base (lazy)');
+      };
+      img.src = imageState.url;
     }
+
+    // Draw mockup and text synchronously when available
+    drawMockupOverlay(ctx);
+    drawTextOverlay(ctx);
+    setIsCanvasReady(true);
+    addDebugInfo('Canvas pronto (sem recarregar imagens)');
   }, [imageState.url, imageState.zoom, imageState.positionX, imageState.positionY, textState, stableMockupUrl]);
 
   const drawTextOverlay = (ctx: CanvasRenderingContext2D) => {
@@ -267,55 +202,12 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
     });
   };
 
-  const drawMockupOverlay = (ctx: CanvasRenderingContext2D, onComplete?: () => void) => {
-    if (!stableMockupUrl) {
-      addDebugInfo('Mockup URL não disponível');
-      if (onComplete) onComplete();
+  const drawMockupOverlay = (ctx: CanvasRenderingContext2D) => {
+    if (!mockupImgRef.current) {
+      if (!stableMockupUrl) addDebugInfo('Mockup URL não disponível');
       return;
     }
-
-    setIsMockupLoading(true);
-    setMockupLoadError(null);
-
-    const mockupImg = new Image();
-    
-    const timeout = setTimeout(() => {
-      addDebugInfo('Timeout ao carregar mockup');
-      setMockupLoadError('Timeout ao carregar mockup');
-      setIsMockupLoading(false);
-      if (onComplete) onComplete();
-    }, 10000);
-
-    mockupImg.onload = () => {
-      try {
-        clearTimeout(timeout);
-        addDebugInfo('Mockup carregado, aplicando overlay');
-        // Draw the mockup scaled to cover the full canvas (1080x1440)
-        ctx.drawImage(mockupImg, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-        addDebugInfo('Mockup renderizado');
-        setIsMockupLoading(false);
-        if (onComplete) onComplete();
-      } catch (error) {
-        clearTimeout(timeout);
-        const errorMsg = `Erro ao renderizar mockup: ${error}`;
-        addDebugInfo(errorMsg);
-        setMockupLoadError(errorMsg);
-        setIsMockupLoading(false);
-        if (onComplete) onComplete();
-      }
-    };
-    
-    mockupImg.onerror = () => {
-      clearTimeout(timeout);
-      const errorMsg = 'Erro ao carregar mockup';
-      addDebugInfo(errorMsg);
-      setMockupLoadError(errorMsg);
-      setIsMockupLoading(false);
-      if (onComplete) onComplete();
-    };
-    
-    mockupImg.crossOrigin = 'anonymous';
-    mockupImg.src = stableMockupUrl;
+    ctx.drawImage(mockupImgRef.current, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   };
 
   // Debounced effect to prevent excessive re-renders
@@ -326,6 +218,34 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
 
     return () => clearTimeout(timer);
   }, [drawCanvas]);
+
+  // Preload mockup once when URL changes
+  useEffect(() => {
+    if (!stableMockupUrl) {
+      mockupImgRef.current = null;
+      return;
+    }
+    setIsMockupLoading(true);
+    setMockupLoadError(null);
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    const url = stableMockupUrl;
+    img.onload = () => {
+      if (stableMockupUrl !== url) return; // URL changed meanwhile
+      mockupImgRef.current = img;
+      setIsMockupLoading(false);
+      addDebugInfo('Mockup pré-carregado em cache');
+      drawCanvas();
+    };
+    img.onerror = () => {
+      if (stableMockupUrl !== url) return;
+      setIsMockupLoading(false);
+      setMockupLoadError('Erro ao carregar mockup');
+      mockupImgRef.current = null;
+      addDebugInfo('Falha ao pré-carregar mockup');
+    };
+    img.src = url;
+  }, [stableMockupUrl, drawCanvas]);
 
   const addDebugInfo = (info: string) => {
     console.log(`🎨 Instagram Editor: ${info}`);
@@ -380,9 +300,11 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
             
             // Atualizar estado
             setImageState(prev => ({ ...prev, file, url: dataUrl }));
+            baseImgRef.current = tempImg;
             addDebugInfo('Estado da imagem atualizado com DataURL');
             
             toast.success('Imagem carregada com sucesso!');
+            drawCanvas();
           };
           
           tempImg.onerror = () => {
