@@ -65,6 +65,80 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
     }
   }, [initialData]);
 
+  // Função para melhorar qualidade da imagem
+  const enhanceImageQuality = (img: HTMLImageElement): string => {
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    if (!tempCtx) return img.src;
+
+    // Usar dimensões da imagem original
+    tempCanvas.width = img.width;
+    tempCanvas.height = img.height;
+
+    // Desenhar imagem original
+    tempCtx.drawImage(img, 0, 0);
+
+    // Aplicar filtros de melhoria
+    const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+    const data = imageData.data;
+
+    // 1. Ajuste de contraste e brilho
+    const contrast = 1.15; // Aumentar contraste em 15%
+    const brightness = 5; // Aumentar brilho levemente
+    const factor = (259 * (contrast * 100 + 255)) / (255 * (259 - contrast * 100));
+
+    for (let i = 0; i < data.length; i += 4) {
+      // Ajustar RGB
+      data[i] = Math.min(255, Math.max(0, factor * (data[i] - 128) + 128 + brightness));     // R
+      data[i + 1] = Math.min(255, Math.max(0, factor * (data[i + 1] - 128) + 128 + brightness)); // G
+      data[i + 2] = Math.min(255, Math.max(0, factor * (data[i + 2] - 128) + 128 + brightness)); // B
+    }
+
+    // 2. Aplicar sharpening (unsharp mask simplificado)
+    const sharpenedData = applySharpen(imageData);
+    tempCtx.putImageData(sharpenedData, 0, 0);
+
+    // Converter para JPEG de alta qualidade
+    return tempCanvas.toDataURL('image/jpeg', 0.95);
+  };
+
+  const applySharpen = (imageData: ImageData): ImageData => {
+    const data = imageData.data;
+    const width = imageData.width;
+    const height = imageData.height;
+    const output = new ImageData(width, height);
+    const outputData = output.data;
+
+    // Kernel de nitidez
+    const kernel = [
+      0, -1, 0,
+      -1, 5, -1,
+      0, -1, 0
+    ];
+
+    for (let y = 1; y < height - 1; y++) {
+      for (let x = 1; x < width - 1; x++) {
+        for (let c = 0; c < 3; c++) { // RGB apenas
+          let sum = 0;
+          for (let ky = -1; ky <= 1; ky++) {
+            for (let kx = -1; kx <= 1; kx++) {
+              const idx = ((y + ky) * width + (x + kx)) * 4 + c;
+              const kernelIdx = (ky + 1) * 3 + (kx + 1);
+              sum += data[idx] * kernel[kernelIdx];
+            }
+          }
+          const outputIdx = (y * width + x) * 4 + c;
+          outputData[outputIdx] = Math.min(255, Math.max(0, sum));
+        }
+        // Copiar alpha
+        const alphaIdx = (y * width + x) * 4 + 3;
+        outputData[alphaIdx] = data[alphaIdx];
+      }
+    }
+
+    return output;
+  };
+
   const drawCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) {
@@ -320,13 +394,32 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
           tempImg.onload = () => {
             addDebugInfo(`Pré-validação concluída: ${tempImg.width}x${tempImg.height}`);
             
-            // Atualizar estado
-            setImageState(prev => ({ ...prev, file, url: dataUrl }));
-            baseImgRef.current = tempImg;
-            addDebugInfo('Estado da imagem atualizado com DataURL');
+            // Processar imagem para melhorar qualidade
+            const processedDataUrl = enhanceImageQuality(tempImg);
+            addDebugInfo('Imagem processada para melhor qualidade');
             
-            toast.success('Imagem carregada com sucesso!');
-            drawCanvas();
+            // Criar nova imagem com versão processada
+            const enhancedImg = new Image();
+            enhancedImg.onload = () => {
+              // Atualizar estado com imagem processada
+              setImageState(prev => ({ ...prev, file, url: processedDataUrl }));
+              baseImgRef.current = enhancedImg;
+              addDebugInfo('Estado da imagem atualizado com versão melhorada');
+              
+              toast.success('Imagem carregada e otimizada com sucesso!');
+              drawCanvas();
+            };
+            
+            enhancedImg.onerror = () => {
+              addDebugInfo('Erro ao carregar imagem processada, usando original');
+              // Fallback para imagem original
+              setImageState(prev => ({ ...prev, file, url: dataUrl }));
+              baseImgRef.current = tempImg;
+              toast.success('Imagem carregada com sucesso!');
+              drawCanvas();
+            };
+            
+            enhancedImg.src = processedDataUrl;
           };
           
           tempImg.onerror = () => {
