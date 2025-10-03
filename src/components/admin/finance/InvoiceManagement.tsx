@@ -199,7 +199,7 @@ export function InvoiceManagement() {
       
       const matchesStatus = statusFilter === "all" || invoice.status === statusFilter;
       
-      const invoiceDate = new Date(invoice.issue_date);
+      const invoiceDate = new Date(invoice.issue_date + 'T00:00:00');
       const matchesMonth = isWithinInterval(invoiceDate, { start: monthStart, end: monthEnd });
       
       return matchesSearch && matchesStatus && matchesMonth;
