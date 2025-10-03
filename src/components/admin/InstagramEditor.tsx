@@ -78,23 +78,8 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
     // Desenhar imagem original
     tempCtx.drawImage(img, 0, 0);
 
-    // Aplicar filtros de melhoria
+    // Aplicar apenas sharpening (sem ajustes de contraste/brilho)
     const imageData = tempCtx.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
-    const data = imageData.data;
-
-    // 1. Ajuste de contraste e brilho
-    const contrast = 1.15; // Aumentar contraste em 15%
-    const brightness = 5; // Aumentar brilho levemente
-    const factor = (259 * (contrast * 100 + 255)) / (255 * (259 - contrast * 100));
-
-    for (let i = 0; i < data.length; i += 4) {
-      // Ajustar RGB
-      data[i] = Math.min(255, Math.max(0, factor * (data[i] - 128) + 128 + brightness));     // R
-      data[i + 1] = Math.min(255, Math.max(0, factor * (data[i + 1] - 128) + 128 + brightness)); // G
-      data[i + 2] = Math.min(255, Math.max(0, factor * (data[i + 2] - 128) + 128 + brightness)); // B
-    }
-
-    // 2. Aplicar sharpening (unsharp mask simplificado)
     const sharpenedData = applySharpen(imageData);
     tempCtx.putImageData(sharpenedData, 0, 0);
 
