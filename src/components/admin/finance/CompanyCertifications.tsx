@@ -40,6 +40,8 @@ export function CompanyCertifications() {
   const [expiryDate, setExpiryDate] = useState('');
   const [notes, setNotes] = useState('');
   
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  
   const [editingCert, setEditingCert] = useState<any>(null);
   const [editType, setEditType] = useState('');
   const [editIssueDate, setEditIssueDate] = useState('');
@@ -73,6 +75,7 @@ export function CompanyCertifications() {
           setIssueDate('');
           setExpiryDate('');
           setNotes('');
+          setIsUploadDialogOpen(false);
           const fileInput = document.getElementById('certification-file') as HTMLInputElement;
           if (fileInput) fileInput.value = '';
         },
@@ -174,11 +177,24 @@ export function CompanyCertifications() {
         </Alert>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Enviar Nova Certidão</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div className="flex justify-between items-center">
+        <div>
+          <h3 className="text-lg font-semibold">Certidões Cadastradas</h3>
+          <p className="text-sm text-muted-foreground">
+            Gerencie as certidões da empresa e acompanhe as datas de validade
+          </p>
+        </div>
+        <Button onClick={() => setIsUploadDialogOpen(true)}>
+          <Upload className="mr-2 h-4 w-4" />
+          Nova Certidão
+        </Button>
+      </div>
+
+      <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Enviar Nova Certidão</DialogTitle>
+          </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -239,20 +255,27 @@ export function CompanyCertifications() {
               </div>
             </div>
 
-            <Button
-              type="submit"
-              disabled={isUploading || !selectedFile || !certificationType || !issueDate || !expiryDate}
-            >
-              <Upload className="mr-2 h-4 w-4" />
-              {isUploading ? 'Enviando...' : 'Enviar Certidão'}
-            </Button>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsUploadDialogOpen(false)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                disabled={isUploading || !selectedFile || !certificationType || !issueDate || !expiryDate}
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                {isUploading ? 'Enviando...' : 'Enviar Certidão'}
+              </Button>
+            </DialogFooter>
           </form>
-        </CardContent>
-      </Card>
+        </DialogContent>
+      </Dialog>
 
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Certidões Cadastradas</h3>
-        
         {certificationTypes.map((type) => {
           const typeCertifications = certifications?.filter(c => c.certification_type === type.value) || [];
           
