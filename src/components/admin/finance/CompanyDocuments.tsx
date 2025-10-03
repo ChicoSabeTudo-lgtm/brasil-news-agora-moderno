@@ -9,6 +9,7 @@ import { useCompanyDocuments } from '@/hooks/useCompanyDocuments';
 import { Upload, FileText, Download, Trash2, File } from 'lucide-react';
 import InlineSpinner from '@/components/InlineSpinner';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const DOCUMENT_TYPES = [
   { value: 'contrato_social', label: 'Contrato Social' },
@@ -26,6 +27,7 @@ export const CompanyDocuments = () => {
   const [documentType, setDocumentType] = useState('');
   const [description, setDescription] = useState('');
   const [documentToDelete, setDocumentToDelete] = useState<any>(null);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -45,6 +47,7 @@ export const CompanyDocuments = () => {
           setSelectedFile(null);
           setDocumentType('');
           setDescription('');
+          setIsUploadDialogOpen(false);
           const fileInput = document.getElementById('file-upload') as HTMLInputElement;
           if (fileInput) fileInput.value = '';
         },
@@ -74,26 +77,25 @@ export const CompanyDocuments = () => {
 
   return (
     <div className="space-y-6 p-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Documentos da Empresa</h1>
-        <p className="text-muted-foreground mt-1">
-          Gerencie os documentos importantes da sua empresa
-        </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Documentos da Empresa</h1>
+          <p className="text-muted-foreground mt-1">
+            Gerencie os documentos importantes da sua empresa
+          </p>
+        </div>
+        <Button onClick={() => setIsUploadDialogOpen(true)}>
+          <Upload className="w-4 h-4 mr-2" />
+          Novo Documento
+        </Button>
       </div>
 
-      {/* Upload Section */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Upload className="w-5 h-5 text-primary" />
-            <CardTitle>Enviar Documento</CardTitle>
-          </div>
-          <CardDescription>
-            Faça upload de documentos importantes da empresa
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Enviar Novo Documento</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
             <div>
               <Label htmlFor="file-upload">Arquivo</Label>
               <Input
@@ -118,31 +120,39 @@ export const CompanyDocuments = () => {
                 </SelectContent>
               </Select>
             </div>
+            <div>
+              <Label htmlFor="description">Descrição (opcional)</Label>
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Adicione uma descrição para o documento"
+                disabled={isUploading}
+              />
+            </div>
           </div>
-          <div>
-            <Label htmlFor="description">Descrição (opcional)</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Adicione uma descrição para o documento"
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsUploadDialogOpen(false)}
               disabled={isUploading}
-            />
-          </div>
-          <Button 
-            onClick={handleUpload} 
-            disabled={!selectedFile || !documentType || isUploading}
-            className="w-full md:w-auto"
-          >
-            {isUploading ? <InlineSpinner /> : (
-              <>
-                <Upload className="w-4 h-4 mr-2" />
-                Enviar Documento
-              </>
-            )}
-          </Button>
-        </CardContent>
-      </Card>
+            >
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleUpload} 
+              disabled={!selectedFile || !documentType || isUploading}
+            >
+              {isUploading ? <InlineSpinner /> : (
+                <>
+                  <Upload className="w-4 h-4 mr-2" />
+                  Enviar
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Documents List */}
       <Card>
