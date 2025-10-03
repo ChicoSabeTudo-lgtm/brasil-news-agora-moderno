@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { format, startOfMonth, endOfMonth, isWithinInterval, differenceInDays } from "date-fns";
+import { format, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { 
   Trash2, Download, FileText, Edit, Plus, Search, 
@@ -67,7 +67,6 @@ export const LegalCaseManagement = () => {
   const [deleteTarget, setDeleteTarget] = useState<LegalCase | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
 
   const [formData, setFormData] = useState({
     case_number: "",
@@ -204,9 +203,6 @@ export const LegalCaseManagement = () => {
   const filteredCases = useMemo(() => {
     if (!legalCases) return [];
     
-    const monthStart = startOfMonth(selectedMonth);
-    const monthEnd = endOfMonth(selectedMonth);
-    
     return legalCases.filter((legalCase) => {
       const matchesSearch = searchTerm === "" || 
         legalCase.case_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -216,12 +212,9 @@ export const LegalCaseManagement = () => {
       
       const matchesStatus = statusFilter === "all" || legalCase.status === statusFilter;
       
-      const caseDate = new Date(legalCase.start_date);
-      const matchesMonth = isWithinInterval(caseDate, { start: monthStart, end: monthEnd });
-      
-      return matchesSearch && matchesStatus && matchesMonth;
+      return matchesSearch && matchesStatus;
     });
-  }, [legalCases, searchTerm, statusFilter, selectedMonth]);
+  }, [legalCases, searchTerm, statusFilter]);
 
   if (isLoading) {
     return <div>Carregando...</div>;
@@ -456,30 +449,6 @@ export const LegalCaseManagement = () => {
 
       <Card className="p-4">
         <div className="flex gap-4 mb-4">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className={cn(
-                  "justify-start text-left font-normal",
-                  !selectedMonth && "text-muted-foreground"
-                )}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {format(selectedMonth, "MMMM 'de' yyyy", { locale: ptBR })}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={selectedMonth}
-                onSelect={(date) => date && setSelectedMonth(date)}
-                initialFocus
-                className={cn("p-3 pointer-events-auto")}
-              />
-            </PopoverContent>
-          </Popover>
-          
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
