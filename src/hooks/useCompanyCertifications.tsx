@@ -117,11 +117,24 @@ export const useCompanyCertifications = () => {
     },
   });
 
-  const downloadCertification = (certification: CompanyCertification) => {
-    const link = window.document.createElement('a');
-    link.href = certification.file_url;
-    link.download = certification.file_name;
-    link.click();
+  const downloadCertification = async (certification: CompanyCertification) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('company-documents')
+        .download(certification.file_path);
+      
+      if (error) throw error;
+      
+      const url = URL.createObjectURL(data);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = certification.file_name;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading certification:', error);
+      toast.error('Erro ao baixar certidão');
+    }
   };
 
   return {

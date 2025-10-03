@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Upload, Download, Trash2, FileText, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
+import { Upload, Download, Trash2, FileText, AlertCircle, CheckCircle2, Clock, Eye } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -259,7 +259,16 @@ export function CompanyCertifications() {
                           <Button
                             size="sm"
                             variant="outline"
+                            onClick={() => window.open(cert.file_url, '_blank')}
+                            title="Visualizar"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
                             onClick={() => downloadCertification(cert)}
+                            title="Baixar"
                           >
                             <Download className="h-4 w-4" />
                           </Button>
@@ -268,6 +277,7 @@ export function CompanyCertifications() {
                             variant="destructive"
                             onClick={() => deleteCertification(cert)}
                             disabled={isDeleting}
+                            title="Excluir"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
