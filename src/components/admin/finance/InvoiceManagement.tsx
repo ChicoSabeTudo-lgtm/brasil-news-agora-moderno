@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Download, Trash2, FileText, AlertCircle, CheckCircle2, Clock, XCircle, Search, Calendar as CalendarIcon } from 'lucide-react';
+import { Plus, Download, Trash2, FileText, AlertCircle, CheckCircle2, Clock, XCircle, Search, Calendar as CalendarIcon, Eye, Edit } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -33,7 +33,7 @@ const statusOptions = [
 ];
 
 export function InvoiceManagement() {
-  const { invoices, isLoading, createInvoice, isCreating, deleteInvoice, updateInvoice, downloadFile } = useInvoices();
+  const { invoices, isLoading, createInvoice, isCreating, deleteInvoice, updateInvoice, downloadFile, viewFile } = useInvoices();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -549,25 +549,45 @@ export function InvoiceManagement() {
                   <TableCell>{getStatusBadge(invoice.status)}</TableCell>
                   <TableCell>
                     <div className="flex gap-1">
-                      {invoice.invoice_pdf_url && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => downloadFile(invoice.invoice_pdf_url!, `NF-${invoice.invoice_number}.pdf`)}
-                          title="Download PDF"
-                        >
-                          <FileText className="h-4 w-4" />
-                        </Button>
+                      {invoice.invoice_pdf_path && (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => viewFile(invoice.invoice_pdf_path!)}
+                            title="Visualizar PDF"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => downloadFile(invoice.invoice_pdf_path!, `NF-${invoice.invoice_number}.pdf`)}
+                            title="Baixar PDF"
+                          >
+                            <FileText className="h-4 w-4" />
+                          </Button>
+                        </>
                       )}
-                      {invoice.payment_proof_url && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => downloadFile(invoice.payment_proof_url!, `Comprovante-${invoice.invoice_number}.pdf`)}
-                          title="Download Comprovante"
-                        >
-                          <Download className="h-4 w-4" />
-                        </Button>
+                      {invoice.payment_proof_path && (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => viewFile(invoice.payment_proof_path!)}
+                            title="Visualizar Comprovante"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => downloadFile(invoice.payment_proof_path!, `Comprovante-${invoice.invoice_number}.pdf`)}
+                            title="Baixar Comprovante"
+                          >
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        </>
                       )}
                     </div>
                   </TableCell>

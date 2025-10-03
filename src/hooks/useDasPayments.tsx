@@ -201,11 +201,40 @@ export const useDasPayments = () => {
     },
   });
 
-  const downloadFile = (url: string, filename: string) => {
-    const link = window.document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.click();
+  const downloadFile = async (path: string, filename: string) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('company-documents')
+        .download(path);
+      
+      if (error) throw error;
+      
+      const url = URL.createObjectURL(data);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      toast.error('Erro ao baixar arquivo');
+    }
+  };
+
+  const viewFile = async (path: string) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('company-documents')
+        .createSignedUrl(path, 60);
+      
+      if (error) throw error;
+      if (data?.signedUrl) {
+        window.open(data.signedUrl, '_blank');
+      }
+    } catch (error) {
+      console.error('Error viewing file:', error);
+      toast.error('Erro ao visualizar arquivo');
+    }
   };
 
   return {
@@ -218,5 +247,6 @@ export const useDasPayments = () => {
     deletePayment: deleteMutation.mutate,
     isDeleting: deleteMutation.isPending,
     downloadFile,
+    viewFile,
   };
 };

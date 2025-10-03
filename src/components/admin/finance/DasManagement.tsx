@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { format, startOfMonth, endOfMonth, isWithinInterval } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Trash2, Download, FileText, Receipt, Edit, Plus, Search, Calendar as CalendarIcon } from "lucide-react";
+import { Trash2, Download, FileText, Receipt, Edit, Plus, Search, Calendar as CalendarIcon, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -40,7 +40,7 @@ import { Badge } from "@/components/ui/badge";
 import { useDasPayments, DasPayment } from "@/hooks/useDasPayments";
 
 export const DasManagement = () => {
-  const { payments, isLoading, createPayment, updatePayment, deletePayment, downloadFile } = useDasPayments();
+  const { payments, isLoading, createPayment, updatePayment, deletePayment, downloadFile, viewFile } = useDasPayments();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPayment, setEditingPayment] = useState<DasPayment | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<DasPayment | null>(null);
@@ -429,27 +429,49 @@ export const DasManagement = () => {
                 <TableCell>{getStatusBadge(payment.status)}</TableCell>
                 <TableCell>
                   <div className="flex gap-2">
-                    {payment.das_boleto_url && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() =>
-                          downloadFile(payment.das_boleto_url!, "boleto-das.pdf")
-                        }
-                      >
-                        <FileText className="h-4 w-4" />
-                      </Button>
+                    {payment.das_boleto_path && (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => viewFile(payment.das_boleto_path!)}
+                          title="Visualizar Boleto"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() =>
+                            downloadFile(payment.das_boleto_path!, "boleto-das.pdf")
+                          }
+                          title="Baixar Boleto"
+                        >
+                          <FileText className="h-4 w-4" />
+                        </Button>
+                      </>
                     )}
-                    {payment.payment_proof_url && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() =>
-                          downloadFile(payment.payment_proof_url!, "comprovante.pdf")
-                        }
-                      >
-                        <Download className="h-4 w-4" />
-                      </Button>
+                    {payment.payment_proof_path && (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => viewFile(payment.payment_proof_path!)}
+                          title="Visualizar Comprovante"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() =>
+                            downloadFile(payment.payment_proof_path!, "comprovante.pdf")
+                          }
+                          title="Baixar Comprovante"
+                        >
+                          <Download className="h-4 w-4" />
+                        </Button>
+                      </>
                     )}
                   </div>
                 </TableCell>
