@@ -25,6 +25,7 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
   const { mockupUrl, refetchMockup } = useInstagramMockup();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const fontRedrawRequestedRef = useRef(false);
 
   // Memoize mockup URL to prevent unnecessary re-renders
   const stableMockupUrl = useMemo(() => mockupUrl, [mockupUrl]);
@@ -190,14 +191,20 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
 
     const { fontSize, verticalPosition, alignment, fontFamily, color } = textState;
     
-    // Wait for fonts to load before drawing
-    if (!document.fonts.check(`900 ${fontSize}px "Archivo Black"`)) {
+    // Wait for fonts to load before drawing (use correct weight for Archivo Black)
+    // Archivo Black from Google Fonts is a display family that commonly loads as a single weight.
+    // Using an overly heavy weight (e.g., 900) in the check can cause it to never pass.
+    if (document.fonts && !document.fonts.check(`normal ${fontSize}px "Archivo Black"`)) {
       addDebugInfo('Fonte Archivo Black ainda não carregada, aguardando...');
-      document.fonts.ready.then(() => {
-        addDebugInfo('Fontes carregadas, redesenhando canvas');
-        drawCanvas();
-      });
-      return;
+      if (!fontRedrawRequestedRef.current) {
+        fontRedrawRequestedRef.current = true;
+        document.fonts.ready.then(() => {
+          addDebugInfo('Fontes carregadas, redesenhando canvas');
+          fontRedrawRequestedRef.current = false;
+          drawCanvas();
+        });
+      }
+      // Prossegue com o desenho usando fonte de fallback para não travar o preview
     }
     
     // Semi-transparent overlay for text readability
@@ -208,7 +215,7 @@ export default function InstagramEditor({ onContinue, initialData }: InstagramEd
     ctx.fillRect(0, Math.max(0, overlayY), CANVAS_WIDTH, overlayHeight);
 
     // Text setup - ensure Archivo Black is used with fallback
-    const fontString = `900 ${fontSize}px "Archivo Black", "Arial Black", sans-serif`;
+    const fontString = `normal ${fontSize}px "Archivo Black", "Arial Black", sans-serif`;
     ctx.font = fontString;
     ctx.fillStyle = color;
     ctx.textBaseline = 'middle';
