@@ -92,6 +92,42 @@ export const useCompanyCertifications = () => {
     },
   });
 
+  const updateMutation = useMutation({
+    mutationFn: async ({ 
+      id,
+      certificationType,
+      issueDate,
+      expiryDate,
+      notes 
+    }: { 
+      id: string;
+      certificationType: CompanyCertification['certification_type'];
+      issueDate: string;
+      expiryDate: string;
+      notes?: string;
+    }) => {
+      const { error } = await supabase
+        .from('company_certifications')
+        .update({
+          certification_type: certificationType,
+          issue_date: issueDate,
+          expiry_date: expiryDate,
+          notes: notes || null,
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['company-certifications'] });
+      toast.success('Certidão atualizada com sucesso!');
+    },
+    onError: (error: Error) => {
+      toast.error('Erro ao atualizar certidão');
+      console.error('Error updating certification:', error);
+    },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: async (certification: CompanyCertification) => {
       const { error: storageError } = await supabase.storage
@@ -142,6 +178,8 @@ export const useCompanyCertifications = () => {
     isLoading,
     uploadCertification: uploadMutation.mutate,
     isUploading: uploadMutation.isPending,
+    updateCertification: updateMutation.mutate,
+    isUpdating: updateMutation.isPending,
     deleteCertification: deleteMutation.mutate,
     isDeleting: deleteMutation.isPending,
     downloadCertification,

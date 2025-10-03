@@ -7,7 +7,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Upload, Download, Trash2, FileText, AlertCircle, CheckCircle2, Clock, Eye } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Upload, Download, Trash2, FileText, AlertCircle, CheckCircle2, Clock, Eye, Edit } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -27,7 +28,9 @@ export function CompanyCertifications() {
     isUploading,
     deleteCertification,
     isDeleting,
-    downloadCertification 
+    downloadCertification,
+    updateCertification,
+    isUpdating
   } = useCompanyCertifications();
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -35,6 +38,12 @@ export function CompanyCertifications() {
   const [issueDate, setIssueDate] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
   const [notes, setNotes] = useState('');
+  
+  const [editingCert, setEditingCert] = useState<any>(null);
+  const [editType, setEditType] = useState('');
+  const [editIssueDate, setEditIssueDate] = useState('');
+  const [editExpiryDate, setEditExpiryDate] = useState('');
+  const [editNotes, setEditNotes] = useState('');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -107,6 +116,37 @@ export function CompanyCertifications() {
       default:
         return 'bg-gray-50 border-gray-200';
     }
+  };
+
+  const handleEdit = (cert: any) => {
+    setEditingCert(cert);
+    setEditType(cert.certification_type);
+    setEditIssueDate(cert.issue_date);
+    setEditExpiryDate(cert.expiry_date);
+    setEditNotes(cert.notes || '');
+  };
+
+  const handleUpdateSubmit = () => {
+    if (!editingCert) return;
+    
+    updateCertification(
+      {
+        id: editingCert.id,
+        certificationType: editType as any,
+        issueDate: editIssueDate,
+        expiryDate: editExpiryDate,
+        notes: editNotes,
+      },
+      {
+        onSuccess: () => {
+          setEditingCert(null);
+          setEditType('');
+          setEditIssueDate('');
+          setEditExpiryDate('');
+          setEditNotes('');
+        },
+      }
+    );
   };
 
   const expiringCertifications = certifications?.filter(c => c.status === 'expiring_soon' || c.status === 'expired') || [];
@@ -274,6 +314,14 @@ export function CompanyCertifications() {
                           </Button>
                           <Button
                             size="sm"
+                            variant="outline"
+                            onClick={() => handleEdit(cert)}
+                            title="Editar"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
                             variant="destructive"
                             onClick={() => deleteCertification(cert)}
                             disabled={isDeleting}
@@ -299,6 +347,73 @@ export function CompanyCertifications() {
           </Card>
         )}
       </div>
+
+      <Dialog open={!!editingCert} onOpenChange={(open) => !open && setEditingCert(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar Certidão</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-type">Tipo de Certidão</Label>
+              <Select value={editType} onValueChange={setEditType}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {certificationTypes.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>
+                      {type.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-issue-date">Data de Emissão</Label>
+              <Input
+                id="edit-issue-date"
+                type="date"
+                value={editIssueDate}
+                onChange={(e) => setEditIssueDate(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-expiry-date">Data de Validade</Label>
+              <Input
+                id="edit-expiry-date"
+                type="date"
+                value={editExpiryDate}
+                onChange={(e) => setEditExpiryDate(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-notes">Observações</Label>
+              <Textarea
+                id="edit-notes"
+                value={editNotes}
+                onChange={(e) => setEditNotes(e.target.value)}
+                placeholder="Observações adicionais (opcional)"
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingCert(null)}>
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleUpdateSubmit}
+              disabled={isUpdating || !editType || !editIssueDate || !editExpiryDate}
+            >
+              {isUpdating ? 'Salvando...' : 'Salvar'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
