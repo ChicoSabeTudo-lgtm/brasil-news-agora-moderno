@@ -303,15 +303,17 @@ export const AdminSidebar = () => {
       <SidebarContent>
         <Collapsible open={openSections.redacao} onOpenChange={() => toggleSection('redacao')}>
           <SidebarGroup>
-            <CollapsibleTrigger className="w-full">
-              <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-sidebar-accent/50 rounded px-2 py-1 transition-colors">
-                <span>Redação</span>
-                {!collapsed && (
-                  openSections.redacao ? 
-                    <ChevronDown className="w-4 h-4" /> : 
-                    <ChevronRight className="w-4 h-4" />
-                )}
-              </SidebarGroupLabel>
+            <CollapsibleTrigger asChild>
+              <button className="w-full">
+                <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-sidebar-accent/50 rounded px-2 py-1 transition-colors">
+                  <span>Redação</span>
+                  {!collapsed && (
+                    openSections.redacao ? 
+                      <ChevronDown className="w-4 h-4" /> : 
+                      <ChevronRight className="w-4 h-4" />
+                  )}
+                </SidebarGroupLabel>
+              </button>
             </CollapsibleTrigger>
             <CollapsibleContent>
               <SidebarGroupContent>
@@ -335,15 +337,17 @@ export const AdminSidebar = () => {
         {userRole === 'admin' && (
           <Collapsible open={openSections.administracao} onOpenChange={() => toggleSection('administracao')}>
             <SidebarGroup>
-              <CollapsibleTrigger className="w-full">
-                <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-sidebar-accent/50 rounded px-2 py-1 transition-colors">
-                  <span>Administração</span>
-                  {!collapsed && (
-                    openSections.administracao ? 
-                      <ChevronDown className="w-4 h-4" /> : 
-                      <ChevronRight className="w-4 h-4" />
-                  )}
-                </SidebarGroupLabel>
+              <CollapsibleTrigger asChild>
+                <button className="w-full">
+                  <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-sidebar-accent/50 rounded px-2 py-1 transition-colors">
+                    <span>Administração</span>
+                    {!collapsed && (
+                      openSections.administracao ? 
+                        <ChevronDown className="w-4 h-4" /> : 
+                        <ChevronRight className="w-4 h-4" />
+                    )}
+                  </SidebarGroupLabel>
+                </button>
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <SidebarGroupContent>
@@ -368,15 +372,17 @@ export const AdminSidebar = () => {
         {userRole === 'admin' && (
           <Collapsible open={openSections.financeiro} onOpenChange={() => toggleSection('financeiro')}>
             <SidebarGroup>
-              <CollapsibleTrigger className="w-full">
-                <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-sidebar-accent/50 rounded px-2 py-1 transition-colors">
-                  <span>Financeiro</span>
-                  {!collapsed && (
-                    openSections.financeiro ? 
-                      <ChevronDown className="w-4 h-4" /> : 
-                      <ChevronRight className="w-4 h-4" />
-                  )}
-                </SidebarGroupLabel>
+              <CollapsibleTrigger asChild>
+                <button className="w-full">
+                  <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-sidebar-accent/50 rounded px-2 py-1 transition-colors">
+                    <span>Financeiro</span>
+                    {!collapsed && (
+                      openSections.financeiro ? 
+                        <ChevronDown className="w-4 h-4" /> : 
+                        <ChevronRight className="w-4 h-4" />
+                    )}
+                  </SidebarGroupLabel>
+                </button>
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <SidebarGroupContent>
@@ -401,15 +407,17 @@ export const AdminSidebar = () => {
         {userRole === 'admin' && (
           <Collapsible open={openSections.geral} onOpenChange={() => toggleSection('geral')}>
             <SidebarGroup>
-              <CollapsibleTrigger className="w-full">
-                <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-sidebar-accent/50 rounded px-2 py-1 transition-colors">
-                  <span>Geral</span>
-                  {!collapsed && (
-                    openSections.geral ? 
-                      <ChevronDown className="w-4 h-4" /> : 
-                      <ChevronRight className="w-4 h-4" />
-                  )}
-                </SidebarGroupLabel>
+              <CollapsibleTrigger asChild>
+                <button className="w-full">
+                  <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-sidebar-accent/50 rounded px-2 py-1 transition-colors">
+                    <span>Geral</span>
+                    {!collapsed && (
+                      openSections.geral ? 
+                        <ChevronDown className="w-4 h-4" /> : 
+                        <ChevronRight className="w-4 h-4" />
+                    )}
+                  </SidebarGroupLabel>
+                </button>
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <SidebarGroupContent>
@@ -443,15 +451,17 @@ export const AdminSidebar = () => {
         {userRole === 'admin' && (
           <Collapsible open={openSections.empresa} onOpenChange={() => toggleSection('empresa')}>
             <SidebarGroup>
-              <CollapsibleTrigger className="w-full">
-                <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-sidebar-accent/50 rounded px-2 py-1 transition-colors">
-                  <span>Empresa</span>
-                  {!collapsed && (
-                    openSections.empresa ? 
-                      <ChevronDown className="w-4 h-4" /> : 
-                      <ChevronRight className="w-4 h-4" />
-                  )}
-                </SidebarGroupLabel>
+              <CollapsibleTrigger asChild>
+                <button className="w-full">
+                  <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-sidebar-accent/50 rounded px-2 py-1 transition-colors">
+                    <span>Empresa</span>
+                    {!collapsed && (
+                      openSections.empresa ? 
+                        <ChevronDown className="w-4 h-4" /> : 
+                        <ChevronRight className="w-4 h-4" />
+                    )}
+                  </SidebarGroupLabel>
+                </button>
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <SidebarGroupContent>
