@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { format, startOfMonth, endOfMonth, isWithinInterval } from "date-fns";
+import { format, startOfMonth, endOfMonth, isWithinInterval, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Trash2, Download, FileText, Receipt, Edit, Plus, Search, Calendar as CalendarIcon, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -154,7 +154,7 @@ export const InssManagement = () => {
     
     return payments.filter((payment) => {
       const matchesSearch = searchTerm === "" || 
-        format(new Date(payment.reference_month), "MMMM 'de' yyyy", { locale: ptBR })
+        format(parseISO(payment.reference_month), "MMMM 'de' yyyy", { locale: ptBR })
           .toLowerCase()
           .includes(searchTerm.toLowerCase()) ||
         payment.value.toString().includes(searchTerm) ||
@@ -162,7 +162,7 @@ export const InssManagement = () => {
       
       const matchesStatus = statusFilter === "all" || payment.status === statusFilter;
       
-      const paymentDate = new Date(payment.reference_month);
+      const paymentDate = parseISO(payment.reference_month);
       const matchesMonth = isWithinInterval(paymentDate, { start: monthStart, end: monthEnd });
       
       return matchesSearch && matchesStatus && matchesMonth;
@@ -257,6 +257,23 @@ export const InssManagement = () => {
                   }
                   rows={3}
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="status">Status do Pagamento *</Label>
+                <select
+                  id="status"
+                  value={formData.status}
+                  onChange={(e) =>
+                    setFormData({ ...formData, status: e.target.value as 'pending' | 'paid' | 'overdue' })
+                  }
+                  className="w-full px-3 py-2 border rounded-md bg-background"
+                  required
+                >
+                  <option value="pending">Pendente</option>
+                  <option value="paid">Pago</option>
+                  <option value="overdue">Vencido</option>
+                </select>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -408,7 +425,7 @@ export const InssManagement = () => {
               filteredPayments.map((payment) => (
               <TableRow key={payment.id}>
                 <TableCell>
-                  {format(new Date(payment.reference_month), "MMMM 'de' yyyy", {
+                  {format(parseISO(payment.reference_month), "MMMM 'de' yyyy", {
                     locale: ptBR,
                   })}
                 </TableCell>
