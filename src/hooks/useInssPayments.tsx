@@ -85,11 +85,11 @@ export const useInssPayments = () => {
       const { error } = await supabase
         .from('inss_payments')
         .insert([{
-          reference_month: paymentData.reference_month,
+          reference_month: paymentData.reference_month ? `${paymentData.reference_month}-01` : '',
           due_date: paymentData.due_date,
           value: paymentData.value,
-          payment_date: paymentData.payment_date,
-          observations: paymentData.observations,
+          payment_date: paymentData.payment_date || null,
+          observations: paymentData.observations || null,
           inss_boleto_path: boletoPath,
           inss_boleto_url: boletoUrl,
           payment_proof_path: proofPath,
@@ -152,6 +152,15 @@ export const useInssPayments = () => {
         updateData.payment_proof_path = fileName;
         updateData.payment_proof_url = publicUrl;
       }
+
+      // Convert reference_month to DATE format if present
+      if (updateData.reference_month && !updateData.reference_month.includes('-01')) {
+        updateData.reference_month = `${updateData.reference_month}-01`;
+      }
+
+      // Ensure null values for optional fields
+      if (updateData.payment_date === '') updateData.payment_date = null;
+      if (updateData.observations === '') updateData.observations = null;
 
       const { error } = await supabase
         .from('inss_payments')

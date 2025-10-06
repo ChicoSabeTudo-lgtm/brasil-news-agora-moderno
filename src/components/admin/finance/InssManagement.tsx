@@ -105,7 +105,7 @@ export const InssManagement = () => {
   const handleEdit = (payment: InssPayment) => {
     setEditingPayment(payment);
     setFormData({
-      reference_month: payment.reference_month,
+      reference_month: payment.reference_month.substring(0, 7), // Convert YYYY-MM-DD to YYYY-MM
       due_date: payment.due_date,
       value: payment.value.toString(),
       payment_date: payment.payment_date || "",
