@@ -154,7 +154,7 @@ export const InssManagement = () => {
     
     return payments.filter((payment) => {
       const matchesSearch = searchTerm === "" || 
-        format(new Date(payment.reference_month + "-01"), "MMMM 'de' yyyy", { locale: ptBR })
+        format(new Date(payment.reference_month), "MMMM 'de' yyyy", { locale: ptBR })
           .toLowerCase()
           .includes(searchTerm.toLowerCase()) ||
         payment.value.toString().includes(searchTerm) ||
@@ -162,7 +162,7 @@ export const InssManagement = () => {
       
       const matchesStatus = statusFilter === "all" || payment.status === statusFilter;
       
-      const paymentDate = new Date(payment.reference_month + "-01");
+      const paymentDate = new Date(payment.reference_month);
       const matchesMonth = isWithinInterval(paymentDate, { start: monthStart, end: monthEnd });
       
       return matchesSearch && matchesStatus && matchesMonth;
@@ -408,7 +408,7 @@ export const InssManagement = () => {
               filteredPayments.map((payment) => (
               <TableRow key={payment.id}>
                 <TableCell>
-                  {format(new Date(payment.reference_month + "-01"), "MMMM 'de' yyyy", {
+                  {format(new Date(payment.reference_month), "MMMM 'de' yyyy", {
                     locale: ptBR,
                   })}
                 </TableCell>
