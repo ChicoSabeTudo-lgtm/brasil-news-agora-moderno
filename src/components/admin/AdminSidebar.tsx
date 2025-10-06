@@ -212,6 +212,12 @@ const companyItems = [
     roles: ['admin'],
   },
   {
+    title: 'Pagamentos INSS',
+    url: '/admin?tab=inss-payments',
+    icon: Receipt,
+    roles: ['admin'],
+  },
+  {
     title: 'Processos Judiciais',
     url: '/admin?tab=legal-cases',
     icon: Scale,

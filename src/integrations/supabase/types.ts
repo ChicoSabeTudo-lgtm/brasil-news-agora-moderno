@@ -931,6 +931,57 @@ export type Database = {
           },
         ]
       }
+      inss_payments: {
+        Row: {
+          created_at: string
+          due_date: string
+          id: string
+          inss_boleto_path: string | null
+          inss_boleto_url: string | null
+          observations: string | null
+          payment_date: string | null
+          payment_proof_path: string | null
+          payment_proof_url: string | null
+          reference_month: string
+          status: string
+          updated_at: string
+          uploaded_by: string | null
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          due_date: string
+          id?: string
+          inss_boleto_path?: string | null
+          inss_boleto_url?: string | null
+          observations?: string | null
+          payment_date?: string | null
+          payment_proof_path?: string | null
+          payment_proof_url?: string | null
+          reference_month: string
+          status?: string
+          updated_at?: string
+          uploaded_by?: string | null
+          value: number
+        }
+        Update: {
+          created_at?: string
+          due_date?: string
+          id?: string
+          inss_boleto_path?: string | null
+          inss_boleto_url?: string | null
+          observations?: string | null
+          payment_date?: string | null
+          payment_proof_path?: string | null
+          payment_proof_url?: string | null
+          reference_month?: string
+          status?: string
+          updated_at?: string
+          uploaded_by?: string | null
+          value?: number
+        }
+        Relationships: []
+      }
       instagram_images: {
         Row: {
           created_at: string
@@ -2032,6 +2083,10 @@ export type Database = {
         Returns: undefined
       }
       update_das_status: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      update_inss_status: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
