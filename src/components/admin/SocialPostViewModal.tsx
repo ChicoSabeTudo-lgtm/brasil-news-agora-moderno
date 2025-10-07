@@ -2,6 +2,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { formatInTimeZone } from 'date-fns-tz';
 import { Instagram, Twitter, Facebook, Linkedin, MessageCircle, Clock, Calendar, User, Eye } from 'lucide-react';
 import { SocialScheduledPost } from '@/hooks/useSocialScheduledPosts';
 
@@ -86,7 +87,7 @@ export const SocialPostViewModal = ({ post, isOpen, onClose }: SocialPostViewMod
                 Agendado para
               </div>
               <p className="text-sm text-muted-foreground">
-                {format(new Date(post.scheduled_for), 'dd/MM/yyyy \'às\' HH:mm', { locale: ptBR })}
+                {formatInTimeZone(new Date(post.scheduled_for), 'America/Sao_Paulo', 'dd/MM/yyyy \'às\' HH:mm', { locale: ptBR })}
               </p>
             </div>
 
@@ -97,7 +98,7 @@ export const SocialPostViewModal = ({ post, isOpen, onClose }: SocialPostViewMod
                   Publicado em
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  {format(new Date(post.published_at), 'dd/MM/yyyy \'às\' HH:mm', { locale: ptBR })}
+                  {formatInTimeZone(new Date(post.published_at), 'America/Sao_Paulo', 'dd/MM/yyyy \'às\' HH:mm', { locale: ptBR })}
                 </p>
               </div>
             )}

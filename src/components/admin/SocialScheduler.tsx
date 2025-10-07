@@ -9,6 +9,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { formatInTimeZone } from 'date-fns-tz';
 import { cn } from '@/lib/utils';
 import { Calendar as CalendarIcon, Clock, X, Instagram, Twitter, Facebook, Linkedin } from 'lucide-react';
 import { useSocialScheduledPosts, SocialScheduledPost } from '@/hooks/useSocialScheduledPosts';
@@ -254,8 +256,8 @@ export const SocialScheduler = ({ newsId, newsTitle, newsImage }: SocialSchedule
                         {post.content}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {post.status === 'scheduled' && `Agendado para: ${format(new Date(post.scheduled_for), 'dd/MM/yyyy \'às\' HH:mm')}`}
-                        {post.status === 'published' && post.published_at && `Publicado em: ${format(new Date(post.published_at), 'dd/MM/yyyy \'às\' HH:mm')}`}
+                        {post.status === 'scheduled' && `Agendado para: ${formatInTimeZone(new Date(post.scheduled_for), 'America/Sao_Paulo', 'dd/MM/yyyy \'às\' HH:mm', { locale: ptBR })}`}
+                        {post.status === 'published' && post.published_at && `Publicado em: ${formatInTimeZone(new Date(post.published_at), 'America/Sao_Paulo', 'dd/MM/yyyy \'às\' HH:mm', { locale: ptBR })}`}
                       </p>
                     </div>
                   </div>
