@@ -259,6 +259,23 @@ export const DasManagement = () => {
                 />
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="status">Status do Pagamento *</Label>
+                <select
+                  id="status"
+                  value={formData.status}
+                  onChange={(e) =>
+                    setFormData({ ...formData, status: e.target.value as 'pending' | 'paid' | 'overdue' })
+                  }
+                  className="w-full px-3 py-2 border rounded-md bg-background"
+                  required
+                >
+                  <option value="pending">Pendente</option>
+                  <option value="paid">Pago</option>
+                  <option value="overdue">Vencido</option>
+                </select>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="boleto">Boleto DAS</Label>
