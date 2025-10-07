@@ -1,15 +1,17 @@
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { formatInTimeZone } from 'date-fns-tz';
-import { Instagram, Twitter, Facebook, Linkedin, MessageCircle, Clock, Calendar, User, Eye } from 'lucide-react';
+import { Instagram, Twitter, Facebook, Linkedin, MessageCircle, Clock, Calendar, User, Eye, Edit } from 'lucide-react';
 import { SocialScheduledPost } from '@/hooks/useSocialScheduledPosts';
 
 interface SocialPostViewModalProps {
   post: SocialScheduledPost | null;
   isOpen: boolean;
   onClose: () => void;
+  onEdit?: () => void;
 }
 
 const platformIcons = {
@@ -42,10 +44,13 @@ const statusNames = {
   cancelled: 'Cancelado',
 };
 
-export const SocialPostViewModal = ({ post, isOpen, onClose }: SocialPostViewModalProps) => {
+export const SocialPostViewModal = ({ post, isOpen, onClose, onEdit }: SocialPostViewModalProps) => {
   if (!post) return null;
 
   const PlatformIcon = platformIcons[post.platform as keyof typeof platformIcons];
+  
+  // Só permite editar se o post estiver agendado
+  const canEdit = post.status === 'scheduled';
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -168,6 +173,21 @@ export const SocialPostViewModal = ({ post, isOpen, onClose }: SocialPostViewMod
             </div>
           </div>
         </div>
+
+        <DialogFooter className="flex items-center justify-between sm:justify-between">
+          <Button variant="outline" onClick={onClose}>
+            Fechar
+          </Button>
+          {canEdit && onEdit && (
+            <Button onClick={() => {
+              onEdit();
+              onClose();
+            }} className="gap-2">
+              <Edit className="w-4 h-4" />
+              Editar Post
+            </Button>
+          )}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -538,6 +538,9 @@ export const SocialPostsManagement = () => {
           setIsViewModalOpen(false);
           setSelectedPost(null);
         }}
+        onEdit={() => {
+          setIsEditModalOpen(true);
+        }}
       />
     </div>
   );
