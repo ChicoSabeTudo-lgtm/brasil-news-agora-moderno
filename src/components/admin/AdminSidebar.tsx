@@ -262,8 +262,8 @@ export const AdminSidebar = () => {
   const getNavClassName = (url: string) => {
     const active = isActive(url);
     return active 
-      ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium border-r-2 border-primary' 
-      : 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground';
+      ? 'bg-gradient-to-r from-primary/15 to-primary/5 text-primary font-semibold border-l-3 border-primary shadow-sm shadow-primary/10 translate-x-1' 
+      : 'hover:bg-gradient-to-r hover:from-sidebar-accent/60 hover:to-transparent hover:text-sidebar-accent-foreground hover:translate-x-1 transition-all duration-200';
   };
 
   const handleLogout = async () => {
@@ -285,16 +285,16 @@ export const AdminSidebar = () => {
   };
 
   return (
-    <Sidebar className="border-r border-sidebar-border bg-sidebar shadow-sm">
-      <SidebarHeader className="border-b border-sidebar-border p-4">
+    <Sidebar className="border-r border-sidebar-border/50 bg-gradient-to-b from-sidebar to-sidebar/95 shadow-xl backdrop-blur-sm">
+      <SidebarHeader className="border-b border-sidebar-border/50 p-4 bg-gradient-to-r from-primary/10 to-primary/5">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <LayoutDashboard className="w-4 h-4 text-primary-foreground" />
+          <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 transition-transform hover:scale-105">
+            <LayoutDashboard className="w-5 h-5 text-primary-foreground" />
           </div>
           {!collapsed && (
-            <div>
-              <h2 className="font-bold text-sidebar-foreground">Admin Panel</h2>
-              <p className="text-xs text-sidebar-foreground/70">ChicoSabeTudo</p>
+            <div className="flex-1">
+              <h2 className="font-bold text-lg text-sidebar-foreground bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">Admin Panel</h2>
+              <p className="text-xs text-sidebar-foreground/60 font-medium">ChicoSabeTudo</p>
             </div>
           )}
         </div>
@@ -304,13 +304,13 @@ export const AdminSidebar = () => {
         <Collapsible open={openSections.redacao} onOpenChange={() => toggleSection('redacao')}>
           <SidebarGroup>
             <CollapsibleTrigger asChild>
-              <button className="w-full">
-                <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-sidebar-accent/50 rounded px-2 py-1 transition-colors">
-                  <span>Redação</span>
+              <button className="w-full group">
+                <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-gradient-to-r hover:from-primary/10 hover:to-transparent rounded-lg px-3 py-2 transition-all duration-200 group-hover:translate-x-1">
+                  <span className="font-semibold text-sm tracking-wide">Redação</span>
                   {!collapsed && (
                     openSections.redacao ? 
-                      <ChevronDown className="w-4 h-4" /> : 
-                      <ChevronRight className="w-4 h-4" />
+                      <ChevronDown className="w-4 h-4 transition-transform duration-200 text-primary" /> : 
+                      <ChevronRight className="w-4 h-4 transition-transform duration-200 group-hover:text-primary" />
                   )}
                 </SidebarGroupLabel>
               </button>
@@ -338,13 +338,13 @@ export const AdminSidebar = () => {
           <Collapsible open={openSections.administracao} onOpenChange={() => toggleSection('administracao')}>
             <SidebarGroup>
               <CollapsibleTrigger asChild>
-                <button className="w-full">
-                  <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-sidebar-accent/50 rounded px-2 py-1 transition-colors">
-                    <span>Administração</span>
+                <button className="w-full group">
+                  <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-gradient-to-r hover:from-primary/10 hover:to-transparent rounded-lg px-3 py-2 transition-all duration-200 group-hover:translate-x-1">
+                    <span className="font-semibold text-sm tracking-wide">Administração</span>
                     {!collapsed && (
                       openSections.administracao ? 
-                        <ChevronDown className="w-4 h-4" /> : 
-                        <ChevronRight className="w-4 h-4" />
+                        <ChevronDown className="w-4 h-4 transition-transform duration-200 text-primary" /> : 
+                        <ChevronRight className="w-4 h-4 transition-transform duration-200 group-hover:text-primary" />
                     )}
                   </SidebarGroupLabel>
                 </button>
@@ -373,13 +373,13 @@ export const AdminSidebar = () => {
           <Collapsible open={openSections.financeiro} onOpenChange={() => toggleSection('financeiro')}>
             <SidebarGroup>
               <CollapsibleTrigger asChild>
-                <button className="w-full">
-                  <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-sidebar-accent/50 rounded px-2 py-1 transition-colors">
-                    <span>Financeiro</span>
+                <button className="w-full group">
+                  <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-gradient-to-r hover:from-primary/10 hover:to-transparent rounded-lg px-3 py-2 transition-all duration-200 group-hover:translate-x-1">
+                    <span className="font-semibold text-sm tracking-wide">Financeiro</span>
                     {!collapsed && (
                       openSections.financeiro ? 
-                        <ChevronDown className="w-4 h-4" /> : 
-                        <ChevronRight className="w-4 h-4" />
+                        <ChevronDown className="w-4 h-4 transition-transform duration-200 text-primary" /> : 
+                        <ChevronRight className="w-4 h-4 transition-transform duration-200 group-hover:text-primary" />
                     )}
                   </SidebarGroupLabel>
                 </button>
@@ -408,13 +408,13 @@ export const AdminSidebar = () => {
           <Collapsible open={openSections.geral} onOpenChange={() => toggleSection('geral')}>
             <SidebarGroup>
               <CollapsibleTrigger asChild>
-                <button className="w-full">
-                  <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-sidebar-accent/50 rounded px-2 py-1 transition-colors">
-                    <span>Geral</span>
+                <button className="w-full group">
+                  <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-gradient-to-r hover:from-primary/10 hover:to-transparent rounded-lg px-3 py-2 transition-all duration-200 group-hover:translate-x-1">
+                    <span className="font-semibold text-sm tracking-wide">Geral</span>
                     {!collapsed && (
                       openSections.geral ? 
-                        <ChevronDown className="w-4 h-4" /> : 
-                        <ChevronRight className="w-4 h-4" />
+                        <ChevronDown className="w-4 h-4 transition-transform duration-200 text-primary" /> : 
+                        <ChevronRight className="w-4 h-4 transition-transform duration-200 group-hover:text-primary" />
                     )}
                   </SidebarGroupLabel>
                 </button>
@@ -452,13 +452,13 @@ export const AdminSidebar = () => {
           <Collapsible open={openSections.empresa} onOpenChange={() => toggleSection('empresa')}>
             <SidebarGroup>
               <CollapsibleTrigger asChild>
-                <button className="w-full">
-                  <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-sidebar-accent/50 rounded px-2 py-1 transition-colors">
-                    <span>Empresa</span>
+                <button className="w-full group">
+                  <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-gradient-to-r hover:from-primary/10 hover:to-transparent rounded-lg px-3 py-2 transition-all duration-200 group-hover:translate-x-1">
+                    <span className="font-semibold text-sm tracking-wide">Empresa</span>
                     {!collapsed && (
                       openSections.empresa ? 
-                        <ChevronDown className="w-4 h-4" /> : 
-                        <ChevronRight className="w-4 h-4" />
+                        <ChevronDown className="w-4 h-4 transition-transform duration-200 text-primary" /> : 
+                        <ChevronRight className="w-4 h-4 transition-transform duration-200 group-hover:text-primary" />
                     )}
                   </SidebarGroupLabel>
                 </button>
@@ -484,38 +484,38 @@ export const AdminSidebar = () => {
         )}
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border p-4">
+      <SidebarFooter className="border-t border-sidebar-border/50 p-4 bg-gradient-to-t from-sidebar-accent/20 to-transparent">
         <div className="space-y-2">
           {userRole === 'admin' ? (
             <Button 
               variant="ghost" 
               size="sm" 
-              className="w-full justify-start"
+              className="w-full justify-start hover:bg-gradient-to-r hover:from-primary/10 hover:to-transparent transition-all duration-200 hover:translate-x-1 group"
               onClick={() => window.location.href = '/admin/configuracoes'}
             >
-              <Settings className="w-4 h-4" />
-              {!collapsed && <span className="ml-2">Configurações</span>}
+              <Settings className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" />
+              {!collapsed && <span className="ml-2 font-medium">Configurações</span>}
             </Button>
           ) : (
             <Button 
               variant="ghost" 
               size="sm" 
-              className="w-full justify-start"
+              className="w-full justify-start hover:bg-gradient-to-r hover:from-primary/10 hover:to-transparent transition-all duration-200 hover:translate-x-1"
               onClick={() => window.location.href = '/perfil'}
             >
               <UserCircle className="w-4 h-4" />
-              {!collapsed && <span className="ml-2">Meu Perfil</span>}
+              {!collapsed && <span className="ml-2 font-medium">Meu Perfil</span>}
             </Button>
           )}
           
           <Button 
             variant="ghost" 
             size="sm" 
-            className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
+            className="w-full justify-start text-destructive hover:text-destructive hover:bg-gradient-to-r hover:from-destructive/10 hover:to-transparent transition-all duration-200 hover:translate-x-1 group"
             onClick={handleLogout}
           >
-            <LogOut className="w-4 h-4" />
-            {!collapsed && <span className="ml-2">Sair</span>}
+            <LogOut className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-300" />
+            {!collapsed && <span className="ml-2 font-medium">Sair</span>}
           </Button>
         </div>
       </SidebarFooter>
