@@ -236,17 +236,12 @@ export const AdminSidebar = () => {
   const collapsed = state === 'collapsed';
   const { data: pendingCounts } = usePendingCounts();
   
-  // Estado para controlar seções abertas/fechadas
-  const [openSections, setOpenSections] = useState({
-    redacao: true,
-    administracao: false,
-    financeiro: false,
-    geral: false,
-    empresa: false,
-  });
+  // Estado para controlar seções abertas/fechadas (apenas uma aberta por vez)
+  const [openSection, setOpenSection] = useState<string>('redacao');
 
-  const toggleSection = (section: keyof typeof openSections) => {
-    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+  const toggleSection = (section: string) => {
+    // Se clicar na mesma seção, fecha ela. Senão, abre a nova e fecha as outras
+    setOpenSection(prev => prev === section ? '' : section);
   };
   
   const currentPath = location.pathname + location.search;
@@ -301,14 +296,14 @@ export const AdminSidebar = () => {
       </SidebarHeader>
 
       <SidebarContent>
-        <Collapsible open={openSections.redacao} onOpenChange={() => toggleSection('redacao')}>
+        <Collapsible open={openSection === 'redacao'} onOpenChange={() => toggleSection('redacao')}>
           <SidebarGroup>
             <CollapsibleTrigger asChild>
               <button className="w-full group">
                 <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-gradient-to-r hover:from-primary/10 hover:to-transparent rounded-lg px-3 py-2 transition-all duration-200 group-hover:translate-x-1">
                   <span className="font-semibold text-sm tracking-wide">Redação</span>
                   {!collapsed && (
-                    openSections.redacao ? 
+                    openSection === 'redacao' ? 
                       <ChevronDown className="w-4 h-4 transition-transform duration-200 text-primary" /> : 
                       <ChevronRight className="w-4 h-4 transition-transform duration-200 group-hover:text-primary" />
                   )}
@@ -335,14 +330,14 @@ export const AdminSidebar = () => {
         </Collapsible>
 
         {userRole === 'admin' && (
-          <Collapsible open={openSections.administracao} onOpenChange={() => toggleSection('administracao')}>
+          <Collapsible open={openSection === 'administracao'} onOpenChange={() => toggleSection('administracao')}>
             <SidebarGroup>
               <CollapsibleTrigger asChild>
                 <button className="w-full group">
                   <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-gradient-to-r hover:from-primary/10 hover:to-transparent rounded-lg px-3 py-2 transition-all duration-200 group-hover:translate-x-1">
                     <span className="font-semibold text-sm tracking-wide">Administração</span>
                     {!collapsed && (
-                      openSections.administracao ? 
+                      openSection === 'administracao' ? 
                         <ChevronDown className="w-4 h-4 transition-transform duration-200 text-primary" /> : 
                         <ChevronRight className="w-4 h-4 transition-transform duration-200 group-hover:text-primary" />
                     )}
@@ -370,14 +365,14 @@ export const AdminSidebar = () => {
         )}
 
         {userRole === 'admin' && (
-          <Collapsible open={openSections.financeiro} onOpenChange={() => toggleSection('financeiro')}>
+          <Collapsible open={openSection === 'financeiro'} onOpenChange={() => toggleSection('financeiro')}>
             <SidebarGroup>
               <CollapsibleTrigger asChild>
                 <button className="w-full group">
                   <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-gradient-to-r hover:from-primary/10 hover:to-transparent rounded-lg px-3 py-2 transition-all duration-200 group-hover:translate-x-1">
                     <span className="font-semibold text-sm tracking-wide">Financeiro</span>
                     {!collapsed && (
-                      openSections.financeiro ? 
+                      openSection === 'financeiro' ? 
                         <ChevronDown className="w-4 h-4 transition-transform duration-200 text-primary" /> : 
                         <ChevronRight className="w-4 h-4 transition-transform duration-200 group-hover:text-primary" />
                     )}
@@ -405,14 +400,14 @@ export const AdminSidebar = () => {
         )}
 
         {userRole === 'admin' && (
-          <Collapsible open={openSections.geral} onOpenChange={() => toggleSection('geral')}>
+          <Collapsible open={openSection === 'geral'} onOpenChange={() => toggleSection('geral')}>
             <SidebarGroup>
               <CollapsibleTrigger asChild>
                 <button className="w-full group">
                   <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-gradient-to-r hover:from-primary/10 hover:to-transparent rounded-lg px-3 py-2 transition-all duration-200 group-hover:translate-x-1">
                     <span className="font-semibold text-sm tracking-wide">Geral</span>
                     {!collapsed && (
-                      openSections.geral ? 
+                      openSection === 'geral' ? 
                         <ChevronDown className="w-4 h-4 transition-transform duration-200 text-primary" /> : 
                         <ChevronRight className="w-4 h-4 transition-transform duration-200 group-hover:text-primary" />
                     )}
@@ -449,14 +444,14 @@ export const AdminSidebar = () => {
         )}
 
         {userRole === 'admin' && (
-          <Collapsible open={openSections.empresa} onOpenChange={() => toggleSection('empresa')}>
+          <Collapsible open={openSection === 'empresa'} onOpenChange={() => toggleSection('empresa')}>
             <SidebarGroup>
               <CollapsibleTrigger asChild>
                 <button className="w-full group">
                   <SidebarGroupLabel className="flex items-center justify-between cursor-pointer hover:bg-gradient-to-r hover:from-primary/10 hover:to-transparent rounded-lg px-3 py-2 transition-all duration-200 group-hover:translate-x-1">
                     <span className="font-semibold text-sm tracking-wide">Empresa</span>
                     {!collapsed && (
-                      openSections.empresa ? 
+                      openSection === 'empresa' ? 
                         <ChevronDown className="w-4 h-4 transition-transform duration-200 text-primary" /> : 
                         <ChevronRight className="w-4 h-4 transition-transform duration-200 group-hover:text-primary" />
                     )}
