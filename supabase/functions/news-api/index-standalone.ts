@@ -227,6 +227,9 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 };
 
+// Configuração para acesso público (sem autenticação)
+const PUBLIC_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
