@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertTitle } from '@/components/ui/alert';
-import { Mail, Phone, User, Building2, Info } from 'lucide-react';
+import { Mail, Phone, User, Building2, Info, FileText } from 'lucide-react';
 import { useFinanceData } from '@/hooks/useFinance';
 import { toast } from '@/components/ui/use-toast';
 
@@ -22,6 +22,7 @@ export default function NewClientModal({ open, onOpenChange }: Props) {
     contact_person: '',
     email: '',
     phone: '',
+    cnpj: '',
   });
 
   const canSave = form.name.trim().length > 0 && !saving;
@@ -35,10 +36,11 @@ export default function NewClientModal({ open, onOpenChange }: Props) {
         phone: form.phone || null,
         company: form.company || null,
         contact_person: form.contact_person || null,
+        cnpj: form.cnpj || null,
       } as any);
       toast({ title: 'Cliente criado', description: `${form.name} adicionado com sucesso.` });
       onOpenChange(false);
-      setForm({ name: '', company: '', contact_person: '', email: '', phone: '' });
+      setForm({ name: '', company: '', contact_person: '', email: '', phone: '', cnpj: '' });
     } catch (e: any) {
       toast({ title: 'Erro ao criar cliente', description: e?.message || 'Tente novamente.', variant: 'destructive' });
       console.error(e);
@@ -66,6 +68,10 @@ export default function NewClientModal({ open, onOpenChange }: Props) {
           <div className="space-y-1.5">
             <Label className="flex items-center gap-2 text-sm font-medium text-muted-foreground"><User className="w-4 h-4" /> Pessoa de Contato</Label>
             <Input placeholder="Nome da pessoa responsável" value={form.contact_person} onChange={(e) => setForm({ ...form, contact_person: e.target.value })} />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="flex items-center gap-2 text-sm font-medium text-muted-foreground"><FileText className="w-4 h-4" /> CNPJ (Opcional)</Label>
+            <Input placeholder="00.000.000/0000-00" value={form.cnpj} onChange={(e) => setForm({ ...form, cnpj: e.target.value })} maxLength={18} />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">

@@ -9,7 +9,7 @@ import { useFinanceData } from '@/hooks/useFinance';
 import { Button as ShButton } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Eye, Pencil, Trash2, Search, Mail, Phone, User, Building2, X } from 'lucide-react';
+import { Eye, Pencil, Trash2, Search, Mail, Phone, User, Building2, X, FileText } from 'lucide-react';
 import NewClientModal from './NewClientModal';
 
 export function ClientsManagement() {
@@ -22,6 +22,7 @@ export function ClientsManagement() {
   const [editingPhone, setEditingPhone] = useState('');
   const [editingCompany, setEditingCompany] = useState('');
   const [editingContactPerson, setEditingContactPerson] = useState('');
+  const [editingCnpj, setEditingCnpj] = useState('');
   const [openNew, setOpenNew] = useState(false);
   const [q, setQ] = useState('');
 
@@ -50,6 +51,7 @@ export function ClientsManagement() {
     setEditingPhone(client.phone || '');
     setEditingCompany(client.company || '');
     setEditingContactPerson(client.contact_person || '');
+    setEditingCnpj(client.cnpj || '');
   };
 
   const handleSaveEdit = async () => {
@@ -59,7 +61,8 @@ export function ClientsManagement() {
         email: editingEmail || null,
         phone: editingPhone || null,
         company: editingCompany || null,
-        contact_person: editingContactPerson || null
+        contact_person: editingContactPerson || null,
+        cnpj: editingCnpj || null
       });
       setEditingId(null);
     }
@@ -109,6 +112,9 @@ export function ClientsManagement() {
                 {c.company && (
                   <div className="flex items-center gap-2"><Building2 className="w-4 h-4" /> {c.company}</div>
                 )}
+                {c.cnpj && (
+                  <div className="flex items-center gap-2"><FileText className="w-4 h-4" /> {c.cnpj}</div>
+                )}
                 {c.contact_person && (
                   <div className="flex items-center gap-2"><User className="w-4 h-4" /> {c.contact_person}</div>
                 )}
@@ -150,6 +156,10 @@ export function ClientsManagement() {
             <div>
               <Label>Pessoa de Contato</Label>
               <Input value={editingContactPerson} onChange={(e) => setEditingContactPerson(e.target.value)} />
+            </div>
+            <div className="col-span-2">
+              <Label className="flex items-center gap-2"><FileText className="w-4 h-4" /> CNPJ (Opcional)</Label>
+              <Input placeholder="00.000.000/0000-00" value={editingCnpj} onChange={(e) => setEditingCnpj(e.target.value)} maxLength={18} />
             </div>
           </div>
           <DialogFooter>

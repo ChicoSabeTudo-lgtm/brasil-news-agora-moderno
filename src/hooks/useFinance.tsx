@@ -6,7 +6,7 @@ export type TxStatus = 'Pendente' | 'Pago' | 'Atrasado';
 
 export interface FinanceProject { id: string; name: string }
 export interface FinanceCategory { id: string; name: string; type: TxType }
-export interface FinanceContact { id: string; name: string; type: 'cliente' | 'fornecedor'; email?: string | null; phone?: string | null; company?: string | null; contact_person?: string | null; created_at?: string }
+export interface FinanceContact { id: string; name: string; type: 'cliente' | 'fornecedor'; email?: string | null; phone?: string | null; company?: string | null; contact_person?: string | null; cnpj?: string | null; created_at?: string }
 export interface FinanceTransaction {
   id: string;
   type: TxType;

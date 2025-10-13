@@ -702,6 +702,7 @@ export type Database = {
         Row: {
           company: string | null
           contact_person: string | null
+          cnpj: string | null
           created_at: string
           email: string | null
           id: string
@@ -713,6 +714,7 @@ export type Database = {
         Insert: {
           company?: string | null
           contact_person?: string | null
+          cnpj?: string | null
           created_at?: string
           email?: string | null
           id?: string
@@ -724,6 +726,7 @@ export type Database = {
         Update: {
           company?: string | null
           contact_person?: string | null
+          cnpj?: string | null
           created_at?: string
           email?: string | null
           id?: string
