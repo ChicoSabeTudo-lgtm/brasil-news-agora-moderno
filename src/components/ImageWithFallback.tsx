@@ -43,6 +43,10 @@ export function ImageWithFallback({
     );
   }
 
+  // Detectar se a imagem é AVIF ou WebP para adicionar fallback
+  const isModernFormat = src?.includes('.avif') || src?.includes('.webp');
+  const imageExtension = src?.split('.').pop()?.toLowerCase();
+  
   return (
     <div className={`relative ${className}`}>
       {isLoading && (
@@ -50,14 +54,36 @@ export function ImageWithFallback({
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>
       )}
-      <img
-        src={hasError && fallbackSrc ? fallbackSrc : src}
-        alt={alt}
-        className={`${className} ${isLoading ? 'opacity-0' : 'opacity-100'}`}
-        onError={handleError}
-        onLoad={handleLoad}
-        onClick={onClick}
-      />
+      {isModernFormat && !hasError ? (
+        <picture>
+          {imageExtension === 'avif' && (
+            <source srcSet={src} type="image/avif" />
+          )}
+          {(imageExtension === 'avif' || imageExtension === 'webp') && (
+            <source 
+              srcSet={src?.replace('.avif', '.webp') || src} 
+              type="image/webp" 
+            />
+          )}
+          <img
+            src={hasError && fallbackSrc ? fallbackSrc : src}
+            alt={alt}
+            className={`${className} ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+            onError={handleError}
+            onLoad={handleLoad}
+            onClick={onClick}
+          />
+        </picture>
+      ) : (
+        <img
+          src={hasError && fallbackSrc ? fallbackSrc : src}
+          alt={alt}
+          className={`${className} ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+          onError={handleError}
+          onLoad={handleLoad}
+          onClick={onClick}
+        />
+      )}
     </div>
   );
 }

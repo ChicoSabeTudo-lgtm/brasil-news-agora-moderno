@@ -10,30 +10,31 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { SiteCodeInjector } from "@/components/SiteCodeInjector";
 import { EmbedBridge } from "@/components/EmbedBridge";
 
-const Index = lazy(() => import("./pages/Index"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-const Politica = lazy(() => import("./pages/Politica"));
-const Economia = lazy(() => import("./pages/Economia"));
-const Esportes = lazy(() => import("./pages/Esportes"));
-const Tecnologia = lazy(() => import("./pages/Tecnologia"));
-const Internacional = lazy(() => import("./pages/Internacional"));
-const Nacional = lazy(() => import("./pages/Nacional"));
-const Entretenimento = lazy(() => import("./pages/Entretenimento"));
-const Saude = lazy(() => import("./pages/Saude"));
+// Critical routes - loaded eagerly for better initial performance
+import Index from "./pages/Index";
+import NewsArticle from "./pages/NewsArticle";
+
+// Important routes - loaded with high priority
 const DynamicCategoryRoute = lazy(() => import("./components/DynamicCategoryRoute"));
-const NewsArticle = lazy(() => import("./pages/NewsArticle"));
 const Search = lazy(() => import("./pages/Search"));
-const AoVivo = lazy(() => import("./pages/AoVivo"));
 const Auth = lazy(() => import("./pages/Auth"));
-const ModernAdmin = lazy(() => import("./pages/ModernAdmin"));
-const Contact = lazy(() => import("./pages/Contact"));
-const Advertise = lazy(() => import("./pages/Advertise"));
-const Videos = lazy(() => import("./pages/Videos"));
-const SiteConfigurations = lazy(() => import("./pages/SiteConfigurations"));
-const AdsTxt = lazy(() => import("./pages/AdsTxt"));
-const Profile = lazy(() => import("./pages/Profile"));
-const Sitemap = lazy(() => import("./pages/Sitemap"));
-const RobotsTxt = lazy(() => import("./pages/RobotsTxt"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+// Secondary routes - loaded on demand
+const AoVivo = lazy(() => import(/* webpackChunkName: "ao-vivo" */ "./pages/AoVivo"));
+const Videos = lazy(() => import(/* webpackChunkName: "videos" */ "./pages/Videos"));
+const Contact = lazy(() => import(/* webpackChunkName: "contact" */ "./pages/Contact"));
+const Advertise = lazy(() => import(/* webpackChunkName: "advertise" */ "./pages/Advertise"));
+const Profile = lazy(() => import(/* webpackChunkName: "profile" */ "./pages/Profile"));
+
+// Admin routes - heavily lazy loaded to reduce main bundle
+const ModernAdmin = lazy(() => import(/* webpackChunkName: "admin" */ "./pages/ModernAdmin"));
+const SiteConfigurations = lazy(() => import(/* webpackChunkName: "admin-config" */ "./pages/SiteConfigurations"));
+
+// Utility routes - loaded on demand
+const AdsTxt = lazy(() => import(/* webpackChunkName: "utils" */ "./pages/AdsTxt"));
+const Sitemap = lazy(() => import(/* webpackChunkName: "utils" */ "./pages/Sitemap"));
+const RobotsTxt = lazy(() => import(/* webpackChunkName: "utils" */ "./pages/RobotsTxt"));
 
 const queryClient = new QueryClient();
 
@@ -46,43 +47,108 @@ const App = () => (
         <SiteCodeInjector />
         <EmbedBridge />
         <BrowserRouter>
-          <Suspense fallback={<RouteLoader /> }>
-            <Routes>
+          <Routes>
+            {/* Critical routes - no lazy loading for best performance */}
             <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/perfil" element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin" element={
-              <ProtectedRoute requiredRole="redator">
-                <ModernAdmin />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/configuracoes" element={
-              <ProtectedRoute requiredRole="admin">
-                <SiteConfigurations />
-              </ProtectedRoute>
-            } />
-            <Route path="/search" element={<Search />} />
-            <Route path="/busca" element={<Search />} />
-            <Route path="/ao-vivo" element={<AoVivo />} />
-            <Route path="/videos" element={<Videos />} />
-            <Route path="/contato" element={<Contact />} />
-            <Route path="/anuncie" element={<Advertise />} />
-            <Route path="/ads.txt" element={<AdsTxt />} />
-            <Route path="/robots.txt" element={<RobotsTxt />} />
-            <Route path="/sitemap.xml" element={<Sitemap />} />
             <Route path="/noticia/:id" element={<NewsArticle />} />
             <Route path="/:categorySlug/:slug" element={<NewsArticle />} />
             <Route path="/:categorySlug/:slug/:id" element={<NewsArticle />} />
-            {/* Rota dinâmica para todas as categorias */}
-            <Route path="/:categorySlug" element={<DynamicCategoryRoute />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
+            
+            {/* Important routes - with suspense */}
+            <Route path="/auth" element={
+              <Suspense fallback={<RouteLoader />}>
+                <Auth />
+              </Suspense>
+            } />
+            <Route path="/search" element={
+              <Suspense fallback={<RouteLoader />}>
+                <Search />
+              </Suspense>
+            } />
+            <Route path="/busca" element={
+              <Suspense fallback={<RouteLoader />}>
+                <Search />
+              </Suspense>
+            } />
+            
+            {/* Secondary routes - lazy loaded */}
+            <Route path="/ao-vivo" element={
+              <Suspense fallback={<RouteLoader />}>
+                <AoVivo />
+              </Suspense>
+            } />
+            <Route path="/videos" element={
+              <Suspense fallback={<RouteLoader />}>
+                <Videos />
+              </Suspense>
+            } />
+            <Route path="/contato" element={
+              <Suspense fallback={<RouteLoader />}>
+                <Contact />
+              </Suspense>
+            } />
+            <Route path="/anuncie" element={
+              <Suspense fallback={<RouteLoader />}>
+                <Advertise />
+              </Suspense>
+            } />
+            
+            {/* Protected routes */}
+            <Route path="/perfil" element={
+              <Suspense fallback={<RouteLoader />}>
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              </Suspense>
+            } />
+            
+            {/* Admin routes - heavily lazy loaded */}
+            <Route path="/admin" element={
+              <Suspense fallback={<RouteLoader />}>
+                <ProtectedRoute requiredRole="redator">
+                  <ModernAdmin />
+                </ProtectedRoute>
+              </Suspense>
+            } />
+            <Route path="/admin/configuracoes" element={
+              <Suspense fallback={<RouteLoader />}>
+                <ProtectedRoute requiredRole="admin">
+                  <SiteConfigurations />
+                </ProtectedRoute>
+              </Suspense>
+            } />
+            
+            {/* Utility routes */}
+            <Route path="/ads.txt" element={
+              <Suspense fallback={<RouteLoader />}>
+                <AdsTxt />
+              </Suspense>
+            } />
+            <Route path="/robots.txt" element={
+              <Suspense fallback={<RouteLoader />}>
+                <RobotsTxt />
+              </Suspense>
+            } />
+            <Route path="/sitemap.xml" element={
+              <Suspense fallback={<RouteLoader />}>
+                <Sitemap />
+              </Suspense>
+            } />
+            
+            {/* Dynamic category route */}
+            <Route path="/:categorySlug" element={
+              <Suspense fallback={<RouteLoader />}>
+                <DynamicCategoryRoute />
+              </Suspense>
+            } />
+            
+            {/* Catch-all 404 */}
+            <Route path="*" element={
+              <Suspense fallback={<RouteLoader />}>
+                <NotFound />
+              </Suspense>
+            } />
           </Routes>
-          </Suspense>
         </BrowserRouter>
       </AuthProvider>
     </TooltipProvider>

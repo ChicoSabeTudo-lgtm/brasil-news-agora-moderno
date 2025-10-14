@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { optimizeImage, formatBytes } from '@/utils/imageOptimizer';
 import {
   Upload,
   X,
@@ -49,6 +50,10 @@ interface NewsImage {
   sort_order: number;
   created_at?: string;
   updated_at?: string;
+  image_format?: 'avif' | 'webp' | 'jpeg' | 'png' | 'gif';
+  original_format?: string;
+  original_size?: number;
+  optimized_size?: number;
 }
 
 interface NewsGalleryProps {
@@ -239,16 +244,30 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
 
     try {
       const imagesToSave: NewsImage[] = [];
+      let totalSavings = 0;
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        const fileExt = file.name.split('.').pop();
+        
+        // Otimizar imagem antes do upload
+        toast({
+          title: "Otimizando imagem...",
+          description: `Processando ${file.name} (${i + 1}/${files.length})`,
+        });
+
+        const optimizationResult = await optimizeImage(file);
+        const optimizedFile = optimizationResult.file;
+        
+        totalSavings += optimizationResult.savings;
+
+        // Gerar nome de arquivo com extensão correta
+        const fileExt = optimizationResult.format;
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
 
-        // Upload para o Supabase Storage
+        // Upload da imagem otimizada para o Supabase Storage
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('news-images')
-          .upload(fileName, file);
+          .upload(fileName, optimizedFile);
 
         if (uploadError) throw uploadError;
 
@@ -265,6 +284,10 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
           is_cover: images.length === 0 && i === 0, // Primeira imagem como capa se não houver outras
           sort_order: images.length + i,
           news_id: newsId,
+          image_format: optimizationResult.format,
+          original_format: file.type.split('/')[1] || 'unknown',
+          original_size: optimizationResult.originalSize,
+          optimized_size: optimizationResult.optimizedSize,
         };
 
         imagesToSave.push(newImage);
@@ -287,15 +310,21 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
         setImages(prev => [...prev, ...imagesToSave]);
       }
 
+      // Calcular economia média
+      const avgSavings = files.length > 0 ? totalSavings / files.length : 0;
+      const savingsText = avgSavings > 0 
+        ? ` Economia média: ${avgSavings.toFixed(1)}%` 
+        : '';
+
       if (newsId) {
         toast({
-          title: "Galeria salva",
-          description: "As imagens foram salvas com sucesso.",
+          title: "✅ Galeria otimizada e salva",
+          description: `${files.length} ${files.length === 1 ? 'imagem foi otimizada' : 'imagens foram otimizadas'} e ${files.length === 1 ? 'salva' : 'salvas'} com sucesso.${savingsText}`,
         });
       } else {
         toast({
-          title: "Imagens enviadas",
-          description: "As imagens serão vinculadas quando você salvar a notícia.",
+          title: "✅ Imagens otimizadas",
+          description: `${files.length} ${files.length === 1 ? 'imagem otimizada' : 'imagens otimizadas'}.${savingsText} Serão vinculadas ao salvar a notícia.`,
         });
       }
 

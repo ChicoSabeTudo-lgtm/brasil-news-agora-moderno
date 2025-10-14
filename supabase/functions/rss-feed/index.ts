@@ -6,6 +6,15 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+function escapeXml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -14,92 +23,97 @@ serve(async (req) => {
   try {
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
     )
 
-    // Fetch latest published news
+    // Fetch últimas 50 notícias publicadas
     const { data: news, error } = await supabaseClient
       .from('news')
       .select(`
         id,
         slug,
         title,
-        subtitle,
-        content,
         meta_description,
+        content,
         published_at,
-        categories (name, slug),
-        profiles (full_name),
-        news_images (image_url, is_featured)
+        updated_at,
+        author_id,
+        categories (
+          name,
+          slug
+        ),
+        news_images (
+          image_url,
+          is_cover
+        )
       `)
       .eq('is_published', true)
       .order('published_at', { ascending: false })
       .limit(50)
 
     if (error) {
+      console.error('Error fetching news:', error)
       throw error
     }
 
-    const baseUrl = 'https://spgusjrjrhfychhdwixn.supabase.co'
-    const currentDate = new Date().toISOString()
+    const baseUrl = 'https://chicosabetudo.sigametech.com.br'
+    const buildDate = new Date().toUTCString()
 
-    // Helper function to escape XML characters
-    const escapeXml = (text: string) => {
-      return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#x27;')
-    }
-
-    // Helper function to strip HTML and truncate
-    const cleanContent = (html: string, maxLength = 300) => {
-      const text = html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
-      return text.length > maxLength ? text.substring(0, maxLength) + '...' : text
-    }
-
+    // Gerar RSS 2.0
     let rss = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" 
+     xmlns:content="http://purl.org/rss/1.0/modules/content/"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Portal de Notícias</title>
+    <title>ChicoSabeTudo - Portal de Notícias da Bahia</title>
     <link>${baseUrl}</link>
-    <description>As principais notícias do Brasil e do mundo</description>
+    <description>Portal de notícias da Bahia com cobertura completa de política, economia, esportes e entretenimento. Informação confiável e atualizada 24h.</description>
     <language>pt-BR</language>
-    <lastBuildDate>${currentDate}</lastBuildDate>
-    <pubDate>${currentDate}</pubDate>
-    <ttl>60</ttl>
+    <lastBuildDate>${buildDate}</lastBuildDate>
     <atom:link href="${baseUrl}/functions/v1/rss-feed" rel="self" type="application/rss+xml" />
+    <generator>ChicoSabeTudo RSS Generator</generator>
     <image>
-      <title>Portal de Notícias</title>
-      <url>${baseUrl}/logo.png</url>
+      <url>${baseUrl}/lovable-uploads/aac6981c-a63e-4b99-a9d1-5be26ea5ad4a.png</url>
+      <title>ChicoSabeTudo</title>
       <link>${baseUrl}</link>
-      <width>144</width>
-      <height>144</height>
-    </image>`
+    </image>
+`
 
-    if (news) {
+    // Adicionar itens
+    if (news && news.length > 0) {
       for (const article of news) {
         const categorySlug = article.categories?.slug || 'nacional'
         const categoryName = article.categories?.name || 'Nacional'
-        const authorName = article.profiles?.full_name || 'Redação'
-        const featuredImage = article.news_images?.find(img => img.is_featured)?.image_url
-        const description = cleanContent(article.content)
+        const author = 'Redação ChicoSabeTudo' // Simplified - can be enhanced later
+        const coverImage = article.news_images?.find(img => img.is_cover)
+        const imageUrl = coverImage?.image_url || ''
         
+        // URL do artigo
+        const articleUrl = article.slug 
+          ? `${baseUrl}/${categorySlug}/${article.slug}/${article.id}`
+          : `${baseUrl}/noticia/${article.id}`
+
+        // Limpar HTML do conteúdo para descrição
+        const description = article.meta_description || 
+          article.content?.replace(/<[^>]*>/g, '').substring(0, 300) + '...' ||
+          article.title
+
+        const pubDate = new Date(article.published_at).toUTCString()
+
         rss += `
     <item>
       <title>${escapeXml(article.title)}</title>
-      <link>${baseUrl}/${categorySlug}/${article.slug}/${article.id}</link>
-      <description>${escapeXml(article.meta_description || description)}</description>
-      <content:encoded><![CDATA[${article.content}]]></content:encoded>
-      <pubDate>${new Date(article.published_at).toUTCString()}</pubDate>
-      <guid isPermaLink="true">${baseUrl}/${categorySlug}/${article.slug}/${article.id}</guid>
-      <category>${escapeXml(categoryName)}</category>
-      <author>${escapeXml(authorName)}</author>`
+      <link>${articleUrl}</link>
+      <guid isPermaLink="true">${articleUrl}</guid>
+      <description>${escapeXml(description)}</description>
+      <pubDate>${pubDate}</pubDate>
+      <dc:creator>${escapeXml(author)}</dc:creator>
+      <category>${escapeXml(categoryName)}</category>`
 
-        if (featuredImage) {
+        if (imageUrl) {
           rss += `
-      <enclosure url="${featuredImage}" type="image/jpeg" />`
+      <enclosure url="${escapeXml(imageUrl)}" type="image/jpeg" />`
         }
 
         rss += `
@@ -114,16 +128,21 @@ serve(async (req) => {
     return new Response(rss, {
       headers: {
         ...corsHeaders,
-        'Content-Type': 'application/rss+xml',
-        'Cache-Control': 'public, max-age=3600'
+        'Content-Type': 'application/rss+xml; charset=utf-8',
+        'Cache-Control': 'public, max-age=3600', // Cache de 1 hora
       },
     })
 
   } catch (error) {
     console.error('Error generating RSS feed:', error)
-    return new Response('Error generating RSS feed', {
+    const errorMessage = error instanceof Error ? error.message : JSON.stringify(error)
+    const errorStack = error instanceof Error ? error.stack : ''
+    return new Response(`Error generating RSS feed: ${errorMessage}\n\nStack: ${errorStack}\n\nFull error: ${JSON.stringify(error, null, 2)}`, {
       status: 500,
-      headers: corsHeaders,
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'text/plain',
+      },
     })
   }
 })

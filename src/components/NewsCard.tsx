@@ -42,18 +42,58 @@ export const NewsCard = ({
     }
   };
 
+  // Dimensões aproximadas para reduzir CLS
+  const getImageDimensions = () => {
+    switch (size) {
+      case "small":
+        return { width: 384, height: 192 }; // ~16:9
+      case "large":
+        return { width: 800, height: 500 }; // ~16:10
+      default:
+        return { width: 448, height: 224 }; // ~16:9
+    }
+  };
+
+  const imgDimensions = getImageDimensions();
+
   // Gerar link no formato: /categoria/titulo-da-noticia
   const newsLink = slug && categorySlug ? `/${categorySlug}/${slug}` : (id ? `/noticia/${id}` : '#');
 
   const cardContent = (
     <>
       <div className="relative">
-        <img
-          src={imageUrl}
-          alt={title}
-          className={`w-full object-cover transition-transform duration-300 ${getSizeClasses()}`}
-        />
-        
+        {(imageUrl.includes('.avif') || imageUrl.includes('.webp')) ? (
+          <picture>
+            {imageUrl.includes('.avif') && (
+              <source srcSet={imageUrl} type="image/avif" />
+            )}
+            {(imageUrl.includes('.avif') || imageUrl.includes('.webp')) && (
+              <source 
+                srcSet={imageUrl.replace('.avif', '.webp')} 
+                type="image/webp" 
+              />
+            )}
+            <img
+              src={imageUrl}
+              alt={title}
+              width={imgDimensions.width}
+              height={imgDimensions.height}
+              className={`w-full object-cover transition-transform duration-300 ${getSizeClasses()}`}
+              loading="lazy"
+              decoding="async"
+            />
+          </picture>
+        ) : (
+          <img
+            src={imageUrl}
+            alt={title}
+            width={imgDimensions.width}
+            height={imgDimensions.height}
+            className={`w-full object-cover transition-transform duration-300 ${getSizeClasses()}`}
+            loading="lazy"
+            decoding="async"
+          />
+        )}
 
         {/* Breaking News Badge */}
         {isBreaking && (

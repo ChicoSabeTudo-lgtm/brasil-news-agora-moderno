@@ -249,19 +249,57 @@ export const NewsImageGallery = ({ images, newsTitle }: NewsImageGalleryProps) =
           )}
 
           {/* Main Image */}
-          <img
-            ref={mainImageRef}
-            src={getImageUrl(currentImage)}
-            alt={currentImage.caption || `${newsTitle} - Imagem ${currentIndex + 1}`}
-            className="max-w-full max-h-full object-contain transition-all duration-500 ease-out"
-            style={{ 
-              opacity: isLoading ? 0 : 1,
-              transform: isLoading ? 'scale(1.05)' : 'scale(1)'
-            }}
-            onLoad={handleMainImageLoad}
-            onError={() => setIsLoading(false)}
-            loading="eager"
-          />
+          {(() => {
+            const imgUrl = getImageUrl(currentImage);
+            const isModernFormat = imgUrl.includes('.avif') || imgUrl.includes('.webp');
+            
+            return isModernFormat ? (
+              <picture>
+                {imgUrl.includes('.avif') && (
+                  <source srcSet={imgUrl} type="image/avif" />
+                )}
+                {(imgUrl.includes('.avif') || imgUrl.includes('.webp')) && (
+                  <source 
+                    srcSet={imgUrl.replace('.avif', '.webp')} 
+                    type="image/webp" 
+                  />
+                )}
+                <img
+                  ref={mainImageRef}
+                  src={imgUrl}
+                  alt={currentImage.caption || `${newsTitle} - Imagem ${currentIndex + 1}`}
+                  width={1920}
+                  height={1080}
+                  className="max-w-full max-h-full object-contain transition-all duration-500 ease-out"
+                  style={{ 
+                    opacity: isLoading ? 0 : 1,
+                    transform: isLoading ? 'scale(1.05)' : 'scale(1)'
+                  }}
+                  onLoad={handleMainImageLoad}
+                  onError={() => setIsLoading(false)}
+                  loading="eager"
+                  decoding="async"
+                />
+              </picture>
+            ) : (
+              <img
+                ref={mainImageRef}
+                src={imgUrl}
+                alt={currentImage.caption || `${newsTitle} - Imagem ${currentIndex + 1}`}
+                width={1920}
+                height={1080}
+                className="max-w-full max-h-full object-contain transition-all duration-500 ease-out"
+                style={{ 
+                  opacity: isLoading ? 0 : 1,
+                  transform: isLoading ? 'scale(1.05)' : 'scale(1)'
+                }}
+                onLoad={handleMainImageLoad}
+                onError={() => setIsLoading(false)}
+                loading="eager"
+                decoding="async"
+              />
+            );
+          })()}
 
           {/* Top Overlay - Counter and Fullscreen */}
           <div className="absolute top-4 left-4 right-4 flex justify-between items-start z-20">
@@ -402,11 +440,43 @@ export const NewsImageGallery = ({ images, newsTitle }: NewsImageGalleryProps) =
           
           {/* Fullscreen Image Container */}
           <div className="relative w-full h-full flex items-center justify-center p-4">
-            <img 
-              src={getImageUrl(currentImage)} 
-              alt={currentImage.caption || `${newsTitle} - Imagem ${currentIndex + 1}`}
-              className="max-w-full max-h-full object-contain"
-            />
+            {(() => {
+              const imgUrl = getImageUrl(currentImage);
+              const isModernFormat = imgUrl.includes('.avif') || imgUrl.includes('.webp');
+              
+              return isModernFormat ? (
+                <picture>
+                  {imgUrl.includes('.avif') && (
+                    <source srcSet={imgUrl} type="image/avif" />
+                  )}
+                  {(imgUrl.includes('.avif') || imgUrl.includes('.webp')) && (
+                    <source 
+                      srcSet={imgUrl.replace('.avif', '.webp')} 
+                      type="image/webp" 
+                    />
+                  )}
+                  <img 
+                    src={imgUrl} 
+                    alt={currentImage.caption || `${newsTitle} - Imagem ${currentIndex + 1}`}
+                    width={1920}
+                    height={1080}
+                    className="max-w-full max-h-full object-contain"
+                    loading="eager"
+                    decoding="async"
+                  />
+                </picture>
+              ) : (
+                <img 
+                  src={imgUrl} 
+                  alt={currentImage.caption || `${newsTitle} - Imagem ${currentIndex + 1}`}
+                  width={1920}
+                  height={1080}
+                  className="max-w-full max-h-full object-contain"
+                  loading="eager"
+                  decoding="async"
+                />
+              );
+            })()}
             
             {/* Navigation in Fullscreen - Only for multiple images */}
             {hasMultipleImages && (
