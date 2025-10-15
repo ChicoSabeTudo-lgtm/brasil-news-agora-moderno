@@ -14,6 +14,7 @@ export interface CompanyDocument {
   uploaded_by: string | null;
   created_at: string;
   updated_at: string;
+  expires_at?: string | null;
 }
 
 export const useCompanyDocuments = () => {
@@ -36,11 +37,13 @@ export const useCompanyDocuments = () => {
     mutationFn: async ({ 
       file, 
       documentType, 
-      description 
+      description,
+      expiresAt,
     }: { 
       file: File; 
       documentType: string; 
       description?: string;
+      expiresAt?: string | null;
     }) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('User not authenticated');
@@ -70,6 +73,7 @@ export const useCompanyDocuments = () => {
           document_type: documentType,
           description: description || null,
           uploaded_by: user.id,
+          expires_at: expiresAt || null,
         });
 
       if (dbError) throw dbError;

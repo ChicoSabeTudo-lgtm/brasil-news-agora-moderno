@@ -409,6 +409,7 @@ export type Database = {
           file_url: string
           id: string
           mime_type: string | null
+          expires_at: string | null
           updated_at: string
           uploaded_by: string | null
         }
@@ -422,6 +423,7 @@ export type Database = {
           file_url: string
           id?: string
           mime_type?: string | null
+          expires_at?: string | null
           updated_at?: string
           uploaded_by?: string | null
         }
@@ -435,6 +437,7 @@ export type Database = {
           file_url?: string
           id?: string
           mime_type?: string | null
+          expires_at?: string | null
           updated_at?: string
           uploaded_by?: string | null
         }

@@ -70,12 +70,26 @@ export function InvoiceManagement() {
       const { data, error } = await supabase
         .from('finance_contacts')
         .select('*')
-        .eq('type', 'client')
         .order('name');
       if (error) throw error;
       return data;
     },
   });
+
+  const filteredClients = useMemo(() => {
+    if (!clients) return [];
+    const term = searchTerm.toLowerCase();
+
+    return clients
+      .filter(client => client.type === 'client')
+      .filter(client => {
+        if (!term) return true;
+        const name = (client.company || client.name || '').toLowerCase();
+        const document = (client.cnpj || client.phone || '').toLowerCase();
+        return name.includes(term) || document.includes(term);
+      })
+      .sort((a, b) => (a.company || a.name || '').localeCompare(b.company || b.name || ''));
+  }, [clients, searchTerm]);
 
   const handleClientSelect = (clientId: string) => {
     const client = clients?.find(c => c.id === clientId);
@@ -84,7 +98,7 @@ export function InvoiceManagement() {
         ...prev,
         client_id: clientId,
         client_name: client.company || client.name,
-        client_document: client.phone || '',
+        client_document: client.cnpj || client.phone || '',
       }));
     }
   };
@@ -273,11 +287,11 @@ export function InvoiceManagement() {
                   <div className="space-y-2">
                     <Label>Cliente Cadastrado</Label>
                     <Select value={formData.client_id} onValueChange={handleClientSelect}>
-                      <SelectTrigger>
+                    <SelectTrigger>
                         <SelectValue placeholder="Selecionar cliente" />
                       </SelectTrigger>
                       <SelectContent>
-                        {clients?.map(client => (
+                      {filteredClients.map(client => (
                           <SelectItem key={client.id} value={client.id}>
                             {client.company || client.name}
                           </SelectItem>

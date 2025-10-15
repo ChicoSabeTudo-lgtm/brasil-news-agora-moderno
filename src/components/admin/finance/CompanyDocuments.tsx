@@ -10,10 +10,15 @@ import { Upload, FileText, Download, Trash2, File } from 'lucide-react';
 import InlineSpinner from '@/components/InlineSpinner';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { CalendarIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const DOCUMENT_TYPES = [
   { value: 'contrato_social', label: 'Contrato Social' },
   { value: 'certidao', label: 'Certidão' },
+  { value: 'certidao_conjunta_tcu', label: 'Certidão Conjunta do Tribunal de Contas da União' },
   { value: 'alvara', label: 'Alvará' },
   { value: 'inscricao', label: 'Inscrição Municipal/Estadual' },
   { value: 'cnpj', label: 'Cartão CNPJ' },
@@ -21,11 +26,19 @@ const DOCUMENT_TYPES = [
   { value: 'outros', label: 'Outros' },
 ];
 
+const formatDateBR = (dateString: string) => {
+  if (!dateString) return '';
+  return new Date(dateString).toLocaleDateString('pt-BR', {
+    timeZone: 'America/Sao_Paulo',
+  });
+};
+
 export const CompanyDocuments = () => {
   const { documents, isLoading, uploadDocument, isUploading, deleteDocument, isDeleting, downloadDocument } = useCompanyDocuments();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [documentType, setDocumentType] = useState('');
   const [description, setDescription] = useState('');
+  const [expiresAt, setExpiresAt] = useState<Date | undefined>(undefined);
   const [documentToDelete, setDocumentToDelete] = useState<any>(null);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
 
@@ -41,12 +54,18 @@ export const CompanyDocuments = () => {
     }
 
     uploadDocument(
-      { file: selectedFile, documentType, description },
+      { 
+        file: selectedFile, 
+        documentType, 
+        description, 
+        expiresAt: expiresAt ? expiresAt.toISOString().split('T')[0] : null 
+      },
       {
         onSuccess: () => {
           setSelectedFile(null);
           setDocumentType('');
           setDescription('');
+          setExpiresAt(undefined);
           setIsUploadDialogOpen(false);
           const fileInput = document.getElementById('file-upload') as HTMLInputElement;
           if (fileInput) fileInput.value = '';
@@ -121,6 +140,32 @@ export const CompanyDocuments = () => {
               </Select>
             </div>
             <div>
+              <Label>Validade (opcional)</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      'w-full justify-start text-left font-normal',
+                      !expiresAt && 'text-muted-foreground'
+                    )}
+                    disabled={isUploading}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {expiresAt ? formatDateBR(expiresAt.toISOString()) : 'Selecione uma data'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={expiresAt}
+                    onSelect={setExpiresAt}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div>
               <Label htmlFor="description">Descrição (opcional)</Label>
               <Textarea
                 id="description"
@@ -182,8 +227,20 @@ export const CompanyDocuments = () => {
                     <FileText className="w-5 h-5 text-primary flex-shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="font-medium truncate">{doc.file_name}</p>
-                      <div className="flex gap-2 text-sm text-muted-foreground">
+                      <div className="flex flex-wrap items-center gap-x-2 text-sm text-muted-foreground">
                         <span>{getDocumentTypeLabel(doc.document_type)}</span>
+                        {doc.created_at && (
+                          <>
+                            <span>•</span>
+                            <span>Enviado em {formatDateBR(doc.created_at)}</span>
+                          </>
+                        )}
+                        {doc.expires_at && (
+                          <>
+                            <span>•</span>
+                            <span>Válido até {formatDateBR(doc.expires_at)}</span>
+                          </>
+                        )}
                         <span>•</span>
                         <span>{formatFileSize(doc.file_size)}</span>
                       </div>
