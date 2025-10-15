@@ -9,6 +9,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { optimizeImage, formatBytes } from '@/utils/imageOptimizer';
+import { validateFileUpload } from '@/utils/inputValidator';
+import { securityLogger, SecurityEventType } from '@/utils/securityLogger';
 import {
   Upload,
   X,
@@ -248,6 +250,27 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
+        
+        // Validar arquivo antes de processar
+        const validation = validateFileUpload(file, {
+          maxSizeMB: 10,
+          allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif', 'image/gif'],
+          allowedExtensions: ['jpg', 'jpeg', 'png', 'webp', 'avif', 'gif']
+        });
+
+        if (!validation.isValid) {
+          securityLogger.log(
+            SecurityEventType.SUSPICIOUS_UPLOAD,
+            { fileName: file.name, fileType: file.type, error: validation.error }
+          );
+          
+          toast({
+            title: "Arquivo inválido",
+            description: validation.error,
+            variant: "destructive",
+          });
+          continue; // Pular este arquivo
+        }
         
         // Otimizar imagem antes do upload
         toast({

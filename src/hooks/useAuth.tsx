@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { securityLogger, SecurityEventType } from '@/utils/securityLogger';
 
 interface AuthContextType {
   user: User | null;
@@ -149,6 +150,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
       
       if (authError) {
+        securityLogger.log(
+          SecurityEventType.LOGIN_FAILED,
+          { email, error: authError.message }
+        );
+        
         toast({
           title: "Erro no login",
           description: authError.message,
@@ -172,6 +178,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
         
         // OTP enviado com sucesso, aguardar verificação
+        securityLogger.log(
+          SecurityEventType.LOGIN_SUCCESS,
+          { email, requiresOTP: true }
+        );
         return { error: null, requiresOTP: true };
       }
       

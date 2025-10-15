@@ -18,3 +18,4 @@ COMMENT ON COLUMN public.news_images.optimized_size IS 'Optimized file size in b
 -- Create index for faster queries by format
 CREATE INDEX IF NOT EXISTS idx_news_images_format ON public.news_images(image_format);
 
+
