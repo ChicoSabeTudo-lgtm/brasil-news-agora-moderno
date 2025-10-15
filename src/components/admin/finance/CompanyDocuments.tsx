@@ -31,6 +31,18 @@ const formatDateBR = (dateInput: string | Date | null | undefined) => {
 
   const isoString = dateInput instanceof Date ? dateInput.toISOString() : dateInput;
 
+  const dateOnlyMatch = isoString.match(/^\d{4}-\d{2}-\d{2}$/);
+  if (dateOnlyMatch) {
+    const [year, month, day] = isoString.split('-');
+    return `${day}/${month}/${year}`;
+  }
+
+  const [datePart] = isoString.split('T');
+  if (datePart && /^\d{4}-\d{2}-\d{2}$/.test(datePart)) {
+    const [year, month, day] = datePart.split('-');
+    return `${day}/${month}/${year}`;
+  }
+
   const parsedDate = new Date(isoString);
   if (Number.isNaN(parsedDate.getTime())) {
     return '';
