@@ -37,7 +37,8 @@ As **Edge Functions** do Supabase não estão deployadas ou funcionando, causand
 
 ### **1. Execute o Setup dos Autores:**
 - Siga as instruções em `EXECUTAR_SETUP_AUTORES.md`
-- Execute o SQL no Supabase Dashboard
+- Execute o SQL `CONFIGURAR_WHATSAPP_SQL.sql`
+- Isso cria profiles, roles e configura WhatsApp
 
 ### **2. Teste o Login:**
 - Vá para `/auth`

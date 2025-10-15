@@ -13,12 +13,14 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName: string, whatsappPhone?: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: any }>;
-  requestOTPLogin: (email: string, password: string) => Promise<{ error: string | null; success?: boolean }>;
+  requestOTPLogin: (email: string, password: string, explicitUserId?: string) => Promise<{ error: string | null; success?: boolean }>;
   verifyOTPLogin: (email: string, code: string) => Promise<{ error: string | null; success?: boolean }>;
   userRole: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const DEBUG_OTP = true;
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -168,7 +170,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         updateOtpVerified(false); // Usuário está "pré-autenticado" mas não pode acessar
         
         // Gerar OTP e enviar webhook
-        const { error: otpError } = await requestOTPLogin(email, password);
+        const userId = authData.user?.id;
+        const { error: otpError } = await requestOTPLogin(email, password, userId);
         
         if (otpError) {
           // Se erro no OTP, fazer logout
@@ -302,55 +305,98 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const requestOTPLogin = async (email: string, password: string) => {
+  const requestOTPLogin = async (email: string, password: string, explicitUserId?: string) => {
     try {
+      // Revalidar sessão e obter usuário atualizado quando necessário
+      let targetUserId = explicitUserId;
+
+      if (!targetUserId) {
+        const { data: userData } = await supabase.auth.getUser();
+        targetUserId = userData.user?.id || undefined;
+      }
+
+      if (!targetUserId) {
+        return { error: 'Não foi possível identificar o usuário autenticado.' };
+      }
+
+      if (DEBUG_OTP) {
+        console.log('[OTP] Usuário autenticado:', {
+          email,
+          userId: targetUserId,
+        });
+      }
+
       // Gerar OTP localmente
       const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
       const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutos
       
-      // Buscar telefone do usuário
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('whatsapp_phone')
-        .eq('user_id', user?.id)
-        .maybeSingle();
+      if (DEBUG_OTP) {
+        console.log('[OTP] Código gerado:', otpCode);
+      }
       
+      // Buscar telefone do usuário
+      const { data: profileRows, error: profileError } = await supabase
+        .from('profiles')
+        .select('whatsapp_phone, email')
+        .eq('user_id', targetUserId)
+        .limit(1);
+
+      if (DEBUG_OTP) {
+        console.log('[OTP] Resultado query profiles:', {
+          profileRows,
+          profileError,
+        });
+      }
+
       if (profileError) {
         console.error('Erro ao buscar profile:', profileError);
         toast({
-          title: "Erro",
-          description: "Erro ao buscar dados do usuário.",
+          title: "Erro ao buscar dados",
+          description: "Falha ao consultar o perfil deste usuário.",
           variant: "destructive",
         });
         return { error: "Erro ao buscar profile" };
       }
-      
-      if (!profile?.whatsapp_phone) {
+
+      const whatsappPhone = profileRows?.[0]?.whatsapp_phone;
+
+      if (!whatsappPhone) {
         toast({
-          title: "WhatsApp não configurado",
-          description: "Este usuário não possui número do WhatsApp configurado. Entre em contato com o administrador.",
+          title: "Perfil não configurado",
+          description: "Execute o script CONFIGURAR_WHATSAPP_SQL.sql no Supabase para vincular o WhatsApp deste usuário.",
           variant: "destructive",
         });
+
+        if (DEBUG_OTP) {
+          console.log('[OTP] WhatsApp ausente, abortando.');
+        }
+
         return { error: "WhatsApp não configurado" };
       }
 
-      // Salvar OTP no banco de dados
-      const { error: otpError } = await supabase
-        .from('otp_codes')
-        .insert({
-          user_email: email,
-          code: otpCode,
-          expires_at: expiresAt.toISOString(),
-        });
+      if (DEBUG_OTP) {
+        console.log('[OTP] WhatsApp encontrado:', whatsappPhone);
+      }
 
-      if (otpError) {
-        console.error('Erro ao salvar OTP:', otpError);
+      // Salvar OTP via função RPC
+      const { data: rpcData, error: rpcError } = await supabase.rpc('generate_otp_code', {
+        p_email: email,
+        p_code: otpCode,
+        p_expires_in_seconds: 300,
+      });
+
+      if (rpcError) {
+        console.error('Erro ao salvar OTP via RPC:', rpcError);
         toast({
           title: "Erro",
           description: "Não foi possível gerar o código de verificação.",
           variant: "destructive",
         });
         return { error: "Erro ao salvar OTP" };
+      }
+
+      if (DEBUG_OTP) {
+        console.log('[OTP] RPC retorno:', rpcData);
       }
 
       // Buscar URL do webhook
@@ -365,11 +411,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Enviar webhook para n8n
         const webhookPayload = {
           email,
-          user_id: user?.id,
-          whatsapp_phone: profile.whatsapp_phone,
+          user_id: targetUserId,
+          whatsapp_phone: whatsappPhone,
           otp_code: otpCode,
           timestamp: new Date().toISOString(),
         };
+
+        if (DEBUG_OTP) {
+          console.log('[OTP] Enviando webhook:', webhookPayload);
+        }
 
         try {
           const webhookResponse = await fetch(config.otp_webhook_url, {
@@ -387,6 +437,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             });
           } else {
             console.error('Webhook falhou:', webhookResponse.status);
+            if (DEBUG_OTP) {
+              console.log('[OTP] Resposta do webhook:', await webhookResponse.text());
+            }
             toast({
               title: "Aviso",
               description: "Código gerado, mas pode haver problema no envio. Tente novamente.",
@@ -395,6 +448,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }
         } catch (webhookError) {
           console.error('Erro no webhook:', webhookError);
+          if (DEBUG_OTP) {
+            console.log('[OTP] Erro completo webhook:', webhookError);
+          }
           toast({
             title: "Aviso",
             description: "Código gerado, mas pode haver problema no envio. Tente novamente.",
@@ -418,25 +474,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         description: "Ocorreu um erro inesperado.",
         variant: "destructive",
       });
+
+      if (DEBUG_OTP) {
+        console.log('[OTP] Erro inesperado:', error);
+      }
+
       return { error: 'Ocorreu um erro inesperado' };
     }
   };
 
   const verifyOTPLogin = async (email: string, code: string) => {
     try {
-      // Limpar códigos expirados primeiro
-      await supabase.rpc('cleanup_expired_otp_codes');
+      // Limpar códigos expirados e verificar via função RPC
+      const { data: verifyResult, error: verifyError } = await supabase.rpc('verify_otp_code', {
+        p_email: email,
+        p_code: code,
+      });
 
-      // Buscar código OTP válido no banco de dados
-      const { data: otpData, error: otpError } = await supabase
-        .from('otp_codes')
-        .select('*')
-        .eq('user_email', email)
-        .eq('code', code)
-        .gte('expires_at', new Date().toISOString())
-        .single();
+      if (verifyError) {
+        console.error('Erro ao verificar OTP via RPC:', verifyError);
+        toast({
+          title: "Erro na verificação",
+          description: "Ocorreu um erro inesperado.",
+          variant: "destructive",
+        });
+        return { error: "Erro na verificação" };
+      }
 
-      if (otpError || !otpData) {
+      if (!verifyResult) {
         toast({
           title: "Código inválido",
           description: "Código não encontrado ou expirado. Solicite um novo código.",
@@ -445,13 +510,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return { error: "Código inválido ou expirado" };
       }
 
-      // Código válido - deletar do banco para evitar reutilização
-      await supabase
-        .from('otp_codes')
-        .delete()
-        .eq('id', otpData.id);
-
-      // Marcar como OTP verificado
+      // Código válido - marcar como OTP verificado
       updateOtpVerified(true);
 
       toast({
