@@ -38,15 +38,6 @@ const formatDateBR = (dateInput: string | Date | null | undefined) => {
 
   return `${day}/${month}/${year}`;
 };
-  if (!dateString) return '';
-  const [datePart] = dateString.split('T');
-  if (!datePart) return '';
-
-  const [year, month, day] = datePart.split('-');
-  if (!year || !month || !day) return '';
-
-  return `${day}/${month}/${year}`;
-};
 
 export const CompanyDocuments = () => {
   const { documents, isLoading, uploadDocument, isUploading, deleteDocument, isDeleting, downloadDocument } = useCompanyDocuments();
