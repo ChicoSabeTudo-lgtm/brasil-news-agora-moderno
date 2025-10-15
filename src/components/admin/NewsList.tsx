@@ -545,18 +545,20 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading ? (
+              {loading && (
                 <TableRow>
-                  <TableCell colSpan={8} className="py-10">
+                  <TableCell colSpan={canManage ? 9 : 8} className="py-10">
                     <div className="flex items-center justify-center gap-3 text-muted-foreground">
                       <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                       <span className="sr-only">Carregando...</span>
                     </div>
                   </TableCell>
                 </TableRow>
-              ) : filteredNews.length === 0 ? (
+              )}
+
+              {!loading && filteredNews.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8">
+                  <TableCell colSpan={canManage ? 9 : 8} className="text-center py-8">
                     <div className="text-center">
                       <Filter className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                       <p className="text-muted-foreground">
@@ -568,8 +570,22 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
                     </div>
                   </TableCell>
                 </TableRow>
-            ) : (
-              paginatedNews.map((newsItem) => {
+              )}
+
+              {!loading && filteredNews.length > 0 && paginatedNews.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={canManage ? 9 : 8} className="text-center py-8">
+                    <div className="text-center">
+                      <Filter className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                      <p className="text-muted-foreground">
+                        Nenhuma notícia nesta página. Ajuste a paginação ou volte para páginas anteriores.
+                      </p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+
+              {!loading && paginatedNews.length > 0 && paginatedNews.map((newsItem) => {
                 const isSelected = selectedItems.has(newsItem.id);
                 return (
                   <TableRow key={newsItem.id} data-state={isSelected ? 'selected' : undefined}>
@@ -679,8 +695,8 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
                       </div>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
+                );
+              })}
             </TableBody>
           </Table>
         </div>
