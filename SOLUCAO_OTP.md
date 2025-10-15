@@ -6,43 +6,48 @@ As **Edge Functions** do Supabase não estão deployadas ou funcionando, causand
 
 ## ✅ **Solução Implementada:**
 
-### **1. Sistema OTP Simplificado**
+### **1. Sistema OTP Seguro com Webhook**
 - ✅ **Geração local** de códigos OTP
-- ✅ **Armazenamento temporário** no localStorage
-- ✅ **Validação local** sem dependência de edge functions
-- ✅ **Simulação de WhatsApp** (para desenvolvimento)
+- ✅ **Armazenamento no banco** de dados (tabela otp_codes)
+- ✅ **Envio via webhook** para WhatsApp real
+- ✅ **Validação segura** sem mostrar código na tela
 
 ### **2. Como Funciona Agora:**
 
 #### **Login:**
 1. Usuário digita email/senha
 2. Sistema valida credenciais no Supabase
-3. **Gera código OTP localmente** (6 dígitos)
-4. **Mostra o código na tela** (desenvolvimento)
-5. Usuário digita o código
-6. Sistema valida localmente
-7. **Login realizado com sucesso!**
+3. **Gera código OTP** (6 dígitos)
+4. **Salva no banco** de dados com expiração
+5. **Envia via webhook** para WhatsApp real
+6. Usuário recebe código no WhatsApp
+7. Usuário digita o código
+8. Sistema valida no banco de dados
+9. **Login realizado com sucesso!**
 
-#### **Em Produção:**
-- Substituir a simulação por **API real do WhatsApp**
-- Código será enviado via WhatsApp real
+#### **Segurança:**
+- ✅ Código **nunca aparece na tela**
+- ✅ Enviado **apenas via WhatsApp**
+- ✅ **Expira em 5 minutos**
+- ✅ **Usado apenas uma vez**
 
 ---
 
-## 🚀 **Teste Agora:**
+## 🚀 **Para Testar:**
 
-### **1. Acesse o Login:**
+### **1. Execute o Setup dos Autores:**
+- Siga as instruções em `EXECUTAR_SETUP_AUTORES.md`
+- Execute o SQL no Supabase Dashboard
+
+### **2. Teste o Login:**
 - Vá para `/auth`
-- Digite suas credenciais
+- Digite as credenciais do Francisco
+- Código será enviado via WhatsApp
 
-### **2. Código OTP:**
-- Após login, aparecerá um **código de 6 dígitos**
-- **Copie o código** que aparece na tela
-- Cole no campo de verificação
-
-### **3. Login Completo:**
-- Código válido = acesso ao admin
-- Código inválido = erro com mensagem
+### **3. Verificação:**
+- Receba o código no WhatsApp
+- Digite no campo de verificação
+- Login realizado com sucesso!
 
 ---
 
