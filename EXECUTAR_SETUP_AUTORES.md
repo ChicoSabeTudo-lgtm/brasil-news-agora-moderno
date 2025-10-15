@@ -1,9 +1,10 @@
 # 🚨 AÇÃO NECESSÁRIA: Executar Setup dos Autores
 
 ## ❌ **Problema Atual:**
-- Não há profiles de usuários no banco de dados
+- **Não há profiles de usuários no banco de dados**
 - Sistema de OTP não funciona sem usuários configurados
 - Webhook não pode ser testado
+- **Erro:** "Número do WhatsApp não configurado para este usuário"
 
 ## ✅ **Solução:**
 
@@ -11,7 +12,9 @@
 
 1. **Acesse:** https://supabase.com/dashboard
 2. **Vá em:** SQL Editor
-3. **Cole e execute:** O conteúdo do arquivo `SETUP_AUTHORS_FINAL.sql`
+3. **Cole e execute:** O conteúdo do arquivo `CONFIGURAR_WHATSAPP_SQL.sql`
+
+> **⚠️ IMPORTANTE:** Use o arquivo `CONFIGURAR_WHATSAPP_SQL.sql` que inclui a configuração do WhatsApp!
 
 ### **2. SQL para Executar:**
 

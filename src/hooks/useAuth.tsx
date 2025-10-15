@@ -309,16 +309,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutos
       
       // Buscar telefone do usuário
-      const { data: profile } = await supabase
+      const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('whatsapp_phone')
         .eq('user_id', user?.id)
-        .single();
+        .maybeSingle();
+      
+      if (profileError) {
+        console.error('Erro ao buscar profile:', profileError);
+        toast({
+          title: "Erro",
+          description: "Erro ao buscar dados do usuário.",
+          variant: "destructive",
+        });
+        return { error: "Erro ao buscar profile" };
+      }
       
       if (!profile?.whatsapp_phone) {
         toast({
-          title: "Erro",
-          description: "Número do WhatsApp não configurado para este usuário.",
+          title: "WhatsApp não configurado",
+          description: "Este usuário não possui número do WhatsApp configurado. Entre em contato com o administrador.",
           variant: "destructive",
         });
         return { error: "WhatsApp não configurado" };
