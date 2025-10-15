@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,13 +24,16 @@ import {
   Eye, 
   Search,
   Filter,
-  AlertCircle
+  AlertCircle,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { NewsEditor } from './NewsEditor';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface News {
   id: string;
@@ -74,8 +77,12 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
   const [loading, setLoading] = useState(true);
   const [editingNews, setEditingNews] = useState<any>(null);
   const [showEditor, setShowEditor] = useState(false);
+  const [pageSize, setPageSize] = useState(20);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const { toast } = useToast();
   const { userRole } = useAuth();
+  const canManage = userRole === 'admin' || userRole === 'redator';
 
   useEffect(() => {
     fetchNews();
@@ -214,16 +221,66 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
     }
   };
 
-  const filteredNews = news.filter(newsItem => {
-    const matchesSearch = newsItem.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = filterCategory === 'all' || newsItem.categories?.name === filterCategory;
-    const matchesStatus = filterStatus === 'all' || 
-      (filterStatus === 'published' && newsItem.is_published) ||
-      (filterStatus === 'draft' && !newsItem.is_published && newsItem.status !== 'scheduled') ||
-      (filterStatus === 'scheduled' && newsItem.status === 'scheduled');
-    
-    return matchesSearch && matchesCategory && matchesStatus;
-  });
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterCategory, filterStatus, pageSize]);
+
+  const filteredNews = useMemo(() => {
+    return news.filter(newsItem => {
+      const matchesSearch = newsItem.title.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = filterCategory === 'all' || newsItem.categories?.name === filterCategory;
+      const matchesStatus = filterStatus === 'all' || 
+        (filterStatus === 'published' && newsItem.is_published) ||
+        (filterStatus === 'draft' && !newsItem.is_published && newsItem.status !== 'scheduled') ||
+        (filterStatus === 'scheduled' && newsItem.status === 'scheduled');
+      
+      return matchesSearch && matchesCategory && matchesStatus;
+    });
+  }, [news, searchTerm, filterCategory, filterStatus]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredNews.length / pageSize));
+  useEffect(() => {
+    setCurrentPage(prev => Math.min(prev, totalPages));
+  }, [totalPages]);
+
+  const paginatedNews = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredNews.slice(startIndex, startIndex + pageSize);
+  }, [filteredNews, currentPage, pageSize]);
+
+  useEffect(() => {
+    setSelectedItems(prev => {
+      const validIds = new Set(news.map(item => item.id));
+      return new Set(Array.from(prev).filter(id => validIds.has(id)));
+    });
+  }, [news]);
+
+  const isAllCurrentPageSelected = paginatedNews.length > 0 && paginatedNews.every(item => selectedItems.has(item.id));
+  const selectedCount = selectedItems.size;
+
+  const toggleSelectItem = (id: string, isChecked: boolean) => {
+    setSelectedItems(prev => {
+      const next = new Set(prev);
+      if (isChecked) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
+      return next;
+    });
+  };
+
+  const toggleSelectAllCurrentPage = (isChecked: boolean) => {
+    setSelectedItems(prev => {
+      const next = new Set(prev);
+      if (isChecked) {
+        paginatedNews.forEach(item => next.add(item.id));
+      } else {
+        paginatedNews.forEach(item => next.delete(item.id));
+      }
+      return next;
+    });
+  };
 
   const handleEdit = async (newsItem: News) => {
     try {
@@ -247,29 +304,44 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Tem certeza que deseja excluir esta notícia?')) return;
+  const handleDelete = async (ids: string | string[]) => {
+    const idList = Array.isArray(ids) ? ids : [ids];
+    if (idList.length === 0) return;
+
+    const message = idList.length === 1
+      ? 'Tem certeza que deseja excluir esta notícia?'
+      : `Tem certeza que deseja excluir ${idList.length} notícias selecionadas?`;
+
+    if (!confirm(message)) return;
     
     try {
       const { error } = await supabase
         .from('news')
         .delete()
-        .eq('id', id);
+        .in('id', idList);
 
       if (error) throw error;
 
       toast({
-        title: "Notícia excluída",
-        description: "A notícia foi excluída com sucesso.",
+        title: idList.length === 1 ? 'Notícia excluída' : 'Notícias excluídas',
+        description: idList.length === 1
+          ? 'A notícia foi excluída com sucesso.'
+          : `${idList.length} notícias foram excluídas com sucesso.`,
+      });
+
+      setSelectedItems(prev => {
+        const next = new Set(prev);
+        idList.forEach(id => next.delete(id));
+        return next;
       });
 
       fetchNews();
     } catch (error) {
       console.error('Error deleting news:', error);
       toast({
-        title: "Erro",
-        description: "Não foi possível excluir a notícia.",
-        variant: "destructive",
+        title: 'Erro',
+        description: 'Não foi possível excluir as notícias selecionadas.',
+        variant: 'destructive',
       });
     }
   };
@@ -412,12 +484,56 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
               <SelectItem value="scheduled">Agendados</SelectItem>
             </SelectContent>
           </Select>
+
+          <Select value={String(pageSize)} onValueChange={(value) => setPageSize(Number(value))}>
+            <SelectTrigger className="w-full sm:w-32">
+              <SelectValue placeholder="Itens" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10 por página</SelectItem>
+              <SelectItem value="20">20 por página</SelectItem>
+              <SelectItem value="50">50 por página</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
+
+        {selectedCount > 0 && canManage && (
+          <div className="flex items-center justify-between flex-col sm:flex-row gap-3 mb-4 rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3">
+            <div className="text-sm text-muted-foreground">
+              {selectedCount} notícia{selectedCount > 1 ? 's' : ''} selecionada{selectedCount > 1 ? 's' : ''}
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedItems(new Set())}
+              >
+                Limpar seleção
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => handleDelete(Array.from(selectedItems))}
+              >
+                Excluir selecionadas
+              </Button>
+            </div>
+          </div>
+        )}
 
         <div className="rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
+                {canManage && (
+                  <TableHead className="w-[40px]">
+                    <Checkbox
+                      checked={isAllCurrentPageSelected}
+                      onCheckedChange={(checked) => toggleSelectAllCurrentPage(Boolean(checked))}
+                      aria-label="Selecionar todas nesta página"
+                    />
+                  </TableHead>
+                )}
                 <TableHead>Título</TableHead>
                 <TableHead>Imagem</TableHead>
                 <TableHead>Categoria</TableHead>
@@ -452,9 +568,20 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
                     </div>
                   </TableCell>
                 </TableRow>
-              ) : (
-                filteredNews.map((newsItem) => (
-                  <TableRow key={newsItem.id}>
+            ) : (
+              paginatedNews.map((newsItem) => {
+                const isSelected = selectedItems.has(newsItem.id);
+                return (
+                  <TableRow key={newsItem.id} data-state={isSelected ? 'selected' : undefined}>
+                    {canManage && (
+                      <TableCell className="align-middle">
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={(checked) => toggleSelectItem(newsItem.id, Boolean(checked))}
+                          aria-label={`Selecionar ${newsItem.title}`}
+                        />
+                      </TableCell>
+                    )}
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
                         {newsItem.is_breaking && (
@@ -510,7 +637,7 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
                     <TableCell>{newsItem.views.toLocaleString()}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
-                        {(userRole === 'admin' || userRole === 'redator') && (
+                        {canManage && (
                           <>
                             <Button 
                               variant="outline" 
@@ -538,7 +665,7 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
                             </Button>
                           </>
                         )}
-                        {(userRole === 'admin' || userRole === 'redator') && (
+                        {canManage && (
                           <Button 
                             variant="outline" 
                             size="sm"
@@ -558,17 +685,32 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
           </Table>
         </div>
 
-        {filteredNews.length === 0 && (
-          <div className="text-center py-8">
-            <Filter className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">
-              {searchTerm || filterCategory !== 'all' || filterStatus !== 'all'
-                ? 'Nenhuma notícia encontrada com os filtros aplicados.'
-                : 'Nenhuma notícia cadastrada ainda.'
-              }
-            </p>
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+          <div className="text-sm text-muted-foreground">
+            Mostrando {paginatedNews.length} de {filteredNews.length} notícia{filteredNews.length === 1 ? '' : 's'}
           </div>
-        )}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              Página {currentPage} de {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
