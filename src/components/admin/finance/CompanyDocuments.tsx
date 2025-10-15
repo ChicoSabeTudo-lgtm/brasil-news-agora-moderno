@@ -30,13 +30,15 @@ const formatDateBR = (dateInput: string | Date | null | undefined) => {
   if (!dateInput) return '';
 
   const isoString = dateInput instanceof Date ? dateInput.toISOString() : dateInput;
-  const [datePart] = isoString.split('T');
-  if (!datePart) return '';
 
-  const [year, month, day] = datePart.split('-');
-  if (!year || !month || !day) return '';
+  const parsedDate = new Date(isoString);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return '';
+  }
 
-  return `${day}/${month}/${year}`;
+  return parsedDate.toLocaleDateString('pt-BR', {
+    timeZone: 'America/Sao_Paulo',
+  });
 };
 
 export const CompanyDocuments = () => {
