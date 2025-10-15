@@ -370,11 +370,29 @@ serve(async (req) => {
         }
 
         // Verificar se categoria existe
-        const { data: category } = await supabaseAdmin
+        let categoryId = body.category_id;
+        let category = null;
+
+        const { data: categoryById } = await supabaseAdmin
           .from('categories')
           .select('id')
-          .eq('id', body.category_id)
-          .single();
+          .eq('id', categoryId)
+          .maybeSingle();
+
+        if (categoryById) {
+          category = categoryById;
+        } else {
+          const { data: categoryBySlug } = await supabaseAdmin
+            .from('categories')
+            .select('id')
+            .eq('slug', categoryId)
+            .maybeSingle();
+
+          if (categoryBySlug) {
+            category = categoryBySlug;
+            categoryId = categoryBySlug.id;
+          }
+        }
 
         if (!category) {
           return new Response(
@@ -430,7 +448,7 @@ serve(async (req) => {
             subtitle: body.subtitle || '',
             content: body.content,
             meta_description: body.meta_description || body.subtitle || body.title,
-            category_id: body.category_id,
+            category_id: categoryId,
             author_id: body.author_id,
             slug: slug,
             tags: sanitizedTags,
