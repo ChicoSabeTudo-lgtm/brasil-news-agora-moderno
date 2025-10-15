@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { format, differenceInDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { 
-  Trash2, Download, FileText, Edit, Plus, Search, 
+  Trash2, Download, FileText, Edit, Plus, Search, Eye,
   Calendar as CalendarIcon, AlertTriangle, Scale 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -539,13 +539,49 @@ export const LegalCaseManagement = () => {
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
                         {caseDocuments.length > 0 && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            title={`${caseDocuments.length} documento(s)`}
-                          >
-                            <FileText className="h-4 w-4" />
-                          </Button>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                title={`${caseDocuments.length} documento(s)`}
+                              >
+                                <FileText className="h-4 w-4" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-72" align="end">
+                              <p className="text-sm font-medium mb-2">
+                                Documentos anexados
+                              </p>
+                              <div className="space-y-2 max-h-60 overflow-y-auto">
+                                {caseDocuments.map((doc) => (
+                                  <div key={doc.id} className="flex items-center gap-2 text-sm">
+                                    <span className="flex-1 truncate" title={doc.file_name}>
+                                      {doc.file_name}
+                                    </span>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8"
+                                      onClick={() => window.open(doc.file_url, '_blank')}
+                                      title="Visualizar"
+                                    >
+                                      <Eye className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8"
+                                      onClick={() => downloadFile(doc.file_url, doc.file_name)}
+                                      title="Baixar"
+                                    >
+                                      <Download className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                            </PopoverContent>
+                          </Popover>
                         )}
                         <Button
                           size="sm"
