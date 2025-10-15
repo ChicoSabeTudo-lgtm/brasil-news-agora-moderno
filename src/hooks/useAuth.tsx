@@ -382,6 +382,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const { data: rpcData, error: rpcError } = await supabase.rpc('generate_otp_code', {
         p_email: email,
         p_code: otpCode,
+        p_whatsapp_phone: whatsappPhone,
+        p_user_id: targetUserId,
         p_expires_in_seconds: 300,
       });
 
@@ -418,7 +420,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         };
 
         if (DEBUG_OTP) {
-          console.log('[OTP] Enviando webhook:', webhookPayload);
+          console.log('[OTP] Webhook enviado via função RPC. Payload:', webhookPayload);
         }
 
         try {
