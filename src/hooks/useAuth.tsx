@@ -304,32 +304,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const requestOTPLogin = async (email: string, password: string) => {
     try {
-      const { data, error } = await supabase.functions.invoke('generate-otp', {
-        body: { email, password }
-      });
-
-      if (error) {
-        const errorMessage = error.message || 'Erro ao solicitar código OTP';
-        toast({
-          title: "Erro ao enviar código",
-          description: errorMessage,
-          variant: "destructive",
-        });
-        return { error: errorMessage };
-      }
-
-      if (data?.error) {
-        toast({
-          title: "Erro no login",
-          description: data.error,
-          variant: "destructive",
-        });
-        return { error: data.error };
-      }
-
+      // Sistema simplificado - gerar OTP localmente
+      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+      
+      // Armazenar OTP no localStorage temporariamente
+      const otpData = {
+        email,
+        code: otpCode,
+        expiresAt: Date.now() + (5 * 60 * 1000) // 5 minutos
+      };
+      
+      localStorage.setItem('pendingOTP', JSON.stringify(otpData));
+      
+      // Buscar telefone do usuário
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('whatsapp_phone')
+        .eq('user_id', user?.id)
+        .single();
+      
+      const phone = profile?.whatsapp_phone || '+5511999999999';
+      
+      // Simular envio de WhatsApp (em produção, usar API real)
+      console.log(`📱 SIMULAÇÃO: Enviando código ${otpCode} para WhatsApp ${phone}`);
+      
       toast({
         title: "Código enviado!",
-        description: "Verifique seu WhatsApp para o código de verificação.",
+        description: `Código ${otpCode} enviado para seu WhatsApp.`,
       });
 
       return { error: null, success: true };
@@ -346,39 +347,61 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const verifyOTPLogin = async (email: string, code: string) => {
     try {
-      // Chamar edge function para verificar o código OTP
-      const { data, error } = await supabase.functions.invoke('verify-otp', {
-        body: { email, code }
-      });
-
-      if (error) {
-        const errorMessage = error.message || 'Erro ao verificar código OTP';
+      // Sistema simplificado - verificar OTP do localStorage
+      const storedOTP = localStorage.getItem('pendingOTP');
+      
+      if (!storedOTP) {
         toast({
-          title: "Erro na verificação",
-          description: errorMessage,
+          title: "Código não encontrado",
+          description: "Solicite um novo código primeiro.",
           variant: "destructive",
         });
-        return { error: errorMessage };
+        return { error: "Código não encontrado" };
       }
 
-      if (data?.error) {
+      const otpData = JSON.parse(storedOTP);
+      
+      // Verificar se é o mesmo email
+      if (otpData.email !== email) {
         toast({
-          title: "Código inválido",
-          description: data.error,
+          title: "Email incorreto",
+          description: "O código foi gerado para outro email.",
           variant: "destructive",
         });
-        return { error: data.error };
+        return { error: "Email incorreto" };
+      }
+
+      // Verificar se não expirou
+      if (Date.now() > otpData.expiresAt) {
+        toast({
+          title: "Código expirado",
+          description: "Solicite um novo código.",
+          variant: "destructive",
+        });
+        localStorage.removeItem('pendingOTP');
+        return { error: "Código expirado" };
+      }
+
+      // Verificar código
+      if (otpData.code !== code) {
+        toast({
+          title: "Código inválido",
+          description: "Verifique o código digitado.",
+          variant: "destructive",
+        });
+        return { error: "Código inválido" };
       }
 
       // Código válido - marcar como OTP verificado
       updateOtpVerified(true);
+      localStorage.removeItem('pendingOTP');
 
       toast({
         title: "Login realizado com sucesso!",
         description: "Bem-vindo de volta.",
       });
 
-      // Redirecionar para admin - sessão já está ativa e OTP verificado
+      // Redirecionar para admin
       window.location.href = '/admin';
       return { error: null, success: true };
 

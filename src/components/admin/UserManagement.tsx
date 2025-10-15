@@ -43,19 +43,48 @@ interface UserProfile {
   approved_at: string | null;
   revoked_at: string | null;
   user_roles: { role: string }[];
+  news_count?: number;
+  last_news_date?: string;
 }
 
 export const UserManagement = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
+  const [filteredUsers, setFilteredUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
   const [newRole, setNewRole] = useState<string>('');
+  const [filterRole, setFilterRole] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
   const { userRole } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  useEffect(() => {
+    let filtered = users;
+
+    // Filter by role
+    if (filterRole !== 'all') {
+      filtered = filtered.filter(user => 
+        user.user_roles.some(role => role.role === filterRole)
+      );
+    }
+
+    // Filter by status
+    if (filterStatus !== 'all') {
+      if (filterStatus === 'pending') {
+        filtered = filtered.filter(user => !user.is_approved);
+      } else if (filterStatus === 'approved') {
+        filtered = filtered.filter(user => user.is_approved && !user.access_revoked);
+      } else if (filterStatus === 'revoked') {
+        filtered = filtered.filter(user => user.access_revoked);
+      }
+    }
+
+    setFilteredUsers(filtered);
+  }, [users, filterRole, filterStatus]);
 
   const fetchUsers = async () => {
     try {
@@ -66,17 +95,29 @@ export const UserManagement = () => {
 
       if (profilesError) throw profilesError;
 
-      // Then get roles for each user
+      // Then get roles and news count for each user
       const usersWithRoles = await Promise.all(
         (profilesData || []).map(async (profile) => {
-          const { data: rolesData } = await supabase
-            .from('user_roles')
-            .select('role')
-            .eq('user_id', profile.user_id);
+          const [rolesResult, newsResult] = await Promise.all([
+            supabase
+              .from('user_roles')
+              .select('role')
+              .eq('user_id', profile.user_id),
+            supabase
+              .from('news')
+              .select('id, created_at')
+              .eq('author_id', profile.user_id)
+              .order('created_at', { ascending: false })
+          ]);
+
+          const newsCount = newsResult.data?.length || 0;
+          const lastNewsDate = newsResult.data?.[0]?.created_at;
 
           return {
             ...profile,
-            user_roles: rolesData || []
+            user_roles: rolesResult.data || [],
+            news_count: newsCount,
+            last_news_date: lastNewsDate
           };
         })
       );
@@ -248,18 +289,85 @@ export const UserManagement = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {/* Filtros */}
+        <div className="flex gap-4 mb-6">
+          <div className="flex-1">
+            <Label htmlFor="role-filter">Filtrar por Perfil</Label>
+            <Select value={filterRole} onValueChange={setFilterRole}>
+              <SelectTrigger>
+                <SelectValue placeholder="Todos os perfis" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os perfis</SelectItem>
+                <SelectItem value="admin">Administradores</SelectItem>
+                <SelectItem value="redator">Redatores</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex-1">
+            <Label htmlFor="status-filter">Filtrar por Status</Label>
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger>
+                <SelectValue placeholder="Todos os status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos os status</SelectItem>
+                <SelectItem value="pending">Pendentes</SelectItem>
+                <SelectItem value="approved">Aprovados</SelectItem>
+                <SelectItem value="revoked">Revogados</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Resumo */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <Card>
+            <CardContent className="pt-4">
+              <div className="text-2xl font-bold">{users.length}</div>
+              <p className="text-xs text-muted-foreground">Total de Usuários</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-4">
+              <div className="text-2xl font-bold text-green-600">
+                {users.filter(u => u.is_approved && !u.access_revoked).length}
+              </div>
+              <p className="text-xs text-muted-foreground">Aprovados</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-4">
+              <div className="text-2xl font-bold text-orange-600">
+                {users.filter(u => !u.is_approved).length}
+              </div>
+              <p className="text-xs text-muted-foreground">Pendentes</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-4">
+              <div className="text-2xl font-bold text-blue-600">
+                {users.filter(u => u.user_roles.some(r => r.role === 'redator')).length}
+              </div>
+              <p className="text-xs text-muted-foreground">Redatores</p>
+            </CardContent>
+          </Card>
+        </div>
+
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Nome</TableHead>
               <TableHead>Perfil</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Notícias</TableHead>
+              <TableHead>Última Atividade</TableHead>
               <TableHead>Data de Cadastro</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((user) => (
+            {filteredUsers.map((user) => (
               <TableRow key={user.id}>
                 <TableCell className="font-medium">
                   {user.full_name || 'Sem nome'}
@@ -295,6 +403,33 @@ export const UserManagement = () => {
                       <Check className="w-3 h-3 mr-1" />
                       Aprovado
                     </Badge>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline">
+                      {user.news_count || 0} notícias
+                    </Badge>
+                    {user.news_count && user.news_count > 0 && (
+                      <span className="text-xs text-muted-foreground">
+                        {user.news_count >= 50 ? '⭐' : user.news_count >= 10 ? '🔥' : '📝'}
+                      </span>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  {user.last_news_date ? (
+                    <div className="text-sm">
+                      <div>{new Date(user.last_news_date).toLocaleDateString('pt-BR')}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {new Date(user.last_news_date).toLocaleTimeString('pt-BR', { 
+                          hour: '2-digit', 
+                          minute: '2-digit' 
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground text-sm">Nunca</span>
                   )}
                 </TableCell>
                 <TableCell>
