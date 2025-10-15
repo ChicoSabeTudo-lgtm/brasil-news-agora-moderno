@@ -1,8 +1,55 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+// CORS restrito
+const ALLOWED_ORIGINS = [
+  'https://chicosabetudo.sigametech.com.br',
+  'http://localhost:8080',
+  'http://localhost:5173'
+];
+
+function getCorsHeaders(origin: string | null) {
+  const allowedOrigin = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Max-Age': '86400',
+  };
+}
+
+// Rate limiter - RIGOROSO para prevenir brute force
+const rateLimitMap = new Map<string, { count: number; resetTime: number; blocked: boolean }>();
+const RATE_LIMIT_MAX = 10; // Apenas 10 tentativas
+const RATE_LIMIT_WINDOW = 60000; // Por minuto
+const BLOCK_DURATION = 300000; // 5 minutos de bloqueio após exceder
+
+function checkRateLimit(identifier: string): { allowed: boolean; remaining: number } {
+  const now = Date.now();
+  const entry = rateLimitMap.get(identifier);
+
+  // Se está bloqueado
+  if (entry?.blocked && now < entry.resetTime) {
+    return { allowed: false, remaining: 0 };
+  }
+
+  // Reset se expirou
+  if (!entry || now > entry.resetTime) {
+    rateLimitMap.set(identifier, { count: 1, resetTime: now + RATE_LIMIT_WINDOW, blocked: false });
+    return { allowed: true, remaining: RATE_LIMIT_MAX - 1 };
+  }
+
+  // Incrementar contador
+  if (entry.count < RATE_LIMIT_MAX) {
+    entry.count++;
+    return { allowed: true, remaining: RATE_LIMIT_MAX - entry.count };
+  }
+
+  // Excedeu - bloquear por 5 minutos
+  entry.blocked = true;
+  entry.resetTime = now + BLOCK_DURATION;
+  console.warn('[SECURITY] Rate limit exceeded, bloqueado por 5 min:', identifier);
+  
+  return { allowed: false, remaining: 0 };
 }
 
 interface VerifyOTPRequest {
@@ -11,12 +58,36 @@ interface VerifyOTPRequest {
 }
 
 Deno.serve(async (req) => {
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    const { email, code }: VerifyOTPRequest = await req.json();
+    
+    // Rate limiting por email (previne brute force de códigos)
+    const rateLimitCheck = checkRateLimit(email);
+    if (!rateLimitCheck.allowed) {
+      console.warn('[SECURITY] OTP verification blocked:', email);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Muitas tentativas. Aguarde 5 minutos.',
+          retryAfter: 300 
+        }),
+        { 
+          status: 429,
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json',
+            'Retry-After': '300'
+          }
+        }
+      );
+    }
     console.log('Verify OTP request received');
     
     // Create separate clients for different operations

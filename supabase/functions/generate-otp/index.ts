@@ -1,8 +1,42 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+// CORS restrito
+const ALLOWED_ORIGINS = [
+  'https://chicosabetudo.sigametech.com.br',
+  'http://localhost:8080',
+  'http://localhost:5173'
+];
+
+function getCorsHeaders(origin: string | null) {
+  const allowedOrigin = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Max-Age': '86400',
+  };
+}
+
+// Rate limiter - Previne spam de OTP
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_MAX = 5; // Máximo 5 OTPs por minuto
+const RATE_LIMIT_WINDOW = 60000;
+
+function checkRateLimit(identifier: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(identifier);
+
+  if (!entry || now > entry.resetTime) {
+    rateLimitMap.set(identifier, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    return true;
+  }
+
+  if (entry.count < RATE_LIMIT_MAX) {
+    entry.count++;
+    return true;
+  }
+
+  return false;
 }
 
 interface GenerateOTPRequest {
@@ -11,12 +45,35 @@ interface GenerateOTPRequest {
 }
 
 Deno.serve(async (req) => {
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
+  
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    const { email, password }: GenerateOTPRequest = await req.json();
+    
+    // Rate limiting por email
+    if (!checkRateLimit(email)) {
+      console.warn('[SECURITY] OTP generation rate limit exceeded:', email);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Muitas solicitações. Aguarde 1 minuto.',
+          retryAfter: 60 
+        }),
+        { 
+          status: 429,
+          headers: { 
+            ...corsHeaders, 
+            'Content-Type': 'application/json',
+            'Retry-After': '60'
+          }
+        }
+      );
+    }
     console.log('Generate OTP request received');
     
     // Create separate clients for different operations

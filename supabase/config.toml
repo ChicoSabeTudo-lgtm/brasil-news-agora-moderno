@@ -8,3 +8,9 @@ verify_jwt = false
 
 [functions.rss-feed]
 verify_jwt = false
+
+[functions.ads-txt]
+verify_jwt = false
+
+[functions.news-api]
+verify_jwt = false
