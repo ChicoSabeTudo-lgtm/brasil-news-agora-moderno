@@ -383,13 +383,41 @@ serve(async (req) => {
           );
         }
 
-        // Criar slug
-        const slug = body.title
+        // Criar slug base
+        const baseSlug = (body.title || 'noticia')
           .toLowerCase()
           .normalize('NFD')
           .replace(/[\u0300-\u036f]/g, '')
           .replace(/[^a-z0-9]+/g, '-')
           .replace(/(^-|-$)/g, '');
+
+        const referenceDate = body.published_at ? new Date(body.published_at) : new Date();
+        const month = String(referenceDate.getUTCMonth() + 1).padStart(2, '0');
+        const year = String(referenceDate.getUTCFullYear()).slice(-2);
+        const datedSlug = `${baseSlug}-${month}${year}`;
+
+        let slug = datedSlug;
+        let attempts = 1;
+
+        while (true) {
+          const { data: existingSlug, error: slugCheckError } = await supabaseAdmin
+            .from('news')
+            .select('id')
+            .eq('slug', slug)
+            .maybeSingle();
+
+          if (slugCheckError) {
+            console.warn('⚠️ Erro ao verificar slug existente:', slugCheckError);
+            break;
+          }
+
+          if (!existingSlug) {
+            break;
+          }
+
+          attempts += 1;
+          slug = `${datedSlug}-${attempts}`;
+        }
 
         // Determinar se deve publicar diretamente
         const publishImmediately = body.publish_immediately === true;
