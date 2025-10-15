@@ -26,16 +26,26 @@ const DOCUMENT_TYPES = [
   { value: 'outros', label: 'Outros' },
 ];
 
-const formatDateBR = (dateString: string) => {
-  if (!dateString) return '';
+const formatDateBR = (dateInput: string | Date | null | undefined) => {
+  if (!dateInput) return '';
 
+  const isoString = dateInput instanceof Date ? dateInput.toISOString() : dateInput;
+  const [datePart] = isoString.split('T');
+  if (!datePart) return '';
+
+  const [year, month, day] = datePart.split('-');
+  if (!year || !month || !day) return '';
+
+  return `${day}/${month}/${year}`;
+};
+  if (!dateString) return '';
   const [datePart] = dateString.split('T');
   if (!datePart) return '';
 
-  const [year, month, day] = datePart.split('-').map(Number);
+  const [year, month, day] = datePart.split('-');
   if (!year || !month || !day) return '';
 
-  return new Date(year, month - 1, day).toLocaleDateString('pt-BR');
+  return `${day}/${month}/${year}`;
 };
 
 export const CompanyDocuments = () => {
