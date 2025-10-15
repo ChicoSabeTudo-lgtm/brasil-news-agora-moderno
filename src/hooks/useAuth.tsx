@@ -378,7 +378,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         console.log('[OTP] WhatsApp encontrado:', whatsappPhone);
       }
 
-      // Salvar OTP via função RPC
+      // Salvar OTP via função RPC (já dispara webhook no banco)
       const { data: rpcData, error: rpcError } = await supabase.rpc('generate_otp_code', {
         p_email: email,
         p_code: otpCode,
@@ -399,74 +399,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (DEBUG_OTP) {
         console.log('[OTP] RPC retorno:', rpcData);
-      }
-
-      // Buscar URL do webhook
-      const { data: config } = await supabase
-        .from('site_configurations')
-        .select('otp_webhook_url')
-        .order('updated_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      if (config?.otp_webhook_url) {
-        // Enviar webhook para n8n
-        const webhookPayload = {
+        console.log('[OTP] Webhook disparado pelo banco com payload:', {
           email,
           user_id: targetUserId,
           whatsapp_phone: whatsappPhone,
           otp_code: otpCode,
-          timestamp: new Date().toISOString(),
-        };
-
-        if (DEBUG_OTP) {
-          console.log('[OTP] Webhook enviado via função RPC. Payload:', webhookPayload);
-        }
-
-        try {
-          const webhookResponse = await fetch(config.otp_webhook_url, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(webhookPayload),
-          });
-
-          if (webhookResponse.ok) {
-            toast({
-              title: "Código enviado!",
-              description: "Verifique seu WhatsApp para o código de verificação.",
-            });
-          } else {
-            console.error('Webhook falhou:', webhookResponse.status);
-            if (DEBUG_OTP) {
-              console.log('[OTP] Resposta do webhook:', await webhookResponse.text());
-            }
-            toast({
-              title: "Aviso",
-              description: "Código gerado, mas pode haver problema no envio. Tente novamente.",
-              variant: "destructive",
-            });
-          }
-        } catch (webhookError) {
-          console.error('Erro no webhook:', webhookError);
-          if (DEBUG_OTP) {
-            console.log('[OTP] Erro completo webhook:', webhookError);
-          }
-          toast({
-            title: "Aviso",
-            description: "Código gerado, mas pode haver problema no envio. Tente novamente.",
-            variant: "destructive",
-          });
-        }
-      } else {
-        toast({
-          title: "Erro",
-          description: "Webhook do WhatsApp não configurado.",
-          variant: "destructive",
         });
-        return { error: "Webhook não configurado" };
       }
+
+      toast({
+        title: "Código enviado!",
+        description: "Verifique seu WhatsApp para o código de verificação.",
+      });
+
+      // Opcional: fallback local caso deseje testar envio direto
+      // const { data: config } = await supabase
+      //   .from('site_configurations')
+      //   .select('otp_webhook_url')
+      //   .order('updated_at', { ascending: false })
+      //   .limit(1)
+      //   .single();
+
+      // if (config?.otp_webhook_url) {
+      //   try {
+      //     await fetch(config.otp_webhook_url, {
+      //       method: 'POST',
+      //       headers: { 'Content-Type': 'application/json' },
+      //       body: JSON.stringify({
+      //         email,
+      //         user_id: targetUserId,
+      //         whatsapp_phone: whatsappPhone,
+      //         otp_code: otpCode,
+      //         timestamp: new Date().toISOString(),
+      //       }),
+      //     });
+      //   } catch (fallbackError) {
+      //     console.error('Falha no fallback do webhook:', fallbackError);
+      //   }
+      // }
 
       return { error: null, success: true };
     } catch (error: any) {

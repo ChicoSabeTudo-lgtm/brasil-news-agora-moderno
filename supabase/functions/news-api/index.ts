@@ -290,6 +290,56 @@ serve(async (req) => {
         const body = await req.json();
         console.log('📋 Dados recebidos:', { title: body.title, category_id: body.category_id });
 
+        const sanitizeTags = (rawTags: unknown): string[] => {
+          if (rawTags === null || rawTags === undefined) {
+            return [];
+          }
+
+          const toStringArray = (value: unknown): string[] => {
+            if (!Array.isArray(value)) return [];
+            return value
+              .map((tag) => {
+                if (tag === null || tag === undefined) return null;
+                try {
+                  return String(tag).trim();
+                } catch (_err) {
+                  return null;
+                }
+              })
+              .filter((tag): tag is string => Boolean(tag));
+          };
+
+          if (Array.isArray(rawTags)) {
+            return toStringArray(rawTags);
+          }
+
+          if (typeof rawTags === 'string') {
+            const trimmed = rawTags.trim();
+            if (!trimmed) return [];
+
+            try {
+              const parsed = JSON.parse(trimmed);
+              const parsedArray = toStringArray(parsed);
+              if (parsedArray.length > 0) return parsedArray;
+            } catch (_err) {
+              // not json, fallback
+            }
+
+            const splitFallback = trimmed
+              .replace(/^[\[\{]/, '')
+              .replace(/[\]\}]$/, '')
+              .split(',')
+              .map((part) => part.trim())
+              .filter(Boolean);
+
+            return toStringArray(splitFallback);
+          }
+
+          return [];
+        };
+
+        const sanitizedTags = sanitizeTags(body.tags);
+
         // Validações básicas
         const errors = [];
         if (!body.title || typeof body.title !== 'string') {
@@ -355,7 +405,7 @@ serve(async (req) => {
             category_id: body.category_id,
             author_id: body.author_id,
             slug: slug,
-            tags: body.tags || [],
+            tags: sanitizedTags,
             is_breaking: body.is_breaking || false,
             is_featured: false,
             is_published: publishImmediately, // Publica direto se solicitado
