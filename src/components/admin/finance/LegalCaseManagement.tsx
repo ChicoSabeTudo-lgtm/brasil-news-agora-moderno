@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useLegalCases, LegalCase } from "@/hooks/useLegalCases";
+import { useLegalCases, LegalCase, LegalCaseDocument } from "@/hooks/useLegalCases";
 
 const caseTypes = [
   { value: 'civil', label: 'Cível' },
@@ -61,7 +61,17 @@ const statusOptions = [
 ];
 
 export const LegalCaseManagement = () => {
-  const { legalCases, documents, isLoading, createCase, updateCase, deleteCase, downloadFile } = useLegalCases();
+  const { 
+    legalCases, 
+    documents, 
+    isLoading, 
+    createCase, 
+    updateCase, 
+    deleteCase, 
+    downloadFile,
+    deleteDocument,
+    isDeletingDocument,
+  } = useLegalCases();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCase, setEditingCase] = useState<LegalCase | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<LegalCase | null>(null);
@@ -136,6 +146,11 @@ export const LegalCaseManagement = () => {
 
   const handleDelete = (legalCase: LegalCase) => {
     setDeleteTarget(legalCase);
+  };
+
+  const handleDeleteDocument = (doc: LegalCaseDocument) => {
+    if (!confirm('Deseja remover este documento do processo?')) return;
+    deleteDocument(doc);
   };
 
   const confirmDelete = () => {
@@ -576,6 +591,16 @@ export const LegalCaseManagement = () => {
                                       title="Baixar"
                                     >
                                       <Download className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="icon"
+                                      className="h-8 w-8 text-destructive"
+                                      onClick={() => handleDeleteDocument(doc)}
+                                      title="Excluir"
+                                      disabled={isDeletingDocument}
+                                    >
+                                      <Trash2 className="h-4 w-4" />
                                     </Button>
                                   </div>
                                 ))}

@@ -255,6 +255,38 @@ export const useLegalCases = () => {
     },
   });
 
+  const deleteDocumentMutation = useMutation({
+    mutationFn: async (document: LegalCaseDocument) => {
+      const { error: storageError } = await supabaseClient.storage
+        .from('company-documents')
+        .remove([document.file_path]);
+
+      if (storageError) throw storageError;
+
+      const { error: dbError } = await supabaseClient
+        .from('legal_case_documents')
+        .delete()
+        .eq('id', document.id);
+
+      if (dbError) throw dbError;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['legal-case-documents'] });
+      toast({
+        title: 'Documento removido',
+        description: 'O documento foi excluído com sucesso.',
+      });
+    },
+    onError: (error) => {
+      console.error('Error deleting legal case document:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível excluir o documento.',
+        variant: 'destructive',
+      });
+    }
+  });
+
   // Download file
   const downloadFile = async (url: string, filename: string) => {
     const link = document.createElement('a');
@@ -276,5 +308,7 @@ export const useLegalCases = () => {
     deleteCase: deleteMutation.mutate,
     isDeleting: deleteMutation.isPending,
     downloadFile,
+    deleteDocument: deleteDocumentMutation.mutate,
+    isDeletingDocument: deleteDocumentMutation.isPending,
   };
 };
