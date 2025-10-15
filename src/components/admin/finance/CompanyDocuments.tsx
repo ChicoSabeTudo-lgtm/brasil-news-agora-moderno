@@ -28,9 +28,14 @@ const DOCUMENT_TYPES = [
 
 const formatDateBR = (dateString: string) => {
   if (!dateString) return '';
-  return new Date(dateString).toLocaleDateString('pt-BR', {
-    timeZone: 'America/Sao_Paulo',
-  });
+
+  const [datePart] = dateString.split('T');
+  if (!datePart) return '';
+
+  const [year, month, day] = datePart.split('-').map(Number);
+  if (!year || !month || !day) return '';
+
+  return new Date(year, month - 1, day).toLocaleDateString('pt-BR');
 };
 
 export const CompanyDocuments = () => {
