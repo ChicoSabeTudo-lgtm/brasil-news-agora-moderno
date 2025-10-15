@@ -14,6 +14,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { format, parseISO } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 const DOCUMENT_TYPES = [
   { value: 'contrato_social', label: 'Contrato Social' },
@@ -30,27 +32,15 @@ const formatDateBR = (dateInput: string | Date | null | undefined) => {
   if (!dateInput) return '';
 
   const isoString = dateInput instanceof Date ? dateInput.toISOString() : dateInput;
-
-  const dateOnlyMatch = isoString.match(/^\d{4}-\d{2}-\d{2}$/);
-  if (dateOnlyMatch) {
-    const [year, month, day] = isoString.split('-');
-    return `${day}/${month}/${year}`;
-  }
-
   const [datePart] = isoString.split('T');
-  if (datePart && /^\d{4}-\d{2}-\d{2}$/.test(datePart)) {
-    const [year, month, day] = datePart.split('-');
-    return `${day}/${month}/${year}`;
-  }
+  const safeDate = datePart || isoString;
 
-  const parsedDate = new Date(isoString);
-  if (Number.isNaN(parsedDate.getTime())) {
+  try {
+    return format(parseISO(safeDate), 'dd/MM/yyyy', { locale: ptBR });
+  } catch (error) {
+    console.warn('Erro ao formatar data de documento:', dateInput, error);
     return '';
   }
-
-  return parsedDate.toLocaleDateString('pt-BR', {
-    timeZone: 'America/Sao_Paulo',
-  });
 };
 
 export const CompanyDocuments = () => {
