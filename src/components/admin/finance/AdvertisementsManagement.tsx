@@ -59,8 +59,8 @@ export function AdvertisementsManagement() {
     setEditForm({
       client_name: ad.client_name,
       ad_type: ad.ad_type,
-      start_date: new Date(ad.start_date),
-      end_date: new Date(ad.end_date),
+      start_date: new Date(ad.start_date + 'T00:00:00'),
+      end_date: new Date(ad.end_date + 'T00:00:00'),
       link: ad.link || '',
       notes: ad.notes || '',
     });
