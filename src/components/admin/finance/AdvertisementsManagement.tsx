@@ -56,11 +56,23 @@ export function AdvertisementsManagement() {
 
   const handleEdit = (ad: typeof advertisements[0]) => {
     setEditingId(ad.id);
+    
+    // Debug: vamos ver o que está vindo do banco
+    console.log('Data do banco (start_date):', ad.start_date);
+    console.log('Data do banco (end_date):', ad.end_date);
+    
+    // Criar datas locais sem conversão de timezone
+    const startDate = new Date(ad.start_date + 'T12:00:00');
+    const endDate = new Date(ad.end_date + 'T12:00:00');
+    
+    console.log('Data convertida (start_date):', startDate);
+    console.log('Data convertida (end_date):', endDate);
+    
     setEditForm({
       client_name: ad.client_name,
       ad_type: ad.ad_type,
-      start_date: new Date(ad.start_date + 'T00:00:00'),
-      end_date: new Date(ad.end_date + 'T00:00:00'),
+      start_date: startDate,
+      end_date: endDate,
       link: ad.link || '',
       notes: ad.notes || '',
     });
