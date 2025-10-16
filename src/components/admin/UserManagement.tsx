@@ -52,8 +52,8 @@ export const UserManagement = () => {
   const [filteredUsers, setFilteredUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
-  const [newRole, setNewRole] = useState<string>('');
-  const [filterRole, setFilterRole] = useState<string>('all');
+  const [newRole, setNewRole] = useState<'admin' | 'redator' | 'gestor'>('redator');
+  const [filterRole, setFilterRole] = useState<'all' | 'admin' | 'redator' | 'gestor'>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const { userRole } = useAuth();
   const { toast } = useToast();
@@ -135,7 +135,7 @@ export const UserManagement = () => {
     }
   };
 
-  const updateUserRole = async (userId: string, role: 'admin' | 'redator') => {
+  const updateUserRole = async (userId: string, role: 'admin' | 'redator' | 'gestor') => {
     try {
       // Use secure edge function for role updates
       const { data, error } = await supabase.functions.invoke('admin-user-management', {
@@ -293,7 +293,7 @@ export const UserManagement = () => {
         <div className="flex gap-4 mb-6">
           <div className="flex-1">
             <Label htmlFor="role-filter">Filtrar por Perfil</Label>
-            <Select value={filterRole} onValueChange={setFilterRole}>
+            <Select value={filterRole} onValueChange={(value: 'all' | 'admin' | 'redator' | 'gestor') => setFilterRole(value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Todos os perfis" />
               </SelectTrigger>
@@ -301,6 +301,7 @@ export const UserManagement = () => {
                 <SelectItem value="all">Todos os perfis</SelectItem>
                 <SelectItem value="admin">Administradores</SelectItem>
                 <SelectItem value="redator">Redatores</SelectItem>
+                <SelectItem value="gestor">Gestores</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -352,6 +353,14 @@ export const UserManagement = () => {
               <p className="text-xs text-muted-foreground">Redatores</p>
             </CardContent>
           </Card>
+          <Card>
+            <CardContent className="pt-4">
+              <div className="text-2xl font-bold text-purple-600">
+                {users.filter(u => u.user_roles.some(r => r.role === 'gestor')).length}
+              </div>
+              <p className="text-xs text-muted-foreground">Gestores</p>
+            </CardContent>
+          </Card>
         </div>
 
         <Table>
@@ -373,11 +382,24 @@ export const UserManagement = () => {
                   {user.full_name || 'Sem nome'}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={user.user_roles[0]?.role === 'admin' ? 'default' : 'secondary'}>
+                  <Badge
+                    variant={
+                      user.user_roles[0]?.role === 'admin'
+                        ? 'default'
+                        : user.user_roles[0]?.role === 'gestor'
+                          ? 'secondary'
+                          : 'outline'
+                    }
+                  >
                     {user.user_roles[0]?.role === 'admin' ? (
                       <>
                         <Shield className="w-3 h-3 mr-1" />
                         Administrador
+                      </>
+                    ) : user.user_roles[0]?.role === 'gestor' ? (
+                      <>
+                        <User className="w-3 h-3 mr-1" />
+                        Gestor
                       </>
                     ) : (
                       <>
@@ -477,7 +499,7 @@ export const UserManagement = () => {
                           size="sm"
                           onClick={() => {
                             setEditingUser(user);
-                            setNewRole(user.user_roles[0]?.role || 'redator');
+                            setNewRole((user.user_roles[0]?.role as 'admin' | 'redator' | 'gestor') || 'redator');
                           }}
                         >
                           <Edit className="w-4 h-4" />
@@ -493,12 +515,13 @@ export const UserManagement = () => {
                         <div className="space-y-4">
                           <div>
                             <Label htmlFor="role">Perfil</Label>
-                            <Select value={newRole} onValueChange={setNewRole}>
+                            <Select value={newRole} onValueChange={(value: 'admin' | 'redator' | 'gestor') => setNewRole(value)}>
                               <SelectTrigger>
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="redator">Redator</SelectItem>
+                                <SelectItem value="gestor">Gestor</SelectItem>
                                 <SelectItem value="admin">Administrador</SelectItem>
                               </SelectContent>
                             </Select>
@@ -508,7 +531,7 @@ export const UserManagement = () => {
                               <Button variant="outline">Cancelar</Button>
                             </DialogClose>
                             <Button 
-                              onClick={() => updateUserRole(user.user_id, newRole as 'admin' | 'redator')}
+                              onClick={() => updateUserRole(user.user_id, newRole)}
                             >
                               Salvar
                             </Button>
