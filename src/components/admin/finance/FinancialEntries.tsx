@@ -1,11 +1,11 @@
-import { useMemo, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useEffect, useMemo, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { DollarSign, TrendingDown, TrendingUp, Calendar, Eye, Edit, Trash2, FileText, Building2, CreditCard, User } from 'lucide-react';
 import { Calendar as DayPicker } from '@/components/ui/calendar';
@@ -13,6 +13,16 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import type { DateRange } from 'react-day-picker';
 import { useFinanceData, type FinanceTransaction, type TxStatus, type TxType } from '@/hooks/useFinance';
 import NewTransactionModal from './NewTransactionModal';
+
+const getCurrentMonthRange = (): DateRange => {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), 1);
+  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  return {
+    from: start,
+    to: end,
+  };
+};
 
 const currency = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
 
@@ -26,8 +36,13 @@ export function FinancialEntries() {
   const [statusFilter, setStatusFilter] = useState<'all' | TxStatus>('all');
   const [projectFilter, setProjectFilter] = useState<'all' | string>('all');
   
-  // Período de filtro começa vazio (sem filtro)
-  const [range, setRange] = useState<DateRange | undefined>();
+  // Período pré-selecionado: mês atual
+  const [range, setRange] = useState<DateRange | undefined>(getCurrentMonthRange());
+
+  useEffect(() => {
+    // Ao carregar, define o filtro para o mês atual sempre que entrar na tela
+    setRange(getCurrentMonthRange());
+  }, []);
 
   // Local form removed; handled by modal component
 
@@ -39,8 +54,16 @@ export function FinancialEntries() {
       // Só aplica filtro de data se o range estiver definido
       if (range?.from || range?.to) {
         const d = new Date(t.due_date + 'T00:00:00'); // Força timezone local
-        if (range?.from && d < new Date(range.from.setHours(0,0,0,0))) return false;
-        if (range?.to && d > new Date(range.to.setHours(23,59,59,999))) return false;
+        if (range?.from) {
+          const from = new Date(range.from);
+          from.setHours(0, 0, 0, 0);
+          if (d < from) return false;
+        }
+        if (range?.to) {
+          const to = new Date(range.to);
+          to.setHours(23, 59, 59, 999);
+          if (d > to) return false;
+        }
       }
       if (search && !`${t.description}`.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
@@ -49,20 +72,37 @@ export function FinancialEntries() {
 
   const catMap = useMemo(() => Object.fromEntries(categories.map(c => [c.id, c.name])), [categories]);
   const summary = useMemo(() => {
-    const received = transactions
+    const inRange = transactions.filter((t) => {
+      if (!range?.from && !range?.to) return true;
+      const d = new Date(t.due_date + 'T00:00:00');
+      if (range?.from) {
+        const from = new Date(range.from);
+        from.setHours(0, 0, 0, 0);
+        if (d < from) return false;
+      }
+      if (range?.to) {
+        const to = new Date(range.to);
+        to.setHours(23, 59, 59, 999);
+        if (d > to) return false;
+      }
+      return true;
+    });
+
+    const received = inRange
       .filter((t) => t.type === 'receita' && t.status === 'Pago')
       .reduce((acc, t) => acc + (Number(t.value) || 0), 0);
-    const paid = transactions
+    const paid = inRange
       .filter((t) => t.type === 'despesa' && t.status === 'Pago')
       .reduce((acc, t) => acc + (Number(t.value) || 0), 0);
-    const receivable = transactions
+    const receivable = inRange
       .filter((t) => t.type === 'receita' && t.status !== 'Pago')
       .reduce((acc, t) => acc + (Number(t.value) || 0), 0);
-    const payable = transactions
+    const payable = inRange
       .filter((t) => t.type === 'despesa' && t.status !== 'Pago')
       .reduce((acc, t) => acc + (Number(t.value) || 0), 0);
-    return { received, paid, receivable, payable };
-  }, [transactions]);
+    const balance = received - paid;
+    return { received, paid, receivable, payable, balance };
+  }, [transactions, range]);
 
   const handleCreated = () => setOpen(false);
 
@@ -88,7 +128,7 @@ export function FinancialEntries() {
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <Card>
           <CardHeader>
             <CardTitle className="text-sm">Receitas Recebidas</CardTitle>
@@ -123,6 +163,18 @@ export function FinancialEntries() {
           <CardContent className="flex items-center gap-3 text-2xl font-semibold text-orange-600">
             <Calendar className="w-5 h-5" />
             {currency(summary.payable)}
+          </CardContent>
+        </Card>
+        <Card className="bg-gradient-to-br from-slate-900 to-slate-700 text-white">
+          <CardHeader>
+            <CardTitle className="text-sm text-white">Saldo do Período</CardTitle>
+            <CardDescription className="text-slate-200">
+              Atualizado com base nas transações filtradas
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex items-center gap-3 text-3xl font-semibold">
+            <DollarSign className="w-6 h-6" />
+            {currency(summary.balance)}
           </CardContent>
         </Card>
       </div>
