@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { DollarSign, TrendingDown, TrendingUp, Calendar, Eye, Edit, Trash2, FileText, Building2, CreditCard, User } from 'lucide-react';
+import { DollarSign, TrendingDown, TrendingUp, Calendar, Eye, Edit, Trash2, FileText, Building2, CreditCard, User, Clock } from 'lucide-react';
 import { Calendar as DayPicker } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import type { DateRange } from 'react-day-picker';
@@ -165,16 +165,65 @@ export function FinancialEntries() {
             {currency(summary.payable)}
           </CardContent>
         </Card>
-        <Card className="bg-gradient-to-br from-slate-900 to-slate-700 text-white">
-          <CardHeader>
-            <CardTitle className="text-sm text-white">Saldo do Período</CardTitle>
-            <CardDescription className="text-slate-200">
-              Atualizado com base nas transações filtradas
-            </CardDescription>
+        <Card className="relative overflow-hidden border-0 bg-gradient-to-br from-[#1f3b80] via-[#1c2541] to-[#0b132b] text-white shadow-xl">
+          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at top, rgba(255,255,255,0.35), transparent 55%)' }} />
+          <div className="absolute -right-10 top-10 h-32 w-32 rounded-full bg-white/10 blur-3xl" />
+          <div className="absolute left-6 top-6 h-16 w-16 rounded-full bg-white/10" />
+          <CardHeader className="relative pb-4">
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.3em] text-white/60">Saldo do período</p>
+                <CardTitle className="text-base text-white">Resumo Financeiro</CardTitle>
+              </div>
+              <div className="flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs text-white/70">
+                <Calendar className="h-3.5 w-3.5" />
+                {range?.from && range?.to ? `${range.from.toLocaleDateString('pt-BR')} • ${range.to.toLocaleDateString('pt-BR')}` : 'Período corrente'}
+              </div>
+            </div>
           </CardHeader>
-          <CardContent className="flex items-center gap-3 text-3xl font-semibold">
-            <DollarSign className="w-6 h-6" />
-            {currency(summary.balance)}
+          <CardContent className="relative flex flex-col gap-4 pb-6">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/15 backdrop-blur-sm">
+                <DollarSign className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <span className="text-sm text-white/70">Saldo líquido</span>
+                <p className="text-4xl font-bold tracking-tight">{currency(summary.balance)}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="rounded-xl bg-white/10 p-3 backdrop-blur-sm">
+                <p className="text-xs font-medium uppercase tracking-wide text-white/60">Receitas</p>
+                <p className="mt-1 flex items-center gap-2 text-sm font-semibold text-emerald-300">
+                  <TrendingUp className="h-4 w-4" />
+                  {currency(summary.received)}
+                </p>
+              </div>
+              <div className="rounded-xl bg-white/10 p-3 backdrop-blur-sm">
+                <p className="text-xs font-medium uppercase tracking-wide text-white/60">Despesas</p>
+                <p className="mt-1 flex items-center gap-2 text-sm font-semibold text-rose-300">
+                  <TrendingDown className="h-4 w-4" />
+                  {currency(summary.paid)}
+                </p>
+              </div>
+              <div className="rounded-xl bg-white/10 p-3 backdrop-blur-sm">
+                <p className="text-xs font-medium uppercase tracking-wide text-white/60">A Receber</p>
+                <p className="mt-1 flex items-center gap-2 text-sm font-semibold text-sky-300">
+                  <Clock className="h-4 w-4" />
+                  {currency(summary.receivable)}
+                </p>
+              </div>
+              <div className="rounded-xl bg-white/10 p-3 backdrop-blur-sm">
+                <p className="text-xs font-medium uppercase tracking-wide text-white/60">A Pagar</p>
+                <p className="mt-1 flex items-center gap-2 text-sm font-semibold text-amber-300">
+                  <Clock className="h-4 w-4" />
+                  {currency(summary.payable)}
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-white/60">Valores refletem as transações aplicadas aos filtros de período e status.</p>
           </CardContent>
         </Card>
       </div>
