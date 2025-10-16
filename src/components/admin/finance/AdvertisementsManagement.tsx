@@ -140,6 +140,10 @@ export function AdvertisementsManagement() {
 
   // Função para gerar relatório PDF
   const handleGenerateReport = async () => {
+    console.log('=== Iniciando geracao de relatorio ===');
+    console.log('Propagandas filtradas:', filteredAds.length);
+    console.log('Range de datas:', dateRange);
+    
     if (filteredAds.length === 0) {
       toast({
         title: 'Nenhuma propaganda encontrada',
@@ -150,13 +154,21 @@ export function AdvertisementsManagement() {
     }
 
     try {
+      // Validar período antes de continuar
+      if (!dateRange.from || !dateRange.to) {
+        toast({
+          title: 'Período inválido',
+          description: 'Selecione um período válido antes de gerar o relatório.',
+          variant: 'destructive'
+        });
+        return;
+      }
+
       const selectedClient = clients.find(c => c.id === filterClient);
       const clientName = selectedClient ? selectedClient.name : 'Todos os Clientes';
       
-      // Validar dados antes de gerar
-      if (!clientName || !dateRange.from || !dateRange.to) {
-        throw new Error('Dados incompletos para gerar o relatório');
-      }
+      console.log('Cliente selecionado:', clientName);
+      console.log('Periodo:', { from: dateRange.from, to: dateRange.to });
       
       const reportData = {
         advertisements: filteredAds,
@@ -182,11 +194,18 @@ export function AdvertisementsManagement() {
         title: 'Relatório gerado com sucesso',
         description: `Relatório PDF de ${filteredAds.length} propagandas foi baixado.`,
       });
+      
+      console.log('=== Relatorio gerado com sucesso ===');
     } catch (error: any) {
-      console.error('Erro ao gerar relatório:', error);
+      console.error('=== ERRO AO GERAR RELATORIO ===');
+      console.error('Tipo do erro:', typeof error);
+      console.error('Mensagem:', error?.message);
+      console.error('Stack:', error?.stack);
+      console.error('Erro completo:', error);
+      
       toast({
         title: 'Erro ao gerar relatório',
-        description: error?.message || 'Ocorreu um erro inesperado. Tente novamente.',
+        description: error?.message || 'Ocorreu um erro inesperado. Verifique o console para mais detalhes.',
         variant: 'destructive'
       });
     }
