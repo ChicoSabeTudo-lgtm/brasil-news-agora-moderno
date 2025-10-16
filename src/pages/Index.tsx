@@ -174,6 +174,19 @@ const Index = () => {
     }]
   };
 
+  const categoryConfig: Record<string, { showAuthor: boolean }> = {
+    esporte: { showAuthor: false },
+    esportes: { showAuthor: false },
+    emprego: { showAuthor: false },
+    empregos: { showAuthor: false }
+  };
+
+  const shouldShowAuthor = (categorySlug?: string) => {
+    if (!categorySlug) return true;
+    const normalizedSlug = categorySlug.toLowerCase();
+    return categoryConfig[normalizedSlug]?.showAuthor ?? true;
+  };
+
   // Função para renderizar template 'standard' - Grid padrão
   const renderStandardTemplate = (category: any, newsItems: any[]) => <section key={category.slug} className="mb-12">
       <div className="flex items-center justify-between mb-6">
@@ -193,7 +206,7 @@ const Index = () => {
         </Link>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {newsItems.map(news => <NewsCard key={news.id} {...news} size="small" categoryColor={category.color} />)}
+        {newsItems.map(news => <NewsCard key={news.id} {...news} size="small" categoryColor={category.color} showAuthor={shouldShowAuthor(category.slug)} />)}
       </div>
     </section>;
 
@@ -216,7 +229,7 @@ const Index = () => {
         </Link>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {newsItems.map(news => <NewsCard key={news.id} {...news} size="medium" categoryColor={category.color} />)}
+        {newsItems.map(news => <NewsCard key={news.id} {...news} size="medium" categoryColor={category.color} showAuthor={shouldShowAuthor(category.slug)} />)}
       </div>
     </section>;
 
@@ -253,8 +266,10 @@ const Index = () => {
                 {news.metaDescription}
               </p>
               <div className="flex items-center text-xs text-muted-foreground">
-                <span>{news.author}</span>
-                <span className="mx-1">•</span>
+              {shouldShowAuthor(category.slug) && <>
+                  <span>{news.author}</span>
+                  <span className="mx-1">•</span>
+                </>}
                 <span>{news.publishedAt}</span>
               </div>
             </div>
@@ -283,7 +298,7 @@ const Index = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Notícia em destaque */}
         {newsItems[0] && <div className="lg:col-span-2">
-            <NewsCard {...newsItems[0]} size="large" categoryColor={category.color} />
+            <NewsCard {...newsItems[0]} size="large" categoryColor={category.color} showAuthor={shouldShowAuthor(category.slug)} />
           </div>}
         {/* Lista lateral */}
         {newsItems.length > 1 && <div className="lg:col-span-1 space-y-4">
@@ -296,8 +311,10 @@ const Index = () => {
                     </h3>
                   </Link>
                   <div className="flex items-center text-xs text-muted-foreground">
-                    <span>{news.author}</span>
-                    <span className="mx-1">•</span>
+                    {shouldShowAuthor(category.slug) && <>
+                        <span>{news.author}</span>
+                        <span className="mx-1">•</span>
+                      </>}
                     <span>{news.publishedAt}</span>
                   </div>
                 </div>

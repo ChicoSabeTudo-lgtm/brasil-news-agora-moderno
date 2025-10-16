@@ -15,6 +15,7 @@ interface NewsCardProps {
   slug?: string;
   categorySlug?: string;
   categoryColor?: string;
+  showAuthor?: boolean;
 }
 
 export const NewsCard = ({
@@ -30,6 +31,7 @@ export const NewsCard = ({
   slug,
   categorySlug,
   categoryColor,
+  showAuthor = true,
 }: NewsCardProps) => {
   const getSizeClasses = () => {
     switch (size) {
@@ -124,6 +126,12 @@ export const NewsCard = ({
         </p>
 
         <div className="flex items-center text-xs text-muted-foreground">
+          {showAuthor && (
+            <div className="flex items-center space-x-1 mr-3">
+              <span>{author}</span>
+              <span>•</span>
+            </div>
+          )}
           <div className="flex items-center space-x-1">
             <Clock className="w-3 h-3" />
             <span>{publishedAt}</span>
