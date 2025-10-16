@@ -40,7 +40,11 @@ export function AdvertisementsManagement() {
   const [filterType, setFilterType] = useState<string>('all');
 
   const currency = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
-  const formatDate = (d: string) => new Date(d).toLocaleDateString('pt-BR');
+  const formatDate = (d: string) => {
+    // Garantir que a data seja interpretada como local (sem conversão de timezone)
+    const date = new Date(d + 'T00:00:00');
+    return date.toLocaleDateString('pt-BR');
+  };
 
   const filteredAds = advertisements
     .filter((ad) => {
