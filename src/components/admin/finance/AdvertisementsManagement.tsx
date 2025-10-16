@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,6 +42,25 @@ export function AdvertisementsManagement() {
   const clients = contacts.filter(c => c.type === 'cliente');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
+  const [filterClient, setFilterClient] = useState<string>('all');
+  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
+    from: undefined,
+    to: undefined,
+  });
+
+  // Função para obter o primeiro e último dia do mês atual
+  const getCurrentMonthRange = () => {
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    return { from: firstDay, to: lastDay };
+  };
+
+  // Inicializar com o mês atual
+  useEffect(() => {
+    const currentMonth = getCurrentMonthRange();
+    setDateRange(currentMonth);
+  }, []);
 
   const currency = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
   const formatDate = (d: string) => {
@@ -52,7 +71,25 @@ export function AdvertisementsManagement() {
 
   const filteredAds = advertisements
     .filter((ad) => {
+      // Filtro por tipo
       if (filterType !== 'all' && ad.ad_type !== filterType) return false;
+      
+      // Filtro por cliente
+      if (filterClient !== 'all' && ad.contact_id !== filterClient) return false;
+      
+      // Filtro por período
+      if (dateRange.from && dateRange.to) {
+        const adStartDate = new Date(ad.start_date);
+        const adEndDate = new Date(ad.end_date);
+        const filterStart = new Date(dateRange.from);
+        const filterEnd = new Date(dateRange.to);
+        
+        // Verificar se há sobreposição entre o período da propaganda e o filtro
+        const hasOverlap = (adStartDate <= filterEnd && adEndDate >= filterStart);
+        if (!hasOverlap) return false;
+      }
+      
+      // Filtro por busca de texto (nome do cliente)
       if (!searchQuery) return true;
       const needle = searchQuery.toLowerCase();
       return ad.client_name.toLowerCase().includes(needle);
@@ -121,27 +158,105 @@ export function AdvertisementsManagement() {
         </Card>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input 
-            className="pl-9" 
-            placeholder="Buscar por nome do cliente" 
-            value={searchQuery} 
-            onChange={(e) => setSearchQuery(e.target.value)} 
-          />
+      <div className="space-y-4">
+        {/* Filtros de busca */}
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input 
+              className="pl-9" 
+              placeholder="Buscar por nome do cliente" 
+              value={searchQuery} 
+              onChange={(e) => setSearchQuery(e.target.value)} 
+            />
+          </div>
+          <Select value={filterType} onValueChange={setFilterType}>
+            <SelectTrigger className="w-full md:w-[200px]">
+              <SelectValue placeholder="Filtrar por tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os tipos</SelectItem>
+              <SelectItem value="banner">Banner</SelectItem>
+              <SelectItem value="reportagem">Reportagem</SelectItem>
+              <SelectItem value="rede_social">Rede Social</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={filterClient} onValueChange={setFilterClient}>
+            <SelectTrigger className="w-full md:w-[200px]">
+              <SelectValue placeholder="Filtrar por cliente" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os clientes</SelectItem>
+              {clients.map((client) => (
+                <SelectItem key={client.id} value={client.id}>
+                  {client.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
-        <Select value={filterType} onValueChange={setFilterType}>
-          <SelectTrigger className="w-full md:w-[200px]">
-            <SelectValue placeholder="Filtrar por tipo" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos os tipos</SelectItem>
-            <SelectItem value="banner">Banner</SelectItem>
-            <SelectItem value="reportagem">Reportagem</SelectItem>
-            <SelectItem value="rede_social">Rede Social</SelectItem>
-          </SelectContent>
-        </Select>
+
+        {/* Filtro de período */}
+        <div className="flex flex-col md:flex-row gap-4 items-end">
+          <div className="space-y-2">
+            <Label>Período</Label>
+            <div className="flex gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !dateRange.from && "text-muted-foreground")}>
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateRange.from ? format(dateRange.from, "dd/MM/yyyy", { locale: ptBR }) : "Data inicial"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateRange.from}
+                    onSelect={(date) => setDateRange(prev => ({ ...prev, from: date }))}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+              <span className="flex items-center text-muted-foreground">até</span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !dateRange.to && "text-muted-foreground")}>
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateRange.to ? format(dateRange.to, "dd/MM/yyyy", { locale: ptBR }) : "Data final"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={dateRange.to}
+                    onSelect={(date) => setDateRange(prev => ({ ...prev, to: date }))}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              const currentMonth = getCurrentMonthRange();
+              setDateRange(currentMonth);
+            }}
+          >
+            Mês Atual
+          </Button>
+          <Button 
+            variant="ghost" 
+            onClick={() => {
+              setDateRange({ from: undefined, to: undefined });
+              setFilterType('all');
+              setFilterClient('all');
+              setSearchQuery('');
+            }}
+          >
+            Limpar Filtros
+          </Button>
+        </div>
       </div>
 
       <Card>
