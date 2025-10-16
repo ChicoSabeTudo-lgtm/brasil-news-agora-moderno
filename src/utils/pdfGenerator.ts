@@ -80,6 +80,19 @@ export const generateAdvertisementsReport = (data: ReportData) => {
     
     console.log('jsPDF inicializado com sucesso');
 
+  // Função auxiliar para formatar data com segurança
+  const safeFormatDate = (date: any, formatStr: string): string => {
+    try {
+      if (!date) return 'Data invalida';
+      const dateObj = date instanceof Date ? date : new Date(date);
+      if (isNaN(dateObj.getTime())) return 'Data invalida';
+      return format(dateObj, formatStr);
+    } catch (error) {
+      console.error('Erro ao formatar data:', error, date);
+      return 'Data invalida';
+    }
+  };
+
   // Cores do tema
   const primaryColor = [41, 128, 185]; // Azul
   const secondaryColor = [52, 73, 94]; // Cinza escuro
@@ -87,26 +100,66 @@ export const generateAdvertisementsReport = (data: ReportData) => {
 
   // Função para adicionar texto com estilo (normaliza acentos)
   const addText = (text: string, x: number, y: number, options: any = {}) => {
-    doc.setFontSize(options.fontSize || 12);
-    doc.setTextColor(options.color || [0, 0, 0]);
-    const normalizedText = normalizeText(text || '');
-    doc.text(normalizedText, x, y);
+    try {
+      // Validar parâmetros
+      if (typeof x !== 'number' || isNaN(x) || !isFinite(x)) {
+        console.error('Coordenada X inválida:', x);
+        return;
+      }
+      if (typeof y !== 'number' || isNaN(y) || !isFinite(y)) {
+        console.error('Coordenada Y inválida:', y);
+        return;
+      }
+      
+      const fontSize = options.fontSize || 12;
+      if (typeof fontSize !== 'number' || isNaN(fontSize)) {
+        console.error('Tamanho de fonte inválido:', fontSize);
+        return;
+      }
+      
+      doc.setFontSize(fontSize);
+      doc.setTextColor(options.color || [0, 0, 0]);
+      
+      // Garantir que o texto é uma string válida
+      const normalizedText = normalizeText(String(text || ''));
+      if (normalizedText) {
+        doc.text(normalizedText, x, y);
+      }
+    } catch (error) {
+      console.error('Erro ao adicionar texto:', error, { text, x, y, options });
+    }
   };
 
   // Função para adicionar linha
   const addLine = (x1: number, y1: number, x2: number, y2: number, color: number[] = [0, 0, 0]) => {
-    doc.setDrawColor(color[0], color[1], color[2]);
-    doc.line(x1, y1, x2, y2);
+    try {
+      if ([x1, y1, x2, y2].some(v => typeof v !== 'number' || isNaN(v) || !isFinite(v))) {
+        console.error('Coordenadas de linha inválidas:', { x1, y1, x2, y2 });
+        return;
+      }
+      doc.setDrawColor(color[0], color[1], color[2]);
+      doc.line(x1, y1, x2, y2);
+    } catch (error) {
+      console.error('Erro ao adicionar linha:', error);
+    }
   };
 
   // Função para adicionar retângulo
   const addRect = (x: number, y: number, width: number, height: number, color: number[] = [0, 0, 0], fill: boolean = false) => {
-    doc.setDrawColor(color[0], color[1], color[2]);
-    if (fill) {
-      doc.setFillColor(color[0], color[1], color[2]);
-      doc.rect(x, y, width, height, 'F');
-    } else {
-      doc.rect(x, y, width, height);
+    try {
+      if ([x, y, width, height].some(v => typeof v !== 'number' || isNaN(v) || !isFinite(v))) {
+        console.error('Parâmetros de retângulo inválidos:', { x, y, width, height });
+        return;
+      }
+      doc.setDrawColor(color[0], color[1], color[2]);
+      if (fill) {
+        doc.setFillColor(color[0], color[1], color[2]);
+        doc.rect(x, y, width, height, 'F');
+      } else {
+        doc.rect(x, y, width, height);
+      }
+    } catch (error) {
+      console.error('Erro ao adicionar retângulo:', error);
     }
   };
 
@@ -123,10 +176,10 @@ export const generateAdvertisementsReport = (data: ReportData) => {
   addText(`Cliente: ${data.clientName}`, 20, yPosition, { fontSize: 12 });
   yPosition += 10;
 
-  addText(`Periodo: ${format(data.period.from, 'dd/MM/yyyy')} a ${format(data.period.to, 'dd/MM/yyyy')}`, 20, yPosition, { fontSize: 12 });
+  addText(`Periodo: ${safeFormatDate(data.period.from, 'dd/MM/yyyy')} a ${safeFormatDate(data.period.to, 'dd/MM/yyyy')}`, 20, yPosition, { fontSize: 12 });
   yPosition += 10;
 
-  addText(`Gerado em: ${format(data.generatedAt, 'dd/MM/yyyy HH:mm')}`, 20, yPosition, { fontSize: 12 });
+  addText(`Gerado em: ${safeFormatDate(data.generatedAt, 'dd/MM/yyyy HH:mm')}`, 20, yPosition, { fontSize: 12 });
   yPosition += 10;
 
   addText(`Total de propagandas: ${data.advertisements.length}`, 20, yPosition, { fontSize: 12 });
@@ -160,16 +213,17 @@ export const generateAdvertisementsReport = (data: ReportData) => {
         yPosition = 20;
       }
 
-      addText(`${index + 1}. ${ad.client_name}`, 20, yPosition, { fontSize: 12 });
+      addText(`${index + 1}. ${ad.client_name || 'Cliente nao informado'}`, 20, yPosition, { fontSize: 12 });
       yPosition += 8;
       
-      addText(`   Tipo: ${AD_TYPE_LABELS[ad.ad_type]}`, 25, yPosition, { fontSize: 10 });
+      const adTypeLabel = AD_TYPE_LABELS[ad.ad_type as keyof typeof AD_TYPE_LABELS] || ad.ad_type || 'Desconhecido';
+      addText(`   Tipo: ${adTypeLabel}`, 25, yPosition, { fontSize: 10 });
       yPosition += 6;
       
-      addText(`   Inicio: ${format(new Date(ad.start_date), 'dd/MM/yyyy')}`, 25, yPosition, { fontSize: 10 });
+      addText(`   Inicio: ${safeFormatDate(ad.start_date, 'dd/MM/yyyy')}`, 25, yPosition, { fontSize: 10 });
       yPosition += 6;
       
-      addText(`   Fim: ${format(new Date(ad.end_date), 'dd/MM/yyyy')}`, 25, yPosition, { fontSize: 10 });
+      addText(`   Fim: ${safeFormatDate(ad.end_date, 'dd/MM/yyyy')}`, 25, yPosition, { fontSize: 10 });
       yPosition += 6;
       
       if (ad.link) {
@@ -235,8 +289,17 @@ export const downloadAdvertisementsReport = (data: ReportData) => {
     
     // Criar nome do arquivo seguro
     const safeClientName = sanitizeText(data.clientName).substring(0, 50);
-    const fromDate = format(data.period.from, 'yyyy-MM-dd');
-    const toDate = format(data.period.to, 'yyyy-MM-dd');
+    
+    // Formatar datas com segurança
+    let fromDate = 'data_inicio';
+    let toDate = 'data_fim';
+    try {
+      fromDate = format(data.period.from instanceof Date ? data.period.from : new Date(data.period.from), 'yyyy-MM-dd');
+      toDate = format(data.period.to instanceof Date ? data.period.to : new Date(data.period.to), 'yyyy-MM-dd');
+    } catch (error) {
+      console.error('Erro ao formatar datas para nome do arquivo:', error);
+    }
+    
     const fileName = `relatorio_propagandas_${safeClientName}_${fromDate}_${toDate}.pdf`;
     
     console.log('Salvando PDF com nome:', fileName);
