@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Search, Pencil, Trash2, Calendar as CalendarIcon } from 'lucide-react';
+import { Search, Pencil, Trash2, Calendar as CalendarIcon, FileText, Download } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { format } from 'date-fns';
@@ -18,6 +18,8 @@ import { useAdvertisements } from '@/hooks/useAdvertisements';
 import { useFinanceData } from '@/hooks/useFinance';
 import NewAdvertisementModal from './NewAdvertisementModal';
 import { Textarea } from '@/components/ui/textarea';
+import { downloadAdvertisementsReport } from '@/utils/pdfGenerator';
+import { toast } from '@/hooks/use-toast';
 
 const AD_TYPE_LABELS = {
   banner: 'Banner',
@@ -136,11 +138,62 @@ export function AdvertisementsManagement() {
     return start <= now && end >= now;
   }).length;
 
+  // Função para gerar relatório PDF
+  const handleGenerateReport = () => {
+    if (filteredAds.length === 0) {
+      toast({
+        title: 'Nenhuma propaganda encontrada',
+        description: 'Não há propagandas para gerar o relatório com os filtros atuais.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    const selectedClient = clients.find(c => c.id === filterClient);
+    const clientName = selectedClient ? selectedClient.name : 'Todos os Clientes';
+    
+    const reportData = {
+      advertisements: filteredAds,
+      clientName,
+      period: {
+        from: dateRange.from || new Date(),
+        to: dateRange.to || new Date(),
+      },
+      generatedAt: new Date(),
+    };
+
+    try {
+      downloadAdvertisementsReport(reportData);
+      toast({
+        title: 'Relatório gerado com sucesso',
+        description: `Relatório PDF de ${filteredAds.length} propagandas foi baixado.`,
+      });
+    } catch (error) {
+      console.error('Erro ao gerar relatório:', error);
+      toast({
+        title: 'Erro ao gerar relatório',
+        description: 'Ocorreu um erro ao gerar o relatório PDF. Tente novamente.',
+        variant: 'destructive'
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Propagandas</h2>
-        <Button onClick={() => setOpenNew(true)}>+ Nova Propaganda</Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={handleGenerateReport}
+            disabled={filteredAds.length === 0}
+            className="flex items-center gap-2"
+          >
+            <FileText className="w-4 h-4" />
+            Gerar Relatório PDF
+          </Button>
+          <Button onClick={() => setOpenNew(true)}>+ Nova Propaganda</Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
