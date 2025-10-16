@@ -439,6 +439,8 @@ serve(async (req) => {
 
         // Determinar se deve publicar diretamente
         const publishImmediately = body.publish_immediately === true;
+        const wantsFeatured = body.is_featured === true;
+        const shouldFeature = publishImmediately ? wantsFeatured : false;
 
         // Inserir notícia
         const { data: newsData, error: newsError } = await supabaseAdmin
@@ -453,7 +455,7 @@ serve(async (req) => {
             slug: slug,
             tags: sanitizedTags,
             is_breaking: body.is_breaking || false,
-            is_featured: false,
+            is_featured: shouldFeature,
             is_published: publishImmediately, // Publica direto se solicitado
             published_at: new Date().toISOString(),
             views: 0,
