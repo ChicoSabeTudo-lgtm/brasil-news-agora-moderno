@@ -15,6 +15,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useAdvertisements } from '@/hooks/useAdvertisements';
+import { useFinanceData } from '@/hooks/useFinance';
 import NewAdvertisementModal from './NewAdvertisementModal';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -26,16 +27,19 @@ const AD_TYPE_LABELS = {
 
 export function AdvertisementsManagement() {
   const { advertisements, updateAdvertisement, deleteAdvertisement } = useAdvertisements();
+  const { contacts } = useFinanceData();
   const [openNew, setOpenNew] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({
-    client_name: '',
+    contact_id: '',
     ad_type: 'banner' as 'banner' | 'reportagem' | 'rede_social',
     start_date: new Date(),
     end_date: new Date(),
     link: '',
     notes: '',
   });
+
+  const clients = contacts.filter(c => c.type === 'cliente');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
 
@@ -57,19 +61,12 @@ export function AdvertisementsManagement() {
   const handleEdit = (ad: typeof advertisements[0]) => {
     setEditingId(ad.id);
     
-    // Debug: vamos ver o que está vindo do banco
-    console.log('Data do banco (start_date):', ad.start_date);
-    console.log('Data do banco (end_date):', ad.end_date);
-    
     // Criar datas locais sem conversão de timezone
     const startDate = new Date(ad.start_date + 'T12:00:00');
     const endDate = new Date(ad.end_date + 'T12:00:00');
     
-    console.log('Data convertida (start_date):', startDate);
-    console.log('Data convertida (end_date):', endDate);
-    
     setEditForm({
-      client_name: ad.client_name,
+      contact_id: ad.contact_id || '',
       ad_type: ad.ad_type,
       start_date: startDate,
       end_date: endDate,
@@ -80,8 +77,10 @@ export function AdvertisementsManagement() {
 
   const handleSaveEdit = async () => {
     if (editingId) {
+      const selectedClient = clients.find(c => c.id === editForm.contact_id);
       await updateAdvertisement(editingId, {
-        client_name: editForm.client_name,
+        contact_id: editForm.contact_id,
+        client_name: selectedClient?.name || '',
         ad_type: editForm.ad_type,
         start_date: format(editForm.start_date, 'yyyy-MM-dd'),
         end_date: format(editForm.end_date, 'yyyy-MM-dd'),
@@ -238,11 +237,19 @@ export function AdvertisementsManagement() {
           <DialogHeader><DialogTitle>Editar Propaganda</DialogTitle></DialogHeader>
           <div className="grid grid-cols-1 gap-4">
             <div className="space-y-1.5">
-              <Label>Nome do Cliente</Label>
-              <Input 
-                value={editForm.client_name} 
-                onChange={(e) => setEditForm({ ...editForm, client_name: e.target.value })} 
-              />
+              <Label>Cliente</Label>
+              <Select value={editForm.contact_id} onValueChange={(v) => setEditForm({ ...editForm, contact_id: v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um cliente" />
+                </SelectTrigger>
+                <SelectContent>
+                  {clients.map((client) => (
+                    <SelectItem key={client.id} value={client.id}>
+                      {client.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-1.5">

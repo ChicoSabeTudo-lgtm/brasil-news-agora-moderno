@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { useAdvertisements } from '@/hooks/useAdvertisements';
+import { useFinanceData } from '@/hooks/useFinance';
 import { toast } from '@/hooks/use-toast';
 
 type Props = {
@@ -21,9 +22,10 @@ type Props = {
 
 export default function NewAdvertisementModal({ open, onOpenChange }: Props) {
   const { addAdvertisement } = useAdvertisements();
+  const { contacts } = useFinanceData();
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
-    client_name: '',
+    contact_id: '',
     ad_type: 'banner' as 'banner' | 'reportagem' | 'rede_social',
     start_date: new Date(),
     end_date: new Date(),
@@ -31,24 +33,28 @@ export default function NewAdvertisementModal({ open, onOpenChange }: Props) {
     notes: '',
   });
 
-  const canSave = form.client_name.trim().length > 0 && !saving;
+  const clients = contacts.filter(c => c.type === 'cliente');
+
+  const canSave = form.contact_id.trim().length > 0 && !saving;
 
   const handleCreate = async () => {
     if (!canSave) return;
     setSaving(true);
     try {
+      const selectedClient = clients.find(c => c.id === form.contact_id);
       await addAdvertisement({
-        client_name: form.client_name,
+        contact_id: form.contact_id,
+        client_name: selectedClient?.name || '',
         ad_type: form.ad_type,
         start_date: format(form.start_date, 'yyyy-MM-dd'),
         end_date: format(form.end_date, 'yyyy-MM-dd'),
         link: form.link || null,
         notes: form.notes || null,
       });
-      toast({ title: 'Propaganda criada', description: `${form.client_name} adicionado com sucesso.` });
+      toast({ title: 'Propaganda criada', description: `${selectedClient?.name} adicionado com sucesso.` });
       onOpenChange(false);
       setForm({
-        client_name: '',
+        contact_id: '',
         ad_type: 'banner',
         start_date: new Date(),
         end_date: new Date(),
@@ -72,12 +78,19 @@ export default function NewAdvertisementModal({ open, onOpenChange }: Props) {
 
         <div className="grid grid-cols-1 gap-4">
           <div className="space-y-1.5">
-            <Label>Nome do Cliente *</Label>
-            <Input 
-              placeholder="Nome do cliente" 
-              value={form.client_name} 
-              onChange={(e) => setForm({ ...form, client_name: e.target.value })} 
-            />
+            <Label>Cliente *</Label>
+            <Select value={form.contact_id} onValueChange={(v) => setForm({ ...form, contact_id: v })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione um cliente" />
+              </SelectTrigger>
+              <SelectContent>
+                {clients.map((client) => (
+                  <SelectItem key={client.id} value={client.id}>
+                    {client.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-1.5">
