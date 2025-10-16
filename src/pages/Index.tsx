@@ -352,7 +352,7 @@ const Index = () => {
             let newsCount = 4; // padrão
 
             if (templateType === 'grid') newsCount = 6;else if (templateType === 'magazine') newsCount = 5;
-            const categoryNews = getNewsByCategory(category.slug, featuredNewsIds).slice(0, newsCount).map(item => transformNewsItem(item, "medium"));
+            const categoryNews = getNewsByCategory(category.slug).filter(item => !featuredNewsIds.includes(item.id)).slice(0, newsCount).map(item => transformNewsItem(item, "medium"));
             if (categoryNews.length === 0) return null;
             switch (templateType) {
               case 'grid':
