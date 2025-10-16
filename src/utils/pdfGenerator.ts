@@ -245,23 +245,19 @@ export const generateAdvertisementsReport = (data: ReportData) => {
   const summaryCards = [
     {
       label: 'Cliente',
-      value: data.clientName,
-      icon: '👤'
+      value: data.clientName
     },
     {
       label: 'Período',
-      value: `${safeFormatDate(data.period.from, 'dd/MM/yyyy')} a ${safeFormatDate(data.period.to, 'dd/MM/yyyy')}`,
-      icon: '🗓️'
+      value: `${safeFormatDate(data.period.from, 'dd/MM/yyyy')} a ${safeFormatDate(data.period.to, 'dd/MM/yyyy')}`
     },
     {
       label: 'Total de Propagandas',
-      value: data.advertisements.length.toString(),
-      icon: '📊'
+      value: data.advertisements.length.toString()
     },
     {
       label: 'Relatório Gerado',
-      value: safeFormatDate(data.generatedAt, 'dd/MM/yyyy HH:mm'),
-      icon: '⏱️'
+      value: safeFormatDate(data.generatedAt, 'dd/MM/yyyy HH:mm')
     }
   ];
 
@@ -282,7 +278,7 @@ export const generateAdvertisementsReport = (data: ReportData) => {
       stroke: true
     });
 
-    addText(`${card.icon} ${card.label}`, cardX + 8, yPosition + 4, { fontSize: 10, color: secondaryColor });
+    addText(card.label, cardX + 8, yPosition + 4, { fontSize: 10, color: secondaryColor });
     addText(card.value, cardX + 8, yPosition + 14, { fontSize: 12, color: [33, 37, 41] });
   });
 
