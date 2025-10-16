@@ -73,6 +73,13 @@ export const generateAdvertisementsReport = (data: ReportData) => {
     let yPosition = 20;
     
     console.log('jsPDF inicializado com sucesso');
+  
+  // Testar normalização
+  const testNormalize = normalizeText('RELATÓRIO DE PROPAGANDAS');
+  console.log('🧪 Teste de normalização: "RELATÓRIO" →', testNormalize);
+  if (!testNormalize || testNormalize.length === 0) {
+    console.error('⚠️ ALERTA: Função de normalização está removendo todo o texto!');
+  }
 
   // Função auxiliar para formatar data com segurança
   const safeFormatDate = (date: any, formatStr: string): string => {
@@ -122,12 +129,23 @@ export const generateAdvertisementsReport = (data: ReportData) => {
       
       // Garantir que o texto é uma string válida
       const textStr = String(text || '');
-      const normalizedText = normalizeText(textStr);
+      let normalizedText = normalizeText(textStr);
+      
+      // Se a normalização retornou vazio mas o original não estava, use o original
+      if ((!normalizedText || normalizedText.length === 0) && textStr.length > 0) {
+        console.warn('⚠️ Normalização removeu todo o texto, usando original:', textStr);
+        normalizedText = textStr.replace(/[^\x00-\xFF]/g, '?'); // Substitui não-ASCII por ?
+      }
       
       if (normalizedText && normalizedText.length > 0) {
-        doc.text(normalizedText, x, y);
+        // Adicionar texto com opções explícitas para garantir renderização
+        doc.text(normalizedText, x, y, {
+          baseline: 'top',
+          align: 'left'
+        });
+        console.log(`✓ Texto renderizado: "${normalizedText.substring(0, 50)}..." em (${x}, ${y})`);
       } else {
-        console.warn('Texto vazio após normalização:', { original: textStr, normalized: normalizedText });
+        console.error('❌ Texto completamente vazio:', { original: textStr, normalized: normalizedText });
       }
     } catch (error) {
       console.error('Erro ao adicionar texto:', error, { text, x, y, options });
@@ -167,50 +185,148 @@ export const generateAdvertisementsReport = (data: ReportData) => {
     }
   };
 
-  // Cabeçalho simples
+  const addRoundedPanel = (
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    options: { fill: number[]; border?: number[]; stroke?: boolean }
+  ) => {
+    try {
+      if ([x, y, width, height].some(v => typeof v !== 'number' || isNaN(v) || !isFinite(v))) {
+        console.error('Parâmetros de painel inválidos:', { x, y, width, height });
+        return;
+      }
+
+      const { fill, border, stroke = true } = options;
+      if (Array.isArray(fill)) {
+        doc.setFillColor(fill[0], fill[1], fill[2]);
+      }
+      if (Array.isArray(border)) {
+        doc.setDrawColor(border[0], border[1], border[2]);
+      } else {
+        doc.setDrawColor(fill[0], fill[1], fill[2]);
+      }
+
+      const style = stroke ? 'DF' : 'F';
+      doc.roundedRect(x, y, width, height, 3, 3, style as any);
+    } catch (error) {
+      console.error('Erro ao adicionar painel arredondado:', error);
+    }
+  };
+
+  // Hero header
   console.log('Adicionando cabeçalho do relatório...');
-  addText('RELATORIO DE PROPAGANDAS', 20, 30, { fontSize: 18 });
-  addText('ChicoSabeTudo - Sistema de Gestao', 20, 40, { fontSize: 12 });
-  
-  yPosition = 60;
+  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.rect(0, 0, pageWidth, 55, 'F');
+
+  addText('Relatorio de Propagandas', 20, 18, { fontSize: 20, color: [255, 255, 255] });
+  addText('Resumo executivo de performance comercial', 20, 32, { fontSize: 11, color: [220, 235, 245] });
+
+  // Badge com período
+  doc.setFillColor(255, 255, 255);
+  doc.roundedRect(pageWidth - 70, 16, 50, 18, 3, 3, 'F');
+  addText('PDF', pageWidth - 62, 20, { fontSize: 10, color: primaryColor });
+  addText('Relatorio', pageWidth - 62, 28, { fontSize: 8, color: secondaryColor });
+
+  yPosition = 70;
   console.log('Posição Y inicial:', yPosition);
 
-  // Informações do relatório
-  addText('DADOS DO RELATORIO', 20, yPosition, { fontSize: 14 });
-  yPosition += 15;
+  // Resumo principal
+  addText('Resumo Geral', 20, yPosition, { fontSize: 14, color: secondaryColor });
+  yPosition += 8;
+  addLine(20, yPosition, pageWidth - 20, yPosition, [230, 236, 245]);
+  yPosition += 6;
 
-  addText(`Cliente: ${data.clientName}`, 20, yPosition, { fontSize: 12 });
-  yPosition += 10;
+  const summaryCards = [
+    {
+      label: 'Cliente',
+      value: data.clientName,
+      icon: '👤'
+    },
+    {
+      label: 'Período',
+      value: `${safeFormatDate(data.period.from, 'dd/MM/yyyy')} a ${safeFormatDate(data.period.to, 'dd/MM/yyyy')}`,
+      icon: '🗓️'
+    },
+    {
+      label: 'Total de Propagandas',
+      value: data.advertisements.length.toString(),
+      icon: '📊'
+    },
+    {
+      label: 'Relatório Gerado',
+      value: safeFormatDate(data.generatedAt, 'dd/MM/yyyy HH:mm'),
+      icon: '⏱️'
+    }
+  ];
 
-  addText(`Periodo: ${safeFormatDate(data.period.from, 'dd/MM/yyyy')} a ${safeFormatDate(data.period.to, 'dd/MM/yyyy')}`, 20, yPosition, { fontSize: 12 });
-  yPosition += 10;
+  const cardWidth = (pageWidth - 50) / 2;
+  const cardHeight = 26;
+  summaryCards.forEach((card, idx) => {
+    const isLeftColumn = idx % 2 === 0;
+    const cardX = isLeftColumn ? 20 : 30 + cardWidth;
+    if (!isLeftColumn) {
+      // mesma linha
+    } else if (idx !== 0) {
+      yPosition += cardHeight + 6;
+    }
 
-  addText(`Gerado em: ${safeFormatDate(data.generatedAt, 'dd/MM/yyyy HH:mm')}`, 20, yPosition, { fontSize: 12 });
-  yPosition += 10;
+    addRoundedPanel(cardX, yPosition, cardWidth, cardHeight, {
+      fill: [247, 249, 252],
+      border: [229, 234, 242],
+      stroke: true
+    });
 
-  addText(`Total de propagandas: ${data.advertisements.length}`, 20, yPosition, { fontSize: 12 });
-  yPosition += 20;
+    addText(`${card.icon} ${card.label}`, cardX + 8, yPosition + 4, { fontSize: 10, color: secondaryColor });
+    addText(card.value, cardX + 8, yPosition + 14, { fontSize: 12, color: [33, 37, 41] });
+  });
 
-  // Estatísticas por tipo
+  yPosition += cardHeight + 18;
+
+  // Estatísticas por tipo com badges
   const typeStats = data.advertisements.reduce((acc, ad) => {
     acc[ad.ad_type] = (acc[ad.ad_type] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
-  addText('ESTATISTICAS POR TIPO', 20, yPosition, { fontSize: 14 });
-  yPosition += 15;
+  addText('Performance por Tipo de Mídia', 20, yPosition, { fontSize: 14, color: secondaryColor });
+  yPosition += 8;
+  addLine(20, yPosition, pageWidth - 20, yPosition, [230, 236, 245]);
+  yPosition += 10;
 
-  Object.entries(typeStats).forEach(([type, count]) => {
-    addText(`${AD_TYPE_LABELS[type as keyof typeof AD_TYPE_LABELS]}: ${count}`, 30, yPosition, { fontSize: 11 });
-    yPosition += 8;
-  });
+  if (Object.keys(typeStats).length > 0) {
+    let badgeX = 20;
+    const badgeY = yPosition;
+    Object.entries(typeStats).forEach(([type, count]) => {
+      const label = `${AD_TYPE_LABELS[type as keyof typeof AD_TYPE_LABELS] || type} · ${count}`;
+      const badgeWidth = Math.min(80 + (label.length * 2), pageWidth - 40);
 
-  yPosition += 15;
+      addRoundedPanel(badgeX, badgeY, badgeWidth, 14, {
+        fill: [231, 245, 255],
+        border: [206, 231, 255],
+        stroke: true
+      });
+      addText(label, badgeX + 4, badgeY + 3, { fontSize: 9, color: [15, 76, 117] });
 
-  // Lista de propagandas
+      badgeX += badgeWidth + 6;
+      if (badgeX + badgeWidth > pageWidth - 20) {
+        badgeX = 20;
+        yPosition += 18;
+      }
+    });
+    yPosition += 22;
+  } else {
+    addText('Nenhum tipo de mídia contabilizado no período.', 20, yPosition, { fontSize: 11, color: [110, 118, 129] });
+    yPosition += 20;
+  }
+
+  // Lista de propagandas em cards
   if (data.advertisements.length > 0) {
-    addText('PROPAGANDAS DETALHADAS', 20, yPosition, { fontSize: 14 });
-    yPosition += 15;
+    addText('Propagandas Detalhadas', 20, yPosition, { fontSize: 14, color: secondaryColor });
+    yPosition += 8;
+    addLine(20, yPosition, pageWidth - 20, yPosition, [230, 236, 245]);
+    yPosition += 12;
 
     data.advertisements.forEach((ad, index) => {
       // Verificar se precisa de nova página
@@ -219,29 +335,46 @@ export const generateAdvertisementsReport = (data: ReportData) => {
         yPosition = 20;
       }
 
-      addText(`${index + 1}. ${ad.client_name || 'Cliente nao informado'}`, 20, yPosition, { fontSize: 12 });
-      yPosition += 8;
+      const cardStartY = yPosition;
+      const cardHeight = 34 + (ad.link ? 6 : 0);
+      addRoundedPanel(20, yPosition - 4, pageWidth - 40, cardHeight, {
+        fill: [255, 255, 255],
+        border: [232, 236, 241],
+        stroke: true
+      });
+
+      addText(`#${index + 1} ${ad.client_name || 'Cliente nao informado'}`, 28, cardStartY, { fontSize: 12, color: [24, 29, 35] });
       
+      const statusColor = (() => {
+        const now = new Date();
+        const start = new Date(ad.start_date);
+        const end = new Date(ad.end_date);
+        if (start <= now && end >= now) return [46, 204, 113]; // ativo
+        if (start > now) return [241, 196, 15]; // pendente
+        return [236, 112, 99]; // finalizado
+      })();
+
+      doc.setFillColor(statusColor[0], statusColor[1], statusColor[2]);
+      doc.circle(pageWidth - 40, cardStartY + 2, 1.5, 'F');
+
       const adTypeLabel = AD_TYPE_LABELS[ad.ad_type as keyof typeof AD_TYPE_LABELS] || ad.ad_type || 'Desconhecido';
-      addText(`   Tipo: ${adTypeLabel}`, 25, yPosition, { fontSize: 10 });
-      yPosition += 6;
-      
-      addText(`   Inicio: ${safeFormatDate(ad.start_date, 'dd/MM/yyyy')}`, 25, yPosition, { fontSize: 10 });
-      yPosition += 6;
-      
-      addText(`   Fim: ${safeFormatDate(ad.end_date, 'dd/MM/yyyy')}`, 25, yPosition, { fontSize: 10 });
-      yPosition += 6;
-      
+      addText(`Tipo: ${adTypeLabel}`, 28, cardStartY + 9, { fontSize: 10, color: secondaryColor });
+      addText(`Periodo: ${safeFormatDate(ad.start_date, 'dd/MM/yyyy')} — ${safeFormatDate(ad.end_date, 'dd/MM/yyyy')}`, 28, cardStartY + 16, { fontSize: 10 });
+
+      if (ad.notes) {
+        const notesPreview = normalizeText(ad.notes).slice(0, 90);
+        addText(`Notas: ${notesPreview}${notesPreview.length === 90 ? '...' : ''}`, 28, cardStartY + 23, { fontSize: 9, color: [100, 110, 120] });
+      }
+
       if (ad.link) {
-        const linkText = ad.link.length > 50 ? ad.link.substring(0, 50) + '...' : ad.link;
-        addText(`   Link: ${linkText}`, 25, yPosition, { fontSize: 10 });
-        yPosition += 6;
+        const linkText = normalizeText(ad.link.length > 70 ? ad.link.substring(0, 70) + '...' : ad.link);
+        addText(`Link: ${linkText}`, 28, cardStartY + 30, { fontSize: 9, color: [25, 118, 210] });
       }
       
-      yPosition += 10;
+      yPosition += cardHeight + 8;
     });
   } else {
-    addText('Nenhuma propaganda encontrada no periodo selecionado.', 20, yPosition, { fontSize: 12 });
+    addText('Nenhuma propaganda encontrada no periodo selecionado.', 20, yPosition, { fontSize: 11, color: [120, 127, 136] });
   }
 
   // Rodapé
