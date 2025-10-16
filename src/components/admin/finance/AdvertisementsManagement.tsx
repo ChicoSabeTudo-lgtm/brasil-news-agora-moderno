@@ -139,7 +139,7 @@ export function AdvertisementsManagement() {
   }).length;
 
   // Função para gerar relatório PDF
-  const handleGenerateReport = () => {
+  const handleGenerateReport = async () => {
     if (filteredAds.length === 0) {
       toast({
         title: 'Nenhuma propaganda encontrada',
@@ -149,30 +149,44 @@ export function AdvertisementsManagement() {
       return;
     }
 
-    const selectedClient = clients.find(c => c.id === filterClient);
-    const clientName = selectedClient ? selectedClient.name : 'Todos os Clientes';
-    
-    const reportData = {
-      advertisements: filteredAds,
-      clientName,
-      period: {
-        from: dateRange.from || new Date(),
-        to: dateRange.to || new Date(),
-      },
-      generatedAt: new Date(),
-    };
-
     try {
+      const selectedClient = clients.find(c => c.id === filterClient);
+      const clientName = selectedClient ? selectedClient.name : 'Todos os Clientes';
+      
+      // Validar dados antes de gerar
+      if (!clientName || !dateRange.from || !dateRange.to) {
+        throw new Error('Dados incompletos para gerar o relatório');
+      }
+      
+      const reportData = {
+        advertisements: filteredAds,
+        clientName,
+        period: {
+          from: dateRange.from,
+          to: dateRange.to,
+        },
+        generatedAt: new Date(),
+      };
+
+      // Mostrar loading
+      toast({
+        title: 'Gerando relatório...',
+        description: 'Por favor, aguarde enquanto o PDF é criado.',
+      });
+
+      // Gerar relatório
+      await new Promise(resolve => setTimeout(resolve, 100)); // Pequeno delay para mostrar o toast
       downloadAdvertisementsReport(reportData);
+      
       toast({
         title: 'Relatório gerado com sucesso',
         description: `Relatório PDF de ${filteredAds.length} propagandas foi baixado.`,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao gerar relatório:', error);
       toast({
         title: 'Erro ao gerar relatório',
-        description: 'Ocorreu um erro ao gerar o relatório PDF. Tente novamente.',
+        description: error?.message || 'Ocorreu um erro inesperado. Tente novamente.',
         variant: 'destructive'
       });
     }

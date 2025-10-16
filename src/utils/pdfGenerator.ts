@@ -3,6 +3,22 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { FinanceAdvertisement } from '@/hooks/useAdvertisements';
 
+// Configurar jsPDF para suportar caracteres especiais
+const setupJsPDF = () => {
+  const doc = new jsPDF();
+  
+  // Configurar fonte padrão
+  doc.setFont('helvetica');
+  
+  return doc;
+};
+
+// Função para sanitizar texto
+const sanitizeText = (text: string): string => {
+  if (!text) return '';
+  return text.toString().replace(/[^\x00-\x7F]/g, ''); // Remove caracteres especiais
+};
+
 interface ReportData {
   advertisements: FinanceAdvertisement[];
   clientName: string;
@@ -20,7 +36,8 @@ const AD_TYPE_LABELS = {
 };
 
 export const generateAdvertisementsReport = (data: ReportData) => {
-  const doc = new jsPDF();
+  try {
+    const doc = setupJsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   let yPosition = 20;
@@ -32,9 +49,16 @@ export const generateAdvertisementsReport = (data: ReportData) => {
 
   // Função para adicionar texto com estilo
   const addText = (text: string, x: number, y: number, options: any = {}) => {
-    doc.setFontSize(options.fontSize || 12);
-    doc.setTextColor(options.color || [0, 0, 0]);
-    doc.text(text, x, y);
+    try {
+      doc.setFontSize(options.fontSize || 12);
+      doc.setTextColor(options.color || [0, 0, 0]);
+      const sanitizedText = sanitizeText(text);
+      doc.text(sanitizedText, x, y);
+    } catch (error) {
+      console.warn('Erro ao adicionar texto:', error);
+      // Tentar com texto vazio se houver erro
+      doc.text('', x, y);
+    }
   };
 
   // Função para adicionar linha
@@ -161,10 +185,34 @@ export const generateAdvertisementsReport = (data: ReportData) => {
   });
 
   return doc;
+  } catch (error) {
+    console.error('Erro ao gerar PDF:', error);
+    throw new Error('Falha ao gerar o relatório PDF. Verifique os dados e tente novamente.');
+  }
 };
 
 export const downloadAdvertisementsReport = (data: ReportData) => {
-  const doc = generateAdvertisementsReport(data);
-  const fileName = `relatorio_propagandas_${data.clientName.replace(/\s+/g, '_')}_${format(data.period.from, 'yyyy-MM-dd')}_${format(data.period.to, 'yyyy-MM-dd')}.pdf`;
-  doc.save(fileName);
+  try {
+    // Validar dados de entrada
+    if (!data || !data.advertisements || !Array.isArray(data.advertisements)) {
+      throw new Error('Dados inválidos para gerar o relatório');
+    }
+
+    if (!data.clientName || !data.period) {
+      throw new Error('Informações do cliente ou período não fornecidas');
+    }
+
+    const doc = generateAdvertisementsReport(data);
+    
+    // Criar nome do arquivo seguro
+    const safeClientName = sanitizeText(data.clientName).replace(/\s+/g, '_').substring(0, 50);
+    const fromDate = format(data.period.from, 'yyyy-MM-dd');
+    const toDate = format(data.period.to, 'yyyy-MM-dd');
+    const fileName = `relatorio_propagandas_${safeClientName}_${fromDate}_${toDate}.pdf`;
+    
+    doc.save(fileName);
+  } catch (error) {
+    console.error('Erro ao baixar relatório:', error);
+    throw error;
+  }
 };
