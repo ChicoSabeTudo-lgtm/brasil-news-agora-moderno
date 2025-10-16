@@ -37,10 +37,10 @@ const AD_TYPE_LABELS = {
 
 export const generateAdvertisementsReport = (data: ReportData) => {
   try {
-    const doc = setupJsPDF();
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-  let yPosition = 20;
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    let yPosition = 20;
 
   // Cores do tema
   const primaryColor = [41, 128, 185]; // Azul
@@ -49,16 +49,9 @@ export const generateAdvertisementsReport = (data: ReportData) => {
 
   // Função para adicionar texto com estilo
   const addText = (text: string, x: number, y: number, options: any = {}) => {
-    try {
-      doc.setFontSize(options.fontSize || 12);
-      doc.setTextColor(options.color || [0, 0, 0]);
-      const sanitizedText = sanitizeText(text);
-      doc.text(sanitizedText, x, y);
-    } catch (error) {
-      console.warn('Erro ao adicionar texto:', error);
-      // Tentar com texto vazio se houver erro
-      doc.text('', x, y);
-    }
+    doc.setFontSize(options.fontSize || 12);
+    doc.setTextColor(options.color || [0, 0, 0]);
+    doc.text(text || '', x, y);
   };
 
   // Função para adicionar linha
@@ -78,35 +71,27 @@ export const generateAdvertisementsReport = (data: ReportData) => {
     }
   };
 
-  // Cabeçalho
-  addRect(0, 0, pageWidth, 40, primaryColor, true);
-  addText('RELATÓRIO DE PROPAGANDAS', 20, 25, { 
-    fontSize: 20, 
-    color: [255, 255, 255] 
-  });
+  // Cabeçalho simples
+  addText('RELATORIO DE PROPAGANDAS', 20, 30, { fontSize: 18 });
+  addText('ChicoSabeTudo - Sistema de Gestao', 20, 40, { fontSize: 12 });
   
-  addText('ChicoSabeTudo - Sistema de Gestão', 20, 35, { 
-    fontSize: 12, 
-    color: [255, 255, 255] 
-  });
-
   yPosition = 60;
 
   // Informações do relatório
-  addText('DADOS DO RELATÓRIO', 20, yPosition, { fontSize: 16, color: secondaryColor });
-  yPosition += 10;
+  addText('DADOS DO RELATORIO', 20, yPosition, { fontSize: 14 });
+  yPosition += 15;
 
   addText(`Cliente: ${data.clientName}`, 20, yPosition, { fontSize: 12 });
-  yPosition += 8;
+  yPosition += 10;
 
-  addText(`Período: ${format(data.period.from, 'dd/MM/yyyy', { locale: ptBR })} a ${format(data.period.to, 'dd/MM/yyyy', { locale: ptBR })}`, 20, yPosition, { fontSize: 12 });
-  yPosition += 8;
+  addText(`Periodo: ${format(data.period.from, 'dd/MM/yyyy')} a ${format(data.period.to, 'dd/MM/yyyy')}`, 20, yPosition, { fontSize: 12 });
+  yPosition += 10;
 
-  addText(`Gerado em: ${format(data.generatedAt, 'dd/MM/yyyy HH:mm', { locale: ptBR })}`, 20, yPosition, { fontSize: 12 });
-  yPosition += 8;
+  addText(`Gerado em: ${format(data.generatedAt, 'dd/MM/yyyy HH:mm')}`, 20, yPosition, { fontSize: 12 });
+  yPosition += 10;
 
   addText(`Total de propagandas: ${data.advertisements.length}`, 20, yPosition, { fontSize: 12 });
-  yPosition += 15;
+  yPosition += 20;
 
   // Estatísticas por tipo
   const typeStats = data.advertisements.reduce((acc, ad) => {
@@ -114,38 +99,21 @@ export const generateAdvertisementsReport = (data: ReportData) => {
     return acc;
   }, {} as Record<string, number>);
 
-  addText('ESTATÍSTICAS POR TIPO', 20, yPosition, { fontSize: 14, color: secondaryColor });
-  yPosition += 10;
+  addText('ESTATISTICAS POR TIPO', 20, yPosition, { fontSize: 14 });
+  yPosition += 15;
 
   Object.entries(typeStats).forEach(([type, count]) => {
     addText(`${AD_TYPE_LABELS[type as keyof typeof AD_TYPE_LABELS]}: ${count}`, 30, yPosition, { fontSize: 11 });
-    yPosition += 6;
+    yPosition += 8;
   });
 
-  yPosition += 10;
+  yPosition += 15;
 
-  // Tabela de propagandas
+  // Lista de propagandas
   if (data.advertisements.length > 0) {
-    addText('PROPAGANDAS DETALHADAS', 20, yPosition, { fontSize: 14, color: secondaryColor });
-    yPosition += 10;
-
-    // Cabeçalho da tabela
-    const tableY = yPosition;
-    const colWidths = [40, 30, 25, 25, 70];
-    const colX = [20, 60, 90, 115, 140];
-    
-    // Fundo do cabeçalho
-    addRect(20, tableY - 5, pageWidth - 40, 15, primaryColor, true);
-    
-    addText('Cliente', colX[0], tableY + 3, { fontSize: 10, color: [255, 255, 255] });
-    addText('Tipo', colX[1], tableY + 3, { fontSize: 10, color: [255, 255, 255] });
-    addText('Início', colX[2], tableY + 3, { fontSize: 10, color: [255, 255, 255] });
-    addText('Fim', colX[3], tableY + 3, { fontSize: 10, color: [255, 255, 255] });
-    addText('Link', colX[4], tableY + 3, { fontSize: 10, color: [255, 255, 255] });
-
+    addText('PROPAGANDAS DETALHADAS', 20, yPosition, { fontSize: 14 });
     yPosition += 15;
 
-    // Linhas da tabela
     data.advertisements.forEach((ad, index) => {
       // Verificar se precisa de nova página
       if (yPosition > pageHeight - 30) {
@@ -153,35 +121,35 @@ export const generateAdvertisementsReport = (data: ReportData) => {
         yPosition = 20;
       }
 
-      // Fundo alternado das linhas
-      if (index % 2 === 0) {
-        addRect(20, yPosition - 5, pageWidth - 40, 10, lightGray, true);
-      }
-
-      addText(ad.client_name, colX[0], yPosition + 3, { fontSize: 9 });
-      addText(AD_TYPE_LABELS[ad.ad_type], colX[1], yPosition + 3, { fontSize: 9 });
-      addText(format(new Date(ad.start_date), 'dd/MM/yyyy'), colX[2], yPosition + 3, { fontSize: 9 });
-      addText(format(new Date(ad.end_date), 'dd/MM/yyyy'), colX[3], yPosition + 3, { fontSize: 9 });
+      addText(`${index + 1}. ${ad.client_name}`, 20, yPosition, { fontSize: 12 });
+      yPosition += 8;
       
-      // Truncar link se muito longo
-      const linkText = ad.link ? (ad.link.length > 30 ? ad.link.substring(0, 30) + '...' : ad.link) : '-';
-      addText(linkText, colX[4], yPosition + 3, { fontSize: 9 });
-
+      addText(`   Tipo: ${AD_TYPE_LABELS[ad.ad_type]}`, 25, yPosition, { fontSize: 10 });
+      yPosition += 6;
+      
+      addText(`   Inicio: ${format(new Date(ad.start_date), 'dd/MM/yyyy')}`, 25, yPosition, { fontSize: 10 });
+      yPosition += 6;
+      
+      addText(`   Fim: ${format(new Date(ad.end_date), 'dd/MM/yyyy')}`, 25, yPosition, { fontSize: 10 });
+      yPosition += 6;
+      
+      if (ad.link) {
+        const linkText = ad.link.length > 50 ? ad.link.substring(0, 50) + '...' : ad.link;
+        addText(`   Link: ${linkText}`, 25, yPosition, { fontSize: 10 });
+        yPosition += 6;
+      }
+      
       yPosition += 10;
     });
-
-    // Linha final da tabela
-    addLine(20, yPosition - 5, pageWidth - 20, yPosition - 5, secondaryColor);
   } else {
-    addText('Nenhuma propaganda encontrada no período selecionado.', 20, yPosition, { fontSize: 12, color: secondaryColor });
+    addText('Nenhuma propaganda encontrada no periodo selecionado.', 20, yPosition, { fontSize: 12 });
   }
 
   // Rodapé
   const footerY = pageHeight - 20;
-  addLine(20, footerY - 10, pageWidth - 20, footerY - 10, lightGray);
-  addText('Relatório gerado automaticamente pelo sistema ChicoSabeTudo', 20, footerY - 5, { 
-    fontSize: 8, 
-    color: secondaryColor 
+  addLine(20, footerY - 10, pageWidth - 20, footerY - 10);
+  addText('Relatorio gerado automaticamente pelo sistema ChicoSabeTudo', 20, footerY - 5, { 
+    fontSize: 8
   });
 
   return doc;
