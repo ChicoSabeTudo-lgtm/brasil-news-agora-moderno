@@ -1,14 +1,18 @@
 # Correção: Geração de Relatório PDF
 
-## 🔧 Problema Identificado
+## 🔧 Problemas Identificados
 
-O sistema estava falhando ao gerar relatórios PDF com a mensagem "Falha ao gerar relatório PDF".
+O sistema estava falhando ao gerar relatórios PDF com as seguintes mensagens:
+- "Falha ao gerar relatório PDF"
+- "Invalid argument passed to jsPDF.f3"
 
 ### Causas Identificadas:
 
 1. **Caracteres especiais (acentos)** - A biblioteca jsPDF tem problemas com caracteres acentuados em português
 2. **Falta de validação** - Não havia validação adequada dos dados antes de gerar o PDF
 3. **Tratamento de erro inadequado** - Os erros não eram detalhados o suficiente para debug
+4. **Valores inválidos passados ao jsPDF** - Coordenadas NaN, Infinity ou undefined causando erro "Invalid argument"
+5. **Datas inválidas** - Formato de data incorreto causando falha na função format()
 
 ## ✅ Correções Implementadas
 
@@ -28,7 +32,52 @@ Criada uma função `normalizeText()` que converte todos os caracteres acentuado
 - "Início" → "Inicio"
 - "José Silva" → "Jose Silva"
 
-### 2. Validação Robusta
+### 2. Validação Rigorosa de Parâmetros jsPDF (NOVO)
+
+**Correção do erro "Invalid argument passed to jsPDF.f3":**
+
+Todas as funções que interagem com jsPDF agora validam seus parâmetros:
+
+#### Função `addText()`:
+```javascript
+- Valida se x e y são números válidos (não NaN, não Infinity)
+- Valida se fontSize é um número válido
+- Converte texto para string antes de normalizar
+- Try-catch para capturar qualquer erro
+```
+
+#### Função `addLine()`:
+```javascript
+- Valida todas as coordenadas (x1, y1, x2, y2)
+- Verifica se são números finitos
+- Try-catch para erros inesperados
+```
+
+#### Função `addRect()`:
+```javascript
+- Valida x, y, width, height
+- Garante que todos sejam números válidos
+- Try-catch para segurança
+```
+
+### 3. Formatação Segura de Datas (NOVO)
+
+Criada função `safeFormatDate()` que:
+- Converte automaticamente strings para Date
+- Valida se a data é válida antes de formatar
+- Retorna "Data invalida" em caso de erro
+- Não permite que erros de data quebrem o PDF
+
+**Uso:**
+```javascript
+// Antes (causava erro):
+format(data.period.from, 'dd/MM/yyyy')
+
+// Depois (seguro):
+safeFormatDate(data.period.from, 'dd/MM/yyyy')
+```
+
+### 4. Validação Robusta de Dados
 
 Adicionada validação completa em duas camadas:
 
@@ -43,7 +92,15 @@ Adicionada validação completa em duas camadas:
 - Verifica se as datas são válidas
 - Confirma que o documento PDF foi criado com sucesso
 
-### 3. Logs Detalhados para Debug
+### 5. Validação de Dados nas Propagandas (NOVO)
+
+Agora cada campo é validado antes de ser usado:
+- `client_name`: fallback para "Cliente nao informado"
+- `ad_type`: validado contra AD_TYPE_LABELS com fallback
+- `start_date` e `end_date`: formatados com safeFormatDate()
+- `link`: verificado se existe antes de processar
+
+### 6. Logs Detalhados para Debug
 
 Adicionados logs em todos os pontos críticos:
 
@@ -54,7 +111,7 @@ console.log('PDF gerado com sucesso!')
 console.log('Salvando PDF com nome:', fileName)
 ```
 
-### 4. Tratamento de Erro Aprimorado
+### 7. Tratamento de Erro Aprimorado
 
 Agora os erros mostram mensagens específicas:
 - "Dados do relatorio nao fornecidos"
@@ -63,7 +120,7 @@ Agora os erros mostram mensagens específicas:
 - "Periodo nao fornecido"
 - "Datas do periodo invalidas"
 
-### 5. Melhorias no Componente
+### 8. Melhorias no Componente
 
 Adicionada validação no componente `AdvertisementsManagement.tsx`:
 - Verifica se há propagandas antes de gerar
@@ -142,10 +199,33 @@ Se o problema persistir:
 3. Copie TODOS os logs que aparecerem
 4. Compartilhe os logs para análise
 
+## 🔄 Histórico de Atualizações
+
+### Versão 2 - 16/10/2025 (Correção do erro jsPDF.f3)
+**Commit:** `88db0239`
+
+**Correções adicionadas:**
+- ✅ Validação rigorosa de coordenadas e parâmetros numéricos
+- ✅ Função `safeFormatDate()` para formatar datas com segurança
+- ✅ Try-catch em todas as funções de desenho (addText, addLine, addRect)
+- ✅ Validação de tipos de propaganda e nomes de cliente
+- ✅ Tratamento de erro na formatação de datas do nome do arquivo
+- ✅ Logs detalhados em caso de erro de validação
+
+**Problema resolvido:** "Invalid argument passed to jsPDF.f3"
+
+### Versão 1 - 16/10/2025 (Correção inicial)
+**Commit:** `0891c567`
+
+**Correções iniciais:**
+- ✅ Normalização de caracteres acentuados
+- ✅ Validação básica de dados
+- ✅ Tratamento de erro aprimorado
+- ✅ Logs para debug
+
 ---
 
-**Data da correção**: 16/10/2025
 **Arquivos modificados**:
-- `/src/utils/pdfGenerator.ts`
-- `/src/components/admin/finance/AdvertisementsManagement.tsx`
+- `/src/utils/pdfGenerator.ts` (83 linhas adicionadas na v2)
+- `/src/components/admin/finance/AdvertisementsManagement.tsx` (v1)
 
