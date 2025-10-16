@@ -3,27 +3,30 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { FinanceAdvertisement } from '@/hooks/useAdvertisements';
 
-// Função para normalizar texto com acentos para compatibilidade com jsPDF
+// Função para normalizar texto mantendo acentuação correta
 const normalizeText = (text: string): string => {
   if (!text) return '';
-  
+
   try {
-    // Usar normalize do JavaScript para remover acentos
-    return text
-      .normalize('NFD') // Decompõe os caracteres acentuados
-      .replace(/[\u0300-\u036f]/g, '') // Remove os diacríticos
-      .replace(/[^\x00-\x7F]/g, ''); // Remove caracteres não-ASCII restantes
+    return text.normalize('NFC');
   } catch (error) {
     console.error('Erro ao normalizar texto:', error);
-    // Fallback: retornar texto original
     return text;
   }
 };
 
-// Função para sanitizar texto para nome de arquivo
+// Função para sanitizar texto para nome de arquivo (sem acentos)
 const sanitizeText = (text: string): string => {
   if (!text) return '';
-  return normalizeText(text).replace(/[^a-zA-Z0-9_-]/g, '_');
+  try {
+    return text
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9_-]/g, '_');
+  } catch (error) {
+    console.error('Erro ao sanitizar texto:', error);
+    return text.replace(/[^a-zA-Z0-9_-]/g, '_');
+  }
 };
 
 interface ReportData {
@@ -52,19 +55,19 @@ export const generateAdvertisementsReport = (data: ReportData) => {
 
     // Validações
     if (!data) {
-      throw new Error('Dados do relatorio nao fornecidos');
+      throw new Error('Dados do relatório não fornecidos');
     }
     
     if (!data.advertisements || !Array.isArray(data.advertisements)) {
-      throw new Error('Lista de propagandas invalida');
+      throw new Error('Lista de propagandas inválida');
     }
 
     if (!data.clientName) {
-      throw new Error('Nome do cliente nao fornecido');
+      throw new Error('Nome do cliente não fornecido');
     }
 
     if (!data.period || !data.period.from || !data.period.to) {
-      throw new Error('Periodo nao fornecido');
+      throw new Error('Período não fornecido');
     }
 
     const doc = new jsPDF();
@@ -73,6 +76,7 @@ export const generateAdvertisementsReport = (data: ReportData) => {
     let yPosition = 20;
     
     console.log('jsPDF inicializado com sucesso');
+    doc.setFont('helvetica', 'normal');
   
   // Testar normalização
   const testNormalize = normalizeText('RELATÓRIO DE PROPAGANDAS');
@@ -84,13 +88,13 @@ export const generateAdvertisementsReport = (data: ReportData) => {
   // Função auxiliar para formatar data com segurança
   const safeFormatDate = (date: any, formatStr: string): string => {
     try {
-      if (!date) return 'Data invalida';
+      if (!date) return 'Data inválida';
       const dateObj = date instanceof Date ? date : new Date(date);
-      if (isNaN(dateObj.getTime())) return 'Data invalida';
+      if (isNaN(dateObj.getTime())) return 'Data inválida';
       return format(dateObj, formatStr);
     } catch (error) {
       console.error('Erro ao formatar data:', error, date);
-      return 'Data invalida';
+      return 'Data inválida';
     }
   };
 
@@ -134,7 +138,7 @@ export const generateAdvertisementsReport = (data: ReportData) => {
       // Se a normalização retornou vazio mas o original não estava, use o original
       if ((!normalizedText || normalizedText.length === 0) && textStr.length > 0) {
         console.warn('⚠️ Normalização removeu todo o texto, usando original:', textStr);
-        normalizedText = textStr.replace(/[^\x00-\xFF]/g, '?'); // Substitui não-ASCII por ?
+        normalizedText = textStr;
       }
       
       if (normalizedText && normalizedText.length > 0) {
@@ -220,14 +224,14 @@ export const generateAdvertisementsReport = (data: ReportData) => {
   doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.rect(0, 0, pageWidth, 55, 'F');
 
-  addText('Relatorio de Propagandas', 20, 18, { fontSize: 20, color: [255, 255, 255] });
+  addText('Relatório de Propagandas', 20, 18, { fontSize: 20, color: [255, 255, 255] });
   addText('Resumo executivo de performance comercial', 20, 32, { fontSize: 11, color: [220, 235, 245] });
 
   // Badge com período
   doc.setFillColor(255, 255, 255);
   doc.roundedRect(pageWidth - 70, 16, 50, 18, 3, 3, 'F');
-  addText('PDF', pageWidth - 62, 20, { fontSize: 10, color: primaryColor });
-  addText('Relatorio', pageWidth - 62, 28, { fontSize: 8, color: secondaryColor });
+  addText('Portal', pageWidth - 62, 20, { fontSize: 10, color: primaryColor });
+  addText('ChicoSabeTudo', pageWidth - 62, 28, { fontSize: 8, color: secondaryColor });
 
   yPosition = 70;
   console.log('Posição Y inicial:', yPosition);
@@ -343,7 +347,7 @@ export const generateAdvertisementsReport = (data: ReportData) => {
         stroke: true
       });
 
-      addText(`#${index + 1} ${ad.client_name || 'Cliente nao informado'}`, 28, cardStartY, { fontSize: 12, color: [24, 29, 35] });
+      addText(`#${index + 1} ${ad.client_name || 'Cliente não informado'}`, 28, cardStartY, { fontSize: 12, color: [24, 29, 35] });
       
       const statusColor = (() => {
         const now = new Date();
@@ -359,7 +363,7 @@ export const generateAdvertisementsReport = (data: ReportData) => {
 
       const adTypeLabel = AD_TYPE_LABELS[ad.ad_type as keyof typeof AD_TYPE_LABELS] || ad.ad_type || 'Desconhecido';
       addText(`Tipo: ${adTypeLabel}`, 28, cardStartY + 9, { fontSize: 10, color: secondaryColor });
-      addText(`Periodo: ${safeFormatDate(ad.start_date, 'dd/MM/yyyy')} — ${safeFormatDate(ad.end_date, 'dd/MM/yyyy')}`, 28, cardStartY + 16, { fontSize: 10 });
+      addText(`Período: ${safeFormatDate(ad.start_date, 'dd/MM/yyyy')} — ${safeFormatDate(ad.end_date, 'dd/MM/yyyy')}`, 28, cardStartY + 16, { fontSize: 10 });
 
       if (ad.notes) {
         const notesPreview = normalizeText(ad.notes).slice(0, 90);
@@ -374,14 +378,14 @@ export const generateAdvertisementsReport = (data: ReportData) => {
       yPosition += cardHeight + 8;
     });
   } else {
-    addText('Nenhuma propaganda encontrada no periodo selecionado.', 20, yPosition, { fontSize: 11, color: [120, 127, 136] });
+    addText('Nenhuma propaganda encontrada no período selecionado.', 20, yPosition, { fontSize: 11, color: [120, 127, 136] });
   }
 
   // Rodapé
   console.log('Adicionando rodapé...');
   const footerY = pageHeight - 20;
   addLine(20, footerY - 10, pageWidth - 20, footerY - 10);
-  addText('Relatorio gerado automaticamente pelo sistema ChicoSabeTudo', 20, footerY - 5, { 
+  addText('Relatório gerado automaticamente pelo sistema ChicoSabeTudo', 20, footerY - 5, { 
     fontSize: 8
   });
 
