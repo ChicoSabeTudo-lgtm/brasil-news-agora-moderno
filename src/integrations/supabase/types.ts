@@ -2111,7 +2111,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "redator"
+      app_role: "admin" | "redator" | "gestor"
       category_template_type: "standard" | "grid" | "list" | "magazine"
     }
     CompositeTypes: {

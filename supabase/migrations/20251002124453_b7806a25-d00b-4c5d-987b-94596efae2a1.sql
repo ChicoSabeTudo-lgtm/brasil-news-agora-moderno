@@ -20,11 +20,19 @@ CREATE INDEX idx_finance_advertisements_type ON public.finance_advertisements(ad
 -- RLS
 ALTER TABLE public.finance_advertisements ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Admins e redatores podem gerenciar propagandas"
+CREATE POLICY "Admins, gestores e redatores podem gerenciar propagandas"
   ON public.finance_advertisements
   FOR ALL
-  USING (has_role(auth.uid(), 'admin'::app_role) OR has_role(auth.uid(), 'redator'::app_role))
-  WITH CHECK (has_role(auth.uid(), 'admin'::app_role) OR has_role(auth.uid(), 'redator'::app_role));
+  USING (
+    has_role(auth.uid(), 'admin'::app_role) OR
+    has_role(auth.uid(), 'gestor'::app_role) OR
+    has_role(auth.uid(), 'redator'::app_role)
+  )
+  WITH CHECK (
+    has_role(auth.uid(), 'admin'::app_role) OR
+    has_role(auth.uid(), 'gestor'::app_role) OR
+    has_role(auth.uid(), 'redator'::app_role)
+  );
 
 -- Trigger para updated_at
 CREATE TRIGGER update_finance_advertisements_updated_at

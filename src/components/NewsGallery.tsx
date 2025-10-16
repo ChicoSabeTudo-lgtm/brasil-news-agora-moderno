@@ -189,7 +189,7 @@ export default function NewsGallery({ newsId, isEditor = false, onImagesChange, 
   const { user, userRole } = useAuth();
 
   // CORREÇÃO: Simplificar lógica de permissões - sempre mostrar no modo editor
-  const canEdit = isEditor && user && (userRole === 'admin' || userRole === 'redator');
+  const canEdit = isEditor && user && (userRole === 'admin' || userRole === 'redator' || userRole === 'gestor');
 
   const sensors = useSensors(
     useSensor(PointerSensor),

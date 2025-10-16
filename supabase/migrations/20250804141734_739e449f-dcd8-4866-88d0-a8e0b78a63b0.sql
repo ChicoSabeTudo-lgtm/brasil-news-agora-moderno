@@ -50,11 +50,19 @@ ON public.polls
 FOR SELECT 
 USING (is_published = true AND is_active = true);
 
-CREATE POLICY "Admins e redatores podem gerenciar enquetes" 
+CREATE POLICY "Admins, gestores e redatores podem gerenciar enquetes" 
 ON public.polls 
 FOR ALL 
-USING (has_role(auth.uid(), 'admin'::app_role) OR has_role(auth.uid(), 'redator'::app_role))
-WITH CHECK (has_role(auth.uid(), 'admin'::app_role) OR has_role(auth.uid(), 'redator'::app_role));
+USING (
+  has_role(auth.uid(), 'admin'::app_role) OR
+  has_role(auth.uid(), 'gestor'::app_role) OR
+  has_role(auth.uid(), 'redator'::app_role)
+)
+WITH CHECK (
+  has_role(auth.uid(), 'admin'::app_role) OR
+  has_role(auth.uid(), 'gestor'::app_role) OR
+  has_role(auth.uid(), 'redator'::app_role)
+);
 
 -- Policies para poll_options
 CREATE POLICY "Opções de enquete são visíveis publicamente" 
@@ -67,11 +75,19 @@ USING (EXISTS (
   AND polls.is_active = true
 ));
 
-CREATE POLICY "Admins e redatores podem gerenciar opções de enquete" 
+CREATE POLICY "Admins, gestores e redatores podem gerenciar opções de enquete" 
 ON public.poll_options 
 FOR ALL 
-USING (has_role(auth.uid(), 'admin'::app_role) OR has_role(auth.uid(), 'redator'::app_role))
-WITH CHECK (has_role(auth.uid(), 'admin'::app_role) OR has_role(auth.uid(), 'redator'::app_role));
+USING (
+  has_role(auth.uid(), 'admin'::app_role) OR
+  has_role(auth.uid(), 'gestor'::app_role) OR
+  has_role(auth.uid(), 'redator'::app_role)
+)
+WITH CHECK (
+  has_role(auth.uid(), 'admin'::app_role) OR
+  has_role(auth.uid(), 'gestor'::app_role) OR
+  has_role(auth.uid(), 'redator'::app_role)
+);
 
 -- Policies para poll_votes
 CREATE POLICY "Qualquer um pode votar" 

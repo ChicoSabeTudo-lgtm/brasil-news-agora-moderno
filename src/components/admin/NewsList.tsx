@@ -82,7 +82,7 @@ export const NewsList = ({ onNavigateToShare }: { onNavigateToShare?: (newsData:
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const { toast } = useToast();
   const { userRole } = useAuth();
-  const canManage = userRole === 'admin' || userRole === 'redator';
+  const canManage = userRole === 'admin' || userRole === 'redator' || userRole === 'gestor';
 
   useEffect(() => {
     fetchNews();

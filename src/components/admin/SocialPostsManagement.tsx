@@ -66,7 +66,7 @@ export const SocialPostsManagement = () => {
   
   // Bypass temporário para admins - permitir acesso mesmo sem OTP verificado
   const hasAccess = user && userRole && 
-    (userRole === 'admin' || userRole === 'redator') && 
+    (userRole === 'admin' || userRole === 'redator' || userRole === 'gestor') && 
     (isOtpVerified || userRole === 'admin'); // Admins podem acessar sem OTP
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');

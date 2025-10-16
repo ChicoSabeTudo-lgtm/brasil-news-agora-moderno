@@ -101,11 +101,15 @@ export default function ModernAdmin() {
                     <TabsTrigger value="live">Ao Vivo</TabsTrigger>
                     <TabsTrigger value="polls">Enquetes</TabsTrigger>
                     <TabsTrigger value="blocks-config">Blocos</TabsTrigger>
-                    {/* Financeiro visível para admin e redator */}
-                    <TabsTrigger value="finance">Financeiro</TabsTrigger>
+                    {/* Financeiro visível para admin e redator; gestor acessa apenas propagandas */}
+                    {(userRole === 'admin' || userRole === 'redator') && (
+                      <TabsTrigger value="finance">Financeiro</TabsTrigger>
+                    )}
                     <TabsTrigger value="clients">Clientes</TabsTrigger>
                     <TabsTrigger value="suppliers">Fornecedores</TabsTrigger>
-                    <TabsTrigger value="ads-finance">Propagandas</TabsTrigger>
+                    {(userRole === 'admin' || userRole === 'gestor') && (
+                      <TabsTrigger value="ads-finance">Propagandas</TabsTrigger>
+                    )}
                     <TabsTrigger value="insertion-orders">Gestão de PIs</TabsTrigger>
                     <TabsTrigger value="hr-calculator">Calculadora RH</TabsTrigger>
                     {userRole === 'admin' && (
@@ -116,7 +120,7 @@ export default function ModernAdmin() {
                         <TabsTrigger value="users">Usuários</TabsTrigger>
                       </>
                     )}
-                    {(userRole === 'admin' || userRole === 'redator') && (
+                    {(userRole === 'admin' || userRole === 'redator' || userRole === 'gestor') && (
                       <TabsTrigger value="analytics">Análises</TabsTrigger>
                     )}
                     <TabsTrigger value="contact">Contato</TabsTrigger>
@@ -258,7 +262,7 @@ export default function ModernAdmin() {
                     </TabsContent>
                   )}
 
-                  {(userRole === 'admin' || userRole === 'redator') && (
+                  {(userRole === 'admin' || userRole === 'gestor') && (
                     <TabsContent value="analytics" className="mt-0 h-full">
                       <AnalyticsPage />
                     </TabsContent>
@@ -282,7 +286,7 @@ export default function ModernAdmin() {
                     </TabsContent>
                   )}
 
-                  {(userRole === 'admin' || userRole === 'redator') && (
+                  {(userRole === 'admin' || userRole === 'gestor') && (
                     <TabsContent value="ads-finance" className="mt-0 h-full p-6">
                       <AdvertisementsManagement />
                     </TabsContent>

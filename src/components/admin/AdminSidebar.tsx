@@ -55,43 +55,43 @@ const adminMenuItems = [
     title: 'Dashboard',
     url: '/admin?tab=dashboard',
     icon: LayoutDashboard,
-    roles: ['admin', 'redator'],
+    roles: ['admin', 'redator', 'gestor'],
   },
   {
     title: 'Notícias',
     url: '/admin?tab=news',
     icon: FileText,
-    roles: ['admin', 'redator'],
+    roles: ['admin', 'redator', 'gestor'],
   },
   {
     title: 'Compartilhamento',
     url: '/admin?tab=post-sharing',
     icon: PlusCircle,
-    roles: ['admin', 'redator'],
+    roles: ['admin', 'redator', 'gestor'],
   },
   {
     title: 'Posts Sociais',
     url: '/admin?tab=social-posts',
     icon: Share2,
-    roles: ['admin', 'redator'],
+    roles: ['admin', 'redator', 'gestor'],
   },
   {
     title: 'Ao Vivo',
     url: '/admin?tab=live',
     icon: Radio,
-    roles: ['admin', 'redator'],
+    roles: ['admin', 'redator', 'gestor'],
   },
   {
     title: 'Enquetes',
     url: '/admin?tab=polls',
     icon: Vote,
-    roles: ['admin', 'redator'],
+    roles: ['admin', 'redator', 'gestor'],
   },
   {
     title: 'Blocos',
     url: '/admin?tab=blocks-config',
     icon: Monitor,
-    roles: ['admin', 'redator'],
+    roles: ['admin', 'redator', 'gestor'],
   },
 ];
 
@@ -124,7 +124,7 @@ const adminOnlyItems = [
     title: 'Análises',
     url: '/admin?tab=analytics',
     icon: TrendingUp,
-    roles: ['admin'],
+    roles: ['admin', 'gestor'],
   },
 ];
 
@@ -150,37 +150,37 @@ const financialItems = [
     title: 'Lançamentos',
     url: '/admin?tab=finance',
     icon: DollarSign,
-    roles: ['admin'],
+    roles: ['admin', 'redator'],
   },
   {
     title: 'Clientes/Receita',
     url: '/admin?tab=clients',
     icon: ShoppingCart,
-    roles: ['admin'],
+    roles: ['admin', 'redator'],
   },
   {
     title: 'Fornecedores/Despesa',
     url: '/admin?tab=suppliers',
     icon: Receipt,
-    roles: ['admin'],
+    roles: ['admin', 'redator'],
   },
   {
     title: 'Propagandas',
     url: '/admin?tab=ads-finance',
     icon: Megaphone,
-    roles: ['admin'],
+    roles: ['admin', 'redator', 'gestor'],
   },
   {
     title: 'Gestão de PIs',
     url: '/admin?tab=insertion-orders',
     icon: CreditCard,
-    roles: ['admin'],
+    roles: ['admin', 'redator'],
   },
   {
     title: 'Calculadora RH',
     url: '/admin?tab=hr-calculator',
     icon: Calculator,
-    roles: ['admin'],
+    roles: ['admin', 'redator'],
   },
 ];
 
@@ -329,7 +329,7 @@ export const AdminSidebar = () => {
           </SidebarGroup>
         </Collapsible>
 
-        {userRole === 'admin' && (
+        {(userRole === 'admin' || userRole === 'gestor') && (
           <Collapsible open={openSection === 'administracao'} onOpenChange={() => toggleSection('administracao')}>
             <SidebarGroup>
               <CollapsibleTrigger asChild>
@@ -364,7 +364,7 @@ export const AdminSidebar = () => {
           </Collapsible>
         )}
 
-        {userRole === 'admin' && (
+        {(userRole === 'admin' || userRole === 'gestor') && (
           <Collapsible open={openSection === 'financeiro'} onOpenChange={() => toggleSection('financeiro')}>
             <SidebarGroup>
               <CollapsibleTrigger asChild>
@@ -399,7 +399,7 @@ export const AdminSidebar = () => {
           </Collapsible>
         )}
 
-        {userRole === 'admin' && (
+        {(userRole === 'admin' || userRole === 'gestor') && (
           <Collapsible open={openSection === 'geral'} onOpenChange={() => toggleSection('geral')}>
             <SidebarGroup>
               <CollapsibleTrigger asChild>
@@ -443,7 +443,7 @@ export const AdminSidebar = () => {
           </Collapsible>
         )}
 
-        {userRole === 'admin' && (
+        {(userRole === 'admin' || userRole === 'gestor') && (
           <Collapsible open={openSection === 'empresa'} onOpenChange={() => toggleSection('empresa')}>
             <SidebarGroup>
               <CollapsibleTrigger asChild>

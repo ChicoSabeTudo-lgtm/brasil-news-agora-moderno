@@ -81,7 +81,11 @@ export const AdminHeader = () => {
               {userName || user?.email}
             </p>
             <Badge variant="secondary" className="text-xs">
-              {userRole === 'admin' ? 'Administrador' : 'Redator'}
+              {userRole === 'admin'
+                ? 'Administrador'
+                : userRole === 'gestor'
+                  ? 'Gestor'
+                  : 'Redator'}
             </Badge>
           </div>
         </div>

@@ -21,18 +21,28 @@ ON public.categories
 FOR SELECT 
 USING (is_active = true);
 
-CREATE POLICY "Admins can manage categories"
+CREATE POLICY "Admins e gestores podem gerenciar categorias"
 ON public.categories
 FOR ALL
 TO authenticated
-USING (public.has_role(auth.uid(), 'admin'))
-WITH CHECK (public.has_role(auth.uid(), 'admin'));
+USING (
+  public.has_role(auth.uid(), 'admin') OR
+  public.has_role(auth.uid(), 'gestor')
+)
+WITH CHECK (
+  public.has_role(auth.uid(), 'admin') OR
+  public.has_role(auth.uid(), 'gestor')
+);
 
-CREATE POLICY "Redators can view all categories"
+CREATE POLICY "Redatores, gestores e admins podem ver categorias"
 ON public.categories
 FOR SELECT
 TO authenticated
-USING (public.has_role(auth.uid(), 'redator') OR public.has_role(auth.uid(), 'admin'));
+USING (
+  public.has_role(auth.uid(), 'redator') OR
+  public.has_role(auth.uid(), 'gestor') OR
+  public.has_role(auth.uid(), 'admin')
+);
 
 -- Insert default categories
 INSERT INTO public.categories (name, slug, description, color, sort_order) VALUES 
