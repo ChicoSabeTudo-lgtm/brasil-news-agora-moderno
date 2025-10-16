@@ -7,23 +7,17 @@ import { FinanceAdvertisement } from '@/hooks/useAdvertisements';
 const normalizeText = (text: string): string => {
   if (!text) return '';
   
-  // Mapa de caracteres com acento para sem acento
-  const accentsMap: { [key: string]: string } = {
-    'á': 'a', 'à': 'a', 'ã': 'a', 'â': 'a', 'ä': 'a',
-    'é': 'e', 'è': 'e', 'ê': 'e', 'ë': 'e',
-    'í': 'i', 'ì': 'i', 'î': 'i', 'ï': 'i',
-    'ó': 'o', 'ò': 'o', 'õ': 'o', 'ô': 'o', 'ö': 'o',
-    'ú': 'u', 'ù': 'u', 'û': 'u', 'ü': 'u',
-    'ç': 'c', 'ñ': 'n',
-    'Á': 'A', 'À': 'A', 'Ã': 'A', 'Â': 'A', 'Ä': 'A',
-    'É': 'E', 'È': 'E', 'Ê': 'E', 'Ë': 'E',
-    'Í': 'I', 'Ì': 'I', 'Î': 'I', 'Ï': 'I',
-    'Ó': 'O', 'Ò': 'O', 'Õ': 'O', 'Ô': 'O', 'Ö': 'O',
-    'Ú': 'U', 'Ù': 'U', 'Û': 'U', 'Ü': 'U',
-    'Ç': 'C', 'Ñ': 'N'
-  };
-  
-  return text.split('').map(char => accentsMap[char] || char).join('');
+  try {
+    // Usar normalize do JavaScript para remover acentos
+    return text
+      .normalize('NFD') // Decompõe os caracteres acentuados
+      .replace(/[\u0300-\u036f]/g, '') // Remove os diacríticos
+      .replace(/[^\x00-\x7F]/g, ''); // Remove caracteres não-ASCII restantes
+  } catch (error) {
+    console.error('Erro ao normalizar texto:', error);
+    // Fallback: retornar texto original
+    return text;
+  }
 };
 
 // Função para sanitizar texto para nome de arquivo
@@ -118,12 +112,22 @@ export const generateAdvertisementsReport = (data: ReportData) => {
       }
       
       doc.setFontSize(fontSize);
-      doc.setTextColor(options.color || [0, 0, 0]);
+      
+      // Configurar cor do texto
+      if (options.color && Array.isArray(options.color)) {
+        doc.setTextColor(options.color[0], options.color[1], options.color[2]);
+      } else {
+        doc.setTextColor(0, 0, 0); // Preto padrão
+      }
       
       // Garantir que o texto é uma string válida
-      const normalizedText = normalizeText(String(text || ''));
-      if (normalizedText) {
+      const textStr = String(text || '');
+      const normalizedText = normalizeText(textStr);
+      
+      if (normalizedText && normalizedText.length > 0) {
         doc.text(normalizedText, x, y);
+      } else {
+        console.warn('Texto vazio após normalização:', { original: textStr, normalized: normalizedText });
       }
     } catch (error) {
       console.error('Erro ao adicionar texto:', error, { text, x, y, options });
@@ -164,10 +168,12 @@ export const generateAdvertisementsReport = (data: ReportData) => {
   };
 
   // Cabeçalho simples
+  console.log('Adicionando cabeçalho do relatório...');
   addText('RELATORIO DE PROPAGANDAS', 20, 30, { fontSize: 18 });
   addText('ChicoSabeTudo - Sistema de Gestao', 20, 40, { fontSize: 12 });
   
   yPosition = 60;
+  console.log('Posição Y inicial:', yPosition);
 
   // Informações do relatório
   addText('DADOS DO RELATORIO', 20, yPosition, { fontSize: 14 });
@@ -239,13 +245,15 @@ export const generateAdvertisementsReport = (data: ReportData) => {
   }
 
   // Rodapé
+  console.log('Adicionando rodapé...');
   const footerY = pageHeight - 20;
   addLine(20, footerY - 10, pageWidth - 20, footerY - 10);
   addText('Relatorio gerado automaticamente pelo sistema ChicoSabeTudo', 20, footerY - 5, { 
     fontSize: 8
   });
 
-  console.log('PDF gerado com sucesso!');
+  console.log('PDF gerado com sucesso! Total de páginas:', doc.getNumberOfPages());
+  console.log('Verifique se há avisos de "texto vazio" acima');
   return doc;
   } catch (error: any) {
     console.error('Erro detalhado ao gerar PDF:', {
