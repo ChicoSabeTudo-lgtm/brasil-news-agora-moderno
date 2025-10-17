@@ -109,6 +109,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           const fetchRole = async () => {
             try {
               console.log('🔍 Buscando role para usuário:', session.user.id);
+              
+              // Primeiro, tentar buscar diretamente da tabela user_roles
               const { data, error } = await supabase
                 .from('user_roles')
                 .select('role')
@@ -117,10 +119,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
               console.log('🔍 Resultado da busca de role:', { data, error });
 
-              if (error) throw error;
-
-              console.log('✅ Role encontrado:', data?.role);
-              setUserRole(data?.role || null);
+              if (error) {
+                console.error('❌ Erro na consulta user_roles:', error);
+                // Se der erro, tentar buscar via RPC
+                const { data: rpcData, error: rpcError } = await supabase
+                  .rpc('get_user_role', { user_id: session.user.id });
+                
+                console.log('🔍 Resultado RPC get_user_role:', { rpcData, rpcError });
+                
+                if (rpcError) {
+                  console.error('❌ Erro na RPC get_user_role:', rpcError);
+                  setUserRole(null);
+                } else {
+                  setUserRole(rpcData || null);
+                }
+              } else {
+                console.log('✅ Role encontrado:', data?.role);
+                setUserRole(data?.role || null);
+              }
             } catch (error) {
               console.error('❌ Erro ao buscar role do usuário:', error);
               setUserRole(null);
