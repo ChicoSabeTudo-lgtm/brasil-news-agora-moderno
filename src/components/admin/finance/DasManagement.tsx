@@ -48,6 +48,18 @@ export const DasManagement = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
 
+  const extractDateString = (value?: string | null) => {
+    if (!value) return "";
+    return value.includes("T") ? value.split("T")[0] : value;
+  };
+
+  const formatDateDisplay = (value?: string | null) => {
+    const dateString = extractDateString(value);
+    if (!dateString) return "-";
+    const [year, month, day] = dateString.split("-");
+    return `${day}/${month}/${year}`;
+  };
+
   const [formData, setFormData] = useState<{
     reference_month: string;
     due_date: string;
@@ -106,9 +118,9 @@ export const DasManagement = () => {
     setEditingPayment(payment);
     setFormData({
       reference_month: payment.reference_month,
-      due_date: payment.due_date,
+      due_date: extractDateString(payment.due_date),
       value: payment.value.toString(),
-      payment_date: payment.payment_date || "",
+      payment_date: extractDateString(payment.payment_date),
       observations: payment.observations || "",
       status: payment.status,
     });
@@ -429,9 +441,7 @@ export const DasManagement = () => {
                     locale: ptBR,
                   })}
                 </TableCell>
-                <TableCell>
-                  {format(new Date(payment.due_date), "dd/MM/yyyy")}
-                </TableCell>
+                <TableCell>{formatDateDisplay(payment.due_date)}</TableCell>
                 <TableCell>
                   {new Intl.NumberFormat("pt-BR", {
                     style: "currency",
@@ -439,9 +449,7 @@ export const DasManagement = () => {
                   }).format(payment.value)}
                 </TableCell>
                 <TableCell>
-                  {payment.payment_date
-                    ? format(new Date(payment.payment_date), "dd/MM/yyyy")
-                    : "-"}
+                  {formatDateDisplay(payment.payment_date)}
                 </TableCell>
                 <TableCell>{getStatusBadge(payment.status)}</TableCell>
                 <TableCell>
