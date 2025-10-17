@@ -29,6 +29,13 @@ export default function NewInsertionOrderModal({ open, onOpenChange, editingOrde
   const { contacts } = useFinanceData();
   const [saving, setSaving] = useState(false);
   const [currentOrderId, setCurrentOrderId] = useState<string | undefined>(editingOrder?.id);
+  const normalizeDateInput = (value?: string | Date | null) => {
+    if (!value) return null;
+    if (value instanceof Date) return value;
+    const normalized = value.includes('T') ? value : `${value}T00:00:00`;
+    return new Date(normalized);
+  };
+
   const [form, setForm] = useState({
     pi_number: '',
     contact_id: '',
@@ -49,14 +56,19 @@ export default function NewInsertionOrderModal({ open, onOpenChange, editingOrde
         contact_id: editingOrder.contact_id || '',
         vehicle: editingOrder.vehicle || '',
         value: editingOrder.value?.toString() || '',
-        start_date: new Date(editingOrder.start_date),
-        end_date: new Date(editingOrder.end_date),
+        start_date: normalizeDateInput(editingOrder.start_date) || new Date(),
+        end_date: normalizeDateInput(editingOrder.end_date) || new Date(),
         payment_status: editingOrder.payment_status || 'Pendente',
         email_sent: editingOrder.email_sent || false,
         notes: editingOrder.notes || '',
       });
     } else {
       setCurrentOrderId(undefined);
+      setForm((prev) => ({
+        ...prev,
+        start_date: new Date(),
+        end_date: new Date(),
+      }));
     }
   }, [editingOrder]);
 

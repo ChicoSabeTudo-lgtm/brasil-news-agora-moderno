@@ -7,6 +7,9 @@ export interface InsertionOrder {
   id: string;
   pi_number: string;
   contact_id?: string | null;
+  contact?: {
+    name: string | null;
+  } | null;
   vehicle: string;
   value: number;
   start_date: string;
@@ -29,7 +32,7 @@ export function useInsertionOrders() {
     try {
       const { data, error } = await supabase
         .from('insertion_orders')
-        .select('*')
+        .select('*, contact:finance_contacts(name)')
         .order('created_at', { ascending: false });
       
       if (error) throw error;
@@ -47,7 +50,7 @@ export function useInsertionOrders() {
     const { data, error } = await supabase
       .from('insertion_orders')
       .insert(payload)
-      .select('*')
+      .select('*, contact:finance_contacts(name)')
       .single();
     
     if (error) throw error;
@@ -60,7 +63,7 @@ export function useInsertionOrders() {
       .from('insertion_orders')
       .update(updates)
       .eq('id', id)
-      .select('*')
+      .select('*, contact:finance_contacts(name)')
       .single();
     
     if (error) throw error;

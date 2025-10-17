@@ -72,11 +72,11 @@ export function OrdersManagement() {
                 {orders.map((order) => (
                   <TableRow key={order.id}>
                     <TableCell className="font-medium">{order.pi_number}</TableCell>
-                    <TableCell>{order.contact_id || 'N/A'}</TableCell>
+                    <TableCell>{order.contact?.name || 'N/A'}</TableCell>
                     <TableCell>{order.vehicle}</TableCell>
                     <TableCell>R$ {Number(order.value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
                     <TableCell>
-                      {format(new Date(order.start_date), 'dd/MM/yy', { locale: ptBR })} - {format(new Date(order.end_date), 'dd/MM/yy', { locale: ptBR })}
+                      {format(new Date(order.start_date + 'T00:00:00'), 'dd/MM/yy', { locale: ptBR })} - {format(new Date(order.end_date + 'T00:00:00'), 'dd/MM/yy', { locale: ptBR })}
                     </TableCell>
                     <TableCell>
                       <Badge variant={order.payment_status === 'Pago' ? 'default' : 'secondary'}>
