@@ -292,7 +292,7 @@ export const SocialPostsManagement = () => {
                        </div>
                      </TableCell>
                    </TableRow>
-                  ) : userRole !== 'admin' && userRole !== 'redator' ? (
+                  ) : userRole !== 'admin' && userRole !== 'redator' && userRole !== 'gestor' ? (
                     <TableRow>
                       <TableCell colSpan={6} className="text-center py-12">
                         <div className="flex flex-col items-center gap-3">
@@ -302,7 +302,7 @@ export const SocialPostsManagement = () => {
                           <div>
                             <h3 className="font-medium text-amber-700">Permissão insuficiente</h3>
                             <p className="text-sm text-muted-foreground mt-1">
-                              Apenas administradores e redatores podem gerenciar posts sociais.
+                              Apenas administradores, redatores e gestores podem gerenciar posts sociais.
                             </p>
                           </div>
                         </div>
