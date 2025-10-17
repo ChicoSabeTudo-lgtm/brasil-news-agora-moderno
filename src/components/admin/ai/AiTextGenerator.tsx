@@ -42,15 +42,15 @@ const MIN_WORDS = 200;
     PARTE 2: GERAR 3 RESUMOS DIFERENTES DO MESMO FATO
 
     Regras gerais (aplicar às 3 opções):
-    - Formato: narrativa em parágrafos separados (quebras de linha entre parágrafos)
-    - Mínimo de 200 palavras cada
+    - Formato: narrativa dividida em 3-4 parágrafos bem estruturados
+    - Mínimo de 200 palavras cada resumo
     - Tom humano: fluido, natural, sem jargões de IA; evitar clichês e "robôzices"
-    - Emojis: usar 2 a 5 emojis relevantes (🚔 🤝 🏥 ✊ 🎉 🔥 ⚡ 💪 👏 📢) coerentes com o contexto, dentro do corpo do texto
-    - CTA final (linha própria): "👉 Leia mais em chicosabetudo.com.br 📲"
-    - Hashtags (linha final): entre 6 e 12 hashtags relevantes ao tema (sem espaços), incluindo #chicosabetudo por último
-    - Estilo Facebook-ready: texto direto para feed; sem cabeçalhos técnicos, sem rótulos desnecessários, sem instruções internas
+    - Emojis: usar 2 a 5 emojis relevantes (🚔 🤝 🏥 ✊ 🎉 🔥 ⚡ 💪 👏 📢) coerentes com o contexto, distribuídos no texto
+    - CTA: adicionar no final "👉 Leia mais em chicosabetudo.com.br 📲" como parágrafo separado
+    - Hashtags: no último parágrafo, incluir entre 6 e 12 hashtags relevantes (sem espaços), incluindo #chicosabetudo por último
+    - Estilo Facebook-ready: texto direto para feed; sem cabeçalhos técnicos, sem rótulos desnecessários
     - Atenção ao tempo verbal: se evento encerrado → usar passado (ex.: "autoridades confirmaram", "equipe venceu")
-    - IMPORTANTE: Use quebras de linha (\\n\\n) entre parágrafos para melhor legibilidade no Facebook. Escape corretamente as quebras de linha no JSON.
+    - IMPORTANTE: Separe cada parágrafo com \\n\\n no JSON (use dois caracteres: barra-n barra-n)
 
     Tons exigidos (gerar 3 opções):
 
