@@ -1796,6 +1796,7 @@ export type Database = {
           ads_txt_content: string | null
           created_at: string
           footer_code: string | null
+          openai_api_key: string | null
           header_code: string | null
           id: string
           live_stream_block_enabled: boolean | null
@@ -1812,6 +1813,7 @@ export type Database = {
           ads_txt_content?: string | null
           created_at?: string
           footer_code?: string | null
+          openai_api_key?: string | null
           header_code?: string | null
           id?: string
           live_stream_block_enabled?: boolean | null
@@ -1828,6 +1830,7 @@ export type Database = {
           ads_txt_content?: string | null
           created_at?: string
           footer_code?: string | null
+          openai_api_key?: string | null
           header_code?: string | null
           id?: string
           live_stream_block_enabled?: boolean | null

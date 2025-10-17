@@ -7,6 +7,7 @@ export interface SiteConfiguration {
   ads_txt_content: string | null;
   header_code: string | null;
   footer_code: string | null;
+  openai_api_key: string | null;
   webhook_url: string | null;
   otp_webhook_url: string | null;
   social_webhook_url: string | null;

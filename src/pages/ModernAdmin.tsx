@@ -25,6 +25,7 @@ import { BlocksConfigManagement } from '@/components/admin/BlocksConfigManagemen
 import PostSharingForm from '@/components/admin/PostSharingForm';
 import { AnalyticsPage } from '@/components/admin/analytics/AnalyticsPage';
 import { SocialPostsManagement } from '@/components/admin/SocialPostsManagement';
+import { AiTextGenerator } from '@/components/admin/ai/AiTextGenerator';
 import { FinancialEntries } from '@/components/admin/finance/FinancialEntries';
 import { OrdersManagement } from '@/components/admin/finance/OrdersManagement';
 import { ClientsManagement } from '@/components/admin/finance/ClientsManagement';
@@ -101,6 +102,8 @@ export default function ModernAdmin() {
                     <TabsTrigger value="live">Ao Vivo</TabsTrigger>
                     <TabsTrigger value="polls">Enquetes</TabsTrigger>
                     <TabsTrigger value="blocks-config">Blocos</TabsTrigger>
+                    <TabsTrigger value="ai-texts">Textos de IA</TabsTrigger>
+                    <TabsTrigger value="ai-texts">Textos de IA</TabsTrigger>
                     {/* Financeiro visível para admin e redator; gestor acessa apenas propagandas */}
                     {(userRole === 'admin' || userRole === 'redator') && (
                       <TabsTrigger value="finance">Financeiro</TabsTrigger>
@@ -198,6 +201,10 @@ export default function ModernAdmin() {
 
                   <TabsContent value="blocks-config" className="mt-0 h-full p-6">
                     <BlocksConfigManagement />
+                  </TabsContent>
+
+                  <TabsContent value="ai-texts" className="mt-0 h-full p-6">
+                    <AiTextGenerator />
                   </TabsContent>
 
                   {userRole === 'admin' && (

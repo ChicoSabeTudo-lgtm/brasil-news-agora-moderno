@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
-import { Save, FileText, Code, Code2, Image, Upload, ArrowLeft } from 'lucide-react';
+import { Save, FileText, Code, Code2, Image, Upload, ArrowLeft, KeyRound } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
@@ -32,6 +32,7 @@ export default function SiteConfigurations() {
   const [mockupFile, setMockupFile] = useState<File | null>(null);
   const [mockupPreview, setMockupPreview] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [openAiKey, setOpenAiKey] = useState('');
   const { toast } = useToast();
 
   // Update states when configuration is loaded
@@ -43,6 +44,7 @@ export default function SiteConfigurations() {
       setWebhookUrl(configuration.webhook_url || '');
       setOtpWebhookUrl(configuration.otp_webhook_url || '');
       setSocialWebhookUrl(configuration.social_webhook_url || '');
+      setOpenAiKey(configuration.openai_api_key || '');
       setLogoPreview(configuration.logo_url || null);
       setMockupPreview(configuration.mockup_image_url || null);
     }
@@ -151,6 +153,7 @@ export default function SiteConfigurations() {
       webhook_url: webhookUrl,
       otp_webhook_url: otpWebhookUrl,
       social_webhook_url: socialWebhookUrl,
+      openai_api_key: openAiKey || null,
       logo_url: logoUrl,
       mockup_image_url: mockupUrl,
     }, {
@@ -212,7 +215,7 @@ export default function SiteConfigurations() {
           </div>
 
           <Tabs defaultValue="logo" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-7">
+            <TabsList className="grid w-full grid-cols-8">
               <TabsTrigger value="logo" className="flex items-center gap-2">
                 <Image className="w-4 h-4" />
                 Logo
@@ -240,6 +243,10 @@ export default function SiteConfigurations() {
               <TabsTrigger value="footer" className="flex items-center gap-2">
                 <Code2 className="w-4 h-4" />
                 Footer
+              </TabsTrigger>
+              <TabsTrigger value="openai" className="flex items-center gap-2">
+                <KeyRound className="w-4 h-4" />
+                OpenAI
               </TabsTrigger>
             </TabsList>
 
@@ -572,6 +579,35 @@ export default function SiteConfigurations() {
                       <li>Botões de compartilhamento</li>
                     </ul>
                   </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="openai">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Integração com OpenAI</CardTitle>
+                  <CardDescription>
+                    Cadastre a chave da API da OpenAI utilizada para gerar textos automatizados.
+                    Esta chave será usada apenas por administradores dentro do painel.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="openai-key">Chave da API da OpenAI</Label>
+                    <Input
+                      id="openai-key"
+                      type="password"
+                      value={openAiKey}
+                      onChange={(e) => setOpenAiKey(e.target.value)}
+                      placeholder="sk-..."
+                      className="font-mono"
+                    />
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Armazene aqui a chave gerada no painel da OpenAI. Guarde-a em local seguro e evite compartilhá-la.
+                    O campo é criptografado e só pode ser visualizado por administradores autenticados.
+                  </p>
                 </CardContent>
               </Card>
             </TabsContent>

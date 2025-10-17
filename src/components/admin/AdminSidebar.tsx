@@ -93,6 +93,12 @@ const adminMenuItems = [
     icon: Monitor,
     roles: ['admin', 'redator', 'gestor'],
   },
+  {
+    title: 'Textos de IA',
+    url: '/admin?tab=ai-texts',
+    icon: FileText,
+    roles: ['admin', 'redator', 'gestor'],
+  },
 ];
 
 const adminOnlyItems = [
