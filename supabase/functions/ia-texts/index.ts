@@ -21,52 +21,53 @@ const MIN_WORDS = 200;
 
 const buildPrompt = (baseText: string) => `A partir do conteúdo abaixo, gere resumos e títulos seguindo as diretrizes específicas:
 
-PARTE 1: SUGESTÕES DE TÍTULOS
-Crie 3 seções de títulos, cada uma com 5 sugestões. Os títulos devem ser criativos, otimizados para cliques e refletir o conteúdo da notícia.
-- Seção 1: Títulos Diretos e Informativos
-- Seção 2: Títulos em Formato de Pergunta (Curiosidade)
-- Seção 3: Títulos de Impacto (Para Redes Sociais)
+    PARTE 1: SUGESTÕES DE TÍTULOS
+    Crie 3 seções de títulos, cada uma com 5 sugestões. Os títulos devem ser criativos, otimizados para cliques e refletir o conteúdo da notícia.
+    - Seção 1: Títulos Diretos e Informativos
+    - Seção 2: Títulos em Formato de Pergunta (Curiosidade)
+    - Seção 3: Títulos de Impacto (Para Redes Sociais)
 
-PARTE 2: GERAR 3 RESUMOS DIFERENTES DO MESMO FATO
+    PARTE 2: GERAR 3 RESUMOS DIFERENTES DO MESMO FATO
 
-Regras gerais (aplicar às 3 opções):
-- Formato: narrativa contínua (sem bullet points)
-- Mínimo de 200 palavras cada
-- Tom humano: fluido, natural, sem jargões de IA; evitar clichês e "robôzices"
-- Emojis: usar 2 a 5 emojis relevantes (🚔 🤝 🏥 ✊ 🎉 🔥 ⚡ 💪 👏 📢) coerentes com o contexto, dentro do corpo do texto
-- CTA final (linha própria): "👉 Leia mais em chicosabetudo.com.br 📲"
-- Hashtags (linha final): entre 6 e 12 hashtags relevantes ao tema (sem espaços), incluindo #chicosabetudo por último
-- Estilo Facebook-ready: texto direto para feed; sem cabeçalhos técnicos, sem rótulos desnecessários, sem instruções internas
-- Atenção ao tempo verbal: se evento encerrado → usar passado (ex.: "autoridades confirmaram", "equipe venceu")
+    Regras gerais (aplicar às 3 opções):
+    - Formato: narrativa em parágrafos separados (quebras de linha entre parágrafos)
+    - Mínimo de 200 palavras cada
+    - Tom humano: fluido, natural, sem jargões de IA; evitar clichês e "robôzices"
+    - Emojis: usar 2 a 5 emojis relevantes (🚔 🤝 🏥 ✊ 🎉 🔥 ⚡ 💪 👏 📢) coerentes com o contexto, dentro do corpo do texto
+    - CTA final (linha própria): "👉 Leia mais em chicosabetudo.com.br 📲"
+    - Hashtags (linha final): entre 6 e 12 hashtags relevantes ao tema (sem espaços), incluindo #chicosabetudo por último
+    - Estilo Facebook-ready: texto direto para feed; sem cabeçalhos técnicos, sem rótulos desnecessários, sem instruções internas
+    - Atenção ao tempo verbal: se evento encerrado → usar passado (ex.: "autoridades confirmaram", "equipe venceu")
+    - IMPORTANTE: Use quebras de linha (\\n\\n) entre parágrafos para melhor legibilidade no Facebook
 
-Tons exigidos (gerar 3 opções):
+    Tons exigidos (gerar 3 opções):
 
-Opção 1 — Foco na Notícia (Informativo e Direto)
-Objetivo: apresentar o fato com clareza e agilidade; destaque o que aconteceu, onde, quem, quando e qual o estado atual.
-Evite adjetivação excessiva; priorize dados e confirmações oficiais.
+    Opção 1 — Foco na Notícia (Informativo e Direto)
+    Objetivo: apresentar o fato com clareza e agilidade; destaque o que aconteceu, onde, quem, quando e qual o estado atual.
+    Evite adjetivação excessiva; priorize dados e confirmações oficiais.
 
-Opção 2 — Foco na Análise e Bastidores (Analítico/Reflexivo)
-Objetivo: explorar contexto, causas, implicações e próximos passos; mencione histórico e cenários possíveis.
-Traga interpretação responsável (sem teorias infundadas), conectando pontos do texto base.
+    Opção 2 — Foco na Análise e Bastidores (Analítico/Reflexivo)
+    Objetivo: explorar contexto, causas, implicações e próximos passos; mencione histórico e cenários possíveis.
+    Traga interpretação responsável (sem teorias infundadas), conectando pontos do texto base.
 
-Opção 3 — Foco no Drama e Repercussão (Impacto/Entretenimento)
-Objetivo: linguagem mais emocional e envolvente, mantendo fidedignidade; valorize efeito humano e reação do público.
-Sem sensacionalismo barato; use ritmo narrativo para prender atenção.
+    Opção 3 — Foco no Drama e Repercussão (Impacto/Entretenimento)
+    Objetivo: linguagem mais emocional e envolvente, mantendo fidedignidade; valorize efeito humano e reação do público.
+    Sem sensacionalismo barato; use ritmo narrativo para prender atenção.
 
-Estruture a resposta em JSON válido com o formato:
-{
-  "titles_direct": string[];
-  "titles_questions": string[];
-  "titles_impact": string[];
-  "posts": [
-    { "tone": "informativo" | "analitico" | "impacto", "content": string }
-  ]
-}
+    Estruture a resposta em JSON válido com o formato:
+    {
+      "titles_direct": string[];
+      "titles_questions": string[];
+      "titles_impact": string[];
+      "posts": [
+        { "tone": "informativo" | "analitico" | "impacto", "content": string }
+      ]
+    }
 
-TEXTO BASE:
-"""
-${baseText}
-"""`;
+    TEXTO BASE:
+    """
+    ${baseText}
+    """`;
 
 async function getOpenAiKey() {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
