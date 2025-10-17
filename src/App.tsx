@@ -105,7 +105,7 @@ const App = () => (
             {/* Admin routes - heavily lazy loaded */}
             <Route path="/admin" element={
               <Suspense fallback={<RouteLoader />}>
-                <ProtectedRoute requiredRole="redator">
+                <ProtectedRoute allowedRoles={['admin', 'redator', 'gestor']}>
                   <ModernAdmin />
                 </ProtectedRoute>
               </Suspense>
