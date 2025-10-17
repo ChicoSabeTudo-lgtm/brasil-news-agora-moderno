@@ -19,7 +19,7 @@ const corsHeaders = (origin: string | null) => {
 
 const MIN_WORDS = 200;
 
-const buildPrompt = (baseText: string) => `Analise o texto de notícia fornecido abaixo e, com base nele, crie um conteúdo completo para redes sociais, seguindo estritamente a estrutura e as diretrizes:
+const buildPrompt = (baseText: string) => `A partir do conteúdo abaixo, gere resumos e títulos seguindo as diretrizes específicas:
 
 PARTE 1: SUGESTÕES DE TÍTULOS
 Crie 3 seções de títulos, cada uma com 5 sugestões. Os títulos devem ser criativos, otimizados para cliques e refletir o conteúdo da notícia.
@@ -27,17 +27,33 @@ Crie 3 seções de títulos, cada uma com 5 sugestões. Os títulos devem ser cr
 - Seção 2: Títulos em Formato de Pergunta (Curiosidade)
 - Seção 3: Títulos de Impacto (Para Redes Sociais)
 
-PARTE 2: GERAR UM RESUMO DO TEXTO
-Crie 3 opções de resumo, cada uma com tom diferente (informativo, analítico, impacto). Cada resumo deve:
-- estar em português do Brasil
-- utilizar linguagem humanizada em formato de narrativa
-- ter aproximadamente 200 caracteres (± 10%), como escrito por um humano
-- ser conciso e direto ao ponto
-- capturar a essência da notícia
-- NÃO incluir emojis, hashtags ou CTAs
-- ser apenas o texto final, sem rótulos ou elementos extras
+PARTE 2: GERAR 3 RESUMOS DIFERENTES DO MESMO FATO
 
-Respeite os tempos verbais de acordo com o ocorrido no texto original. Estruture a resposta em JSON válido com o formato:
+Regras gerais (aplicar às 3 opções):
+- Formato: narrativa contínua (sem bullet points)
+- Mínimo de 200 palavras cada
+- Tom humano: fluido, natural, sem jargões de IA; evitar clichês e "robôzices"
+- Emojis: usar 2 a 5 emojis relevantes (🚔 🤝 🏥 ✊ 🎉 🔥 ⚡ 💪 👏 📢) coerentes com o contexto, dentro do corpo do texto
+- CTA final (linha própria): "👉 Leia mais em chicosabetudo.com.br 📲"
+- Hashtags (linha final): entre 6 e 12 hashtags relevantes ao tema (sem espaços), incluindo #chicosabetudo por último
+- Estilo Facebook-ready: texto direto para feed; sem cabeçalhos técnicos, sem rótulos desnecessários, sem instruções internas
+- Atenção ao tempo verbal: se evento encerrado → usar passado (ex.: "autoridades confirmaram", "equipe venceu")
+
+Tons exigidos (gerar 3 opções):
+
+Opção 1 — Foco na Notícia (Informativo e Direto)
+Objetivo: apresentar o fato com clareza e agilidade; destaque o que aconteceu, onde, quem, quando e qual o estado atual.
+Evite adjetivação excessiva; priorize dados e confirmações oficiais.
+
+Opção 2 — Foco na Análise e Bastidores (Analítico/Reflexivo)
+Objetivo: explorar contexto, causas, implicações e próximos passos; mencione histórico e cenários possíveis.
+Traga interpretação responsável (sem teorias infundadas), conectando pontos do texto base.
+
+Opção 3 — Foco no Drama e Repercussão (Impacto/Entretenimento)
+Objetivo: linguagem mais emocional e envolvente, mantendo fidedignidade; valorize efeito humano e reação do público.
+Sem sensacionalismo barato; use ritmo narrativo para prender atenção.
+
+Estruture a resposta em JSON válido com o formato:
 {
   "titles_direct": string[];
   "titles_questions": string[];
