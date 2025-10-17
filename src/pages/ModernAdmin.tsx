@@ -8,22 +8,6 @@ import { DashboardLayout } from '@/components/admin/dashboard/DashboardLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-      if (userRole === 'gestor') {
-        return (
-          <div className="min-h-screen flex items-center justify-center">
-            <div className="text-center space-y-4">
-              <h1 className="text-2xl font-bold">Acesso restrito</h1>
-              <p className="text-muted-foreground max-w-md">
-                Como gestor você tem acesso completo à Redação e à seção de Propagandas.
-                Outras áreas estão disponíveis apenas para administradores ou redatores.
-              </p>
-              <Button variant="outline" onClick={() => handleTabChange('dashboard')}>
-                Voltar ao dashboard
-              </Button>
-            </div>
-          </div>
-        );
-      }
 
 // Import existing admin components
 import { UserManagement } from '@/components/admin/UserManagement';
@@ -94,22 +78,43 @@ export default function ModernAdmin() {
   };
 
   const handleTabChange = (value: string) => {
+    // Gestores não podem acessar outras abas fora de redação/propagandas
+    if (userRole === 'gestor') {
+      const allowed = new Set(['dashboard', 'news', 'post-sharing', 'ads-finance']);
+      if (!allowed.has(value)) {
+        setActiveTab('dashboard');
+        navigate('/admin?tab=dashboard', { replace: true });
+        return;
+      }
+    }
+
     setActiveTab(value);
     navigate(`/admin?tab=${value}`, { replace: true });
   };
 
-  return (
-    <ProtectedRoute allowedRoles={['admin', 'redator', 'gestor']}>
-      <div className="min-h-screen bg-background">
-        <SidebarProvider defaultOpen={true}>
-          <div className="flex min-h-screen w-full">
-            <AdminSidebar />
-            
-            <div className="flex-1 flex flex-col overflow-hidden">
-              <AdminHeader />
-              
-              <main className="flex-1 overflow-y-auto">
-                <Tabs value={activeTab} onValueChange={handleTabChange} className="h-full">
+  const renderContent = () => {
+    if (userRole === 'gestor' && !['dashboard', 'news', 'post-sharing', 'ads-finance'].includes(activeTab)) {
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <h1 className="text-2xl font-bold">Acesso restrito</h1>
+            <p className="text-muted-foreground max-w-md">
+              Como gestor você tem acesso completo à Redação e à seção de Propagandas.
+              Outras áreas estão disponíveis apenas para administradores ou redatores.
+            </p>
+            <Button variant="outline" onClick={() => handleTabChange('dashboard')}>
+              Voltar ao dashboard
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <AdminHeader />
+        <main className="flex-1 overflow-y-auto">
+          <Tabs value={activeTab} onValueChange={handleTabChange} className="h-full">
                   {/* Hidden tabs list - navigation is handled by sidebar */}
                   <TabsList className="hidden">
                     <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
@@ -394,9 +399,19 @@ export default function ModernAdmin() {
                       <LegalCaseManagement />
                     </TabsContent>
                   )}
-                </Tabs>
-              </main>
-            </div>
+          </Tabs>
+        </main>
+      </div>
+    );
+  };
+
+  return (
+    <ProtectedRoute allowedRoles={['admin', 'redator', 'gestor']}>
+      <div className="min-h-screen bg-background">
+        <SidebarProvider defaultOpen={true}>
+          <div className="flex min-h-screen w-full">
+            <AdminSidebar />
+            {renderContent()}
           </div>
         </SidebarProvider>
       </div>
