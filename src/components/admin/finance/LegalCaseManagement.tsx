@@ -1,6 +1,5 @@
-import { useState, useMemo } from "react";
-import { format, differenceInDays } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { useMemo, useState } from "react";
+import { differenceInDays } from "date-fns";
 import { 
   Trash2, Download, FileText, Edit, Plus, Search, Eye,
   Calendar as CalendarIcon, AlertTriangle, Scale 
@@ -90,6 +89,18 @@ export const LegalCaseManagement = () => {
     description: "",
   });
 
+  const extractDateString = (value?: string | null) => {
+    if (!value) return "";
+    return value.includes("T") ? value.split("T")[0] : value;
+  };
+
+  const formatDateDisplay = (value?: string | null) => {
+    const dateString = extractDateString(value);
+    if (!dateString) return "-";
+    const [year, month, day] = dateString.split("-");
+    return `${day}/${month}/${year}`;
+  };
+
   const [documentFiles, setDocumentFiles] = useState<File[]>([]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -135,8 +146,8 @@ export const LegalCaseManagement = () => {
       case_type: legalCase.case_type,
       status: legalCase.status,
       lawyer_name: legalCase.lawyer_name,
-      start_date: legalCase.start_date,
-      hearing_date: legalCase.hearing_date || "",
+      start_date: extractDateString(legalCase.start_date),
+      hearing_date: extractDateString(legalCase.hearing_date),
       plaintiff: legalCase.plaintiff,
       defendant: legalCase.defendant,
       description: legalCase.description || "",
@@ -200,7 +211,9 @@ export const LegalCaseManagement = () => {
   const getHearingAlert = (hearingDate: string | null) => {
     if (!hearingDate) return null;
     
-    const daysUntil = differenceInDays(new Date(hearingDate), new Date());
+    const normalizedDate = extractDateString(hearingDate);
+    if (!normalizedDate) return null;
+    const daysUntil = differenceInDays(new Date(normalizedDate), new Date());
     
     if (daysUntil < 0) {
       return <Badge variant="destructive" className="ml-2">Audiência passou</Badge>;
@@ -224,10 +237,10 @@ export const LegalCaseManagement = () => {
     return legalCases
       .filter(c => c.hearing_date)
       .filter(c => {
-        const daysUntil = differenceInDays(new Date(c.hearing_date!), new Date());
+        const daysUntil = differenceInDays(new Date(extractDateString(c.hearing_date) || ""), new Date());
         return daysUntil >= 0 && daysUntil <= 30;
       })
-      .sort((a, b) => new Date(a.hearing_date!).getTime() - new Date(b.hearing_date!).getTime());
+      .sort((a, b) => new Date(extractDateString(a.hearing_date) || "").getTime() - new Date(extractDateString(b.hearing_date) || "").getTime());
   }, [legalCases]);
 
   const filteredCases = useMemo(() => {
@@ -463,8 +476,8 @@ export const LegalCaseManagement = () => {
             <ul className="mt-2 space-y-1">
               {upcomingHearings.slice(0, 3).map((c) => (
                 <li key={c.id} className="text-sm">
-                  {c.case_number} - {format(new Date(c.hearing_date!), "dd/MM/yyyy", { locale: ptBR })}
-                  {" "}({differenceInDays(new Date(c.hearing_date!), new Date())} dias)
+                  {c.case_number} - {formatDateDisplay(c.hearing_date)}
+                  {" "}({differenceInDays(new Date(extractDateString(c.hearing_date) || ""), new Date())} dias)
                 </li>
               ))}
             </ul>
@@ -543,7 +556,7 @@ export const LegalCaseManagement = () => {
                     <TableCell>
                       {legalCase.hearing_date ? (
                         <div className="flex items-center">
-                          {format(new Date(legalCase.hearing_date), "dd/MM/yyyy")}
+                          {formatDateDisplay(legalCase.hearing_date)}
                           {getHearingAlert(legalCase.hearing_date)}
                         </div>
                       ) : (

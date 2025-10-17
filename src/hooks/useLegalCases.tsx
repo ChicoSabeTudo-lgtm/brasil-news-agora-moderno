@@ -18,6 +18,12 @@ export interface LegalCase {
   uploaded_by: string | null;
 }
 
+const normalizeDate = (value?: string | null) => {
+  if (!value) return null;
+  if (value.includes('T')) return value.split('T')[0];
+  return value;
+};
+
 export interface LegalCaseDocument {
   id: string;
   legal_case_id: string;
@@ -64,9 +70,15 @@ export const useLegalCases = () => {
       const { documents, ...legalCaseData } = caseData;
       
       // Insert legal case
+      const payload = {
+        ...legalCaseData,
+        start_date: normalizeDate(legalCaseData.start_date),
+        hearing_date: normalizeDate(legalCaseData.hearing_date) || null,
+      };
+
       const { data: newCase, error: caseError } = await supabaseClient
         .from('legal_cases')
-        .insert([legalCaseData])
+        .insert([payload])
         .select()
         .single();
 
@@ -140,9 +152,15 @@ export const useLegalCases = () => {
     }) => {
       const { id, documents, ...updateData } = caseData;
 
+      const payload = {
+        ...updateData,
+        start_date: normalizeDate(updateData.start_date),
+        hearing_date: normalizeDate(updateData.hearing_date) || null,
+      };
+
       const { data, error } = await supabaseClient
         .from('legal_cases')
-        .update(updateData)
+        .update(payload)
         .eq('id', id)
         .select()
         .single();
