@@ -56,7 +56,7 @@ const statusOptions = [
   { value: 'active', label: 'Ativo' },
   { value: 'suspended', label: 'Suspenso' },
   { value: 'archived', label: 'Arquivado' },
-  { value: 'concluded', label: 'Concluído' },
+  { value: 'concluded', label: 'Concluso para sentença' },
 ];
 
 export const LegalCaseManagement = () => {
@@ -191,7 +191,7 @@ export const LegalCaseManagement = () => {
       concluded: {
         variant: "default",
         className: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/20",
-        label: "Concluído"
+        label: "Concluso para sentença"
       },
     };
 
@@ -216,7 +216,14 @@ export const LegalCaseManagement = () => {
     const daysUntil = differenceInDays(new Date(normalizedDate), new Date());
     
     if (daysUntil < 0) {
-      return <Badge variant="destructive" className="ml-2">Audiência passou</Badge>;
+      return (
+        <Badge
+          variant="default"
+          className="ml-2 bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20"
+        >
+          Audiência concluída
+        </Badge>
+      );
     } else if (daysUntil <= 7) {
       return <Badge variant="destructive" className="ml-2 gap-1">
         <AlertTriangle className="h-3 w-3" />
