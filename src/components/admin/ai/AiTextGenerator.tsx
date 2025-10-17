@@ -92,10 +92,24 @@ const callIaFunction = async (prompt: string) => {
     throw new Error('URL das funções do Supabase não configurada.');
   }
 
+  // Obter token de autenticação do localStorage
+  const authData = localStorage.getItem('sb-spgusjrjrhfychhdwixn-auth-token');
+  let accessToken = '';
+  
+  if (authData) {
+    try {
+      const parsed = JSON.parse(authData);
+      accessToken = parsed?.access_token || '';
+    } catch (e) {
+      console.error('Erro ao parsear token:', e);
+    }
+  }
+
   const response = await fetch(`${FUNCTIONS_URL}/ia-texts`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`,
     },
     body: JSON.stringify({ prompt }),
   });
