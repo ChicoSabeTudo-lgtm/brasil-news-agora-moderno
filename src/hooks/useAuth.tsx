@@ -358,7 +358,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return { error: "Erro ao buscar profile" };
       }
 
-      const whatsappPhone = profileRows?.[0]?.whatsapp_phone;
+      let whatsappPhone = profileRows?.[0]?.whatsapp_phone as string | undefined;
+
+      if (!whatsappPhone) {
+        if (DEBUG_OTP) {
+          console.log('[OTP] WhatsApp ausente, tentando recuperar via metadata.');
+        }
+
+        const { data: userData } = await supabase.auth.getUser();
+        const metaFullName = (userData.user?.user_metadata as any)?.full_name as string | undefined;
+        const metaWhatsAppRaw = (userData.user?.user_metadata as any)?.whatsapp_phone as string | undefined;
+
+        if (metaWhatsAppRaw) {
+          const normalizedPhone = formatPhoneNumber(metaWhatsAppRaw);
+
+          const { data: ensureProfile, error: ensureError } = await supabase.rpc('ensure_user_profile', {
+            p_user_id: targetUserId,
+            p_full_name: metaFullName || email,
+            p_whatsapp_phone: normalizedPhone,
+          });
+
+          if (ensureError) {
+            console.error('Erro ao normalizar WhatsApp via RPC:', ensureError);
+          } else {
+            whatsappPhone = (ensureProfile as any)?.whatsapp_phone || normalizedPhone;
+
+            if (!whatsappPhone) {
+              const { data: refreshedProfile } = await supabase
+                .from('profiles')
+                .select('whatsapp_phone')
+                .eq('user_id', targetUserId)
+                .limit(1)
+                .maybeSingle();
+
+              whatsappPhone = refreshedProfile?.whatsapp_phone || whatsappPhone;
+            }
+          }
+        }
+      }
 
       if (!whatsappPhone) {
         toast({

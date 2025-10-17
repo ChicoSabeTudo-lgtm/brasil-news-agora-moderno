@@ -16,19 +16,19 @@ CREATE TABLE public.categories (
 ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for categories
-CREATE POLICY "Categories are publicly viewable" 
-ON public.categories 
-FOR SELECT 
+CREATE POLICY "Categorias são públicas quando ativas"
+ON public.categories
+FOR SELECT
 USING (is_active = true);
 
-CREATE POLICY "Admins can manage categories"
+CREATE POLICY "Admins podem gerenciar categorias"
 ON public.categories
 FOR ALL
 TO authenticated
 USING (public.has_role(auth.uid(), 'admin'))
 WITH CHECK (public.has_role(auth.uid(), 'admin'));
 
-CREATE POLICY "Redators can view all categories"
+CREATE POLICY "Redatores podem ver categorias"
 ON public.categories
 FOR SELECT
 TO authenticated

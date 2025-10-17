@@ -7,35 +7,32 @@ ON storage.objects
 FOR SELECT 
 USING (bucket_id = 'advertisements');
 
-CREATE POLICY "Admins, gestores e redatores podem enviar imagens de anúncios" 
+CREATE POLICY "Admins e redatores podem enviar imagens de anúncios" 
 ON storage.objects 
 FOR INSERT 
 WITH CHECK (
   bucket_id = 'advertisements' AND (
     has_role(auth.uid(), 'admin'::app_role) OR 
-    has_role(auth.uid(), 'gestor'::app_role) OR 
     has_role(auth.uid(), 'redator'::app_role)
   )
 );
 
-CREATE POLICY "Admins, gestores e redatores podem atualizar imagens de anúncios" 
+CREATE POLICY "Admins e redatores podem atualizar imagens de anúncios" 
 ON storage.objects 
 FOR UPDATE 
 USING (
   bucket_id = 'advertisements' AND (
     has_role(auth.uid(), 'admin'::app_role) OR 
-    has_role(auth.uid(), 'gestor'::app_role) OR 
     has_role(auth.uid(), 'redator'::app_role)
   )
 );
 
-CREATE POLICY "Admins, gestores e redatores podem remover imagens de anúncios" 
+CREATE POLICY "Admins e redatores podem remover imagens de anúncios" 
 ON storage.objects 
 FOR DELETE 
 USING (
   bucket_id = 'advertisements' AND (
     has_role(auth.uid(), 'admin'::app_role) OR 
-    has_role(auth.uid(), 'gestor'::app_role) OR 
     has_role(auth.uid(), 'redator'::app_role)
   )
 );

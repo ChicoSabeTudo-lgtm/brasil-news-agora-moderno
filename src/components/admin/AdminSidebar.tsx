@@ -73,31 +73,31 @@ const adminMenuItems = [
     title: 'Posts Sociais',
     url: '/admin?tab=social-posts',
     icon: Share2,
-    roles: ['admin', 'redator', 'gestor'],
+    roles: ['admin', 'redator'],
   },
   {
     title: 'Ao Vivo',
     url: '/admin?tab=live',
     icon: Radio,
-    roles: ['admin', 'redator', 'gestor'],
+    roles: ['admin', 'redator'],
   },
   {
     title: 'Enquetes',
     url: '/admin?tab=polls',
     icon: Vote,
-    roles: ['admin', 'redator', 'gestor'],
+    roles: ['admin', 'redator'],
   },
   {
     title: 'Blocos',
     url: '/admin?tab=blocks-config',
     icon: Monitor,
-    roles: ['admin', 'redator', 'gestor'],
+    roles: ['admin', 'redator'],
   },
   {
     title: 'Textos de IA',
     url: '/admin?tab=ai-texts',
     icon: FileText,
-    roles: ['admin', 'redator', 'gestor'],
+    roles: ['admin', 'redator'],
   },
 ];
 
@@ -130,7 +130,7 @@ const adminOnlyItems = [
     title: 'Análises',
     url: '/admin?tab=analytics',
     icon: TrendingUp,
-    roles: ['admin', 'gestor'],
+    roles: ['admin'],
   },
 ];
 

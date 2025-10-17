@@ -5,9 +5,10 @@ import { useAuth } from '@/hooks/useAuth';
 interface ProtectedRouteProps {
   children: ReactNode;
   requiredRole?: 'admin' | 'redator' | 'gestor';
+  allowedRoles?: Array<'admin' | 'redator' | 'gestor'>;
 }
 
-export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) => {
+export const ProtectedRoute = ({ children, requiredRole, allowedRoles }: ProtectedRouteProps) => {
   const { user, loading, userRole, isOtpVerified } = useAuth();
 
   if (loading) {
@@ -29,8 +30,10 @@ export const ProtectedRoute = ({ children, requiredRole }: ProtectedRouteProps) 
     return <Navigate to="/auth" replace />;
   }
 
-  if (requiredRole) {
-    const hasRequiredRole = [requiredRole, 'admin'].includes(userRole || '');
+  const effectiveAllowedRoles = allowedRoles || (requiredRole ? [requiredRole, 'admin'] : null);
+
+  if (effectiveAllowedRoles) {
+    const hasRequiredRole = effectiveAllowedRoles.includes((userRole as 'admin' | 'redator' | 'gestor') || '');
     if (!hasRequiredRole) {
       return (
         <div className="min-h-screen flex items-center justify-center">

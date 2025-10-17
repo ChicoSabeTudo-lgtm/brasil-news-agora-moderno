@@ -6,7 +6,24 @@ import { AdminSidebar } from '@/components/admin/AdminSidebar';
 import { AdminHeader } from '@/components/admin/AdminHeader';
 import { DashboardLayout } from '@/components/admin/dashboard/DashboardLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+      if (userRole === 'gestor') {
+        return (
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center space-y-4">
+              <h1 className="text-2xl font-bold">Acesso restrito</h1>
+              <p className="text-muted-foreground max-w-md">
+                Como gestor você tem acesso completo à Redação e à seção de Propagandas.
+                Outras áreas estão disponíveis apenas para administradores ou redatores.
+              </p>
+              <Button variant="outline" onClick={() => handleTabChange('dashboard')}>
+                Voltar ao dashboard
+              </Button>
+            </div>
+          </div>
+        );
+      }
 
 // Import existing admin components
 import { UserManagement } from '@/components/admin/UserManagement';
@@ -82,7 +99,7 @@ export default function ModernAdmin() {
   };
 
   return (
-    <ProtectedRoute>
+    <ProtectedRoute allowedRoles={['admin', 'redator', 'gestor']}>
       <div className="min-h-screen bg-background">
         <SidebarProvider defaultOpen={true}>
           <div className="flex min-h-screen w-full">
@@ -99,22 +116,37 @@ export default function ModernAdmin() {
                     <TabsTrigger value="news">Notícias</TabsTrigger>
                     <TabsTrigger value="post-sharing">Compartilhamento</TabsTrigger>
                     <TabsTrigger value="social-posts">Posts Sociais</TabsTrigger>
-                    <TabsTrigger value="live">Ao Vivo</TabsTrigger>
-                    <TabsTrigger value="polls">Enquetes</TabsTrigger>
-                    <TabsTrigger value="blocks-config">Blocos</TabsTrigger>
-                    <TabsTrigger value="ai-texts">Textos de IA</TabsTrigger>
-                    <TabsTrigger value="ai-texts">Textos de IA</TabsTrigger>
+                    {userRole !== 'gestor' && (
+                      <TabsTrigger value="live">Ao Vivo</TabsTrigger>
+                    )}
+                    {userRole !== 'gestor' && (
+                      <TabsTrigger value="polls">Enquetes</TabsTrigger>
+                    )}
+                    {userRole !== 'gestor' && (
+                      <TabsTrigger value="blocks-config">Blocos</TabsTrigger>
+                    )}
+                    {userRole !== 'gestor' && (
+                      <TabsTrigger value="ai-texts">Textos de IA</TabsTrigger>
+                    )}
                     {/* Financeiro visível para admin e redator; gestor acessa apenas propagandas */}
                     {(userRole === 'admin' || userRole === 'redator') && (
                       <TabsTrigger value="finance">Financeiro</TabsTrigger>
                     )}
-                    <TabsTrigger value="clients">Clientes</TabsTrigger>
-                    <TabsTrigger value="suppliers">Fornecedores</TabsTrigger>
+                    {(userRole === 'admin' || userRole === 'redator') && (
+                      <TabsTrigger value="clients">Clientes</TabsTrigger>
+                    )}
+                    {(userRole === 'admin' || userRole === 'redator') && (
+                      <TabsTrigger value="suppliers">Fornecedores</TabsTrigger>
+                    )}
                     {(userRole === 'admin' || userRole === 'gestor') && (
                       <TabsTrigger value="ads-finance">Propagandas</TabsTrigger>
                     )}
-                    <TabsTrigger value="insertion-orders">Gestão de PIs</TabsTrigger>
-                    <TabsTrigger value="hr-calculator">Calculadora RH</TabsTrigger>
+                    {(userRole === 'admin' || userRole === 'redator') && (
+                      <TabsTrigger value="insertion-orders">Gestão de PIs</TabsTrigger>
+                    )}
+                    {(userRole === 'admin' || userRole === 'redator') && (
+                      <TabsTrigger value="hr-calculator">Calculadora RH</TabsTrigger>
+                    )}
                     {userRole === 'admin' && (
                       <>
                         <TabsTrigger value="categories">Categorias</TabsTrigger>
@@ -156,56 +188,66 @@ export default function ModernAdmin() {
                     </Tabs>
                   </TabsContent>
 
-                  <TabsContent value="post-sharing" className="mt-0 h-full p-6">
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between">
-                        <h2 className="text-2xl font-bold">Compartilhamento de Posts</h2>
+                  {userRole !== 'gestor' && (
+                    <TabsContent value="post-sharing" className="mt-0 h-full p-6">
+                      <div className="space-y-6">
+                        <div className="flex items-center justify-between">
+                          <h2 className="text-2xl font-bold">Compartilhamento de Posts</h2>
+                        </div>
+                        <PostSharingForm 
+                          prefilledData={shareFormData}
+                          onDataUsed={() => setShareFormData(null)}
+                        />
                       </div>
-                      <PostSharingForm 
-                        prefilledData={shareFormData}
-                        onDataUsed={() => setShareFormData(null)}
-                      />
-                    </div>
-                  </TabsContent>
+                    </TabsContent>
+                  )}
 
-                  <TabsContent value="social-posts" className="mt-0 h-full p-6">
-                    <SocialPostsManagement />
-                  </TabsContent>
+                  {userRole !== 'gestor' && (
+                    <TabsContent value="social-posts" className="mt-0 h-full p-6">
+                      <SocialPostsManagement />
+                    </TabsContent>
+                  )}
 
-                  <TabsContent value="live" className="mt-0 h-full p-6">
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between">
-                        <h2 className="text-2xl font-bold">Conteúdo Ao Vivo</h2>
+                  {userRole !== 'gestor' && (
+                    <TabsContent value="live" className="mt-0 h-full p-6">
+                      <div className="space-y-6">
+                        <div className="flex items-center justify-between">
+                          <h2 className="text-2xl font-bold">Conteúdo Ao Vivo</h2>
+                        </div>
+                        
+                        <Tabs defaultValue="streams" className="space-y-6">
+                          <TabsList>
+                            <TabsTrigger value="streams">Transmissões</TabsTrigger>
+                            <TabsTrigger value="videos">Vídeos</TabsTrigger>
+                          </TabsList>
+                          
+                          <TabsContent value="streams">
+                            <LiveStreamManagement />
+                          </TabsContent>
+                          
+                          <TabsContent value="videos">
+                            <VideoManagement />
+                          </TabsContent>
+                        </Tabs>
                       </div>
-                      
-                      <Tabs defaultValue="streams" className="space-y-6">
-                        <TabsList>
-                          <TabsTrigger value="streams">Transmissões</TabsTrigger>
-                          <TabsTrigger value="videos">Vídeos</TabsTrigger>
-                        </TabsList>
-                        
-                        <TabsContent value="streams">
-                          <LiveStreamManagement />
-                        </TabsContent>
-                        
-                        <TabsContent value="videos">
-                          <VideoManagement />
-                        </TabsContent>
-                      </Tabs>
-                    </div>
-                  </TabsContent>
+                    </TabsContent>
+                  )}
 
                   <TabsContent value="polls" className="mt-0 h-full p-6">
                     <PollManagement />
                   </TabsContent>
 
-                  <TabsContent value="blocks-config" className="mt-0 h-full p-6">
-                    <BlocksConfigManagement />
-                  </TabsContent>
+                  {userRole !== 'gestor' && (
+                    <TabsContent value="blocks-config" className="mt-0 h-full p-6">
+                      <BlocksConfigManagement />
+                    </TabsContent>
+                  )}
 
-                  <TabsContent value="ai-texts" className="mt-0 h-full p-6">
-                    <AiTextGenerator />
-                  </TabsContent>
+                  {userRole !== 'gestor' && (
+                    <TabsContent value="ai-texts" className="mt-0 h-full p-6">
+                      <AiTextGenerator />
+                    </TabsContent>
+                  )}
 
                   {userRole === 'admin' && (
                     <TabsContent value="categories" className="mt-0 h-full p-6">
@@ -269,7 +311,7 @@ export default function ModernAdmin() {
                     </TabsContent>
                   )}
 
-                  {(userRole === 'admin' || userRole === 'gestor') && (
+                  {userRole === 'admin' && (
                     <TabsContent value="analytics" className="mt-0 h-full">
                       <AnalyticsPage />
                     </TabsContent>
@@ -311,43 +353,43 @@ export default function ModernAdmin() {
                     </TabsContent>
                   )}
 
-                  {(userRole === 'admin' || userRole === 'redator') && (
+                  {userRole === 'admin' && (
                     <TabsContent value="company-data" className="mt-0 h-full">
                       <CompanyData />
                     </TabsContent>
                   )}
 
-                  {(userRole === 'admin' || userRole === 'redator') && (
+                  {userRole === 'admin' && (
                     <TabsContent value="company-documents" className="mt-0 h-full">
                       <CompanyDocuments />
                     </TabsContent>
                   )}
 
-                  {(userRole === 'admin' || userRole === 'redator') && (
+                  {userRole === 'admin' && (
                     <TabsContent value="company-certifications" className="mt-0 h-full">
                       <CompanyCertifications />
                     </TabsContent>
                   )}
 
-                  {(userRole === 'admin' || userRole === 'redator') && (
+                  {userRole === 'admin' && (
                     <TabsContent value="invoices" className="mt-0 h-full">
                       <InvoiceManagement />
                     </TabsContent>
                   )}
 
-                  {(userRole === 'admin' || userRole === 'redator') && (
+                  {userRole === 'admin' && (
                     <TabsContent value="das-payments" className="mt-0 h-full">
                       <DasManagement />
                     </TabsContent>
                   )}
 
-                  {(userRole === 'admin' || userRole === 'redator') && (
+                  {userRole === 'admin' && (
                     <TabsContent value="inss-payments" className="mt-0 h-full">
                       <InssManagement />
                     </TabsContent>
                   )}
 
-                  {(userRole === 'admin' || userRole === 'redator') && (
+                  {userRole === 'admin' && (
                     <TabsContent value="legal-cases" className="mt-0 h-full">
                       <LegalCaseManagement />
                     </TabsContent>
