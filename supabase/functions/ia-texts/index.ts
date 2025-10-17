@@ -1,4 +1,5 @@
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 const ALLOWED_ORIGINS = [
   'https://chicosabetudo.sigametech.com.br',
@@ -50,12 +51,31 @@ TEXTO BASE:
 ${baseText}
 """`;
 
-async function callOpenAi(prompt: string) {
-  const apiKey = Deno.env.get('OPENAI_API_KEY');
-  if (!apiKey) {
-    throw new Error('OPENAI_API_KEY não configurada nas variáveis de ambiente.');
+async function getOpenAiKey() {
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+  const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+  
+  const supabase = createClient(supabaseUrl, supabaseServiceKey);
+  
+  const { data, error } = await supabase
+    .from('site_configurations')
+    .select('openai_api_key')
+    .limit(1)
+    .maybeSingle();
+  
+  if (error) {
+    console.error('Erro ao buscar OpenAI API Key:', error);
+    throw new Error('Erro ao buscar configuração da API Key.');
   }
+  
+  if (!data?.openai_api_key) {
+    throw new Error('OPENAI_API_KEY não configurada. Configure nas configurações do site.');
+  }
+  
+  return data.openai_api_key;
+}
 
+async function callOpenAi(prompt: string, apiKey: string) {
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -128,7 +148,9 @@ serve(async (req) => {
       });
     }
 
-    const completion = await callOpenAi(buildPrompt(baseText));
+    // Buscar API Key do banco de dados
+    const apiKey = await getOpenAiKey();
+    const completion = await callOpenAi(buildPrompt(baseText), apiKey);
 
     return new Response(JSON.stringify({ completion }), {
       status: 200,
