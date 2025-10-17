@@ -1,11 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { AlertCircle, Copy, Loader2, Sparkles } from 'lucide-react';
-import { useSiteConfigurations } from '@/hooks/useSiteConfigurations';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -84,46 +83,35 @@ const parseCompletion = (raw: string): GeneratedContent => {
   };
 };
 
-const callOpenAi = async (apiKey: string, prompt: string) => {
-  // Ajuste este endpoint se estiver usando proxy próprio
-  const endpoint = 'https://api.openai.com/v1/chat/completions';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://spgusjrjrhfychhdwixn.supabase.co';
+const PROJECT_REF = SUPABASE_URL.match(/^https:\/\/([^.]+)\.supabase\.co/)?.[1] ?? '';
+const FUNCTIONS_URL = PROJECT_REF ? `https://${PROJECT_REF}.functions.supabase.co` : '';
 
-  const response = await fetch(endpoint, {
+const callIaFunction = async (prompt: string) => {
+  if (!FUNCTIONS_URL) {
+    throw new Error('URL das funções do Supabase não configurada.');
+  }
+
+  const response = await fetch(`${FUNCTIONS_URL}/ia-texts`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
     },
-    body: JSON.stringify({
-      model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content:
-            'Você é um especialista em social media que gera conteúdos estruturados para redes sociais brasileiras.',
-        },
-        {
-          role: 'user',
-          content: prompt,
-        },
-      ],
-      temperature: 0.7,
-      max_tokens: 1200,
-    }),
+    body: JSON.stringify({ prompt }),
   });
 
+  const data = await response.json().catch(() => null);
+
   if (!response.ok) {
-    throw new Error('Erro ao se comunicar com a OpenAI');
+    const errorMessage = data?.error ?? 'Falha ao gerar conteúdo.';
+    throw new Error(errorMessage);
   }
 
-  const json = await response.json();
-  const content = json.choices?.[0]?.message?.content as string | undefined;
-
-  if (!content) {
-    throw new Error('Resposta vazia da OpenAI');
+  if (!data?.completion) {
+    throw new Error('Resposta inesperada da função de IA.');
   }
 
-  return content;
+  return data.completion as string;
 };
 
 const CopyButton = ({ text }: { text: string }) => {
@@ -223,12 +211,9 @@ export const AiTextGenerator = () => {
   const [status, setStatus] = useState<GenerationStatus>('idle');
   const [errorMessage, setErrorMessage] = useState('');
   const [result, setResult] = useState<GeneratedContent | null>(null);
-  const { configuration } = useSiteConfigurations();
   const { toast } = useToast();
 
-  const hasApiKey = useMemo(() => Boolean(configuration?.openai_api_key), [configuration?.openai_api_key]);
-
-  const canGenerate = newsText.trim().length > 0 && hasApiKey;
+  const canGenerate = newsText.trim().length > 0;
 
   const handleGenerate = async () => {
     if (!canGenerate) {
@@ -240,13 +225,18 @@ export const AiTextGenerator = () => {
       return;
     }
 
+    if (!FUNCTIONS_URL) {
+      setErrorMessage('URL das funções do Supabase não configurada.');
+      setStatus('error');
+      return;
+    }
+
     try {
       setStatus('loading');
       setErrorMessage('');
 
       const prompt = buildPrompt(newsText);
-
-      const completion = await callOpenAi(configuration.openai_api_key, prompt);
+      const completion = await callIaFunction(prompt);
       const parsed = parseCompletion(completion);
       setResult(parsed);
       setStatus('success');
@@ -279,12 +269,12 @@ export const AiTextGenerator = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {!hasApiKey && (
+            {!FUNCTIONS_URL && (
               <div className="flex items-start gap-3 rounded-md border border-amber-300/70 bg-amber-50 p-4 text-amber-900">
                 <AlertCircle className="mt-1 h-4 w-4" />
                 <div className="space-y-1 text-sm">
-                  <p className="font-medium">API da OpenAI não configurada</p>
-                  <p>Informe a chave na página de configurações do site para habilitar a geração automática.</p>
+                  <p className="font-medium">Funções do Supabase não configuradas</p>
+                  <p>Configure a URL das funções do Supabase nas configurações do site para habilitar a geração automática.</p>
                 </div>
               </div>
             )}
