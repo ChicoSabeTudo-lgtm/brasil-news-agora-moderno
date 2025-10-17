@@ -108,17 +108,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (session?.user) {
           const fetchRole = async () => {
             try {
+              console.log('🔍 Buscando role para usuário:', session.user.id);
               const { data, error } = await supabase
                 .from('user_roles')
                 .select('role')
                 .eq('user_id', session.user.id)
                 .maybeSingle();
 
+              console.log('🔍 Resultado da busca de role:', { data, error });
+
               if (error) throw error;
 
+              console.log('✅ Role encontrado:', data?.role);
               setUserRole(data?.role || null);
             } catch (error) {
-              console.error('Erro ao buscar role do usuário:', error);
+              console.error('❌ Erro ao buscar role do usuário:', error);
               setUserRole(null);
             }
           };
