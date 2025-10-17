@@ -580,7 +580,7 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
   };
 
   return (
-    <ProtectedRoute requiredRole="redator">
+    <ProtectedRoute allowedRoles={['admin', 'redator', 'gestor']}>
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-between mb-8">

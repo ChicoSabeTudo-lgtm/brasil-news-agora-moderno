@@ -47,7 +47,7 @@ export default function InstagramPostGenerator() {
   };
 
   return (
-    <ProtectedRoute requiredRole="redator">
+    <ProtectedRoute allowedRoles={['admin', 'redator', 'gestor']}>
       <div className="min-h-screen bg-background">
         {currentStep === 'editor' && (
           <InstagramEditor 
