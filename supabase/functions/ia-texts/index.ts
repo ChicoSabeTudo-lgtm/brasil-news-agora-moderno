@@ -31,7 +31,7 @@ PARTE 2: SUGESTÕES DE POSTS PARA O FACEBOOK
 Crie 3 opções de posts, cada uma com tom diferente (informativo, analítico, impacto). Todos os posts devem:
 - estar em português do Brasil
 - utilizar linguagem humanizada em formato de narrativa
-- incluir 1 ou 2 emojis relevantes (exemplos: 🚔 🤝 🏥 ✊)
+- incluir dois a cinco emojis relevantes para dar apelo visual (exemplos: 🚔 🤝 🏥 ✊ 🎉 🔥 ⚡ 💪 👏 📢)
 - terminar com a CTA: "👉 Acesse chicosabetudo.com.br 📲" (pode adaptar texto antes da seta)
 - conter hashtags, incluindo #chicosabetudo
 - ter no mínimo ${MIN_WORDS} palavras
