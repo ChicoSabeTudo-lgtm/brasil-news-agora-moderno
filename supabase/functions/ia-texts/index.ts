@@ -38,7 +38,7 @@ const buildPrompt = (baseText: string) => `A partir do conteúdo abaixo, gere re
     - Hashtags (linha final): entre 6 e 12 hashtags relevantes ao tema (sem espaços), incluindo #chicosabetudo por último
     - Estilo Facebook-ready: texto direto para feed; sem cabeçalhos técnicos, sem rótulos desnecessários, sem instruções internas
     - Atenção ao tempo verbal: se evento encerrado → usar passado (ex.: "autoridades confirmaram", "equipe venceu")
-    - IMPORTANTE: Use quebras de linha (\\n\\n) entre parágrafos para melhor legibilidade no Facebook
+    - IMPORTANTE: Use quebras de linha (\\n\\n) entre parágrafos para melhor legibilidade no Facebook. Escape corretamente as quebras de linha no JSON.
 
     Tons exigidos (gerar 3 opções):
 
