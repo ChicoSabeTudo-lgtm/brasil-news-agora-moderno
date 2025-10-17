@@ -84,6 +84,48 @@ const parseCompletion = (raw: string): GeneratedContent => {
   };
 };
 
+const callOpenAi = async (apiKey: string, prompt: string) => {
+  // Ajuste este endpoint se estiver usando proxy próprio
+  const endpoint = 'https://api.openai.com/v1/chat/completions';
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content:
+            'Você é um especialista em social media que gera conteúdos estruturados para redes sociais brasileiras.',
+        },
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+      temperature: 0.7,
+      max_tokens: 1200,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Erro ao se comunicar com a OpenAI');
+  }
+
+  const json = await response.json();
+  const content = json.choices?.[0]?.message?.content as string | undefined;
+
+  if (!content) {
+    throw new Error('Resposta vazia da OpenAI');
+  }
+
+  return content;
+};
+
 const CopyButton = ({ text }: { text: string }) => {
   const { toast } = useToast();
 
@@ -204,40 +246,7 @@ export const AiTextGenerator = () => {
 
       const prompt = buildPrompt(newsText);
 
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${configuration?.openai_api_key}`,
-        },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            {
-              role: 'system',
-              content: 'Você é um especialista em social media que gera conteúdos estruturados para redes sociais brasileiras.',
-            },
-            {
-              role: 'user',
-              content: prompt,
-            },
-          ],
-          temperature: 0.7,
-          max_tokens: 1200,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Erro ao se comunicar com a OpenAI.');
-      }
-
-      const json = await response.json();
-      const completion = json.choices?.[0]?.message?.content as string | undefined;
-
-      if (!completion) {
-        throw new Error('Resposta vazia da OpenAI.');
-      }
-
+      const completion = await callOpenAi(configuration.openai_api_key, prompt);
       const parsed = parseCompletion(completion);
       setResult(parsed);
       setStatus('success');
