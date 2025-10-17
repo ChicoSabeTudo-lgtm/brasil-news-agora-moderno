@@ -106,20 +106,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          // Defer role fetching to avoid blocking
-          setTimeout(async () => {
+          const fetchRole = async () => {
             try {
-              const { data } = await supabase
+              const { data, error } = await supabase
                 .from('user_roles')
                 .select('role')
                 .eq('user_id', session.user.id)
                 .maybeSingle();
-              
-              setUserRole(data?.role || 'redator');
+
+              if (error) throw error;
+
+              setUserRole(data?.role || null);
             } catch (error) {
-              setUserRole('redator');
+              console.error('Erro ao buscar role do usuário:', error);
+              setUserRole(null);
             }
-          }, 0);
+          };
+
+          fetchRole();
         } else {
           setUserRole(null);
           updateOtpVerified(false);
@@ -168,18 +172,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Se credenciais são válidas, manter sessão mas marcar como NÃO verificado
       if (authData.session) {
         updateOtpVerified(false); // Usuário está "pré-autenticado" mas não pode acessar
+
+        // Buscar role mais recente após login
+        const userId = authData.user?.id;
+        if (userId) {
+          const { data: roleData } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', userId)
+            .maybeSingle();
+
+          setUserRole(roleData?.role || null);
+        }
         
         // Gerar OTP e enviar webhook
-        const userId = authData.user?.id;
         const { error: otpError } = await requestOTPLogin(email, password, userId);
-        
+
         if (otpError) {
           // Se erro no OTP, fazer logout
           await supabase.auth.signOut();
           updateOtpVerified(false);
           return { error: { message: otpError } };
         }
-        
+
         // OTP enviado com sucesso, aguardar verificação
         securityLogger.log(
           SecurityEventType.LOGIN_SUCCESS,
@@ -187,7 +202,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         );
         return { error: null, requiresOTP: true };
       }
-      
+
       return { error: null };
     } catch (error: any) {
       toast({
@@ -317,6 +332,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (!targetUserId) {
         return { error: 'Não foi possível identificar o usuário autenticado.' };
+      }
+
+      if (!userRole) {
+        const { data: roleData } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', targetUserId)
+          .maybeSingle();
+
+        if (roleData?.role) {
+          setUserRole(roleData.role);
+        }
       }
 
       if (DEBUG_OTP) {

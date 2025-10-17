@@ -32,8 +32,8 @@ export const ProtectedRoute = ({ children, requiredRole, allowedRoles }: Protect
 
   const effectiveAllowedRoles = allowedRoles || (requiredRole ? [requiredRole, 'admin'] : null);
 
-  if (effectiveAllowedRoles) {
-    const hasRequiredRole = effectiveAllowedRoles.includes((userRole as 'admin' | 'redator' | 'gestor') || '');
+  if (effectiveAllowedRoles && userRole) {
+    const hasRequiredRole = effectiveAllowedRoles.includes(userRole as 'admin' | 'redator' | 'gestor');
     if (!hasRequiredRole) {
       return (
         <div className="min-h-screen flex items-center justify-center">
