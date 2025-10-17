@@ -78,9 +78,9 @@ export default function ModernAdmin() {
   };
 
   const handleTabChange = (value: string) => {
-    // Gestores não podem acessar outras abas fora de redação/propagandas
+    // Gestores podem acessar toda a Redação e Propagandas
     if (userRole === 'gestor') {
-      const allowed = new Set(['dashboard', 'news', 'post-sharing', 'ads-finance']);
+      const allowed = new Set(['dashboard', 'news', 'post-sharing', 'social-posts', 'live', 'polls', 'blocks-config', 'ai-texts', 'ads-finance']);
       if (!allowed.has(value)) {
         setActiveTab('dashboard');
         navigate('/admin?tab=dashboard', { replace: true });
@@ -93,14 +93,14 @@ export default function ModernAdmin() {
   };
 
   const renderContent = () => {
-    if (userRole === 'gestor' && !['dashboard', 'news', 'post-sharing', 'ads-finance'].includes(activeTab)) {
+    if (userRole === 'gestor' && !['dashboard', 'news', 'post-sharing', 'social-posts', 'live', 'polls', 'blocks-config', 'ai-texts', 'ads-finance'].includes(activeTab)) {
       return (
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center space-y-4">
             <h1 className="text-2xl font-bold">Acesso restrito</h1>
             <p className="text-muted-foreground max-w-md">
               Como gestor você tem acesso completo à Redação e à seção de Propagandas.
-              Outras áreas estão disponíveis apenas para administradores ou redatores.
+              Outras áreas estão disponíveis apenas para administradores.
             </p>
             <Button variant="outline" onClick={() => handleTabChange('dashboard')}>
               Voltar ao dashboard
@@ -121,18 +121,10 @@ export default function ModernAdmin() {
                     <TabsTrigger value="news">Notícias</TabsTrigger>
                     <TabsTrigger value="post-sharing">Compartilhamento</TabsTrigger>
                     <TabsTrigger value="social-posts">Posts Sociais</TabsTrigger>
-                    {userRole !== 'gestor' && (
-                      <TabsTrigger value="live">Ao Vivo</TabsTrigger>
-                    )}
-                    {userRole !== 'gestor' && (
-                      <TabsTrigger value="polls">Enquetes</TabsTrigger>
-                    )}
-                    {userRole !== 'gestor' && (
-                      <TabsTrigger value="blocks-config">Blocos</TabsTrigger>
-                    )}
-                    {userRole !== 'gestor' && (
-                      <TabsTrigger value="ai-texts">Textos de IA</TabsTrigger>
-                    )}
+                    <TabsTrigger value="live">Ao Vivo</TabsTrigger>
+                    <TabsTrigger value="polls">Enquetes</TabsTrigger>
+                    <TabsTrigger value="blocks-config">Blocos</TabsTrigger>
+                    <TabsTrigger value="ai-texts">Textos de IA</TabsTrigger>
                     {/* Financeiro visível para admin e redator; gestor acessa apenas propagandas */}
                     {(userRole === 'admin' || userRole === 'redator') && (
                       <TabsTrigger value="finance">Financeiro</TabsTrigger>
@@ -193,66 +185,56 @@ export default function ModernAdmin() {
                     </Tabs>
                   </TabsContent>
 
-                  {userRole !== 'gestor' && (
-                    <TabsContent value="post-sharing" className="mt-0 h-full p-6">
-                      <div className="space-y-6">
-                        <div className="flex items-center justify-between">
-                          <h2 className="text-2xl font-bold">Compartilhamento de Posts</h2>
-                        </div>
-                        <PostSharingForm 
-                          prefilledData={shareFormData}
-                          onDataUsed={() => setShareFormData(null)}
-                        />
+                  <TabsContent value="post-sharing" className="mt-0 h-full p-6">
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-2xl font-bold">Compartilhamento de Posts</h2>
                       </div>
-                    </TabsContent>
-                  )}
+                      <PostSharingForm 
+                        prefilledData={shareFormData}
+                        onDataUsed={() => setShareFormData(null)}
+                      />
+                    </div>
+                  </TabsContent>
 
-                  {userRole !== 'gestor' && (
-                    <TabsContent value="social-posts" className="mt-0 h-full p-6">
-                      <SocialPostsManagement />
-                    </TabsContent>
-                  )}
+                  <TabsContent value="social-posts" className="mt-0 h-full p-6">
+                    <SocialPostsManagement />
+                  </TabsContent>
 
-                  {userRole !== 'gestor' && (
-                    <TabsContent value="live" className="mt-0 h-full p-6">
-                      <div className="space-y-6">
-                        <div className="flex items-center justify-between">
-                          <h2 className="text-2xl font-bold">Conteúdo Ao Vivo</h2>
-                        </div>
+                  <TabsContent value="live" className="mt-0 h-full p-6">
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-2xl font-bold">Conteúdo Ao Vivo</h2>
+                      </div>
+                      
+                      <Tabs defaultValue="streams" className="space-y-6">
+                        <TabsList>
+                          <TabsTrigger value="streams">Transmissões</TabsTrigger>
+                          <TabsTrigger value="videos">Vídeos</TabsTrigger>
+                        </TabsList>
                         
-                        <Tabs defaultValue="streams" className="space-y-6">
-                          <TabsList>
-                            <TabsTrigger value="streams">Transmissões</TabsTrigger>
-                            <TabsTrigger value="videos">Vídeos</TabsTrigger>
-                          </TabsList>
-                          
-                          <TabsContent value="streams">
-                            <LiveStreamManagement />
-                          </TabsContent>
-                          
-                          <TabsContent value="videos">
-                            <VideoManagement />
-                          </TabsContent>
-                        </Tabs>
-                      </div>
-                    </TabsContent>
-                  )}
+                        <TabsContent value="streams">
+                          <LiveStreamManagement />
+                        </TabsContent>
+                        
+                        <TabsContent value="videos">
+                          <VideoManagement />
+                        </TabsContent>
+                      </Tabs>
+                    </div>
+                  </TabsContent>
 
                   <TabsContent value="polls" className="mt-0 h-full p-6">
                     <PollManagement />
                   </TabsContent>
 
-                  {userRole !== 'gestor' && (
-                    <TabsContent value="blocks-config" className="mt-0 h-full p-6">
-                      <BlocksConfigManagement />
-                    </TabsContent>
-                  )}
+                  <TabsContent value="blocks-config" className="mt-0 h-full p-6">
+                    <BlocksConfigManagement />
+                  </TabsContent>
 
-                  {userRole !== 'gestor' && (
-                    <TabsContent value="ai-texts" className="mt-0 h-full p-6">
-                      <AiTextGenerator />
-                    </TabsContent>
-                  )}
+                  <TabsContent value="ai-texts" className="mt-0 h-full p-6">
+                    <AiTextGenerator />
+                  </TabsContent>
 
                   {userRole === 'admin' && (
                     <TabsContent value="categories" className="mt-0 h-full p-6">

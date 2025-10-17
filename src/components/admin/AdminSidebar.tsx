@@ -73,31 +73,31 @@ const adminMenuItems = [
     title: 'Posts Sociais',
     url: '/admin?tab=social-posts',
     icon: Share2,
-    roles: ['admin', 'redator'],
+    roles: ['admin', 'redator', 'gestor'],
   },
   {
     title: 'Ao Vivo',
     url: '/admin?tab=live',
     icon: Radio,
-    roles: ['admin', 'redator'],
+    roles: ['admin', 'redator', 'gestor'],
   },
   {
     title: 'Enquetes',
     url: '/admin?tab=polls',
     icon: Vote,
-    roles: ['admin', 'redator'],
+    roles: ['admin', 'redator', 'gestor'],
   },
   {
     title: 'Blocos',
     url: '/admin?tab=blocks-config',
     icon: Monitor,
-    roles: ['admin', 'redator'],
+    roles: ['admin', 'redator', 'gestor'],
   },
   {
     title: 'Textos de IA',
     url: '/admin?tab=ai-texts',
     icon: FileText,
-    roles: ['admin', 'redator'],
+    roles: ['admin', 'redator', 'gestor'],
   },
 ];
 
@@ -335,7 +335,7 @@ export const AdminSidebar = () => {
           </SidebarGroup>
         </Collapsible>
 
-        {(userRole === 'admin' || userRole === 'gestor') && (
+        {userRole === 'admin' && (
           <Collapsible open={openSection === 'administracao'} onOpenChange={() => toggleSection('administracao')}>
             <SidebarGroup>
               <CollapsibleTrigger asChild>
@@ -405,7 +405,7 @@ export const AdminSidebar = () => {
           </Collapsible>
         )}
 
-        {(userRole === 'admin' || userRole === 'gestor') && (
+        {userRole === 'admin' && (
           <Collapsible open={openSection === 'geral'} onOpenChange={() => toggleSection('geral')}>
             <SidebarGroup>
               <CollapsibleTrigger asChild>
@@ -449,7 +449,7 @@ export const AdminSidebar = () => {
           </Collapsible>
         )}
 
-        {(userRole === 'admin' || userRole === 'gestor') && (
+        {userRole === 'admin' && (
           <Collapsible open={openSection === 'empresa'} onOpenChange={() => toggleSection('empresa')}>
             <SidebarGroup>
               <CollapsibleTrigger asChild>
