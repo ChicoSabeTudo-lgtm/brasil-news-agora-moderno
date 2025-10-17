@@ -39,14 +39,15 @@ Crie 3 seções de títulos, cada uma com 5 sugestões. Os títulos devem ser cr
 - Seção 2: Títulos em Formato de Pergunta (Curiosidade)
 - Seção 3: Títulos de Impacto (Para Redes Sociais)
 
-PARTE 2: SUGESTÕES DE POSTS PARA O FACEBOOK
-Crie 3 opções de posts, cada uma com tom diferente (informativo, analítico, impacto). Todos os posts devem:
+PARTE 2: GERAR UM RESUMO DO TEXTO
+Crie 3 opções de resumo, cada uma com tom diferente (informativo, analítico, impacto). Cada resumo deve:
 - estar em português do Brasil
 - utilizar linguagem humanizada em formato de narrativa
-- incluir dois a cinco emojis relevantes para dar apelo visual (exemplos: 🚔 🤝 🏥 ✊ 🎉 🔥 ⚡ 💪 👏 📢)
-- terminar com a CTA: "👉 Acesse chicosabetudo.com.br 📲" (pode adaptar texto antes da seta)
-- conter hashtags, incluindo #chicosabetudo
-- ter no mínimo ${MIN_WORDS} palavras
+- ter aproximadamente 200 caracteres (± 10%), como escrito por um humano
+- ser conciso e direto ao ponto
+- capturar a essência da notícia
+- NÃO incluir emojis, hashtags ou CTAs
+- ser apenas o texto final, sem rótulos ou elementos extras
 
 Respeite os tempos verbais de acordo com o ocorrido no texto original. Estruture a resposta em JSON válido com o formato:
 {
@@ -202,30 +203,19 @@ const GeneratedSection = ({ content }: { content: GeneratedContent | null }) => 
       </div>
 
       <Card>
-        <CardHeader className="flex items-center gap-4 sm:flex-row sm:items-start">
+        <CardHeader>
           <div className="flex-1 space-y-1">
-            <CardTitle className="text-lg">Sugestões de Posts para Facebook</CardTitle>
+            <CardTitle className="text-lg">Resumo do Texto Gerado</CardTitle>
             <CardDescription>
-              Conteúdos narrativos com tons variados, prontos para uso nas redes sociais.
+              Resumo humanizado e narrativo com aproximadamente 200 caracteres.
             </CardDescription>
           </div>
-          <CopyButton
-            text={content.posts
-              .map((post) => `=== ${TONE_LABELS[post.tone]} ===\n${post.content}`)
-              .join('\n\n')}
-          />
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
             {content.posts.map((post, index) => (
               <div key={index} className="rounded-lg border border-muted bg-background p-4 shadow-sm">
-                <div className="mb-3 flex items-center gap-2">
-                  <Badge variant="secondary">{TONE_LABELS[post.tone]}</Badge>
-                </div>
                 <p className="whitespace-pre-wrap text-sm leading-relaxed">{post.content}</p>
-                <div className="mt-4">
-                  <CopyButton text={post.content} />
-                </div>
               </div>
             ))}
           </div>
@@ -293,9 +283,9 @@ export const AiTextGenerator = () => {
       <div className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-semibold">Gerar conteúdo para Facebook</CardTitle>
+            <CardTitle className="text-lg font-semibold">Gerar resumo do texto</CardTitle>
             <CardDescription>
-              Cole abaixo o texto da notícia que servirá como base. O sistema retornará títulos e posts seguindo o guia definido.
+              Cole abaixo o texto da notícia que servirá como base. O sistema retornará títulos e resumos humanizados.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -354,7 +344,7 @@ export const AiTextGenerator = () => {
       <div className="flex flex-col gap-2">
         <h2 className="text-2xl font-bold">Textos de IA</h2>
         <p className="text-sm text-muted-foreground">
-          Gere sugestões de títulos e posts a partir de uma matéria, utilizando o motor de IA configurado nas configurações do site.
+          Gere sugestões de títulos e resumos a partir de uma matéria, utilizando o motor de IA configurado nas configurações do site.
         </p>
       </div>
 

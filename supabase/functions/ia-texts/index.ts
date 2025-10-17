@@ -27,14 +27,15 @@ Crie 3 seções de títulos, cada uma com 5 sugestões. Os títulos devem ser cr
 - Seção 2: Títulos em Formato de Pergunta (Curiosidade)
 - Seção 3: Títulos de Impacto (Para Redes Sociais)
 
-PARTE 2: SUGESTÕES DE POSTS PARA O FACEBOOK
-Crie 3 opções de posts, cada uma com tom diferente (informativo, analítico, impacto). Todos os posts devem:
+PARTE 2: GERAR UM RESUMO DO TEXTO
+Crie 3 opções de resumo, cada uma com tom diferente (informativo, analítico, impacto). Cada resumo deve:
 - estar em português do Brasil
 - utilizar linguagem humanizada em formato de narrativa
-- incluir dois a cinco emojis relevantes para dar apelo visual (exemplos: 🚔 🤝 🏥 ✊ 🎉 🔥 ⚡ 💪 👏 📢)
-- terminar com a CTA: "👉 Acesse chicosabetudo.com.br 📲" (pode adaptar texto antes da seta)
-- conter hashtags, incluindo #chicosabetudo
-- ter no mínimo ${MIN_WORDS} palavras
+- ter aproximadamente 200 caracteres (± 10%), como escrito por um humano
+- ser conciso e direto ao ponto
+- capturar a essência da notícia
+- NÃO incluir emojis, hashtags ou CTAs
+- ser apenas o texto final, sem rótulos ou elementos extras
 
 Respeite os tempos verbais de acordo com o ocorrido no texto original. Estruture a resposta em JSON válido com o formato:
 {
