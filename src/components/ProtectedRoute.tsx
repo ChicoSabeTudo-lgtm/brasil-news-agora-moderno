@@ -11,6 +11,15 @@ interface ProtectedRouteProps {
 export const ProtectedRoute = ({ children, requiredRole, allowedRoles }: ProtectedRouteProps) => {
   const { user, loading, userRole, isOtpVerified } = useAuth();
 
+  console.log('🔍 ProtectedRoute Debug:', {
+    user: !!user,
+    loading,
+    userRole,
+    isOtpVerified,
+    requiredRole,
+    allowedRoles
+  });
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -22,16 +31,19 @@ export const ProtectedRoute = ({ children, requiredRole, allowedRoles }: Protect
 
   // Se não está logado, redireciona para login
   if (!user) {
+    console.log('❌ Usuário não logado, redirecionando para login');
     return <Navigate to="/auth" replace />;
   }
 
   // Se está logado mas OTP não foi verificado, redireciona para login
   if (!isOtpVerified) {
+    console.log('❌ OTP não verificado, redirecionando para login');
     return <Navigate to="/auth" replace />;
   }
 
   // Se userRole ainda não foi carregado, aguarda
   if (userRole === null) {
+    console.log('⏳ UserRole ainda não carregado, aguardando...');
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -41,10 +53,16 @@ export const ProtectedRoute = ({ children, requiredRole, allowedRoles }: Protect
   }
 
   const effectiveAllowedRoles = allowedRoles || (requiredRole ? [requiredRole, 'admin'] : null);
+  console.log('🔍 Verificando permissões:', {
+    effectiveAllowedRoles,
+    userRole,
+    hasRequiredRole: effectiveAllowedRoles?.includes(userRole as 'admin' | 'redator' | 'gestor')
+  });
 
   if (effectiveAllowedRoles) {
     const hasRequiredRole = effectiveAllowedRoles.includes(userRole as 'admin' | 'redator' | 'gestor');
     if (!hasRequiredRole) {
+      console.log('❌ Usuário não tem permissão:', { userRole, effectiveAllowedRoles });
       return (
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
@@ -52,10 +70,15 @@ export const ProtectedRoute = ({ children, requiredRole, allowedRoles }: Protect
             <p className="text-muted-foreground">
               Você não tem permissão para acessar esta página.
             </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Role: {userRole} | Permitidos: {effectiveAllowedRoles.join(', ')}
+            </p>
           </div>
         </div>
       );
     }
   }
+  
+  console.log('✅ Acesso permitido');
   return <>{children}</>;
 };
