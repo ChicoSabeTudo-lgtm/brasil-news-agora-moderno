@@ -144,6 +144,21 @@ const CopyButton = ({ text }: { text: string }) => {
   );
 };
 
+const TitleCopyButton = ({ text }: { text: string }) => {
+  const { toast } = useToast();
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(text);
+    toast({ title: 'Título copiado', description: 'O título foi copiado para a área de transferência.' });
+  };
+
+  return (
+    <Button variant="ghost" size="sm" onClick={handleCopy} className="ml-auto h-8 w-8 p-0">
+      <Copy className="h-3 w-3" />
+    </Button>
+  );
+};
+
 const renderTitles = (title: string, data: string[]) => {
   if (!data?.length) return null;
 
@@ -158,8 +173,9 @@ const renderTitles = (title: string, data: string[]) => {
       <CardContent>
         <ul className="space-y-2 text-sm">
           {data.map((item, index) => (
-            <li key={index} className="rounded-md border border-muted bg-muted/40 p-3 leading-relaxed">
-              {item}
+            <li key={index} className="rounded-md border border-muted bg-muted/40 p-3 leading-relaxed flex items-center justify-between gap-2">
+              <span className="flex-1">{item}</span>
+              <TitleCopyButton text={item} />
             </li>
           ))}
         </ul>
