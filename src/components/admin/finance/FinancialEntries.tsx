@@ -192,35 +192,11 @@ export function FinancialEntries() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div className="rounded-xl bg-white/10 p-3 backdrop-blur-sm">
-                <p className="text-xs font-medium uppercase tracking-wide text-white/60">Receitas</p>
-                <p className="mt-1 flex items-center gap-2 text-sm font-semibold text-emerald-300">
-                  <TrendingUp className="h-4 w-4" />
-                  {currency(summary.received)}
-                </p>
-              </div>
-              <div className="rounded-xl bg-white/10 p-3 backdrop-blur-sm">
-                <p className="text-xs font-medium uppercase tracking-wide text-white/60">Despesas</p>
-                <p className="mt-1 flex items-center gap-2 text-sm font-semibold text-rose-300">
-                  <TrendingDown className="h-4 w-4" />
-                  {currency(summary.paid)}
-                </p>
-              </div>
-              <div className="rounded-xl bg-white/10 p-3 backdrop-blur-sm">
-                <p className="text-xs font-medium uppercase tracking-wide text-white/60">A Receber</p>
-                <p className="mt-1 flex items-center gap-2 text-sm font-semibold text-sky-300">
-                  <Clock className="h-4 w-4" />
-                  {currency(summary.receivable)}
-                </p>
-              </div>
-              <div className="rounded-xl bg-white/10 p-3 backdrop-blur-sm">
-                <p className="text-xs font-medium uppercase tracking-wide text-white/60">A Pagar</p>
-                <p className="mt-1 flex items-center gap-2 text-sm font-semibold text-amber-300">
-                  <Clock className="h-4 w-4" />
-                  {currency(summary.payable)}
-                </p>
-              </div>
+            <div className="rounded-xl bg-white/10 p-4 backdrop-blur-sm">
+              <p className="text-xs font-medium uppercase tracking-wide text-white/60 mb-2">Previsão de saldo do período</p>
+              <p className="text-sm text-white/80">
+                Considerando receitas e despesas pendentes, o saldo projetado para o período é de <span className="font-semibold text-white">{currency(summary.balance + summary.receivable - summary.payable)}</span>
+              </p>
             </div>
 
             <p className="text-xs text-white/60">Valores refletem as transações aplicadas aos filtros de período e status.</p>
