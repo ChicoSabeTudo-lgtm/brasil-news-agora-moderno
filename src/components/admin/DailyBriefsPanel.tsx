@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { RefreshCw, Plus, Search, Calendar, Clock, Edit, Trash2, Eye } from 'lucide-react';
+import { RefreshCw, Plus, Search, Calendar, Clock, Edit, Trash2, Eye, Shield, Vote, Trophy, Music, Heart, Briefcase, Laptop, MapPin } from 'lucide-react';
 import { useDailyBriefs } from '@/hooks/useDailyBriefs';
 import { useCategories } from '@/hooks/useCategories';
 import { DailyBriefsForm } from './DailyBriefsForm';
@@ -65,6 +65,24 @@ export const DailyBriefsPanel = () => {
       case 'alta': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const getCategoryIcon = (categoryName: string) => {
+    const iconMap: Record<string, React.ComponentType<any>> = {
+      'Polícia': Shield,
+      'Política': Vote,
+      'Esportes': Trophy,
+      'Entretenimento': Music,
+      'Saúde': Heart,
+      'Emprego': Briefcase,
+      'Tecnologia': Laptop,
+      'Municípios': MapPin,
+      'Economia': Briefcase,
+      'Internacional': MapPin,
+      'Nacional': MapPin
+    };
+    
+    return iconMap[categoryName] || Shield;
   };
 
   const handleViewBrief = (brief) => {
@@ -190,20 +208,31 @@ export const DailyBriefsPanel = () => {
       <div>
         <h3 className="text-lg font-semibold mb-3">Pautas por Categoria</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-          {categoryCounts.map(category => (
-            <Card key={category.id} className="cursor-pointer hover:shadow-md transition-shadow">
-              <CardContent className="p-3">
-                <div className="text-center">
-                  <div 
-                    className="w-8 h-8 rounded-full mx-auto mb-2"
-                    style={{ backgroundColor: category.color }}
-                  />
-                  <p className="text-sm font-medium text-muted-foreground">{category.name}</p>
-                  <p className="text-xl font-bold">{category.count}</p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+          {categoryCounts.map(category => {
+            const IconComponent = getCategoryIcon(category.name);
+            return (
+              <Card key={category.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                <CardContent className="p-3">
+                  <div className="text-center">
+                    <div 
+                      className="w-10 h-10 rounded-lg mx-auto mb-2 flex items-center justify-center"
+                      style={{ 
+                        backgroundColor: category.color + '20', // 20% opacity
+                        border: `2px solid ${category.color}`
+                      }}
+                    >
+                      <IconComponent 
+                        className="w-5 h-5" 
+                        style={{ color: category.color }}
+                      />
+                    </div>
+                    <p className="text-sm font-medium text-muted-foreground">{category.name}</p>
+                    <p className="text-xl font-bold">{category.count}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       </div>
 
