@@ -117,7 +117,21 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
 
       if (uploadError) {
         console.error('❌ Erro no upload para storage:', uploadError);
-        throw new Error(`Erro no upload: ${uploadError.message}`);
+        console.error('❌ Detalhes do erro:', {
+          message: uploadError.message,
+          hint: uploadError.hint,
+          details: uploadError.details,
+          code: uploadError.code
+        });
+        
+        // Mensagem de erro mais amigável baseada no código do erro
+        let errorMessage = uploadError.message;
+        if (uploadError.message?.includes('new row violates row-level security policy') || 
+            uploadError.message?.includes('permission denied')) {
+          errorMessage = 'Você não tem permissão para fazer upload de imagens. Verifique se você tem a role adequada (admin, redator ou gestor).';
+        }
+        
+        throw new Error(`Erro no upload: ${errorMessage}`);
       }
 
       console.log('✅ Upload realizado com sucesso:', uploadData);
