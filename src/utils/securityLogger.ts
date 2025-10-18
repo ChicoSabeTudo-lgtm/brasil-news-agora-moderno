@@ -15,7 +15,8 @@ export enum SecurityEventType {
   CONFIG_CHANGE = 'CONFIG_CHANGE',
   USER_ROLE_CHANGE = 'USER_ROLE_CHANGE',
   INVALID_TOKEN = 'INVALID_TOKEN',
-  SCRIPT_BLOCKED = 'SCRIPT_BLOCKED'
+  SCRIPT_BLOCKED = 'SCRIPT_BLOCKED',
+  SESSION_EXPIRED = 'SESSION_EXPIRED'
 }
 
 export enum SecurityLevel {
@@ -102,7 +103,8 @@ class SecurityLogger {
       SecurityEventType.SUSPICIOUS_UPLOAD,
       SecurityEventType.RATE_LIMIT_EXCEEDED,
       SecurityEventType.INVALID_TOKEN,
-      SecurityEventType.SCRIPT_BLOCKED
+      SecurityEventType.SCRIPT_BLOCKED,
+      SecurityEventType.SESSION_EXPIRED
     ];
 
     if (criticalEvents.includes(type)) return SecurityLevel.CRITICAL;

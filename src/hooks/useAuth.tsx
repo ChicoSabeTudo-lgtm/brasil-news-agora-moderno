@@ -33,15 +33,78 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
   const { toast } = useToast();
 
+  // Configuração de expiração de sessão (6 horas = 21600000 ms)
+  const SESSION_TIMEOUT = 6 * 60 * 60 * 1000; // 6 horas em millisegundos
+  const ACTIVITY_CHECK_INTERVAL = 5 * 60 * 1000; // Verificar a cada 5 minutos
+
   // Helper para atualizar isOtpVerified no state e localStorage
   const updateOtpVerified = (verified: boolean) => {
     setIsOtpVerified(verified);
     localStorage.setItem('isOtpVerified', verified.toString());
   };
 
+  // Função para registrar atividade do usuário
+  const updateLastActivity = () => {
+    const now = Date.now();
+    localStorage.setItem('lastUserActivity', now.toString());
+    console.log('🔄 Atividade do usuário registrada:', new Date(now).toLocaleString());
+  };
+
+  // Função para verificar se a sessão expirou por inatividade
+  const checkSessionExpiry = () => {
+    const lastActivity = localStorage.getItem('lastUserActivity');
+    if (!lastActivity) {
+      return false; // Se não há registro de atividade, não expirar
+    }
+
+    const lastActivityTime = parseInt(lastActivity);
+    const now = Date.now();
+    const timeSinceLastActivity = now - lastActivityTime;
+
+    console.log('⏰ Verificando expiração da sessão:', {
+      lastActivity: new Date(lastActivityTime).toLocaleString(),
+      timeSinceLastActivity: Math.round(timeSinceLastActivity / 1000 / 60), // em minutos
+      sessionTimeout: Math.round(SESSION_TIMEOUT / 1000 / 60), // em minutos
+      expired: timeSinceLastActivity > SESSION_TIMEOUT
+    });
+
+    return timeSinceLastActivity > SESSION_TIMEOUT;
+  };
+
+  // Função para forçar logout por inatividade
+  const handleSessionExpiry = async () => {
+    console.log('⏰ Sessão expirada por inatividade (6 horas)');
+    
+    // Log de segurança
+    securityLogger.log(
+      SecurityEventType.SESSION_EXPIRED,
+      { 
+        reason: 'inactivity_timeout',
+        timeout: '6_hours',
+        userId: user?.id 
+      }
+    );
+
+    // Mostrar notificação
+    toast({
+      title: "Sessão Expirada",
+      description: "Sua sessão expirou após 6 horas de inatividade. Faça login novamente.",
+      variant: "destructive",
+    });
+
+    // Fazer logout
+    await signOut();
+  };
+
   // Token refresh monitoring
   const checkTokenValidity = async () => {
     try {
+      // Primeiro verificar se a sessão expirou por inatividade
+      if (checkSessionExpiry()) {
+        await handleSessionExpiry();
+        return false;
+      }
+
       const { data: { session }, error } = await supabase.auth.getSession();
       
       if (error) {
@@ -161,9 +224,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Set up token monitoring interval (check every 4 minutes)
     const tokenCheckInterval = setInterval(checkTokenValidity, 4 * 60 * 1000);
 
+    // Set up activity monitoring interval (check every 5 minutes)
+    const activityCheckInterval = setInterval(() => {
+      if (session && user && isOtpVerified) {
+        if (checkSessionExpiry()) {
+          handleSessionExpiry();
+        }
+      }
+    }, ACTIVITY_CHECK_INTERVAL);
+
+    // Event listeners para detectar atividade do usuário
+    const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    
+    const handleUserActivity = () => {
+      if (session && user && isOtpVerified) {
+        updateLastActivity();
+      }
+    };
+
+    // Adicionar event listeners
+    activityEvents.forEach(event => {
+      document.addEventListener(event, handleUserActivity, true);
+    });
+
     return () => {
       subscription.unsubscribe();
       clearInterval(tokenCheckInterval);
+      clearInterval(activityCheckInterval);
+      
+      // Remover event listeners
+      activityEvents.forEach(event => {
+        document.removeEventListener(event, handleUserActivity, true);
+      });
     };
   }, []);
 
@@ -220,6 +312,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           SecurityEventType.LOGIN_SUCCESS,
           { email, requiresOTP: true }
         );
+        
+        // Registrar atividade inicial
+        updateLastActivity();
+        
         return { error: null, requiresOTP: true };
       }
 
@@ -301,6 +397,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { error } = await supabase.auth.signOut();
     if (!error) {
       updateOtpVerified(false); // Reset flag OTP ao fazer logout
+      
+      // Limpar dados de atividade
+      localStorage.removeItem('lastUserActivity');
+      
       toast({
         title: "Logout realizado",
         description: "Até logo!",
@@ -568,6 +668,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       // Código válido - marcar como OTP verificado
       updateOtpVerified(true);
+
+      // Registrar atividade inicial após login bem-sucedido
+      updateLastActivity();
 
       toast({
         title: "Login realizado com sucesso!",
