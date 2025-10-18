@@ -20,23 +20,35 @@ interface DailyBrief {
   };
 }
 
-export const useDailyBriefs = () => {
+export type BriefFilterType = 'my-today' | 'all-today' | 'my-all' | 'all-all';
+
+interface UseDailyBriefsOptions {
+  filterType?: BriefFilterType;
+}
+
+export const useDailyBriefs = (options?: UseDailyBriefsOptions) => {
   const [briefs, setBriefs] = useState<DailyBrief[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filterType, setFilterType] = useState<BriefFilterType>(options?.filterType || 'my-today');
 
-  const fetchBriefs = async () => {
+  const fetchBriefs = async (filter?: BriefFilterType) => {
     try {
       setLoading(true);
+      const currentFilter = filter || filterType;
+      
       // Get local date in YYYY-MM-DD format (Brazil timezone)
       const today = new Date();
       const localDate = new Date(today.getTime() - (today.getTimezoneOffset() * 60000))
         .toISOString()
         .split('T')[0];
       
-      console.log('Buscando pautas para a data:', localDate);
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
       
-      const { data, error } = await supabase
+      console.log('Buscando pautas com filtro:', currentFilter, 'Data:', localDate, 'Usuário:', user?.id);
+      
+      let query = supabase
         .from('daily_briefs')
         .select(`
           *,
@@ -44,13 +56,27 @@ export const useDailyBriefs = () => {
             name,
             color
           )
-        `)
-        .eq('brief_date', localDate)
-        .order('created_at', { ascending: false });
+        `);
+
+      // Apply date filter
+      if (currentFilter === 'my-today' || currentFilter === 'all-today') {
+        query = query.eq('brief_date', localDate);
+      }
+
+      // Apply user filter
+      if (currentFilter === 'my-today' || currentFilter === 'my-all') {
+        if (user?.id) {
+          query = query.eq('created_by', user.id);
+        }
+      }
+
+      query = query.order('created_at', { ascending: false });
+
+      const { data, error } = await query;
 
       if (error) throw error;
       
-      console.log('Pautas encontradas:', data);
+      console.log('Pautas encontradas:', data?.length || 0);
       setBriefs(data || []);
     } catch (error: any) {
       console.error('Error fetching daily briefs:', error);
@@ -121,13 +147,20 @@ export const useDailyBriefs = () => {
 
   useEffect(() => {
     fetchBriefs();
-  }, []);
+  }, [filterType]);
+
+  const changeFilter = (newFilter: BriefFilterType) => {
+    setFilterType(newFilter);
+    fetchBriefs(newFilter);
+  };
 
   return {
     briefs,
     loading,
     error,
+    filterType,
     refetch: fetchBriefs,
+    changeFilter,
     createBrief,
     updateBrief,
     deleteBrief

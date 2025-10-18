@@ -5,8 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { RefreshCw, Plus, Search, Calendar, Clock, Edit, Trash2, Eye, Shield, Vote, Trophy, Music, Heart, Briefcase, Laptop, MapPin } from 'lucide-react';
-import { useDailyBriefs } from '@/hooks/useDailyBriefs';
+import { RefreshCw, Plus, Search, Calendar, Clock, Edit, Trash2, Eye, Shield, Vote, Trophy, Music, Heart, Briefcase, Laptop, MapPin, Filter, User, Users, CalendarDays } from 'lucide-react';
+import { useDailyBriefs, BriefFilterType } from '@/hooks/useDailyBriefs';
 import { useCategories } from '@/hooks/useCategories';
 import { DailyBriefsForm } from './DailyBriefsForm';
 import { DailyBriefsViewModal } from './DailyBriefsViewModal';
@@ -15,7 +15,7 @@ import { ptBR } from 'date-fns/locale';
 import { useToast } from '@/hooks/use-toast';
 
 export const DailyBriefsPanel = () => {
-  const { briefs, loading, refetch, deleteBrief } = useDailyBriefs();
+  const { briefs, loading, refetch, deleteBrief, filterType, changeFilter } = useDailyBriefs();
   const { categories } = useCategories();
   const { toast } = useToast();
   const [showForm, setShowForm] = useState(false);
@@ -134,6 +134,24 @@ export const DailyBriefsPanel = () => {
     refetch();
   };
 
+  const getFilterLabel = (filter: BriefFilterType) => {
+    switch (filter) {
+      case 'my-today': return 'Minhas Pautas (Hoje)';
+      case 'all-today': return 'Todas as Pautas (Hoje)';
+      case 'my-all': return 'Minhas Pautas (Todos os Dias)';
+      case 'all-all': return 'Todas as Pautas (Todos os Dias)';
+      default: return 'Filtro';
+    }
+  };
+
+  const getFilterIcon = (filter: BriefFilterType) => {
+    if (filter.startsWith('my-')) {
+      return <User className="h-4 w-4 mr-2" />;
+    } else {
+      return <Users className="h-4 w-4 mr-2" />;
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -148,6 +166,58 @@ export const DailyBriefsPanel = () => {
           </Button>
         </div>
       </div>
+
+      {/* Filtro de Pautas */}
+      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Filter className="h-5 w-5 text-blue-600" />
+              <span className="text-sm font-medium text-gray-700">Visualizando:</span>
+            </div>
+            <Select value={filterType} onValueChange={(value: BriefFilterType) => changeFilter(value)}>
+              <SelectTrigger className="w-[280px] bg-white">
+                <SelectValue>
+                  <div className="flex items-center">
+                    {getFilterIcon(filterType)}
+                    {getFilterLabel(filterType)}
+                  </div>
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="my-today">
+                  <div className="flex items-center">
+                    <User className="h-4 w-4 mr-2" />
+                    <Calendar className="h-4 w-4 mr-2 text-green-600" />
+                    Minhas Pautas (Hoje)
+                  </div>
+                </SelectItem>
+                <SelectItem value="all-today">
+                  <div className="flex items-center">
+                    <Users className="h-4 w-4 mr-2" />
+                    <Calendar className="h-4 w-4 mr-2 text-green-600" />
+                    Todas as Pautas (Hoje)
+                  </div>
+                </SelectItem>
+                <SelectItem value="my-all">
+                  <div className="flex items-center">
+                    <User className="h-4 w-4 mr-2" />
+                    <CalendarDays className="h-4 w-4 mr-2 text-blue-600" />
+                    Minhas Pautas (Todos os Dias)
+                  </div>
+                </SelectItem>
+                <SelectItem value="all-all">
+                  <div className="flex items-center">
+                    <Users className="h-4 w-4 mr-2" />
+                    <CalendarDays className="h-4 w-4 mr-2 text-blue-600" />
+                    Todas as Pautas (Todos os Dias)
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
