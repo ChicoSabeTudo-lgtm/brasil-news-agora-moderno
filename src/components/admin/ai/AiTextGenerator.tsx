@@ -182,11 +182,8 @@ const renderTitles = (title: string, data: string[]) => {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center gap-4">
-        <div>
-          <CardTitle className="text-base font-semibold">{title}</CardTitle>
-        </div>
-        <CopyButton text={data.join('\n')} />
+      <CardHeader>
+        <CardTitle className="text-base font-semibold">{title}</CardTitle>
       </CardHeader>
       <CardContent>
         <ul className="space-y-2 text-sm">
@@ -202,7 +199,7 @@ const renderTitles = (title: string, data: string[]) => {
   );
 };
 
-const GeneratedSection = ({ content }: { content: GeneratedContent | null }) => {
+const GeneratedSection = ({ content, onRegenerate, isGenerating }: { content: GeneratedContent | null; onRegenerate: () => void; isGenerating: boolean }) => {
   if (!content) {
     return (
       <div className="rounded-lg border border-dashed border-muted p-6 text-center text-muted-foreground">
@@ -213,6 +210,19 @@ const GeneratedSection = ({ content }: { content: GeneratedContent | null }) => 
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold">Conteúdo Gerado</h3>
+        <Button
+          onClick={onRegenerate}
+          disabled={isGenerating}
+          variant="outline"
+          className="flex items-center gap-2"
+        >
+          {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+          {isGenerating ? 'Gerando...' : 'Gerar Novamente'}
+        </Button>
+      </div>
+
       <div className="grid gap-4 md:grid-cols-3">
         {renderTitles('Títulos Diretos e Informativos', content.titlesDirect)}
         {renderTitles('Títulos em Formato de Pergunta', content.titlesQuestions)}
@@ -362,7 +372,11 @@ export const AiTextGenerator = () => {
 
         <ScrollArea className="h-[600px] rounded-lg border">
           <div className="p-6">
-            <GeneratedSection content={result} />
+            <GeneratedSection 
+              content={result} 
+              onRegenerate={handleGenerate}
+              isGenerating={status === 'loading'}
+            />
           </div>
         </ScrollArea>
       </div>
