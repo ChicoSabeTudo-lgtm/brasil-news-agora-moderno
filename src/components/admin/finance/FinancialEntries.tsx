@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
-import { DollarSign, TrendingDown, TrendingUp, Calendar, Eye, Edit, Trash2, FileText, Building2, CreditCard, User, Clock } from 'lucide-react';
+import { DollarSign, TrendingDown, TrendingUp, Calendar, Eye, Edit, Trash2, FileText, Building2, CreditCard, User, Clock, AlertTriangle, AlertCircle } from 'lucide-react';
 import { Calendar as DayPicker } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import type { DateRange } from 'react-day-picker';
@@ -101,7 +101,26 @@ export function FinancialEntries() {
       .filter((t) => t.type === 'despesa' && t.status !== 'Pago')
       .reduce((acc, t) => acc + (Number(t.value) || 0), 0);
     const balance = received - paid;
-    return { received, paid, receivable, payable, balance };
+
+    // Calcular atrasos
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const overdueReceivable = inRange
+      .filter((t) => {
+        const dueDate = new Date(t.due_date + 'T00:00:00');
+        return t.type === 'receita' && t.status !== 'Pago' && dueDate < today;
+      })
+      .reduce((acc, t) => acc + (Number(t.value) || 0), 0);
+
+    const overduePayable = inRange
+      .filter((t) => {
+        const dueDate = new Date(t.due_date + 'T00:00:00');
+        return t.type === 'despesa' && t.status !== 'Pago' && dueDate < today;
+      })
+      .reduce((acc, t) => acc + (Number(t.value) || 0), 0);
+
+    return { received, paid, receivable, payable, balance, overdueReceivable, overduePayable };
   }, [transactions, range]);
 
   const handleCreated = () => setOpen(false);
@@ -203,6 +222,51 @@ export function FinancialEntries() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Alert Cards - Atrasos */}
+      {(summary.overdueReceivable > 0 || summary.overduePayable > 0) && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {summary.overdueReceivable > 0 && (
+            <Card className="border-orange-200 bg-orange-50">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm flex items-center gap-2 text-orange-800">
+                  <AlertTriangle className="w-4 h-4" />
+                  Atrasado a Receber
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-3 text-2xl font-semibold text-orange-600">
+                  <AlertCircle className="w-5 h-5" />
+                  {currency(summary.overdueReceivable)}
+                </div>
+                <p className="text-xs text-orange-600 mt-1">
+                  Valores em atraso que deveriam ter sido recebidos
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
+          {summary.overduePayable > 0 && (
+            <Card className="border-red-200 bg-red-50">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm flex items-center gap-2 text-red-800">
+                  <AlertTriangle className="w-4 h-4" />
+                  Atrasado a Pagar
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-3 text-2xl font-semibold text-red-600">
+                  <AlertCircle className="w-5 h-5" />
+                  {currency(summary.overduePayable)}
+                </div>
+                <p className="text-xs text-red-600 mt-1">
+                  Valores em atraso que deveriam ter sido pagos
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
 
       {/* Search and Filters */}
       <Card>
