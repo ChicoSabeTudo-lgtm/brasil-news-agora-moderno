@@ -88,14 +88,21 @@ export default function InstagramFinalize({ postData, onBack, onComplete }: Inst
     try {
       console.log('🚀 [INSTAGRAM] Entrando no bloco try...');
       
-      // Convert canvas data URL to blob
+      // Convert canvas data URL to blob without using fetch (CSP issue)
       console.log('📊 [INSTAGRAM] Convertendo canvas para blob...');
       console.log('🔍 [INSTAGRAM] Canvas data URL length:', postData.canvasDataUrl.length);
       
-      const response = await fetch(postData.canvasDataUrl);
-      console.log('✅ [INSTAGRAM] Fetch do canvas concluído, status:', response.status);
+      // Convert data URL to blob directly without fetch
+      const dataUrl = postData.canvasDataUrl;
+      const base64Data = dataUrl.split(',')[1];
+      const binaryString = atob(base64Data);
+      const bytes = new Uint8Array(binaryString.length);
       
-      const blob = await response.blob();
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      
+      const blob = new Blob([bytes], { type: 'image/jpeg' });
       console.log('✅ [INSTAGRAM] Canvas convertido para blob:', blob.size, 'bytes', 'type:', blob.type);
 
       // Upload to Supabase storage
