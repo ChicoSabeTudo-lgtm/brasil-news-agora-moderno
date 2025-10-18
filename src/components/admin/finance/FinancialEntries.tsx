@@ -49,7 +49,23 @@ export function FinancialEntries() {
   const filtered = useMemo(() => {
     return transactions.filter((t) => {
       if (typeFilter !== 'all' && t.type !== typeFilter) return false;
-      if (statusFilter !== 'all' && t.status !== statusFilter) return false;
+      
+      // Lógica aprimorada para filtro de status
+      if (statusFilter !== 'all') {
+        if (statusFilter === 'Atrasado') {
+          // Para "Atrasado", verifica se a transação não está paga e a data de vencimento passou
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const dueDate = new Date(t.due_date + 'T00:00:00');
+          dueDate.setHours(0, 0, 0, 0);
+          
+          if (t.status === 'Pago' || dueDate >= today) return false;
+        } else {
+          // Para outros status, usa a lógica normal
+          if (t.status !== statusFilter) return false;
+        }
+      }
+      
       if (projectFilter !== 'all' && (t.project_id || '') !== projectFilter) return false;
       // Só aplica filtro de data se o range estiver definido
       if (range?.from || range?.to) {
@@ -71,6 +87,33 @@ export function FinancialEntries() {
   }, [transactions, typeFilter, statusFilter, projectFilter, range, search]);
 
   const catMap = useMemo(() => Object.fromEntries(categories.map(c => [c.id, c.name])), [categories]);
+  
+  // Contadores de status para o filtro
+  const statusCounts = useMemo(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    let pendente = 0;
+    let pago = 0;
+    let atrasado = 0;
+    
+    transactions.forEach(t => {
+      const dueDate = new Date(t.due_date + 'T00:00:00');
+      dueDate.setHours(0, 0, 0, 0);
+      
+      if (t.status === 'Pago') {
+        pago++;
+      } else if (t.status === 'Pendente') {
+        if (dueDate < today) {
+          atrasado++;
+        } else {
+          pendente++;
+        }
+      }
+    });
+    
+    return { pendente, pago, atrasado };
+  }, [transactions]);
   const summary = useMemo(() => {
     const inRange = transactions.filter((t) => {
       if (!range?.from && !range?.to) return true;
@@ -125,11 +168,26 @@ export function FinancialEntries() {
 
   const handleCreated = () => setOpen(false);
 
-  const StatusBadge = ({ status }: { status: TxStatus }) => (
-    <Badge variant={status === 'Pago' ? 'secondary' : status === 'Pendente' ? 'default' : 'destructive'}>
-      {status}
-    </Badge>
-  );
+  const StatusBadge = ({ transaction }: { transaction: FinanceTransaction }) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dueDate = new Date(transaction.due_date + 'T00:00:00');
+    dueDate.setHours(0, 0, 0, 0);
+    
+    // Calcula se está atrasado dinamicamente
+    const isOverdue = transaction.status !== 'Pago' && dueDate < today;
+    const displayStatus = isOverdue ? 'Atrasado' : transaction.status;
+    
+    return (
+      <Badge variant={
+        displayStatus === 'Pago' ? 'secondary' : 
+        displayStatus === 'Pendente' ? 'default' : 
+        'destructive'
+      }>
+        {displayStatus}
+      </Badge>
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -299,12 +357,12 @@ export function FinancialEntries() {
             </Select>
 
             <Select value={statusFilter} onValueChange={(v: 'all' | TxStatus) => setStatusFilter(v)}>
-              <SelectTrigger className="w-[180px]"><SelectValue placeholder="Status" /></SelectTrigger>
+              <SelectTrigger className="w-[200px]"><SelectValue placeholder="Status" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos os status</SelectItem>
-                <SelectItem value="Pendente">Pendente</SelectItem>
-                <SelectItem value="Pago">Pago</SelectItem>
-                <SelectItem value="Atrasado">Atrasado</SelectItem>
+                <SelectItem value="all">Todos os status ({transactions.length})</SelectItem>
+                <SelectItem value="Pendente">Pendente ({statusCounts.pendente})</SelectItem>
+                <SelectItem value="Pago">Pago ({statusCounts.pago})</SelectItem>
+                <SelectItem value="Atrasado">⚠️ Atrasado ({statusCounts.atrasado})</SelectItem>
               </SelectContent>
             </Select>
 
@@ -361,7 +419,7 @@ export function FinancialEntries() {
                     {currency(Number(t.value))}
                   </TableCell>
                   <TableCell>{new Date(t.due_date + 'T00:00:00').toLocaleDateString('pt-BR')}</TableCell>
-                  <TableCell><StatusBadge status={t.status as TxStatus} /></TableCell>
+                  <TableCell><StatusBadge transaction={t} /></TableCell>
                   <TableCell>{contacts.find(c => c.id === t.contact_id)?.name || '-'}</TableCell>
                   <TableCell className="flex gap-2">
                     <Button variant="ghost" size="icon" onClick={() => setViewing(t)}><Eye className="w-4 h-4" /></Button>
