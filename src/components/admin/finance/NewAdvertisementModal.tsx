@@ -79,18 +79,29 @@ export default function NewAdvertisementModal({ open, onOpenChange }: Props) {
         <div className="grid grid-cols-1 gap-4">
           <div className="space-y-1.5">
             <Label>Cliente *</Label>
-            <Select value={form.contact_id} onValueChange={(v) => setForm({ ...form, contact_id: v })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione um cliente" />
-              </SelectTrigger>
-              <SelectContent>
-                {clients.map((client) => (
-                  <SelectItem key={client.id} value={client.id}>
-                    {client.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {clients.length === 0 ? (
+              <div className="border border-dashed border-muted-foreground/25 rounded-md p-4 text-center">
+                <div className="text-sm text-muted-foreground mb-2">
+                  Nenhum cliente cadastrado ainda
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Acesse a aba "Clientes" no painel financeiro para cadastrar clientes antes de criar propagandas.
+                </div>
+              </div>
+            ) : (
+              <Select value={form.contact_id} onValueChange={(v) => setForm({ ...form, contact_id: v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um cliente" />
+                </SelectTrigger>
+                <SelectContent>
+                  {clients.map((client) => (
+                    <SelectItem key={client.id} value={client.id}>
+                      {client.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           <div className="space-y-1.5">

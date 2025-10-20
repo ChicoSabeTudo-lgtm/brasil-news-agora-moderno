@@ -33,3 +33,4 @@ dist-ssr
 # GitHub Actions (usando apenas Vercel para deploy)
 .github/
 github/
+.vercel
