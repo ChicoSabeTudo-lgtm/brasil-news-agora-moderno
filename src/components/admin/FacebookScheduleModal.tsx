@@ -93,6 +93,7 @@ export const FacebookScheduleModal = ({ schedule, onClose }: FacebookScheduleMod
         news_title: formData.news_title.trim(),
         news_url: formData.news_url.trim(),
         scheduled_time: formData.scheduled_time,
+        scheduled_date: currentDate,
       };
 
       if (schedule) {

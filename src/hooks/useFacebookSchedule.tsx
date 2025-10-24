@@ -33,7 +33,7 @@ export const useFacebookSchedule = () => {
     // Check if we need to clean old entries
     const checkAndClean = async () => {
       try {
-        await supabase.rpc('clean_old_facebook_schedule');
+        await supabase.rpc('clean_old_facebook_schedule' as any);
       } catch (error) {
         console.error('Error cleaning old Facebook schedule:', error);
       }
@@ -60,7 +60,7 @@ export const useFacebookSchedule = () => {
     queryKey: ['facebook_schedule', currentDate],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('facebook_daily_schedule')
+        .from('facebook_daily_schedule' as any)
         .select('*')
         .eq('scheduled_date', currentDate)
         .order('scheduled_time', { ascending: true });
@@ -77,7 +77,7 @@ export const useFacebookSchedule = () => {
       const { data: { user } } = await supabase.auth.getUser();
       
       const { data, error } = await supabase
-        .from('facebook_daily_schedule')
+        .from('facebook_daily_schedule' as any)
         .insert([{
           ...scheduleData,
           scheduled_date: currentDate,
@@ -102,7 +102,7 @@ export const useFacebookSchedule = () => {
   const updateMutation = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<FacebookSchedule> & { id: string }) => {
       const { data, error } = await supabase
-        .from('facebook_daily_schedule')
+        .from('facebook_daily_schedule' as any)
         .update(updates)
         .eq('id', id)
         .select()
@@ -124,7 +124,7 @@ export const useFacebookSchedule = () => {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from('facebook_daily_schedule')
+        .from('facebook_daily_schedule' as any)
         .delete()
         .eq('id', id);
 
