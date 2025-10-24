@@ -56,19 +56,28 @@ export const useFacebookSchedule = () => {
   }, [currentDate, queryClient]);
 
   // Query to fetch today's Facebook schedule
-  const { data: schedules = [], isLoading } = useQuery({
+  const { data: schedules = [], isLoading, error: queryError } = useQuery({
     queryKey: ['facebook_schedule', currentDate],
     queryFn: async () => {
+      console.log('🔍 Buscando Facebook schedules para data:', currentDate);
+      
       const { data, error } = await supabase
         .from('facebook_daily_schedule' as any)
         .select('*')
         .eq('scheduled_date', currentDate)
         .order('scheduled_time', { ascending: true });
 
-      if (error) throw error;
+      console.log('🔍 Resultado da query:', { data, error });
+
+      if (error) {
+        console.error('❌ Erro na query Facebook schedule:', error);
+        throw error;
+      }
       return data as FacebookSchedule[];
     },
     enabled: !!currentDate,
+    retry: 3,
+    retryDelay: 1000,
   });
 
   // Create mutation

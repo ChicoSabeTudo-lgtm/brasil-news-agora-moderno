@@ -21,6 +21,15 @@ export const FacebookDailySchedule = () => {
     formatTime,
     getSchedulesByPeriod 
   } = useFacebookSchedule();
+
+  // Debug logs
+  console.log('🔍 FacebookDailySchedule Debug:', {
+    schedules,
+    isLoading,
+    currentDate,
+    todayCount,
+    schedulesLength: schedules?.length || 0
+  });
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<FacebookSchedule | null>(null);
@@ -71,6 +80,26 @@ export const FacebookDailySchedule = () => {
     );
   }
 
+  // Error state - show if there's an error
+  if (queryError) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-center space-y-4">
+          <div className="text-destructive text-lg font-medium">Erro ao carregar pauta do Facebook</div>
+          <p className="text-muted-foreground">
+            Verifique se a tabela foi criada corretamente no Supabase.
+          </p>
+          <div className="text-sm text-muted-foreground bg-muted p-3 rounded">
+            <strong>Erro:</strong> {queryError.message || 'Erro desconhecido'}
+          </div>
+          <Button onClick={() => window.location.reload()}>
+            Tentar Novamente
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -78,7 +107,7 @@ export const FacebookDailySchedule = () => {
         <div>
           <h2 className="text-2xl font-bold">Pauta Facebook (Diária)</h2>
           <p className="text-muted-foreground">
-            Gerenciamento de postagens agendadas para hoje - {format(new Date(currentDate), 'dd/MM/yyyy', { locale: ptBR })}
+            Gerenciamento de postagens agendadas para hoje - {currentDate ? format(new Date(currentDate + 'T00:00:00'), 'dd/MM/yyyy', { locale: ptBR }) : 'Carregando...'}
           </p>
         </div>
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
