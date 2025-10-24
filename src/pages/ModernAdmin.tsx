@@ -40,6 +40,7 @@ import { InvoiceManagement } from '@/components/admin/finance/InvoiceManagement'
 import { DasManagement } from '@/components/admin/finance/DasManagement';
 import { InssManagement } from '@/components/admin/finance/InssManagement';
 import { LegalCaseManagement } from '@/components/admin/finance/LegalCaseManagement';
+import { FacebookDailySchedule } from '@/components/admin/FacebookDailySchedule';
 
 
 export default function ModernAdmin() {
@@ -172,15 +173,19 @@ export default function ModernAdmin() {
 
                   <TabsContent value="news" className="mt-0 h-full p-6">
                     <Tabs defaultValue="list" className="w-full">
-                      <TabsList className="grid w-full grid-cols-2">
+                      <TabsList className="grid w-full grid-cols-3">
                         <TabsTrigger value="list">Lista de Notícias</TabsTrigger>
                         <TabsTrigger value="pautas">Pautas do Dia</TabsTrigger>
+                        <TabsTrigger value="facebook-schedule">Pauta Facebook (Diária)</TabsTrigger>
                       </TabsList>
                       <TabsContent value="list">
                         <NewsList onNavigateToShare={handleNavigateToShare} />
                       </TabsContent>
                       <TabsContent value="pautas">
                         <DailyBriefsPanel />
+                      </TabsContent>
+                      <TabsContent value="facebook-schedule">
+                        <FacebookDailySchedule />
                       </TabsContent>
                     </Tabs>
                   </TabsContent>
