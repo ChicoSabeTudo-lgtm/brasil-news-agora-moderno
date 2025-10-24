@@ -82,14 +82,19 @@ export const useDasPayments = () => {
         proofUrl = publicUrl;
       }
 
+      // Converter reference_month de "YYYY-MM" para "YYYY-MM-01" (formato DATE)
+      const referenceMonthDate = paymentData.reference_month 
+        ? `${paymentData.reference_month}-01` 
+        : null;
+
       const { error } = await supabase
         .from('das_payments')
         .insert([{
-          reference_month: paymentData.reference_month,
+          reference_month: referenceMonthDate,
           due_date: paymentData.due_date,
           value: paymentData.value,
-          payment_date: paymentData.payment_date,
-          observations: paymentData.observations,
+          payment_date: paymentData.payment_date || null,
+          observations: paymentData.observations || null,
           das_boleto_path: boletoPath,
           das_boleto_url: boletoUrl,
           payment_proof_path: proofPath,
@@ -97,7 +102,10 @@ export const useDasPayments = () => {
           status: paymentData.status || 'pending',
         }]);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro detalhado ao criar DAS:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['das_payments'] });
@@ -118,6 +126,11 @@ export const useDasPayments = () => {
       const { boletoFile, proofFile, ...paymentData } = updates as any;
       
       let updateData = { ...paymentData };
+
+      // Converter reference_month de "YYYY-MM" para "YYYY-MM-01" se fornecido
+      if (updateData.reference_month && !updateData.reference_month.includes('-01')) {
+        updateData.reference_month = `${updateData.reference_month}-01`;
+      }
 
       // Upload new boleto if provided
       if (boletoFile) {
@@ -158,7 +171,10 @@ export const useDasPayments = () => {
         .update(updateData)
         .eq('id', id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erro detalhado ao atualizar DAS:', error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['das_payments'] });
