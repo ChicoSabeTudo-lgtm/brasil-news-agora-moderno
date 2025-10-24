@@ -201,6 +201,7 @@ export const useFacebookSchedule = () => {
   return {
     schedules,
     isLoading,
+    error: queryError,
     currentDate,
     todayCount,
     createSchedule,

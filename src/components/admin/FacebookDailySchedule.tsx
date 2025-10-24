@@ -15,6 +15,7 @@ export const FacebookDailySchedule = () => {
   const { 
     schedules, 
     isLoading, 
+    error: queryError,
     currentDate, 
     todayCount, 
     deleteSchedule, 
