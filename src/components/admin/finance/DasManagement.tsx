@@ -158,6 +158,9 @@ export const DasManagement = () => {
   const filteredPayments = useMemo(() => {
     if (!payments) return [];
     
+    console.log('🔍 Total de pagamentos:', payments.length);
+    console.log('📅 Ano selecionado:', selectedYear);
+    
     return payments.filter((payment) => {
       const matchesSearch = searchTerm === "" || 
         format(new Date(payment.reference_month + "-01"), "MMMM 'de' yyyy", { locale: ptBR })
@@ -168,8 +171,11 @@ export const DasManagement = () => {
       
       const matchesStatus = statusFilter === "all" || payment.status === statusFilter;
       
-      const paymentDate = new Date(payment.reference_month + "-01");
-      const matchesYear = paymentDate.getFullYear() === selectedYear;
+      // Extrai o ano do reference_month (formato: YYYY-MM-DD)
+      const paymentYear = parseInt(payment.reference_month.split('-')[0]);
+      const matchesYear = paymentYear === selectedYear;
+      
+      console.log(`📊 Pagamento: ${payment.reference_month} | Ano: ${paymentYear} | Match: ${matchesYear}`);
       
       return matchesSearch && matchesStatus && matchesYear;
     });
