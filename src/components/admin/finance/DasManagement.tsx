@@ -113,8 +113,10 @@ export const DasManagement = () => {
 
   const handleEdit = (payment: DasPayment) => {
     setEditingPayment(payment);
+    // reference_month vem como "YYYY-MM-DD", precisamos apenas "YYYY-MM" para o input type="month"
+    const referenceMonth = payment.reference_month.substring(0, 7); // "2025-09-01" -> "2025-09"
     setFormData({
-      reference_month: payment.reference_month,
+      reference_month: referenceMonth,
       due_date: extractDateString(payment.due_date),
       value: payment.value.toString(),
       payment_date: extractDateString(payment.payment_date),
@@ -158,12 +160,12 @@ export const DasManagement = () => {
   const filteredPayments = useMemo(() => {
     if (!payments) return [];
     
-    console.log('🔍 Total de pagamentos:', payments.length);
-    console.log('📅 Ano selecionado:', selectedYear);
-    
     return payments.filter((payment) => {
+      // reference_month já vem como "YYYY-MM-DD" do banco
+      const referenceDate = new Date(payment.reference_month);
+      
       const matchesSearch = searchTerm === "" || 
-        format(new Date(payment.reference_month + "-01"), "MMMM 'de' yyyy", { locale: ptBR })
+        format(referenceDate, "MMMM 'de' yyyy", { locale: ptBR })
           .toLowerCase()
           .includes(searchTerm.toLowerCase()) ||
         payment.value.toString().includes(searchTerm) ||
@@ -174,8 +176,6 @@ export const DasManagement = () => {
       // Extrai o ano do reference_month (formato: YYYY-MM-DD)
       const paymentYear = parseInt(payment.reference_month.split('-')[0]);
       const matchesYear = paymentYear === selectedYear;
-      
-      console.log(`📊 Pagamento: ${payment.reference_month} | Ano: ${paymentYear} | Match: ${matchesYear}`);
       
       return matchesSearch && matchesStatus && matchesYear;
     });
@@ -427,7 +427,7 @@ export const DasManagement = () => {
               filteredPayments.map((payment) => (
               <TableRow key={payment.id}>
                 <TableCell>
-                  {format(new Date(payment.reference_month + "-01"), "MMMM 'de' yyyy", {
+                  {format(new Date(payment.reference_month), "MMMM 'de' yyyy", {
                     locale: ptBR,
                   })}
                 </TableCell>
