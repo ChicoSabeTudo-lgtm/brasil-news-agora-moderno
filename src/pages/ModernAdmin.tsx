@@ -40,7 +40,7 @@ import { InvoiceManagement } from '@/components/admin/finance/InvoiceManagement'
 import { DasManagement } from '@/components/admin/finance/DasManagement';
 import { InssManagement } from '@/components/admin/finance/InssManagement';
 import { LegalCaseManagement } from '@/components/admin/finance/LegalCaseManagement';
-import { FacebookTestComponent } from '@/components/admin/FacebookTestComponent';
+import { FacebookDailySchedule } from '@/components/admin/FacebookDailySchedule';
 
 
 export default function ModernAdmin() {
@@ -185,7 +185,7 @@ export default function ModernAdmin() {
                         <DailyBriefsPanel />
                       </TabsContent>
         <TabsContent value="facebook-schedule">
-          <FacebookTestComponent />
+          <FacebookDailySchedule />
         </TabsContent>
                     </Tabs>
                   </TabsContent>

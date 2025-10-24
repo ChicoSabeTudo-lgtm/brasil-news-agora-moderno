@@ -108,7 +108,7 @@ export const FacebookDailySchedule = () => {
         <div>
           <h2 className="text-2xl font-bold">Pauta Facebook (Diária)</h2>
           <p className="text-muted-foreground">
-            Gerenciamento de postagens agendadas para hoje - {currentDate ? format(new Date(currentDate + 'T00:00:00'), 'dd/MM/yyyy', { locale: ptBR }) : 'Carregando...'}
+            Gerenciamento de postagens agendadas para hoje - {currentDate ? format(new Date(currentDate), 'dd/MM/yyyy', { locale: ptBR }) : 'Carregando...'}
           </p>
         </div>
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
