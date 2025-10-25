@@ -92,7 +92,7 @@ export const SocialPostViewModal = ({ post, isOpen, onClose, onEdit }: SocialPos
                 Agendado para
               </div>
               <p className="text-sm text-muted-foreground">
-                {formatInTimeZone(new Date(post.scheduled_for), 'America/Sao_Paulo', 'dd/MM/yyyy \'às\' HH:mm', { locale: ptBR })}
+                {formatInTimeZone(new Date(post.scheduled_for), 'America/Fortaleza', 'dd/MM/yyyy \'às\' HH:mm', { locale: ptBR })}
               </p>
             </div>
 
@@ -103,7 +103,7 @@ export const SocialPostViewModal = ({ post, isOpen, onClose, onEdit }: SocialPos
                   Publicado em
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  {formatInTimeZone(new Date(post.published_at), 'America/Sao_Paulo', 'dd/MM/yyyy \'às\' HH:mm', { locale: ptBR })}
+                  {formatInTimeZone(new Date(post.published_at), 'America/Fortaleza', 'dd/MM/yyyy \'às\' HH:mm', { locale: ptBR })}
                 </p>
               </div>
             )}
