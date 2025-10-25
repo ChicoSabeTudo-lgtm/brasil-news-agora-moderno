@@ -671,6 +671,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       // Registrar atividade inicial após login bem-sucedido
       updateLastActivity();
+      
+      // Registrar login no histórico
+      try {
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        if (currentUser) {
+          // Buscar role do usuário
+          const { data: roleData } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', currentUser.id)
+            .maybeSingle();
+          
+          await supabase.from('login_history').insert([{
+            user_id: currentUser.id,
+            user_email: email,
+            user_role: roleData?.role || 'viewer',
+            success: true,
+          }]);
+        }
+      } catch (logError) {
+        console.error('❌ Erro ao registrar login no histórico:', logError);
+        // Não interromper o fluxo de login se falhar o registro
+      }
 
       toast({
         title: "Login realizado com sucesso!",

@@ -4,9 +4,14 @@ import { UrgentTasksWidget } from './UrgentTasksWidget';
 import { Stats } from '@/components/admin/Stats';
 import { QuickMetrics } from '@/components/admin/QuickMetrics';
 import { KpiWidget } from './KpiWidget';
+import { LoginHistoryCard } from '@/components/admin/LoginHistoryCard';
+import { useAuth } from '@/hooks/useAuth';
 import { TrendingUp, DollarSign, CreditCard, PieChart } from 'lucide-react';
 
 export const DashboardLayout = () => {
+  const { userRole } = useAuth();
+  const isAdmin = userRole === 'admin';
+  
   return (
     <div className="space-y-6 p-6">
       {/* Welcome Header */}
@@ -34,6 +39,13 @@ export const DashboardLayout = () => {
           </div>
         </div>
       </div>
+      
+      {/* Login History - Apenas para Admins */}
+      {isAdmin && (
+        <div className="admin-slide-in">
+          <LoginHistoryCard />
+        </div>
+      )}
     </div>
   );
 };
