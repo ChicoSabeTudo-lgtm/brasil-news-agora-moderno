@@ -14,6 +14,8 @@ export interface FacebookSchedule {
   created_at: string;
   created_by: string;
   updated_at: string;
+  user_email?: string;
+  user_name?: string;
 }
 
 export const useFacebookSchedule = () => {
@@ -80,6 +82,32 @@ export const useFacebookSchedule = () => {
         console.error('❌ Erro na query Facebook schedule:', error);
         throw error;
       }
+
+      // Buscar informações dos usuários
+      if (data && data.length > 0) {
+        const userIds = [...new Set(data.map((item: any) => item.created_by).filter(Boolean))];
+        
+        if (userIds.length > 0) {
+          const { data: usersData, error: usersError } = await supabase
+            .from('profiles')
+            .select('id, full_name, email')
+            .in('id', userIds);
+
+          if (!usersError && usersData) {
+            // Mapear os dados dos usuários para cada schedule
+            const enrichedData = data.map((schedule: any) => {
+              const user = usersData.find((u: any) => u.id === schedule.created_by);
+              return {
+                ...schedule,
+                user_name: user?.full_name || null,
+                user_email: user?.email || null,
+              };
+            });
+            return enrichedData as FacebookSchedule[];
+          }
+        }
+      }
+
       return data as FacebookSchedule[];
     },
     enabled: !!currentDate,

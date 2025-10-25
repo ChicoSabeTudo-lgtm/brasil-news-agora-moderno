@@ -204,7 +204,7 @@ export const FacebookDailySchedule = () => {
       {/* Schedule Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Postagens Agendadas</CardTitle>
+          <CardTitle>Postagens</CardTitle>
           <CardDescription>
             Lista de todas as postagens programadas para hoje, ordenadas por horário
           </CardDescription>
@@ -226,6 +226,7 @@ export const FacebookDailySchedule = () => {
                   <TableHead>Título da Notícia</TableHead>
                   <TableHead>URL</TableHead>
                   <TableHead>Período</TableHead>
+                  <TableHead>Criado por</TableHead>
                   <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
@@ -277,6 +278,11 @@ export const FacebookDailySchedule = () => {
                         }>
                           {period}
                         </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          {schedule.user_name || schedule.user_email || 'Usuário desconhecido'}
+                        </div>
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center gap-2 justify-end">
