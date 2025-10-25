@@ -13,9 +13,8 @@ export interface FacebookSchedule {
   scheduled_time: string;
   created_at: string;
   created_by: string;
+  created_by_name?: string;
   updated_at: string;
-  user_email?: string;
-  user_name?: string;
 }
 
 export const useFacebookSchedule = () => {
@@ -84,46 +83,6 @@ export const useFacebookSchedule = () => {
         throw error;
       }
 
-      // Buscar informações dos usuários
-      if (data && data.length > 0) {
-        const userIds = [...new Set(data.map((item: any) => item.created_by).filter(Boolean))];
-        console.log('👥 User IDs encontrados:', userIds);
-        
-        if (userIds.length > 0) {
-          const { data: usersData, error: usersError } = await supabase
-            .from('profiles')
-            .select('id, full_name, email')
-            .in('id', userIds);
-
-          console.log('👥 Dados dos usuários:', usersData);
-          console.log('❌ Erro de usuários:', usersError);
-
-          if (!usersError && usersData) {
-            // Mapear os dados dos usuários para cada schedule
-            const enrichedData = data.map((schedule: any) => {
-              const user = usersData.find((u: any) => u.id === schedule.created_by);
-              console.log('🔍 Mapeando schedule:', {
-                schedule_id: schedule.id,
-                created_by: schedule.created_by,
-                user_found: !!user,
-                user_object: user,
-                user_name: user?.full_name,
-                user_email: user?.email
-              });
-              return {
-                ...schedule,
-                user_name: user?.full_name || null,
-                user_email: user?.email || null,
-              };
-            });
-            console.log('✅ Dados enriquecidos:', enrichedData);
-            return enrichedData as FacebookSchedule[];
-          } else {
-            console.log('⚠️ Retornando dados sem enriquecimento de usuário');
-          }
-        }
-      }
-
       return data as FacebookSchedule[];
     },
     enabled: !!currentDate,
@@ -133,8 +92,20 @@ export const useFacebookSchedule = () => {
 
   // Create mutation
   const createMutation = useMutation({
-    mutationFn: async (scheduleData: Omit<FacebookSchedule, 'id' | 'created_at' | 'updated_at' | 'created_by'>) => {
+    mutationFn: async (scheduleData: Omit<FacebookSchedule, 'id' | 'created_at' | 'updated_at' | 'created_by' | 'created_by_name'>) => {
       const { data: { user } } = await supabase.auth.getUser();
+      
+      // Buscar informações do usuário (nome e email)
+      let userName = 'Usuário';
+      if (user?.id) {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('full_name, email')
+          .eq('id', user.id)
+          .single();
+        
+        userName = profileData?.full_name || profileData?.email || user.email || 'Usuário';
+      }
       
       const { data, error } = await supabase
         .from('facebook_daily_schedule' as any)
@@ -142,6 +113,7 @@ export const useFacebookSchedule = () => {
           ...scheduleData,
           scheduled_date: currentDate,
           created_by: user?.id,
+          created_by_name: userName,
         }])
         .select()
         .single();

@@ -281,7 +281,7 @@ export const FacebookDailySchedule = () => {
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">
-                          {schedule.user_name || schedule.user_email || 'Usuário desconhecido'}
+                          {schedule.created_by_name || 'Usuário desconhecido'}
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
