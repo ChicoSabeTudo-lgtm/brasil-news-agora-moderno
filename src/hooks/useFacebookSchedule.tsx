@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { format, utcToZonedTime } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 export interface FacebookSchedule {
   id: string;
@@ -21,8 +23,8 @@ export const useFacebookSchedule = () => {
   // Get current date in Fortaleza timezone
   const getFortalezaDate = () => {
     const now = new Date();
-    const fortalezaDate = new Date(now.toLocaleString("en-US", {timeZone: "America/Fortaleza"}));
-    return fortalezaDate.toISOString().split('T')[0];
+    const fortalezaTime = utcToZonedTime(now, 'America/Fortaleza');
+    return format(fortalezaTime, 'yyyy-MM-dd');
   };
 
   // Initialize current date and check for day change
