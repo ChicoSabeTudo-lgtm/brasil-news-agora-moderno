@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { formatDateDisplay } from '@/utils/dateUtils';
+import { formatInTimeZone } from 'date-fns-tz';
+import { ptBR } from 'date-fns/locale';
 
 export interface SocialScheduledPost {
   id: string;
@@ -120,9 +122,17 @@ export const useSocialScheduledPosts = () => {
 
       console.log('✅ Social post scheduled successfully:', insertedPost);
       
+      // Formatar horário no timezone de Fortaleza
+      const scheduledTime = formatInTimeZone(
+        new Date(postData.scheduled_for), 
+        'America/Fortaleza', 
+        'dd/MM/yyyy \'às\' HH:mm',
+        { locale: ptBR }
+      );
+      
       toast({
-        title: "Post agendado",
-        description: `Post agendado para ${new Date(postData.scheduled_for).toLocaleString()}.`,
+        title: "✅ Post Agendado!",
+        description: `Post agendado para ${scheduledTime} (horário de Fortaleza).`,
       });
 
       // Atualizar a lista

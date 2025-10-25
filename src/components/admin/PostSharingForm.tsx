@@ -398,9 +398,12 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
         }
         
         // Para posts agendados, não enviar webhook agora
+        // Formatar horário de disparo para exibir na mensagem
+        const dispatchTime = `${postData.scheduleDate.split('-').reverse().join('/')} às ${postData.scheduleTime}`;
+        
         toast({
-          title: "Sucesso!",
-          description: `${successCount} post(s) agendado(s) com sucesso! Você pode acompanhar no Gerenciamento de Posts Sociais.`,
+          title: "✅ Post(s) Agendado(s)!",
+          description: `${successCount} post(s) agendado(s) para ${dispatchTime} (horário de Fortaleza). Acompanhe no Gerenciamento de Posts Sociais.`,
         });
         
         // Reset only social fields
@@ -558,10 +561,15 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
       });
 
       if (response.ok) {
+        // Formatar horário de disparo do Instagram
+        const instagramDispatchTime = postData.scheduleInstagram && postData.instagramDate && postData.instagramTime
+          ? `${postData.instagramDate.split('-').reverse().join('/')} às ${postData.instagramTime} (horário de Fortaleza)`
+          : '';
+        
         toast({
           title: "Sucesso!",
           description: postData.scheduleInstagram 
-            ? "Post do Instagram agendado com sucesso! Você pode acompanhar no Gerenciamento de Posts Sociais."
+            ? `✅ Post do Instagram agendado para ${instagramDispatchTime}! Acompanhe no Gerenciamento de Posts Sociais.`
             : "Post do Instagram enviado com sucesso para o webhook.",
         });
         
