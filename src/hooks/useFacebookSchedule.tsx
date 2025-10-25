@@ -98,19 +98,28 @@ export const useFacebookSchedule = () => {
       // Buscar informações do usuário (nome completo)
       let userName = 'Usuário desconhecido';
       if (user?.id) {
-        const { data: profileData } = await supabase
+        const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('full_name, email')
           .eq('id', user.id)
           .single();
         
+        console.log('👤 Dados do perfil:', {
+          userId: user.id,
+          userEmail: user.email,
+          profileData,
+          profileError
+        });
+        
         // Prioridade: Nome completo do perfil
         if (profileData?.full_name) {
           userName = profileData.full_name;
+          console.log('✅ Usando full_name:', userName);
         } else {
           // Fallback: Usar primeira parte do email como nome
           const emailName = profileData?.email?.split('@')[0] || user.email?.split('@')[0];
           userName = emailName || 'Usuário desconhecido';
+          console.log('⚠️ full_name vazio, usando email:', userName);
         }
       }
       
