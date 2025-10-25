@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { dateInputToISO } from '@/utils/dateUtils';
 
 export interface InssPayment {
   id: string;
@@ -85,10 +86,10 @@ export const useInssPayments = () => {
       const { error } = await supabase
         .from('inss_payments')
         .insert([{
-          reference_month: paymentData.reference_month ? `${paymentData.reference_month}-01` : '',
-          due_date: paymentData.due_date,
+          reference_month: paymentData.reference_month ? `${paymentData.reference_month}-15T12:00:00.000Z` : '',
+          due_date: paymentData.due_date ? dateInputToISO(paymentData.due_date) : null,
           value: paymentData.value,
-          payment_date: paymentData.payment_date || null,
+          payment_date: paymentData.payment_date ? dateInputToISO(paymentData.payment_date) : null,
           observations: paymentData.observations || null,
           inss_boleto_path: boletoPath,
           inss_boleto_url: boletoUrl,
@@ -154,8 +155,16 @@ export const useInssPayments = () => {
       }
 
       // Convert reference_month to DATE format if present
-      if (updateData.reference_month && !updateData.reference_month.includes('-01')) {
-        updateData.reference_month = `${updateData.reference_month}-01`;
+      if (updateData.reference_month && !updateData.reference_month.includes('T')) {
+        updateData.reference_month = `${updateData.reference_month}-15T12:00:00.000Z`;
+      }
+
+      // Converter datas para ISO format seguro
+      if (updateData.due_date && !updateData.due_date.includes('T')) {
+        updateData.due_date = dateInputToISO(updateData.due_date);
+      }
+      if (updateData.payment_date && updateData.payment_date !== '' && !updateData.payment_date.includes('T')) {
+        updateData.payment_date = dateInputToISO(updateData.payment_date);
       }
 
       // Ensure null values for optional fields

@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { formatDateForDB, dateInputToISO } from '@/utils/dateUtils';
 
 export interface FacebookSchedule {
   id: string;
@@ -23,14 +24,7 @@ export const useFacebookSchedule = () => {
 
   // Get current date in Fortaleza timezone
   const getFortalezaDate = () => {
-    const now = new Date();
-    // Convert to Fortaleza timezone using toLocaleString
-    const fortalezaString = now.toLocaleString("sv-SE", {
-      timeZone: "America/Fortaleza"
-    });
-    // sv-SE returns YYYY-MM-DD HH:mm:ss, extract only the date part
-    const dateOnly = fortalezaString.split(' ')[0];
-    return dateOnly;
+    return formatDateForDB(new Date());
   };
 
   // Initialize current date and check for day change
