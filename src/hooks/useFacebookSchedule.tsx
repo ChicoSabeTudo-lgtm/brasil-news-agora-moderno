@@ -24,19 +24,17 @@ export const useFacebookSchedule = () => {
   const getFortalezaDate = () => {
     const now = new Date();
     // Convert to Fortaleza timezone using toLocaleString
-    const fortalezaString = now.toLocaleString("en-CA", {
-      timeZone: "America/Fortaleza",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit"
+    const fortalezaString = now.toLocaleString("sv-SE", {
+      timeZone: "America/Fortaleza"
     });
-    // Convert from YYYY-MM-DD format
+    // sv-SE returns YYYY-MM-DD format
     return fortalezaString;
   };
 
   // Initialize current date and check for day change
   useEffect(() => {
     const fortalezaDate = getFortalezaDate();
+    console.log('🔍 getFortalezaDate result:', fortalezaDate);
     setCurrentDate(fortalezaDate);
 
     // Check if we need to clean old entries

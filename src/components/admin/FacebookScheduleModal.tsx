@@ -4,10 +4,27 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { DialogFooter } from '@/components/ui/dialog';
 import { useFacebookSchedule, FacebookSchedule } from '@/hooks/useFacebookSchedule';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Calendar, Clock, Link, FileText, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+
+// Helper function to safely format date
+const formatDateSafely = (dateString: string) => {
+  try {
+    // If date includes time, use parseISO
+    if (dateString.includes('T') || dateString.includes(' ')) {
+      const parsed = parseISO(dateString);
+      return format(parsed, 'dd/MM/yyyy', { locale: ptBR });
+    }
+    // If date is YYYY-MM-DD, add T00:00:00
+    const parsed = parseISO(dateString + 'T00:00:00');
+    return format(parsed, 'dd/MM/yyyy', { locale: ptBR });
+  } catch (error) {
+    console.error('Error formatting date:', dateString, error);
+    return dateString;
+  }
+};
 
 interface FacebookScheduleModalProps {
   schedule?: FacebookSchedule | null;
@@ -140,7 +157,7 @@ export const FacebookScheduleModal = ({ schedule, onClose }: FacebookScheduleMod
       <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
         <Calendar className="w-4 h-4 text-muted-foreground" />
         <span className="text-sm text-muted-foreground">
-          Data: {format(new Date(currentDate + 'T00:00:00'), 'dd/MM/yyyy', { locale: ptBR })} (Fuso: America/Fortaleza)
+          Data: {formatDateSafely(currentDate)} (Fuso: America/Fortaleza)
         </span>
       </div>
 

@@ -8,8 +8,25 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { FacebookScheduleModal } from './FacebookScheduleModal';
 import { useFacebookSchedule, FacebookSchedule } from '@/hooks/useFacebookSchedule';
 import { Plus, Edit, Trash2, ExternalLink, Copy, Clock, Calendar } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+
+// Helper function to safely format date
+const formatDateSafely = (dateString: string) => {
+  try {
+    // If date includes time, use parseISO
+    if (dateString.includes('T') || dateString.includes(' ')) {
+      const parsed = parseISO(dateString);
+      return format(parsed, 'dd/MM/yyyy', { locale: ptBR });
+    }
+    // If date is YYYY-MM-DD, add T00:00:00
+    const parsed = parseISO(dateString + 'T00:00:00');
+    return format(parsed, 'dd/MM/yyyy', { locale: ptBR });
+  } catch (error) {
+    console.error('Error formatting date:', dateString, error);
+    return dateString;
+  }
+};
 
 export const FacebookDailySchedule = () => {
   const { 
@@ -108,7 +125,7 @@ export const FacebookDailySchedule = () => {
         <div>
           <h2 className="text-2xl font-bold">Pauta Facebook (Diária)</h2>
           <p className="text-muted-foreground">
-            Gerenciamento de postagens agendadas para hoje - {currentDate ? format(new Date(currentDate + 'T00:00:00'), 'dd/MM/yyyy', { locale: ptBR }) : 'Carregando...'}
+            Gerenciamento de postagens agendadas para hoje - {currentDate ? formatDateSafely(currentDate) : 'Carregando...'}
           </p>
         </div>
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
