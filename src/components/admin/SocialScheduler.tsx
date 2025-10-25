@@ -61,9 +61,20 @@ export const SocialScheduler = ({ newsId, newsTitle, newsImage }: SocialSchedule
       return;
     }
 
+    // Criar data e hora combinadas no timezone de Fortaleza
     const scheduledDateTime = new Date(formData.scheduledDate);
     const [hours, minutes] = formData.scheduledTime.split(':');
-    scheduledDateTime.setHours(parseInt(hours), parseInt(minutes));
+    
+    // Criar string de data no formato ISO mas no timezone de Fortaleza
+    const year = scheduledDateTime.getFullYear();
+    const month = String(scheduledDateTime.getMonth() + 1).padStart(2, '0');
+    const day = String(scheduledDateTime.getDate()).padStart(2, '0');
+    const dateTimeString = `${year}-${month}-${day}T${hours}:${minutes}:00`;
+    
+    // Converter para UTC mantendo o horário de Fortaleza
+    // Fortaleza é UTC-3, então precisamos adicionar 3 horas ao horário UTC
+    const fortalezaDate = new Date(dateTimeString);
+    const utcDate = new Date(fortalezaDate.getTime() + (3 * 60 * 60 * 1000));
 
     try {
       console.log('🎯 Starting schedule process with data:', {
@@ -71,7 +82,8 @@ export const SocialScheduler = ({ newsId, newsTitle, newsImage }: SocialSchedule
         platform: formData.platform,
         content: formData.content,
         image_url: newsImage,
-        scheduled_for: scheduledDateTime.toISOString(),
+        scheduled_for_fortaleza: dateTimeString,
+        scheduled_for_utc: utcDate.toISOString(),
         created_by: user.id,
       });
 
@@ -80,7 +92,7 @@ export const SocialScheduler = ({ newsId, newsTitle, newsImage }: SocialSchedule
         platform: formData.platform,
         content: formData.content,
         image_url: newsImage,
-        scheduled_for: scheduledDateTime.toISOString(),
+        scheduled_for: utcDate.toISOString(),
         created_by: user.id,
       });
 
