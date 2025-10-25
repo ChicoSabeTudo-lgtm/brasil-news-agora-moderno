@@ -140,7 +140,7 @@ export const FacebookScheduleModal = ({ schedule, onClose }: FacebookScheduleMod
       <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
         <Calendar className="w-4 h-4 text-muted-foreground" />
         <span className="text-sm text-muted-foreground">
-          Data: {format(new Date(currentDate), 'dd/MM/yyyy', { locale: ptBR })} (Fuso: America/Fortaleza)
+          Data: {format(new Date(currentDate + 'T00:00:00'), 'dd/MM/yyyy', { locale: ptBR })} (Fuso: America/Fortaleza)
         </span>
       </div>
 
