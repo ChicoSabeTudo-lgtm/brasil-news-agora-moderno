@@ -319,14 +319,20 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
       // Se é agendado, salvar na tabela interna
       if (postData.schedulePost && postData.scheduleDate && postData.scheduleTime && user?.id) {
         console.log('🔄 Tentando agendar posts...');
-        // Criar data no timezone local brasileiro para evitar problemas de conversão
-        const scheduledDateTime = new Date(`${postData.scheduleDate}T${postData.scheduleTime}:00`);
         
-        // Garantir que a data está no timezone local
-        const localDateTime = new Date(scheduledDateTime.getTime() - scheduledDateTime.getTimezoneOffset() * 60000);
+        // Criar data e hora no timezone de Fortaleza (UTC-3)
+        const [year, month, day] = postData.scheduleDate.split('-');
+        const [hours, minutes] = postData.scheduleTime.split(':');
+        
+        // Criar string ISO no timezone de Fortaleza
+        const fortalezaDateTime = `${year}-${month}-${day}T${hours}:${minutes}:00`;
+        
+        // Converter para UTC adicionando 3 horas (Fortaleza é UTC-3)
+        const fortalezaDate = new Date(fortalezaDateTime);
+        const utcDate = new Date(fortalezaDate.getTime() + (3 * 60 * 60 * 1000));
 
-        console.log('⏰ Data agendada original:', scheduledDateTime);
-        console.log('⏰ Data agendada local:', localDateTime);
+        console.log('⏰ Horário escolhido (Fortaleza):', fortalezaDateTime);
+        console.log('⏰ Horário em UTC:', utcDate.toISOString());
         console.log('👤 User ID:', user.id);
         console.log('📱 Plataformas:', postData.platforms);
 
@@ -345,7 +351,7 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
               news_id: webhookPostId, // UUID válido para posts do webhook
               platform: platform,
               content: `${postData.title}\n\n${postData.summary}\n\n${postData.link}`,
-            scheduled_for: localDateTime.toISOString(),
+            scheduled_for: utcDate.toISOString(),
               created_by: user.id,
             }).then(result => {
               console.log(`✅ Post agendado para ${platform}:`, result);
