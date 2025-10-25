@@ -95,8 +95,8 @@ export const useFacebookSchedule = () => {
     mutationFn: async (scheduleData: Omit<FacebookSchedule, 'id' | 'created_at' | 'updated_at' | 'created_by' | 'created_by_name'>) => {
       const { data: { user } } = await supabase.auth.getUser();
       
-      // Buscar informações do usuário (nome e email)
-      let userName = 'Usuário';
+      // Buscar informações do usuário (nome completo)
+      let userName = 'Usuário desconhecido';
       if (user?.id) {
         const { data: profileData } = await supabase
           .from('profiles')
@@ -104,7 +104,14 @@ export const useFacebookSchedule = () => {
           .eq('id', user.id)
           .single();
         
-        userName = profileData?.full_name || profileData?.email || user.email || 'Usuário';
+        // Prioridade: Nome completo do perfil
+        if (profileData?.full_name) {
+          userName = profileData.full_name;
+        } else {
+          // Fallback: Usar primeira parte do email como nome
+          const emailName = profileData?.email?.split('@')[0] || user.email?.split('@')[0];
+          userName = emailName || 'Usuário desconhecido';
+        }
       }
       
       const { data, error } = await supabase
