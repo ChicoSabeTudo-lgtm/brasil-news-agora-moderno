@@ -396,8 +396,30 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
           });
           throw scheduleError;
         }
+        
+        // Para posts agendados, não enviar webhook agora
+        toast({
+          title: "Sucesso!",
+          description: `${successCount} post(s) agendado(s) com sucesso! Você pode acompanhar no Gerenciamento de Posts Sociais.`,
+        });
+        
+        // Reset only social fields
+        setPostData(prev => ({
+          ...prev,
+          title: '',
+          summary: '',
+          link: '',
+          platforms: [],
+          schedulePost: false,
+          scheduleDate: '',
+          scheduleTime: ''
+        }));
+        
+        setIsSubmitting(false);
+        return; // Sair aqui para não enviar o webhook
       }
-
+      
+      // Se NÃO for agendado, enviar webhook para publicação imediata
       const webhookData = {
         type: 'social_media',
         timestamp: new Date().toISOString(),
@@ -407,14 +429,11 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
           title: postData.title,
           summary: postData.summary,
           link: postData.link,
-          schedule: postData.schedulePost ? {
-            date: postData.scheduleDate,
-            time: postData.scheduleTime
-          } : null
+          schedule: null // Publicação imediata
         }
       };
 
-      console.log('Enviando webhook para:', configuration.social_webhook_url);
+      console.log('📤 Enviando webhook para publicação IMEDIATA:', configuration.social_webhook_url);
       console.log('Dados do webhook:', webhookData);
       
       const response = await fetch(configuration.social_webhook_url, {
@@ -432,9 +451,7 @@ export default function PostSharingForm({ prefilledData, onDataUsed }: { prefill
       if (response.ok) {
         toast({
           title: "Sucesso!",
-          description: postData.schedulePost 
-            ? "Post agendado com sucesso! Você pode acompanhar no Gerenciamento de Posts Sociais."
-            : "Post das redes sociais enviado com sucesso para o webhook.",
+          description: "Post das redes sociais enviado com sucesso para o webhook.",
         });
         
         // Reset only social fields
