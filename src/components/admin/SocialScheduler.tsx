@@ -256,8 +256,8 @@ export const SocialScheduler = ({ newsId, newsTitle, newsImage }: SocialSchedule
                         {post.content}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {post.status === 'scheduled' && `Agendado para: ${formatInTimeZone(new Date(post.scheduled_for), 'America/Sao_Paulo', 'dd/MM/yyyy \'às\' HH:mm', { locale: ptBR })}`}
-                        {post.status === 'published' && post.published_at && `Publicado em: ${formatInTimeZone(new Date(post.published_at), 'America/Sao_Paulo', 'dd/MM/yyyy \'às\' HH:mm', { locale: ptBR })}`}
+                        {post.status === 'scheduled' && `Agendado para: ${formatInTimeZone(new Date(post.scheduled_for), 'America/Fortaleza', 'dd/MM/yyyy \'às\' HH:mm', { locale: ptBR })}`}
+                        {post.status === 'published' && post.published_at && `Publicado em: ${formatInTimeZone(new Date(post.published_at), 'America/Fortaleza', 'dd/MM/yyyy \'às\' HH:mm', { locale: ptBR })}`}
                       </p>
                     </div>
                   </div>
