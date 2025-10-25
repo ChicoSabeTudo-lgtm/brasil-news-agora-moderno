@@ -86,6 +86,7 @@ export const useFacebookSchedule = () => {
       // Buscar informações dos usuários
       if (data && data.length > 0) {
         const userIds = [...new Set(data.map((item: any) => item.created_by).filter(Boolean))];
+        console.log('👥 User IDs encontrados:', userIds);
         
         if (userIds.length > 0) {
           const { data: usersData, error: usersError } = await supabase
@@ -93,10 +94,19 @@ export const useFacebookSchedule = () => {
             .select('id, full_name, email')
             .in('id', userIds);
 
+          console.log('👥 Dados dos usuários:', { usersData, usersError });
+
           if (!usersError && usersData) {
             // Mapear os dados dos usuários para cada schedule
             const enrichedData = data.map((schedule: any) => {
               const user = usersData.find((u: any) => u.id === schedule.created_by);
+              console.log('🔍 Mapeando schedule:', {
+                schedule_id: schedule.id,
+                created_by: schedule.created_by,
+                user_found: user,
+                user_name: user?.full_name,
+                user_email: user?.email
+              });
               return {
                 ...schedule,
                 user_name: user?.full_name || null,
