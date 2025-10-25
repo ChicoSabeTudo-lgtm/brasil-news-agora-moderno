@@ -29,8 +29,9 @@ export const useFacebookSchedule = () => {
     const fortalezaString = now.toLocaleString("sv-SE", {
       timeZone: "America/Fortaleza"
     });
-    // sv-SE returns YYYY-MM-DD format
-    return fortalezaString;
+    // sv-SE returns YYYY-MM-DD HH:mm:ss, extract only the date part
+    const dateOnly = fortalezaString.split(' ')[0];
+    return dateOnly;
   };
 
   // Initialize current date and check for day change
@@ -94,7 +95,8 @@ export const useFacebookSchedule = () => {
             .select('id, full_name, email')
             .in('id', userIds);
 
-          console.log('👥 Dados dos usuários:', { usersData, usersError });
+          console.log('👥 Dados dos usuários:', usersData);
+          console.log('❌ Erro de usuários:', usersError);
 
           if (!usersError && usersData) {
             // Mapear os dados dos usuários para cada schedule
@@ -103,7 +105,8 @@ export const useFacebookSchedule = () => {
               console.log('🔍 Mapeando schedule:', {
                 schedule_id: schedule.id,
                 created_by: schedule.created_by,
-                user_found: user,
+                user_found: !!user,
+                user_object: user,
                 user_name: user?.full_name,
                 user_email: user?.email
               });
@@ -113,7 +116,10 @@ export const useFacebookSchedule = () => {
                 user_email: user?.email || null,
               };
             });
+            console.log('✅ Dados enriquecidos:', enrichedData);
             return enrichedData as FacebookSchedule[];
+          } else {
+            console.log('⚠️ Retornando dados sem enriquecimento de usuário');
           }
         }
       }
